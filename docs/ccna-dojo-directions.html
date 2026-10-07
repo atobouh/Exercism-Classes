@@ -1,0 +1,504 @@
+<title>CCNA Dojo Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Schibsted+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Doto:wght@600;800&family=Archivo:wdth,wght@62..125,400..700&family=Space+Mono&family=Onest:wght@400;500;600;700&family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Page: a neutral gallery wall so four very different directions can sit side by side without the page competing. */
+:root {
+  --g-bg: #F3F4F5; --g-ink: #17191C; --g-ink2: #5C626B; --g-line: #DDE0E3; --g-well: #E9EBED; --g-acc: #1F3FBF;
+  --f-page: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --g-bg: #121416; --g-ink: #ECEEF0; --g-ink2: #A0A6AE; --g-line: #2A2E33; --g-well: #1B1E21; --g-acc: #9DB0FF; color-scheme: dark; } }
+:root[data-theme="dark"] { --g-bg: #121416; --g-ink: #ECEEF0; --g-ink2: #A0A6AE; --g-line: #2A2E33; --g-well: #1B1E21; --g-acc: #9DB0FF; color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--g-bg); color: var(--g-ink); font: 400 16px/1.6 var(--f-page); -webkit-font-smoothing: antialiased; }
+.page { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 44px 96px; display: grid; gap: 72px; }
+.col { max-width: 720px; display: grid; gap: 14px; }
+h1 { font-size: clamp(2rem, 4.6vw, 3.1rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.04; margin: 0; text-wrap: balance; }
+h2 { font-size: 1.75rem; font-weight: 650; letter-spacing: -0.02em; line-height: 1.15; margin: 0; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+.lead { font-size: 1.12rem; color: var(--g-ink2); }
+a { color: var(--g-acc); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--g-acc); outline-offset: 2px; }
+.inside { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0 36px; }
+.inside > div { display: grid; gap: 10px; align-content: start; padding-top: 18px; border-top: 2px solid var(--g-ink); }
+.inside h3 { margin: 0; font-size: 1.15rem; font-weight: 650; }
+.inside ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.inside li { display: grid; grid-template-columns: 76px 1fr; gap: 12px; font-size: .95rem; color: var(--g-ink2); }
+.inside li b { color: var(--g-ink); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1.05rem; }
+.aside { font-size: .95rem; color: var(--g-ink2); max-width: 720px; }
+.dir { display: grid; gap: 20px; }
+.dir-head { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; align-items: baseline; max-width: 900px; }
+.dir-letter { font-size: 2.6rem; font-weight: 700; line-height: 1; letter-spacing: -0.04em; grid-row: span 2; }
+.dir-head p { color: var(--g-ink2); }
+.stage { width: 100%; overflow: hidden; border-radius: 18px; }
+.stage-inner { width: 1200px; height: 760px; transform-origin: 0 0; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px 32px; margin: 0; }
+.facts div { display: grid; gap: 3px; min-width: 0; }
+.facts dt { font-size: .85rem; font-weight: 600; color: var(--g-ink2); }
+.facts dd { margin: 0; font-size: .95rem; }
+.pick { display: grid; gap: 14px; max-width: 760px; }
+.pick ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: var(--g-ink2); }
+.refs { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: .9rem; color: var(--g-ink2); }
+
+/* =============== A. FIELD MANUAL =============== */
+.A { --pa: #F6F7F4; --ink: #15171B; --ink2: #5B606A; --rule: #D9DCD6; --co: #2343C4; --co-soft: #E4E9FF; --ok: #1E7A4C; --no: #B3261E;
+  width: 1200px; height: 760px; background: var(--pa); color: var(--ink); border-radius: 18px; overflow: hidden; display: grid;
+  grid-template-rows: 52px 1fr; font-family: "Schibsted Grotesk", system-ui, sans-serif; box-shadow: 0 30px 70px -45px rgba(20,24,40,.5); border: 1px solid var(--rule); }
+.A .bar { display: grid; grid-template-columns: 220px 1fr 220px; align-items: center; padding: 0 28px; border-bottom: 1px solid var(--rule); font-size: 13px; color: var(--ink2); }
+.A .mark { font: italic 500 19px "Newsreader", Georgia, serif; color: var(--ink); }
+.A .where { text-align: center; }
+.A .prog { justify-self: end; display: flex; gap: 10px; align-items: center; }
+.A .prog i { display: block; width: 90px; height: 2px; background: var(--rule); position: relative; }
+.A .prog i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 57%; background: var(--ink); }
+.A .body { display: grid; grid-template-columns: 220px 600px 1fr; gap: 0 48px; padding: 36px 28px 0; overflow: hidden; }
+.A .toc { display: grid; align-content: start; gap: 2px; font-size: 13.5px; }
+.A .toc span { padding: 6px 0; color: var(--ink2); display: grid; grid-template-columns: 34px 1fr; }
+.A .toc span.done { color: var(--ink2); }
+.A .toc span.done em { font-style: normal; color: var(--ok); }
+.A .toc span.cur { color: var(--ink); font-weight: 600; }
+.A .toc span.cur em { font-style: normal; color: var(--co); }
+.A .toc hr { border: 0; border-top: 1px solid var(--rule); margin: 10px 0; width: 100%; }
+.A .toc em { font-style: normal; font-variant-numeric: tabular-nums; }
+.A article { display: grid; align-content: start; gap: 18px; }
+.A .num { font: 400 15px "Newsreader", serif; color: var(--co); }
+.A h3 { font: 500 42px/1.06 "Newsreader", Georgia, serif; letter-spacing: -0.018em; margin: -6px 0 2px; }
+.A article p { font: 400 18px/1.62 "Newsreader", Georgia, serif; color: #23262C; }
+.A figure { margin: 6px 0 0; display: grid; gap: 12px; }
+.A .frame { display: flex; height: 58px; border: 1px solid var(--ink); font: 500 11px/1.25 "JetBrains Mono", monospace; }
+.A .frame > div { border-right: 1px solid var(--ink); padding: 7px 8px; display: grid; align-content: space-between; }
+.A .frame > div:last-child { border-right: 0; }
+.A .frame small { font-size: 10px; color: var(--ink2); }
+.A .tag { width: 0; padding: 0 !important; overflow: hidden; background: var(--co-soft); color: var(--co); border-right-width: 0 !important; transition: width .55s cubic-bezier(.3,.7,.2,1), padding .55s; white-space: nowrap; }
+.A.on .tag { width: 168px; padding: 7px 8px !important; border-right-width: 1px !important; }
+.A figcaption { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--ink2); gap: 16px; }
+.A .act { font: 600 13.5px "Schibsted Grotesk", sans-serif; color: var(--co); background: none; border: 0; border-bottom: 1.5px solid currentColor; padding: 0 0 1px; cursor: pointer; }
+.A .quiz { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.A .quiz b { font: 600 15px "Schibsted Grotesk", sans-serif; }
+.A .quiz p.qq { font-size: 17px; }
+.A .opts { display: flex; gap: 8px; flex-wrap: wrap; }
+.A .opts button { font: 500 14px "Schibsted Grotesk", sans-serif; background: transparent; border: 1px solid var(--rule); color: var(--ink); padding: 7px 14px; border-radius: 2px; cursor: pointer; }
+.A .opts button:hover { border-color: var(--ink); }
+.A .opts .right { border-color: var(--ok); color: var(--ok); background: #E5F3EB; }
+.A .opts .wrong { border-color: var(--no); color: var(--no); }
+.A .fb { font: 400 15px/1.5 "Newsreader", serif; color: var(--ink2); min-height: 22px; }
+.A .margin { display: grid; align-content: start; gap: 26px; padding-top: 74px; font-size: 13.5px; color: var(--ink2); }
+.A .margin b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; font-size: 13px; }
+.A .margin .lab { border-left: 2px solid var(--co); padding-left: 12px; }
+.A .margin .lab a { color: var(--co); font-weight: 600; text-decoration: none; }
+
+/* =============== B. BENCH INSTRUMENT =============== */
+.B { --alu: #CFD3D5; --alu2: #C2C7CA; --alu3: #B7BCC0; --eng: #3B4045; --eng2: #6C737A; --oled: #0B0C0D; --w: #F2F2F0; --dim: #6E7377;
+  --blue: #3C6FD8; --green: #3FA66A; --orange: #F26B1D; --white: #F4F4F2;
+  width: 1200px; height: 760px; background: linear-gradient(180deg, #D5D9DB, #C9CDD0); color: var(--eng); border-radius: 26px; overflow: hidden;
+  display: grid; grid-template-rows: 64px 1fr 150px; padding: 0 26px 22px; font-family: "Archivo", system-ui, sans-serif; font-stretch: 100%;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 0 rgba(0,0,0,.08), 0 30px 70px -40px rgba(20,24,30,.6); }
+.B .top { display: flex; align-items: center; justify-content: space-between; }
+.B .lcd { background: var(--oled); color: var(--w); font: 800 17px "Doto", monospace; letter-spacing: .06em; padding: 7px 14px 6px; border-radius: 6px; box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
+.B .eng { font-stretch: 75%; font-weight: 600; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--eng2); }
+.B .pips { display: flex; gap: 18px; align-items: center; }
+.B .pips span { display: inline-flex; align-items: center; gap: 7px; }
+.B .pips i { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 -2px 0 rgba(0,0,0,.18), 0 1px 1px rgba(0,0,0,.2); }
+.B .mid { display: grid; grid-template-columns: 1fr 330px; gap: 22px; min-height: 0; }
+.B .screen { background: var(--oled); border-radius: 16px; box-shadow: inset 0 2px 8px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.6); color: var(--w); padding: 26px 30px; display: grid; grid-template-rows: auto 1fr auto; position: relative; overflow: hidden; }
+.B .screen::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.035) 1px, transparent 1px); background-size: 4px 4px; pointer-events: none; }
+.B .scr-top { display: flex; justify-content: space-between; font: 400 12px "Space Mono", monospace; color: var(--dim); }
+.B .vid { font: 800 104px/1 "Doto", monospace; color: var(--w); letter-spacing: .02em; }
+.B .vid em { font-style: normal; color: var(--orange); }
+.B .readout { display: grid; gap: 10px; align-content: center; }
+.B .readout .lbl { font: 400 12px "Space Mono", monospace; color: var(--dim); }
+.B .bytes { display: flex; height: 46px; gap: 3px; margin-top: 18px; }
+.B .bytes div { border: 1.5px solid #8A8F93; border-radius: 4px; display: grid; place-items: center; font: 400 11px "Space Mono", monospace; color: #C9CCCE; }
+.B .bytes .t { width: 0; border: 0; overflow: hidden; background: var(--orange); color: var(--oled); font-weight: 700; transition: width .5s cubic-bezier(.3,.7,.2,1); }
+.B.on .bytes .t { width: 150px; }
+.B .bits { display: flex; gap: 3px; margin-top: 8px; opacity: 0; transition: opacity .3s .4s; font: 400 10.5px "Space Mono", monospace; color: var(--dim); }
+.B.on .bits { opacity: 1; }
+.B .card { background: #E4E7E8; border-radius: 14px; padding: 22px; display: grid; align-content: start; gap: 14px; box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 2px 4px rgba(0,0,0,.08); overflow: hidden; }
+.B .card h3 { margin: 0; font-stretch: 110%; font-weight: 700; font-size: 25px; line-height: 1.08; letter-spacing: -0.01em; color: #1D2125; }
+.B .card p { font-size: 14.5px; line-height: 1.55; color: #3E444A; }
+.B .card .note { font: 400 12px/1.5 "Space Mono", monospace; color: var(--eng2); border-top: 1px solid var(--alu3); padding-top: 12px; }
+.B .deck { display: grid; grid-template-columns: 260px 1fr; gap: 22px; align-items: end; }
+.B .keys { display: flex; gap: 12px; align-items: end; }
+.B .key { width: 112px; height: 112px; border-radius: 18px; border: 0; cursor: pointer; display: grid; align-content: end; justify-items: start; padding: 12px; font-family: inherit;
+  background: linear-gradient(180deg, #E9ECED, #D6DADC); box-shadow: 0 4px 0 #A9AEB2, 0 6px 10px rgba(0,0,0,.18), inset 0 1px 0 #fff; transition: transform .08s, box-shadow .08s; color: var(--eng); }
+.B .key:active, .B .key.down { transform: translateY(3px); box-shadow: 0 1px 0 #A9AEB2, 0 2px 4px rgba(0,0,0,.18), inset 0 1px 0 #fff; }
+.B .key .cap { width: 18px; height: 18px; border-radius: 50%; margin-bottom: auto; box-shadow: inset 0 -2px 0 rgba(0,0,0,.2); }
+.B .key b { font-stretch: 75%; font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+.B .key small { font-size: 12px; color: var(--eng2); text-align: left; line-height: 1.3; }
+.B .q { display: grid; gap: 10px; }
+.B .q .qq { font-size: 15px; color: #23282D; font-weight: 500; }
+.B .q .keys .key { width: auto; flex: 1; height: 86px; }
+.B .q .key.right { box-shadow: 0 4px 0 var(--green), 0 6px 10px rgba(0,0,0,.18), inset 0 1px 0 #fff; }
+.B .q .key.wrong { box-shadow: 0 4px 0 #C2412D, 0 6px 10px rgba(0,0,0,.18), inset 0 1px 0 #fff; }
+.B .status { font: 800 15px "Doto", monospace; color: var(--w); background: var(--oled); border-radius: 6px; padding: 6px 12px; justify-self: start; letter-spacing: .05em; }
+
+/* =============== C. SPATIAL =============== */
+.C { --t1: rgba(255,255,255,.96); --t2: rgba(235,245,250,.72); --t3: rgba(235,245,250,.5); --glass: rgba(220,238,245,.09); --glass2: rgba(220,238,245,.14); --edge: rgba(255,255,255,.2);
+  --warm: #FFC98A; --ok: #8FE3B0; --no: #FF9C8A;
+  width: 1200px; height: 760px; border-radius: 26px; overflow: hidden; position: relative; color: var(--t1); font-family: "Onest", system-ui, sans-serif;
+  background: radial-gradient(1200px 600px at 70% 0%, #1E4A57 0%, transparent 60%), radial-gradient(900px 600px at 10% 100%, #132B3A 0%, transparent 60%), #0A1820; }
+.C .floor { position: absolute; left: -200px; right: -200px; bottom: -260px; height: 560px; transform: perspective(700px) rotateX(64deg); transform-origin: 50% 0;
+  background-image: linear-gradient(rgba(160,220,235,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(160,220,235,.09) 1px, transparent 1px); background-size: 64px 64px;
+  mask-image: linear-gradient(transparent, #000 40%, transparent 95%); -webkit-mask-image: linear-gradient(transparent, #000 40%, transparent 95%); }
+.C .star { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: rgba(200,240,250,.55); box-shadow: 0 0 0 6px rgba(200,240,250,.05); }
+.C .win { position: absolute; left: 172px; top: 64px; width: 640px; height: 560px; border-radius: 34px; background: var(--glass); border: 1px solid var(--edge);
+  backdrop-filter: blur(28px) saturate(140%); -webkit-backdrop-filter: blur(28px) saturate(140%); padding: 34px 38px; display: grid; align-content: start; gap: 16px;
+  box-shadow: 0 40px 80px -30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.18); }
+.C .crumb { font-size: 13px; color: var(--t3); font-weight: 500; }
+.C h3 { margin: 0; font-size: 36px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.08; }
+.C .win p { font-size: 16px; line-height: 1.6; color: var(--t2); }
+.C .caps { display: flex; gap: 6px; margin-top: 8px; height: 56px; align-items: center; }
+.C .caps div { height: 44px; border-radius: 14px; background: var(--glass2); border: 1px solid rgba(255,255,255,.12); display: grid; place-items: center; font: 500 12px "Onest", sans-serif; color: var(--t2); padding: 0 12px; white-space: nowrap; }
+.C .caps .t { width: 0; padding: 0; border-width: 0; overflow: hidden; background: rgba(255,201,138,.22); color: var(--warm); transition: width .6s cubic-bezier(.3,.7,.2,1), transform .6s, box-shadow .6s; }
+.C.on .caps .t { width: 150px; padding: 0 12px; border-width: 1px; border-color: rgba(255,201,138,.5); transform: translateY(-8px) scale(1.06); box-shadow: 0 18px 30px -10px rgba(0,0,0,.6); }
+.C .quiz { margin-top: 10px; display: grid; gap: 10px; padding: 18px; border-radius: 22px; background: rgba(255,255,255,.05); }
+.C .quiz .qq { font-size: 15px; color: var(--t1); font-weight: 500; }
+.C .opts { display: flex; gap: 8px; }
+.C .opts button { flex: 1; font: 500 14px "Onest", sans-serif; color: var(--t1); background: var(--glass2); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 10px 12px; cursor: pointer; transition: background .15s, transform .15s; }
+.C .opts button:hover { background: rgba(255,255,255,.2); transform: translateY(-1px); }
+.C .opts .right { background: rgba(143,227,176,.22); border-color: rgba(143,227,176,.6); color: var(--ok); }
+.C .opts .wrong { background: rgba(255,156,138,.15); border-color: rgba(255,156,138,.5); color: var(--no); }
+.C .fb { font-size: 14px; color: var(--t2); min-height: 20px; }
+.C .orn-l { position: absolute; left: 92px; top: 220px; display: grid; gap: 8px; padding: 8px; border-radius: 999px; background: var(--glass); border: 1px solid var(--edge); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.C .orn-l span { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; color: var(--t2); }
+.C .orn-l span.on { background: rgba(255,255,255,.18); color: var(--t1); }
+.C .orn-l svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.C .orn-b { position: absolute; left: 312px; top: 648px; display: flex; gap: 6px; padding: 7px; border-radius: 999px; background: var(--glass); border: 1px solid var(--edge); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
+.C .orn-b button { font: 500 14px "Onest", sans-serif; color: var(--t1); background: transparent; border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; }
+.C .orn-b button.pri { background: rgba(255,255,255,.92); color: #0A1820; }
+.C .vol { position: absolute; right: 56px; top: 140px; width: 300px; height: 380px; border-radius: 30px; background: rgba(220,238,245,.06); border: 1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding: 20px; display: grid; grid-template-rows: auto 1fr auto; transform: perspective(900px) rotateY(-14deg); transform-origin: 0 50%; }
+.C .vol b { font-size: 14px; font-weight: 600; } .C .vol span { font-size: 12.5px; color: var(--t3); }
+.C .vol svg { width: 100%; height: 100%; }
+.C .vol .nd { fill: rgba(255,255,255,.12); stroke: rgba(255,255,255,.5); stroke-width: 1.2; }
+.C .vol text { font: 600 11px "Onest", sans-serif; fill: var(--t1); text-anchor: middle; }
+.C .vol .ln { stroke: rgba(255,255,255,.35); stroke-width: 1.4; }
+.C .vol .tr { stroke: var(--warm); stroke-width: 2.4; }
+.C .vol .pk { fill: var(--warm); transition: transform .9s cubic-bezier(.4,0,.2,1); }
+.C.on .vol .pk { transform: translate(112px, 0); }
+
+/* =============== D. TERMINAL LUXE =============== */
+.D { --bk: #0E0D0C; --p1: #151311; --p2: #1C1916; --ln: #2B2723; --tx: #EDE7DE; --t2: #A39A8E; --t3: #6F675E; --tan: #D9B47A; --tan-soft: rgba(217,180,122,.14); --ok: #9DC79A; --no: #E08A75;
+  width: 1200px; height: 760px; background: var(--bk); color: var(--tx); border-radius: 14px; overflow: hidden; display: grid; grid-template-columns: 228px 1fr 250px; grid-template-rows: 38px 1fr 28px;
+  font: 300 13px/1.55 "Martian Mono", ui-monospace, monospace; font-stretch: 87.5%; border: 1px solid var(--ln); box-shadow: 0 30px 70px -40px rgba(0,0,0,.7); }
+.D .tabs { grid-column: 1 / 4; display: flex; align-items: stretch; border-bottom: 1px solid var(--ln); background: var(--p1); }
+.D .tabs .dots { width: 228px; display: flex; gap: 7px; align-items: center; padding-left: 14px; border-right: 1px solid var(--ln); }
+.D .tabs .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--ln); }
+.D .tabs span { padding: 0 16px; display: flex; align-items: center; color: var(--t3); border-right: 1px solid var(--ln); font-size: 12px; }
+.D .tabs span.on { color: var(--tx); background: var(--bk); box-shadow: inset 0 -1.5px 0 var(--tan); }
+.D .tree { border-right: 1px solid var(--ln); padding: 12px 0; font-size: 12px; color: var(--t2); display: grid; align-content: start; gap: 1px; background: var(--p1); }
+.D .tree span { padding: 3px 14px; white-space: nowrap; }
+.D .tree .dir { color: var(--t3); margin-top: 8px; }
+.D .tree .cur { background: var(--tan-soft); color: var(--tan); }
+.D .tree .ok::before { content: "+ "; color: var(--ok); } .D .tree .td::before { content: "  "; }
+.D .doc { padding: 26px 40px; overflow: hidden; display: grid; align-content: start; gap: 16px; }
+.D h3 { margin: 0; font-stretch: 112.5%; font-weight: 500; font-size: 26px; letter-spacing: -0.02em; line-height: 1.15; }
+.D .doc p { color: var(--t2); font-size: 13px; max-width: 64ch; }
+.D .doc p b { color: var(--tx); font-weight: 500; }
+.D .blk { border: 1px solid var(--ln); border-radius: 8px; background: var(--p1); overflow: hidden; }
+.D .blk-h { display: flex; justify-content: space-between; padding: 7px 12px; border-bottom: 1px solid var(--ln); font-size: 11.5px; color: var(--t3); }
+.D .blk-h button { background: var(--tan); color: var(--bk); border: 0; border-radius: 4px; font: 500 11px "Martian Mono", monospace; padding: 3px 9px; cursor: pointer; }
+.D .blk pre { margin: 0; padding: 10px 12px; font: 300 12.5px/1.6 "Martian Mono", monospace; font-stretch: 87.5%; color: var(--tx); white-space: pre; }
+.D .blk pre .p { color: var(--t3); }
+.D .blk pre .o { color: var(--t2); }
+.D .blk pre .hl { color: var(--tan); }
+.D .frm { display: flex; gap: 0; border: 1px solid var(--ln); border-radius: 6px; overflow: hidden; height: 44px; font-size: 11px; }
+.D .frm div { display: grid; place-items: center; padding: 0 10px; border-right: 1px solid var(--ln); color: var(--t2); white-space: nowrap; }
+.D .frm div:last-child { border-right: 0; }
+.D .frm .t { width: 0; padding: 0; border-right-width: 0; overflow: hidden; background: var(--tan-soft); color: var(--tan); transition: width .5s cubic-bezier(.3,.7,.2,1); }
+.D.on .frm .t { width: 210px; border-right-width: 1px; }
+.D .quiz { display: grid; gap: 8px; }
+.D .quiz .qq { color: var(--tx); }
+.D .opts { display: flex; gap: 8px; flex-wrap: wrap; }
+.D .opts button { font: 400 12.5px "Martian Mono", monospace; font-stretch: 87.5%; background: var(--p2); color: var(--tx); border: 1px solid var(--ln); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.D .opts button:hover { border-color: var(--t3); }
+.D .opts .right { border-color: var(--ok); color: var(--ok); }
+.D .opts .wrong { border-color: var(--no); color: var(--no); }
+.D .fb { color: var(--t2); font-size: 12.5px; min-height: 20px; }
+.D .side { border-left: 1px solid var(--ln); padding: 16px 16px; display: grid; align-content: start; gap: 18px; font-size: 12px; background: var(--p1); }
+.D .side h4 { margin: 0 0 6px; font-weight: 500; font-size: 11px; color: var(--t3); font-stretch: 75%; letter-spacing: .06em; }
+.D .side .row { display: flex; justify-content: space-between; color: var(--t2); padding: 2px 0; }
+.D .side .row b { color: var(--tx); font-weight: 400; }
+.D .meter { height: 3px; background: var(--ln); margin-top: 6px; } .D .meter i { display: block; height: 100%; background: var(--tan); }
+.D .status { grid-column: 1 / 4; display: flex; justify-content: space-between; align-items: center; padding: 0 14px; border-top: 1px solid var(--ln); font-size: 11px; color: var(--t3); background: var(--p1); }
+.D .status .m { background: var(--tan); color: var(--bk); padding: 1px 8px; border-radius: 3px; margin-right: 12px; font-weight: 500; }
+.D .k { border: 1px solid var(--ln); border-radius: 3px; padding: 0 5px; color: var(--t2); }
+
+@media (prefers-reduced-motion: reduce) { .A .tag, .B .bytes .t, .C .caps .t, .C .vol .pk, .D .frm .t, .B .key { transition: none; } }
+</style>
+
+<div class="page">
+  <header class="col">
+    <h1>Four directions for CCNA Dojo</h1>
+    <p class="lead">Each one renders the same real lesson, VLAN trunks with 802.1Q, so you compare feel rather than content. All four work: insert the tag and answer the check question.</p>
+  </header>
+
+  <section class="col" style="max-width:1100px">
+    <h2>It teaches, then drills, then proves</h2>
+    <p class="aside">The 24 cards in the last prototype were one morning's due reviews, not the whole deck. You set the daily load, for example 15 new cards a day, and reviews come back as the scheduler predicts you are about to forget them. These are the content targets, written in order: CCNA 1 first, then 2, then 3.</p>
+    <div class="inside">
+      <div><h3>Learn</h3><ul>
+        <li><b>~260</b><span>lessons across all 47 modules, 5 to 10 minutes each, with live diagrams, worked examples and check questions</span></li>
+        <li><b>~400</b><span>IOS commands in a reference: syntax, mode, real example output</span></li>
+        <li><b>Ask</b><span>An optional tutor that explains using your lab's actual state, and asks before it tells</span></li></ul></div>
+      <div><h3>Practice</h3><ul>
+        <li><b>~2,000</b><span>spaced-repetition cards written from the lessons</span></li>
+        <li><b>No limit</b><span>generated drills: subnetting, VLSM, wildcards, IPv6, binary, ports, route choice</span></li>
+        <li><b>~150</b><span>labs: guided builds, open challenges and break-it troubleshooting</span></li></ul></div>
+      <div><h3>Prove</h3><ul>
+        <li><b>17</b><span>level gates that need both drills and a passed lab</span></li>
+        <li><b>3</b><span>course capstones, one per CCNA course</span></li>
+        <li><b>~600</b><span>exam-style questions behind timed mock exams weighted like the blueprint</span></li></ul></div>
+    </div>
+  </section>
+
+  <!-- A -->
+  <section class="dir">
+    <div class="dir-head"><span class="dir-letter">A</span><h2>Field Manual</h2><p>A beautifully set technical book that happens to be alive. Long-form explanation with diagrams you can operate, margin notes for the exam and the lab. Calm, light and literary.</p></div>
+    <div class="stage"><div class="stage-inner">
+      <div class="A mock" data-mock>
+        <div class="bar"><span class="mark">CCNA Dojo</span><span class="where">Switching, Routing and Wireless Essentials, Module 3: VLANs</span><span class="prog">Lesson 4 of 7 <i></i></span></div>
+        <div class="body">
+          <nav class="toc">
+            <span class="done"><em>3.1</em>Overview of VLANs</span>
+            <span class="done"><em>3.2</em>VLANs across switches</span>
+            <span class="done"><em>3.3</em>VLAN configuration</span>
+            <span class="cur"><em>3.4</em>VLAN trunks</span>
+            <span><em>3.5</em>Native VLAN</span>
+            <span><em>3.6</em>Dynamic Trunking Protocol</span>
+            <span><em>3.7</em>Module check</span>
+            <hr><span><em>Lab</em>7.2 Router-on-a-stick</span>
+          </nav>
+          <article>
+            <span class="num">3.4</span>
+            <h3>How one cable carries many VLANs</h3>
+            <p>An access port belongs to a single VLAN, so its frames need no label. A trunk carries frames from many VLANs over one link, so every frame has to say which VLAN it belongs to.</p>
+            <p>802.1Q solves this by inserting a four-byte tag between the source address and the EtherType. The far switch reads the twelve-bit VLAN ID, removes the tag and forwards the frame only to ports in that VLAN.</p>
+            <figure>
+              <div class="frame">
+                <div style="width:96px"><span>Dest MAC</span><small>6 bytes</small></div>
+                <div style="width:96px"><span>Source MAC</span><small>6 bytes</small></div>
+                <div class="tag"><span>802.1Q tag</span><small>TPID 0x8100, VID 10</small></div>
+                <div style="width:74px"><span>Type</span><small>2 bytes</small></div>
+                <div style="flex:1"><span>Payload</span><small>46-1500 bytes</small></div>
+                <div style="width:58px"><span>FCS</span><small>4</small></div>
+              </div>
+              <figcaption><span>Figure 3.4a. A frame from PC-SALES, VLAN 10, as it leaves S1 on the trunk.</span><button class="act" type="button" data-send>Insert the tag</button></figcaption>
+            </figure>
+            <div class="quiz" data-quiz>
+              <b>Check yourself</b>
+              <p class="qq">The trunk's native VLAN is 1. What does S1 send for PC-SALES's frame?</p>
+              <div class="opts"><button type="button">No tag</button><button type="button" data-ok>A tag with VID 10</button><button type="button">A tag with VID 1</button></div>
+              <p class="fb" data-fb></p>
+            </div>
+          </article>
+          <aside class="margin">
+            <div><b>Exam note</b>The VLAN ID is 12 bits, so 4,096 values, of which 1 to 4094 are usable.</div>
+            <div><b>Common mistake</b>Native VLANs that differ at the two ends of a trunk leak traffic between VLANs. Lesson 3.5 shows why.</div>
+            <div class="lab"><b>In the lab</b>You build this exact trunk in <a href="#">Lab 7.2</a>, right after this lesson.</div>
+          </aside>
+        </div>
+      </div>
+    </div></div>
+    <dl class="facts">
+      <div><dt>Feels like</dt><dd>Reading the best book on networking, with every diagram working</dd></div>
+      <div><dt>Inspired by</dt><dd>Bartosz Ciechanowski's explorable articles and Stripe Press</dd></div>
+      <div><dt>Best at</dt><dd>Deep understanding, long focused sessions, low eye strain</dd></div>
+      <div><dt>Trade-off</dt><dd>Calmest of the four. Labs need a denser companion view</dd></div>
+    </dl>
+  </section>
+
+  <!-- B -->
+  <section class="dir">
+    <div class="dir-head"><span class="dir-letter">B</span><h2>Bench Instrument</h2><p>The app is a piece of test equipment on your desk: machined grey body, a black display, physical-feeling keys, and four colour caps that each mean one activity. Tactile and unmistakable.</p></div>
+    <div class="stage"><div class="stage-inner">
+      <div class="B mock" data-mock>
+        <div class="top">
+          <span class="lcd">CCNA DOJO</span>
+          <div class="pips"><span class="eng"><i style="background:var(--blue)"></i>Learn</span><span class="eng"><i style="background:var(--green)"></i>Practice</span><span class="eng"><i style="background:var(--orange)"></i>Lab</span><span class="eng"><i style="background:var(--white)"></i>Review</span></div>
+          <span class="eng">SRWE 3.4 / Lesson 4 of 7</span>
+        </div>
+        <div class="mid">
+          <div class="screen">
+            <div class="scr-top"><span>FRAME ON TRUNK Gi0/1</span><span>S1 to R1</span></div>
+            <div class="readout">
+              <span class="lbl">VLAN ID</span>
+              <div class="vid" data-vid>---</div>
+              <div class="bytes">
+                <div style="width:84px">DST</div><div style="width:84px">SRC</div><div class="t">0x8100 | 10</div><div style="width:64px">TYPE</div><div style="flex:1">PAYLOAD</div><div style="width:54px">FCS</div>
+              </div>
+              <div class="bits"><span style="width:174px"></span><span>PCP 3 | DEI 1 | VID 12 bits</span></div>
+            </div>
+            <div class="scr-top"><span>PC-SALES / VLAN 10</span><span>NATIVE VLAN 1</span></div>
+          </div>
+          <div class="card">
+            <span class="eng">Lesson</span>
+            <h3>How one cable carries many VLANs</h3>
+            <p>A trunk carries frames from many VLANs over one link, so each frame must say which VLAN it belongs to. 802.1Q inserts a four-byte tag after the source address. The far switch reads the 12-bit VLAN ID and removes the tag.</p>
+            <p>Only the native VLAN crosses untagged, so both ends must agree on it.</p>
+            <div class="note">VID 12 bits = 4,096 values. 1 to 4094 usable.</div>
+          </div>
+        </div>
+        <div class="deck">
+          <div class="keys"><button class="key" type="button" data-send><span class="cap" style="background:var(--orange)"></span><b>Tag</b><small>Insert 802.1Q</small></button><button class="key" type="button"><span class="cap" style="background:var(--green)"></span><b>Lab</b><small>Open 7.2</small></button></div>
+          <div class="q" data-quiz>
+            <span class="qq">The native VLAN is 1. What does S1 send for PC-SALES's frame?</span>
+            <div class="keys opts"><button class="key" type="button"><b>A</b><small>No tag</small></button><button class="key" type="button" data-ok><b>B</b><small>Tag, VID 10</small></button><button class="key" type="button"><b>C</b><small>Tag, VID 1</small></button><span class="status" data-fb style="align-self:center">READY</span></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <dl class="facts">
+      <div><dt>Feels like</dt><dd>Owning a beautiful piece of lab hardware made only for you</dd></div>
+      <div><dt>Inspired by</dt><dd>Teenage Engineering OP-1 and Nothing's dot-matrix language</dd></div>
+      <div><dt>Best at</dt><dd>Identity and delight. Drills and quick reps feel like playing an instrument</dd></div>
+      <div><dt>Trade-off</dt><dd>Strong personality. Long reading sessions suit A or D better</dd></div>
+    </dl>
+  </section>
+
+  <!-- C -->
+  <section class="dir">
+    <div class="dir-head"><span class="dir-letter">C</span><h2>Spatial</h2><p>Your network lives in the room. Glass panels float at different depths over a quiet night environment, the topology sits in its own tilted volume, and controls hover as ornaments outside the window.</p></div>
+    <div class="stage"><div class="stage-inner">
+      <div class="C mock" data-mock>
+        <div class="floor" aria-hidden="true"></div>
+        <i class="star" style="left:120px;top:110px"></i><i class="star" style="left:1010px;top:80px"></i><i class="star" style="left:880px;top:600px"></i><i class="star" style="left:60px;top:520px"></i>
+        <div class="orn-l" aria-hidden="true">
+          <span><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="13" rx="3"/><path d="M3 8.5h14"/></svg></span>
+          <span class="on"><svg viewBox="0 0 20 20"><path d="M4 4.5h8a3 3 0 0 1 3 3v8H7a3 3 0 0 1-3-3z"/></svg></span>
+          <span><svg viewBox="0 0 20 20"><circle cx="5" cy="5" r="2"/><circle cx="15" cy="5" r="2"/><circle cx="10" cy="15" r="2"/><path d="M7 5h6M6 7l3 6M14 7l-3 6"/></svg></span>
+          <span><svg viewBox="0 0 20 20"><rect x="4" y="6" width="12" height="10" rx="2.5"/><path d="M6.5 3.5h7"/></svg></span>
+        </div>
+        <div class="win">
+          <span class="crumb">SRWE, Module 3. Lesson 4 of 7</span>
+          <h3>How one cable carries many VLANs</h3>
+          <p>A trunk carries frames from many VLANs over one link, so each frame must say which VLAN it belongs to. 802.1Q inserts a four-byte tag after the source address, and the far switch reads its 12-bit VLAN ID before removing it.</p>
+          <div class="caps"><div>Dest MAC</div><div>Source MAC</div><div class="t">802.1Q, VID 10</div><div>Type</div><div style="flex:1">Payload</div><div>FCS</div></div>
+          <div class="quiz" data-quiz>
+            <span class="qq">The native VLAN is 1. What does S1 send for PC-SALES's frame?</span>
+            <div class="opts"><button type="button">No tag</button><button type="button" data-ok>Tag with VID 10</button><button type="button">Tag with VID 1</button></div>
+            <span class="fb" data-fb></span>
+          </div>
+        </div>
+        <div class="vol">
+          <div><b>Live trunk</b><br><span>S1 Gi0/1 to R1 G0/0/1</span></div>
+          <svg viewBox="0 0 260 260" aria-hidden="true">
+            <line class="ln" x1="50" y1="60" x2="60" y2="130"/><line class="ln" x1="50" y1="200" x2="60" y2="130"/>
+            <line class="tr" x1="60" y1="130" x2="200" y2="130"/>
+            <circle class="nd" cx="50" cy="60" r="16"/><text x="50" y="40">SALES</text>
+            <circle class="nd" cx="50" cy="200" r="16"/><text x="50" y="232">ENG</text>
+            <circle class="nd" cx="60" cy="130" r="20"/><text x="60" y="134">S1</text>
+            <circle class="nd" cx="200" cy="130" r="20"/><text x="200" y="134">R1</text>
+            <circle class="pk" cx="60" cy="130" r="6"/>
+          </svg>
+          <span>Tagged frames ride the warm link</span>
+        </div>
+        <div class="orn-b"><button type="button" class="pri" data-send>Insert the tag</button><button type="button">Ask the tutor</button><button type="button">Practise in Lab 7.2</button></div>
+      </div>
+    </div></div>
+    <dl class="facts">
+      <div><dt>Feels like</dt><dd>Stepping into a quiet control room at night</dd></div>
+      <div><dt>Inspired by</dt><dd>Apple visionOS: glass material, depth for hierarchy, ornaments</dd></div>
+      <div><dt>Best at</dt><dd>Wow factor and seeing topology as a place</dd></div>
+      <div><dt>Trade-off</dt><dd>Heaviest to render. Glass needs care to stay legible</dd></div>
+    </dl>
+  </section>
+
+  <!-- D -->
+  <section class="dir">
+    <div class="dir-head"><span class="dir-letter">D</span><h2>Terminal Luxe</h2><p>A modern code editor for networking. Everything is text you can run: a lesson is a notebook whose config blocks execute in the simulator, with files, tabs and panes like your favourite editor.</p></div>
+    <div class="stage"><div class="stage-inner">
+      <div class="D mock" data-mock>
+        <div class="tabs"><div class="dots"><i></i><i></i><i></i></div><span class="on">04-vlan-trunks.lesson</span><span>lab-7.2.topo</span><span>S1 console</span></div>
+        <nav class="tree">
+          <span class="dir">srwe/</span>
+          <span class="dir" style="margin-top:0">  03-vlans/</span>
+          <span class="ok">01-overview</span><span class="ok">02-across-switches</span><span class="ok">03-configuration</span>
+          <span class="cur">  04-vlan-trunks</span><span class="td">05-native-vlan</span><span class="td">06-dtp</span><span class="td">07-module-check</span>
+          <span class="dir">labs/</span><span class="td">7.2-router-on-a-stick</span>
+          <span class="dir">reviews/</span><span class="td">due-today (24)</span>
+        </nav>
+        <div class="doc">
+          <h3>How one cable carries many VLANs</h3>
+          <p>A trunk carries frames from many VLANs over one link, so each frame must say which VLAN it belongs to. <b>802.1Q</b> inserts a 4-byte tag after the source address. The far switch reads the 12-bit VLAN ID, removes the tag, and forwards only to ports in that VLAN.</p>
+          <div class="frm"><div>dst 6B</div><div>src 6B</div><div class="t">8100 | pcp dei vid=10</div><div>type 2B</div><div style="flex:1">payload 46-1500B</div><div>fcs 4B</div></div>
+          <div class="blk">
+            <div class="blk-h"><span>S1, configure the trunk</span><button type="button" data-send>Run in simulator  Ctrl Enter</button></div>
+            <pre><span class="p">S1(config)#</span> interface g0/1
+<span class="p">S1(config-if)#</span> switchport mode trunk
+<span class="p">S1(config-if)#</span> switchport trunk allowed vlan 10,20
+<span class="p">S1#</span> show interfaces trunk
+<span class="o">Port    Mode   Encapsulation  Status    Native vlan
+Gi0/1   on     802.1q         <span class="hl">trunking</span>  1
+Port    Vlans allowed on trunk
+Gi0/1   <span class="hl">10,20</span></span></pre>
+          </div>
+          <div class="quiz" data-quiz>
+            <span class="qq">? Native VLAN is 1. What does S1 send for PC-SALES's frame</span>
+            <div class="opts"><button type="button">[a] no tag</button><button type="button" data-ok>[b] tag, vid 10</button><button type="button">[c] tag, vid 1</button></div>
+            <span class="fb" data-fb></span>
+          </div>
+        </div>
+        <aside class="side">
+          <div><h4>OUTLINE</h4><div class="row"><span>Why trunks exist</span></div><div class="row"><b>The 802.1Q tag</b></div><div class="row"><span>Configure a trunk</span></div><div class="row"><span>Check yourself</span></div></div>
+          <div><h4>LEVEL 07</h4><div class="row"><span>lessons</span><b>4 / 7</b></div><div class="row"><span>drills</span><b>91%</b></div><div class="row"><span>lab 7.2</span><b>2 / 3 checks</b></div><div class="meter"><i style="width:57%"></i></div></div>
+          <div><h4>EXAM NOTE</h4><span style="color:var(--t2)">VID is 12 bits: 4,096 values, 1 to 4094 usable.</span></div>
+        </aside>
+        <div class="status"><span><span class="m">LEARN</span>srwe/03-vlans/04-vlan-trunks</span><span>recall 82%   <span class="k">Ctrl K</span> command   <span class="k">Ctrl Enter</span> run block</span></div>
+      </div>
+    </div></div>
+    <dl class="facts">
+      <div><dt>Feels like</dt><dd>Your editor, but every snippet runs against a real network</dd></div>
+      <div><dt>Inspired by</dt><dd>Zed, Warp blocks and Ghostty</dd></div>
+      <div><dt>Best at</dt><dd>Speed, keyboard flow, configs and labs. Ages well</dd></div>
+      <div><dt>Trade-off</dt><dd>Most technical in tone. Less warm for long reading than A</dd></div>
+    </dl>
+  </section>
+
+  <section class="pick">
+    <h2>How to choose</h2>
+    <p class="aside">Pick one, or mix them. A common strong mix is A for lessons and D for labs and consoles, sharing one colour system. If you want the app to feel like nothing else you own, pick B. If the wow of opening it matters most, pick C.</p>
+    <ol>
+      <li>Which window would you most like to open at 7 am, every day, for a year?</li>
+      <li>Which one would you be proud to show another engineer?</li>
+      <li>Is there one detail from another direction you want added to it?</li>
+    </ol>
+    <ul class="refs">
+      <li><a href="https://ciechanow.ski/">Bartosz Ciechanowski</a> and <a href="https://press.stripe.com/">Stripe Press</a> for A</li>
+      <li><a href="https://teenage.engineering/guides/op-1/original/layout">Teenage Engineering OP-1 layout guide</a> and <a href="https://nothing.community/d/61774-nothing-os-evolution">Nothing OS evolution</a> for B</li>
+      <li><a href="https://developer.apple.com/videos/play/wwdc2023/10076/">Apple, Design for spatial user interfaces</a> for C</li>
+      <li>Zed, Warp and Ghostty for D</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(() => {
+  document.querySelectorAll('.stage').forEach(stage => {
+    const inner = stage.firstElementChild;
+    const fit = () => { const s = Math.min(1, stage.clientWidth / 1200); inner.style.transform = `scale(${s})`; stage.style.height = (760 * s) + 'px'; };
+    new ResizeObserver(fit).observe(stage); fit();
+  });
+  const MSG = {
+    ok: 'Right. Only native-VLAN frames cross untagged. VLAN 10 is not native, so S1 adds a tag with VID 10 and recalculates the FCS.',
+    no: 'Not quite. Only the native VLAN, here VLAN 1, crosses untagged. PC-SALES is in VLAN 10, so its frame gets a tag with VID 10.',
+  };
+  document.querySelectorAll('[data-mock]').forEach(m => {
+    const isB = m.classList.contains('B');
+    m.querySelectorAll('[data-send]').forEach(b => b.addEventListener('click', () => {
+      m.classList.toggle('on');
+      const v = m.querySelector('[data-vid]'); if (v) v.innerHTML = m.classList.contains('on') ? '<em>0</em>10' : '---';
+      if (b.dataset.label === undefined) b.dataset.label = b.textContent;
+    }));
+    const q = m.querySelector('[data-quiz]'); if (!q) return;
+    const fb = q.querySelector('[data-fb]');
+    q.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      q.querySelectorAll('button').forEach(x => x.classList.remove('right', 'wrong'));
+      const ok = b.hasAttribute('data-ok'); b.classList.add(ok ? 'right' : 'wrong');
+      fb.textContent = isB ? (ok ? 'CORRECT' : 'TRY AGAIN') : (ok ? MSG.ok : MSG.no);
+      if (isB) { b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 120); }
+    }));
+  });
+})();
+</script>
