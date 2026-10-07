@@ -1,0 +1,677 @@
+<title>Three ways to study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400..700&family=Literata:opsz,wght@7..72,300..700&family=Fragment+Mono&family=Atkinson+Hyperlegible+Next:wght@300..700&family=Atkinson+Hyperlegible+Mono:wght@400..600&family=Alegreya:wght@400..700&family=Alegreya+Sans:wght@400;500;700&family=Red+Hat+Mono:wght@400;500&display=swap">
+<style>
+/* Hallmark · macrostructure: three-specimen comparison · page chrome neutral, each sketch carries its own world
+ * Hallmark · pre-emit critique: P5 H5 E4 S5 R4 V5
+ * Book: Literata + Hanken Grotesk + Fragment Mono · Notebook: Atkinson Hyperlegible Next + Mono · Atlas: Alegreya + Alegreya Sans + Red Hat Mono */
+:root {
+  --pg: oklch(96.6% 0.004 260); --pg-ink: oklch(24% 0.014 260); --pg-ink2: oklch(45% 0.014 260); --pg-line: oklch(89% 0.006 260); --pg-acc: oklch(42% 0.1 266); --pg-card: oklch(99% 0.002 260);
+  --f-page: "Hanken Grotesk", system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-io: cubic-bezier(0.77, 0, 0.175, 1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --pg: oklch(17% 0.01 260); --pg-ink: oklch(94% 0.006 260); --pg-ink2: oklch(73% 0.012 260); --pg-line: oklch(30% 0.012 260); --pg-acc: oklch(76% 0.09 266); --pg-card: oklch(21% 0.012 260); color-scheme: dark; } }
+:root[data-theme="dark"] { --pg: oklch(17% 0.01 260); --pg-ink: oklch(94% 0.006 260); --pg-ink2: oklch(73% 0.012 260); --pg-line: oklch(30% 0.012 260); --pg-acc: oklch(76% 0.09 266); --pg-card: oklch(21% 0.012 260); color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { overflow-x: clip; }
+body { margin: 0; background: var(--pg); color: var(--pg-ink); font: 400 16px/1.55 var(--f-page); -webkit-font-smoothing: antialiased; }
+.page { max-width: 1320px; margin: 0 auto; padding: 48px 20px 120px; display: grid; gap: 28px; }
+.intro { display: grid; gap: 12px; max-width: 760px; }
+.intro h1 { margin: 0; font: 650 clamp(2.1rem, 5vw, 3.2rem)/1.02 var(--f-page); letter-spacing: -0.025em; overflow-wrap: anywhere; min-width: 0; }
+.intro p { margin: 0; color: var(--pg-ink2); font-size: 1.08rem; text-wrap: pretty; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.jump a { white-space: nowrap; text-decoration: none; color: var(--pg-ink); border-radius: 999px; padding: 7px 14px; box-shadow: inset 0 0 0 1px var(--pg-line); font-weight: 550; font-size: .95rem; transition: box-shadow 120ms ease; }
+.jump a:hover { box-shadow: inset 0 0 0 1px var(--pg-ink2); }
+.small-note { display: none; margin: 0; color: var(--pg-ink2); }
+@media (max-width: 760px) { .small-note { display: block; } }
+.dir { display: grid; gap: 18px; padding-top: 56px; scroll-margin-top: 20px; }
+.dir + .dir { border-top: 1px solid var(--pg-line); }
+.dir-head { display: grid; gap: 6px; max-width: 760px; }
+.dir-head h2 { margin: 0; font: 650 2rem/1.05 var(--f-page); letter-spacing: -0.02em; }
+.dir-head p { margin: 0; color: var(--pg-ink2); font-size: 1.08rem; text-wrap: pretty; }
+.stage { width: 100%; overflow: hidden; border-radius: 14px; box-shadow: 0 0 0 1px var(--pg-line), 0 30px 60px -36px oklch(20% 0.03 260 / 0.35); }
+.stage-inner { width: 1280px; height: 800px; transform-origin: 0 0; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px 40px; }
+.facts h3 { margin: 0 0 6px; font: 650 1rem var(--f-page); }
+.facts p, .facts li { color: var(--pg-ink2); font-size: .97rem; margin: 0; }
+.facts ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.refs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.refs figure { margin: 0; display: grid; gap: 8px; }
+.refs img { width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; border-radius: 10px; box-shadow: 0 0 0 1px var(--pg-line); display: block; }
+.refs figcaption { font-size: .9rem; color: var(--pg-ink2); }
+.refs figcaption b { color: var(--pg-ink); font-weight: 600; }
+.refs a { color: inherit; }
+.ask { display: grid; gap: 10px; max-width: 760px; padding-top: 56px; border-top: 1px solid var(--pg-line); }
+.ask h2 { margin: 0; font: 650 1.6rem/1.1 var(--f-page); letter-spacing: -0.015em; }
+.ask p { margin: 0; color: var(--pg-ink2); }
+:focus-visible { outline: 2px solid var(--pg-acc); outline-offset: 2px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* ===================== A. THE BOOK ===================== */
+.bk {
+  --paper: oklch(99% 0.0025 240); --paper2: oklch(97.2% 0.004 240); --ink: oklch(22% 0.016 262); --ink2: oklch(43% 0.014 262); --ink3: oklch(54% 0.012 262);
+  --rule: oklch(90% 0.006 250); --rule2: oklch(83% 0.008 250);
+  --cloth-itn: oklch(40% 0.08 165); --cloth-srwe: oklch(36% 0.1 268); --cloth-ensa: oklch(47% 0.09 62); --cloth-ink: oklch(96% 0.01 250);
+  --acc: var(--cloth-srwe); --v10: oklch(46% 0.1 165); --v20: oklch(58% 0.12 70); --no: oklch(52% 0.17 28);
+  --f-read: "Literata", Georgia, serif; --f-ui: "Hanken Grotesk", system-ui, sans-serif; --f-ios: "Fragment Mono", Consolas, monospace;
+  width: 1280px; height: 800px; background: var(--paper); color: var(--ink); font: 400 14px/1.5 var(--f-ui); position: relative; overflow: hidden; display: grid; grid-template-rows: 52px 1fr;
+}
+.bk ::selection { background: color-mix(in oklch, var(--acc) 18%, transparent); }
+.bk-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 24px; border-bottom: 1px solid var(--rule); background: var(--paper); z-index: 3; }
+.bk-bar .l, .bk-bar .r { display: flex; gap: 6px; align-items: center; } .bk-bar .r { justify-content: flex-end; }
+.bk-btn { border: 0; background: transparent; padding: 7px 11px; border-radius: 8px; color: var(--ink2); font-weight: 550; font-size: 13.5px; display: inline-flex; gap: 8px; align-items: center; transition: background-color 120ms ease, transform 160ms var(--ease-out); }
+.bk-btn:hover { background: var(--paper2); color: var(--ink); } .bk-btn:active { transform: scale(0.97); }
+.bk-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+.bk-btn .n { font-variant-numeric: tabular-nums; color: var(--acc); font-weight: 650; }
+.bk-where { font-size: 13px; color: var(--ink3); white-space: nowrap; }
+.bk-where b { color: var(--ink2); font-weight: 550; }
+.bk-scroll { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--rule2) transparent; }
+.bk-spread { display: grid; grid-template-columns: 210px 620px 300px; gap: 0 48px; padding: 64px 0 120px 0; justify-content: center; }
+.bk-text { font: 400 18px/1.68 var(--f-read); font-optical-sizing: auto; color: var(--ink); position: relative; }
+.bk-text p { margin: 0 0 18px; text-wrap: pretty; hanging-punctuation: first; }
+.bk-text h1 { margin: 0 0 30px; font: 560 46px/1.04 var(--f-read); letter-spacing: -0.02em; font-variation-settings: "opsz" 72; text-wrap: balance; }
+.bk-text h1 span { color: var(--ink3); font-weight: 400; margin-right: 16px; font-variant-numeric: lining-nums; }
+.bk-text .lead::first-line { font-variant-caps: small-caps; letter-spacing: 0.015em; }
+.bk-text em { font-style: italic; }
+.bk-text .ios { font: 400 15px var(--f-ios); }
+.ref { color: var(--acc); font: 600 11px var(--f-ui); vertical-align: super; line-height: 0; margin-left: 1px; }
+.ribbon { position: absolute; left: -46px; top: -64px; width: 18px; height: 132px; background: var(--acc); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 88%, 0 100%); }
+.ribbon-note { position: absolute; left: -226px; top: 20px; width: 160px; text-align: right; font: 400 12.5px/1.4 var(--f-ui); color: var(--ink3); }
+.bk-side { position: relative; font: 400 13px/1.5 var(--f-ui); color: var(--ink2); }
+.sn { position: absolute; left: 0; right: 0; }
+.sn b { color: var(--acc); font-weight: 650; margin-right: 6px; }
+.fig { margin: 8px 0 26px; display: grid; gap: 10px; }
+.fig svg { width: 100%; height: auto; display: block; background: var(--paper2); border-radius: 10px; }
+.fig .cap { font: 400 13px/1.45 var(--f-ui); color: var(--ink2); display: flex; justify-content: space-between; gap: 16px; align-items: baseline; }
+.fig .cap b { color: var(--ink); font-weight: 600; }
+.fig-net text { font-family: var(--f-ui); }
+.fig-net .dv rect { fill: var(--paper); stroke: var(--rule2); }
+.fig-net .dv .nm { font-size: 13px; font-weight: 650; fill: var(--ink); }
+.fig-net .dv .ad { font: 400 11px var(--f-ios); fill: var(--ink3); }
+.fig-net .lk { stroke: var(--ink2); stroke-width: 1.6; fill: none; }
+.fig-net .tk { stroke: var(--ink); stroke-width: 5; fill: none; stroke-linecap: round; }
+.fig-net .tk2 { stroke: var(--paper2); stroke-width: 1.6; fill: none; }
+.fig-net .frame rect { fill: var(--v10); } .fig-net .frame text { fill: var(--cloth-ink); font-size: 11px; font-weight: 650; }
+.fig-net .frame { transition: transform 700ms var(--ease-io), opacity 200ms ease; }
+.bk-q { margin: 8px 0 30px; padding: 22px 24px 20px; border-radius: 12px; background: var(--paper2); display: grid; gap: 14px; font-family: var(--f-ui); }
+.bk-q .qq { font: 500 19px/1.45 var(--f-read); color: var(--ink); margin: 0; }
+.bk-q .qa { font: 400 15.5px/1.55 var(--f-read); color: var(--ink2); margin: 0; }
+.bk-q .row { display: flex; gap: 8px; align-items: center; }
+.bk-q .row span { font-size: 13px; color: var(--ink3); }
+.bk-pill { border: 0; border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 13.5px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule2); color: var(--ink); transition: transform 160ms var(--ease-out), box-shadow 120ms ease; }
+.bk-pill:hover { box-shadow: inset 0 0 0 1px var(--ink3); } .bk-pill:active { transform: scale(0.97); }
+.bk-pill.pri { background: var(--acc); color: var(--cloth-ink); box-shadow: none; }
+.bk-pill.pri:hover { background: color-mix(in oklch, var(--acc) 88%, white); }
+.mem { position: absolute; left: 0; right: 0; display: grid; gap: 8px; }
+.mem svg { width: 100%; height: auto; display: block; overflow: visible; }
+.mem .cap { font-size: 12.5px; color: var(--ink3); }
+.mem .ax { stroke: var(--rule2); stroke-width: 1; fill: none; }
+.mem .crv { stroke: var(--ink3); stroke-width: 1.2; fill: none; stroke-dasharray: 3 4; }
+.mem text { font: 400 11px var(--f-ui); fill: var(--ink3); }
+.mem .dot { fill: var(--paper); stroke: var(--ink3); stroke-width: 1.4; transition: transform 500ms var(--ease-out), fill 200ms ease; }
+.mem .dot.on { fill: var(--acc); stroke: var(--acc); }
+.bk-next { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--rule); padding-top: 18px; font: 400 13.5px var(--f-ui); color: var(--ink2); }
+/* contents drawer: the shelf */
+.shelf { position: absolute; inset: 52px 0 0 0; background: color-mix(in oklch, var(--ink) 18%, transparent); z-index: 5; opacity: 0; pointer-events: none; transition: opacity 200ms ease; }
+.shelf.on { opacity: 1; pointer-events: auto; }
+.shelf-in { position: absolute; top: 0; bottom: 0; left: 0; width: 520px; background: var(--paper); box-shadow: 1px 0 0 var(--rule); padding: 32px 36px; display: grid; grid-template-rows: auto auto 1fr; gap: 24px; transform: translateX(-24px); transition: transform 240ms var(--ease-out); }
+.shelf.on .shelf-in { transform: none; }
+.shelf h3 { margin: 0; font: 560 26px/1.1 var(--f-read); }
+.spines { display: grid; gap: 6px; }
+.spine { display: grid; grid-template-columns: 1fr auto; align-items: center; height: 46px; padding: 0 18px; border-radius: 4px; color: var(--cloth-ink); border: 0; text-align: left; position: relative; transition: transform 160ms var(--ease-out); }
+.spine:hover { transform: translateX(4px); }
+.spine b { font: 500 16px var(--f-read); } .spine span { font-size: 12.5px; opacity: .8; font-variant-numeric: tabular-nums; }
+.spine.itn { background: var(--cloth-itn); } .spine.srwe { background: var(--cloth-srwe); } .spine.ensa { background: var(--cloth-ensa); }
+.chapters { list-style: none; margin: 0; padding: 0; display: grid; align-content: start; gap: 2px; overflow: auto; }
+.chapters li { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--rule); font: 400 15px var(--f-read); }
+.chapters li span:first-child, .chapters li span:last-child { font: 400 12.5px var(--f-ui); color: var(--ink3); font-variant-numeric: tabular-nums; align-self: center; }
+.chapters li.cur { color: var(--acc); font-weight: 560; }
+
+/* ===================== B. THE NOTEBOOK ===================== */
+.nb {
+  --g0: oklch(21.5% 0.008 70); --g1: oklch(24.5% 0.009 70); --g2: oklch(28.5% 0.01 70); --gl: oklch(33% 0.01 70);
+  --print: oklch(68% 0.012 80); --print2: oklch(56% 0.012 80); --ink: oklch(93% 0.008 80);
+  --pen: oklch(78% 0.11 252); --pen2: oklch(68% 0.12 252); --pen-bg: oklch(78% 0.11 252 / 0.12);
+  --f-nb: "Atkinson Hyperlegible Next", system-ui, sans-serif; --f-nbm: "Atkinson Hyperlegible Mono", Consolas, monospace;
+  width: 1280px; height: 800px; background: var(--g1); color: var(--ink); font: 400 14px/1.5 var(--f-nb); display: grid; grid-template-columns: 248px 1fr 330px; position: relative; overflow: hidden;
+}
+.nb ::selection { background: var(--pen-bg); }
+.nb-side { background: var(--g0); padding: 22px 14px; display: grid; grid-template-rows: auto 1fr auto; gap: 18px; }
+.nb-side h4 { margin: 0; padding: 0 10px; font: 650 15px var(--f-nb); letter-spacing: -0.005em; }
+.tree { display: grid; gap: 1px; align-content: start; font-size: 13.5px; }
+.tree .f { padding: 6px 10px; color: var(--print); display: flex; gap: 8px; align-items: center; }
+.tree .f svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.tree .nt { border: 0; background: transparent; text-align: left; padding: 5px 10px 5px 30px; border-radius: 6px; color: var(--print); display: flex; justify-content: space-between; transition: background-color 120ms ease; }
+.tree .nt:hover { background: var(--g2); color: var(--ink); }
+.tree .nt.cur { background: var(--g2); color: var(--ink); }
+.tree .nt.empty { color: var(--print2); }
+.tree .nt i { font-style: normal; font-size: 11.5px; color: var(--print2); }
+.nb-due { padding: 12px; border-radius: 10px; background: var(--g1); font-size: 13px; color: var(--print); display: grid; gap: 4px; }
+.nb-due b { color: var(--ink); font-weight: 600; }
+.nb-main { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--gl) transparent; }
+.nb-page { max-width: 660px; margin: 0 auto; padding: 56px 40px 100px; display: grid; gap: 22px; }
+.nb-page h1 { margin: 0; font: 650 34px/1.1 var(--f-nb); letter-spacing: -0.02em; }
+.nb-meta { display: flex; gap: 14px; font-size: 13px; color: var(--print2); margin-top: -12px; }
+.nb-meta a { color: var(--pen2); text-decoration: none; }
+.print { display: grid; gap: 12px; color: var(--print); font-size: 15.5px; line-height: 1.62; padding-bottom: 22px; border-bottom: 1px dashed var(--gl); }
+.print p { margin: 0; max-width: 62ch; }
+.print .src { font-size: 12.5px; color: var(--print2); }
+.lk2 { color: var(--pen); text-decoration: underline; text-decoration-color: color-mix(in oklch, var(--pen) 45%, transparent); text-underline-offset: 3px; cursor: pointer; border: 0; background: none; padding: 0; font: inherit; }
+.lk2:hover { text-decoration-color: var(--pen); }
+.nb-page h2 { margin: 0; font: 650 18px var(--f-nb); }
+.mine { width: 100%; min-height: 110px; resize: none; border: 0; background: transparent; color: var(--ink); caret-color: var(--pen); font: 400 17px/1.62 var(--f-nb); padding: 0; outline: none; field-sizing: content; }
+.mine::placeholder { color: var(--print2); }
+.hint-line { font-size: 13px; color: var(--print2); display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.nb-btn { border: 0; border-radius: 8px; padding: 8px 13px; font-weight: 600; font-size: 13.5px; background: var(--g2); color: var(--ink); display: inline-flex; gap: 8px; align-items: center; transition: transform 160ms var(--ease-out), background-color 120ms ease; }
+.nb-btn:hover { background: var(--gl); } .nb-btn:active { transform: scale(0.97); }
+.nb-btn.pen { background: var(--pen); color: var(--g0); } .nb-btn.pen:hover { background: color-mix(in oklch, var(--pen) 90%, white); }
+.askcard { border-radius: 12px; background: var(--g2); padding: 16px 18px; display: grid; gap: 8px; }
+.askcard p { margin: 0; font-size: 16px; line-height: 1.55; }
+.askcard span { font-size: 12.5px; color: var(--print2); }
+.embed { border-radius: 12px; box-shadow: inset 0 0 0 1px var(--gl); padding: 14px 16px; display: grid; grid-template-columns: 150px 1fr auto; gap: 16px; align-items: center; }
+.embed svg { width: 150px; height: 70px; }
+.embed svg .d { fill: var(--g2); stroke: var(--gl); } .embed svg text { font: 600 9px var(--f-nb); fill: var(--print); } .embed svg line { stroke: var(--print2); stroke-width: 1.4; }
+.embed svg .cut { stroke: oklch(70% 0.16 28); stroke-width: 1.6; }
+.embed b { display: block; font-weight: 650; } .embed span { font-size: 13px; color: var(--print2); }
+.embed code { font: 400 12px var(--f-nbm); color: var(--print2); }
+.nb-right { background: var(--g0); position: relative; overflow: hidden; }
+.pane { position: absolute; inset: 0; padding: 22px 22px; display: grid; grid-template-rows: auto 1fr auto; gap: 14px; transition: transform 260ms var(--ease-out), opacity 200ms ease; }
+.pane h4 { margin: 0; font: 650 13.5px var(--f-nb); color: var(--print); }
+.pane.note { transform: translateX(100%); background: var(--g1); box-shadow: -1px 0 0 var(--gl); grid-template-rows: auto auto 1fr; }
+.pane.note.on { transform: none; }
+.pane.graph.dim { opacity: .35; }
+.graph svg { width: 100%; height: 100%; }
+.graph line { stroke: var(--gl); stroke-width: 1.3; }
+.graph .gn circle { fill: var(--g2); stroke: var(--print2); stroke-width: 1.3; transition: stroke 120ms ease; }
+.graph .gn text { font: 500 12.5px var(--f-nb); fill: var(--print); }
+.graph .gn.me circle { fill: var(--pen); stroke: var(--pen); }
+.graph .gn.me text { fill: var(--ink); font-weight: 650; }
+.graph .gn.empty circle { fill: transparent; stroke-dasharray: 2 3; }
+.graph .gn.empty text { fill: var(--print2); }
+.graph .gn { cursor: pointer; } .graph .gn:hover circle { stroke: var(--pen); }
+.pane .foot { font-size: 12.5px; color: var(--print2); }
+.pane.note h3 { margin: 0; font: 650 22px var(--f-nb); }
+.pane.note .body { font-size: 15px; line-height: 1.6; color: var(--ink); display: grid; gap: 10px; align-content: start; }
+.pane.note .body p { margin: 0; }
+.pane.note .body .mono { font: 400 12.5px/1.55 var(--f-nbm); color: var(--print); background: var(--g0); padding: 10px 12px; border-radius: 8px; white-space: pre; }
+.pane .back { justify-self: start; border: 0; background: none; color: var(--pen2); padding: 0; font-size: 13px; }
+
+/* ===================== C. THE ATLAS ===================== */
+.at {
+  --sea: oklch(91.5% 0.022 222); --sea2: oklch(86% 0.03 222); --land: oklch(97.4% 0.008 120); --land-k: oklch(95% 0.02 128);
+  --ink: oklch(27% 0.025 165); --ink2: oklch(44% 0.022 165); --pencil: oklch(66% 0.008 165); --route: oklch(53% 0.17 30);
+  --c-itn: oklch(52% 0.08 160); --c-srwe: oklch(50% 0.09 255); --c-ensa: oklch(55% 0.09 60);
+  --sheet: oklch(99% 0.003 120); --rule: oklch(89% 0.01 150);
+  --f-map: "Alegreya", Georgia, serif; --f-at: "Alegreya Sans", system-ui, sans-serif; --f-atm: "Red Hat Mono", Consolas, monospace;
+  width: 1280px; height: 800px; background: var(--sea); color: var(--ink); font: 400 14px/1.5 var(--f-at); position: relative; overflow: hidden;
+}
+.at ::selection { background: color-mix(in oklch, var(--route) 18%, transparent); }
+.at-map { position: absolute; inset: 0; width: 100%; height: 100%; }
+.at-map .ripple { fill: none; stroke: var(--sea2); stroke-width: 1; }
+.at-map .coast { fill: var(--land); stroke: var(--ink2); stroke-width: 1.3; }
+.at-map .contour { fill: none; stroke: var(--land-k); stroke-width: 1; }
+.at-map .rname { font: 500 23px var(--f-map); letter-spacing: 0.01em; fill: var(--ink2); }
+.at-map .rsub { font: 400 13px var(--f-at); fill: var(--ink2); opacity: .85; }
+.at-map .road { fill: none; stroke: var(--ink2); stroke-width: 1.4; }
+.at-map .road.pencil { stroke: var(--pencil); stroke-dasharray: 3 4; }
+.at-map .bridge { fill: none; stroke: var(--ink2); stroke-width: 1.2; stroke-dasharray: 1 3; stroke-linecap: round; }
+.at-map .route { fill: none; stroke: var(--route); stroke-width: 2.4; stroke-dasharray: 7 5; stroke-linecap: round; }
+.at-map .town { cursor: pointer; }
+.at-map .town circle { stroke-width: 1.5; transition: fill 400ms ease, r 200ms var(--ease-out); }
+.at-map .town.inked circle { fill: var(--ink); stroke: var(--ink); }
+.at-map .town.pencil circle { fill: var(--land); stroke: var(--pencil); }
+.at-map .town.here circle { fill: var(--sheet); stroke: var(--route); stroke-width: 2.4; }
+.at-map .town:hover circle { r: 7.5; }
+.at-map .tl { font: 500 14px var(--f-map); fill: var(--ink); paint-order: stroke; stroke: var(--land); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+.at-map .tl.p { fill: var(--ink2); font-weight: 400; }
+.at-map .ink-anim { stroke-dasharray: 400; stroke-dashoffset: 400; }
+.at-map .ink-anim.go { transition: stroke-dashoffset 900ms var(--ease-io); stroke-dashoffset: 0; }
+.at-top { position: absolute; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 2; }
+.at-btn { border: 0; border-radius: 9px; padding: 8px 13px; background: var(--sheet); color: var(--ink); font-weight: 500; font-size: 14px; box-shadow: 0 0 0 1px var(--rule), 0 6px 16px -10px oklch(30% 0.04 165 / 0.35); display: inline-flex; gap: 8px; align-items: center; transition: transform 160ms var(--ease-out); }
+.at-btn:active { transform: scale(0.97); } .at-btn:hover { box-shadow: 0 0 0 1px var(--ink2), 0 6px 16px -10px oklch(30% 0.04 165 / 0.35); }
+.at-btn .n { color: var(--route); font-weight: 700; font-variant-numeric: tabular-nums; }
+.at-title { position: absolute; top: 22px; left: 26px; display: grid; gap: 2px; z-index: 2; }
+.at-title h3 { margin: 0; font: 600 30px/1 var(--f-map); letter-spacing: -0.005em; }
+.at-title p { margin: 0; font-size: 15px; color: var(--ink2); }
+.at-legend { position: absolute; left: 22px; bottom: 22px; background: var(--sheet); border-radius: 10px; padding: 12px 16px; display: grid; gap: 6px; font-size: 13.5px; color: var(--ink2); box-shadow: 0 0 0 1px var(--rule); z-index: 2; }
+.at-legend div { display: flex; align-items: center; gap: 10px; }
+.at-legend svg { width: 28px; height: 12px; overflow: visible; }
+.at-tip { position: absolute; z-index: 4; background: var(--ink); color: var(--sheet); font-size: 13px; padding: 5px 9px; border-radius: 6px; pointer-events: none; white-space: nowrap; transform: translate(-50%, -130%); opacity: 0; transition: opacity 120ms ease; }
+.at-tip.on { opacity: 1; }
+.at-hint { position: absolute; z-index: 2; font: 400 15px var(--f-map); color: var(--route); pointer-events: none; transition: opacity 200ms ease; }
+.at-sheet { position: absolute; top: 14px; right: 14px; bottom: 14px; width: 500px; background: var(--sheet); border-radius: 14px; box-shadow: 0 0 0 1px var(--rule), 0 30px 60px -30px oklch(25% 0.04 165 / 0.45); z-index: 3; padding: 30px 34px 24px; display: grid; grid-template-rows: auto 1fr auto; gap: 16px; transform: translateX(calc(100% + 30px)); transition: transform 300ms var(--ease-out); }
+.at-sheet.on { transform: none; }
+.at-sheet h3 { margin: 0; font: 600 34px/1.05 var(--f-map); letter-spacing: -0.01em; }
+.at-sheet .sub { margin: 6px 0 0; font-size: 14px; color: var(--ink2); }
+.at-sheet .body { overflow-y: auto; display: grid; gap: 12px; align-content: start; font: 400 17px/1.6 var(--f-map); padding-right: 6px; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
+.at-sheet .body p { margin: 0; }
+.at-sheet svg.mini { width: 100%; height: auto; background: oklch(96.5% 0.01 120); border-radius: 10px; }
+.mini text { font: 600 11px var(--f-at); fill: var(--ink); } .mini .ad { font: 400 10px var(--f-atm); fill: var(--ink2); }
+.mini rect.d { fill: var(--sheet); stroke: var(--rule); } .mini .l1 { stroke: var(--c-itn); stroke-width: 2; } .mini .l2 { stroke: var(--c-ensa); stroke-width: 2; }
+.at-q { border-radius: 10px; background: oklch(96% 0.012 120); padding: 14px 16px; display: grid; gap: 10px; font-family: var(--f-at); }
+.at-q p { margin: 0; font-size: 15.5px; } .at-q .opts { display: flex; gap: 6px; flex-wrap: wrap; }
+.at-q .opts button { border: 0; border-radius: 7px; padding: 6px 11px; background: var(--sheet); box-shadow: inset 0 0 0 1px var(--rule); font-size: 14px; transition: transform 160ms var(--ease-out); }
+.at-q .opts button:active { transform: scale(0.97); }
+.at-q .opts button.ok { box-shadow: inset 0 0 0 1.5px var(--c-itn); color: oklch(42% 0.09 160); font-weight: 700; }
+.at-q .opts button.no { box-shadow: inset 0 0 0 1.5px var(--route); color: var(--route); }
+.at-q .fb { margin: 0; font-size: 14px; color: var(--ink2); min-height: 21px; }
+.at-sheet .foot { display: flex; justify-content: space-between; align-items: center; }
+.at-pri { border: 0; border-radius: 9px; padding: 10px 16px; background: var(--ink); color: var(--sheet); font-weight: 700; font-size: 14.5px; transition: transform 160ms var(--ease-out), background-color 120ms ease; }
+.at-pri:hover { background: color-mix(in oklch, var(--ink) 88%, white); } .at-pri:active { transform: scale(0.97); }
+.at-pri[disabled] { opacity: .5; cursor: not-allowed; }
+.at-ghost { border: 0; background: none; color: var(--ink2); font-size: 14px; padding: 8px 4px; }
+.at-ghost:hover { color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fig-net .frame, .pane, .shelf-in, .at-sheet, .at-map .ink-anim.go, .mem .dot { transition: opacity 150ms ease !important; }
+}
+</style>
+
+<div class="page">
+  <header class="intro">
+    <h1>Three ways to study</h1>
+    <p>Each one is a different answer to where learning happens: in a book you read, in a notebook you write, or on a map you explore. All three show the same lesson on VLAN trunks, so you are comparing the feeling, not the content. Each sketch works: click around.</p>
+    <p class="small-note">These are desktop screens, scaled down here. Open the page on a computer to try them.</p>
+    <nav class="jump" aria-label="Directions"><a href="#book">The Book</a><a href="#notebook">The Notebook</a><a href="#atlas">The Atlas</a></nav>
+  </header>
+
+  <!-- ============ BOOK ============ -->
+  <section class="dir" id="book">
+    <div class="dir-head">
+      <h2>The Book</h2>
+      <p>The course as a beautifully made book. You read; diagrams move when you touch them; questions sit inside the text, and the margin remembers when each one comes back.</p>
+    </div>
+    <div class="stage" data-stage><div class="stage-inner">
+      <div class="bk" id="bk">
+        <div class="bk-bar">
+          <div class="l"><button class="bk-btn" type="button" id="bkShelfBtn" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5v11M6.5 2.5v11M10 3l3 10.3"/></svg>Contents</button></div>
+          <span class="bk-where"><b>Volume II</b>&ensp;Switching, Routing and Wireless</span>
+          <div class="r"><button class="bk-btn" type="button">Search</button><button class="bk-btn" type="button">Questions due <span class="n">14</span></button></div>
+        </div>
+        <div class="bk-scroll" id="bkScroll">
+          <div class="bk-spread">
+            <div></div>
+            <article class="bk-text" id="bkText">
+              <span class="ribbon" aria-hidden="true"></span>
+              <h1><span>3.4</span>One cable, many VLANs</h1>
+              <p class="lead">An access port carries one VLAN. A trunk carries all of them on the same cable, so every frame needs a label saying which VLAN it belongs to.</p>
+              <p>That label is the <em>802.1Q tag</em>: four bytes the switch slips into the frame, holding a twelve-bit VLAN number.<span class="ref">1</span> The switch at the far end reads the tag, takes it out again, and delivers the frame only inside that VLAN.</p>
+              <div class="fig">
+                <svg class="fig-net" id="bkFig" viewBox="0 0 620 230" role="img" aria-label="PC-SALES and PC-ENG connect to switch S1, which has a trunk to router R1">
+                  <path class="lk" d="M150 52 C 200 52, 210 104, 250 112"/><path class="lk" d="M150 178 C 200 178, 210 126, 250 120"/>
+                  <path class="tk" d="M352 116 H 448"/><path class="tk2" d="M352 116 H 448"/>
+                  <text x="356" y="100" style="font:400 11px var(--f-ios);fill:var(--ink3)">trunk</text>
+                  <g class="dv" transform="translate(20 28)"><rect width="130" height="48" rx="9"/><text class="nm" x="14" y="21">PC-SALES</text><text class="ad" x="14" y="37">VLAN 10</text></g>
+                  <g class="dv" transform="translate(20 154)"><rect width="130" height="48" rx="9"/><text class="nm" x="14" y="21">PC-ENG</text><text class="ad" x="14" y="37">VLAN 20</text></g>
+                  <g class="dv" transform="translate(250 92)"><rect width="102" height="48" rx="9"/><text class="nm" x="14" y="21">S1</text><text class="ad" x="14" y="37">Gi0/1</text></g>
+                  <g class="dv" transform="translate(448 92)"><rect width="150" height="48" rx="9"/><text class="nm" x="14" y="21">R1</text><text class="ad" x="14" y="37">G0/0/1.10, .20</text></g>
+                  <g class="frame" id="bkFrame" style="opacity:0"><rect x="-34" y="-11" width="68" height="22" rx="6"/><text x="0" y="4" text-anchor="middle">untagged</text></g>
+                </svg>
+                <div class="cap"><span><b>Figure 3.4</b>&ensp;A frame from Sales gets its tag where it enters the trunk.</span><button class="bk-pill" type="button" id="bkSend">Send a frame</button></div>
+              </div>
+              <p>One VLAN is allowed to cross untagged: the <em>native VLAN</em>, VLAN 1 unless you change it. Both ends must agree on which VLAN that is, or frames quietly land in the wrong one.<span class="ref">2</span></p>
+              <div class="bk-q" id="bkQ">
+                <p class="qq">The trunk's native VLAN is 1. How does a frame from PC-SALES cross it?</p>
+                <p class="qa" id="bkA" hidden>Tagged with VLAN 10. Only the native VLAN crosses untagged, and Sales is in VLAN 10.</p>
+                <div class="row" id="bkQrow"><button class="bk-pill pri" type="button" id="bkShow">Show answer</button><span>Say it to yourself first.</span></div>
+                <div class="row" id="bkGrade" hidden><button class="bk-pill" type="button" data-g="again">I didn't know</button><button class="bk-pill pri" type="button" data-g="ok">I knew it</button></div>
+              </div>
+              <p>Next you will give each VLAN a door into the router, on one physical port. That is router-on-a-stick, and it is the lab at the end of this chapter.</p>
+              <div class="bk-next"><span>Chapter 3, page 4 of 6</span><button class="bk-pill" type="button">Next page</button></div>
+            </article>
+            <aside class="bk-side" id="bkSide">
+              <div class="sn" style="top:218px"><b>1</b>The standard is IEEE 802.1Q. Cisco's older ISL tagging is gone from current switches.</div>
+              <div class="sn" style="top:640px"><b>2</b>A mismatch shows up in the log as <span style="font-family:var(--f-ios);font-size:12px">%CDP-4-NATIVE_VLAN_MISMATCH</span>.</div>
+              <div class="mem" id="bkMem" style="top:790px">
+                <svg viewBox="0 0 280 120" aria-label="When the questions in this chapter come back">
+                  <path class="ax" d="M6 100 H 274"/>
+                  <path class="crv" d="M14 100 C 60 96, 120 80, 160 58 S 240 18, 266 14"/>
+                  <text x="6" y="116">now</text><text x="92" y="116">3 days</text><text x="166" y="116">2 weeks</text><text x="236" y="116">2 months</text>
+                  <circle class="dot on" cx="176" cy="52" r="5"/><circle class="dot on" cx="250" cy="19" r="5"/><circle class="dot" id="bkDot" cx="14" cy="100" r="5"/>
+                </svg>
+                <span class="cap" id="bkMemCap">The three questions in this chapter, and when each one comes back. You have answered two.</span>
+              </div>
+            </aside>
+          </div>
+        </div>
+        <div class="shelf" id="bkShelf">
+          <div class="shelf-in">
+            <h3>Your shelf</h3>
+            <div class="spines">
+              <button class="spine itn" type="button"><b>Introduction to Networks</b><span>Finished</span></button>
+              <button class="spine srwe" type="button"><b>Switching, Routing and Wireless</b><span>Chapter 3</span></button>
+              <button class="spine ensa" type="button"><b>Enterprise Networking</b><span>Not opened</span></button>
+            </div>
+            <ol class="chapters">
+              <li><span>1</span>Basic device configuration<span>read</span></li>
+              <li><span>2</span>Switching concepts<span>read</span></li>
+              <li class="cur"><span>3</span>VLANs<span>page 4 of 6</span></li>
+              <li><span>4</span>Inter-VLAN routing<span></span></li>
+              <li><span>5</span>STP concepts<span></span></li>
+              <li><span>6</span>EtherChannel<span></span></li>
+              <li><span>7</span>DHCPv4<span></span></li>
+              <li><span>8</span>SLAAC and DHCPv6<span></span></li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="facts">
+      <div><h3>A session</h3><ul><li>The app opens on the page you stopped at, marked by the ribbon.</li><li>You read two or three short pages and touch the figures.</li><li>Questions from earlier chapters wait in the text where you first met them.</li></ul></div>
+      <div><h3>Why it feels like learning</h3><p>It is the feeling of a good textbook at a quiet desk, with the boring parts done for you: diagrams that move, and a margin that tracks your memory.</p></div>
+      <div><h3>The risk</h3><p>Reading is passive. Labs have to be pulled into the book as worked pages, or it turns into a pleasant e-reader.</p></div>
+    </div>
+    <div class="refs">
+      <figure><a href="https://quantum.country/qcvc"><img src="img/quantum.jpg" alt="Quantum Country essay with a memory timeline in the right margin" loading="lazy"></a><figcaption><b>Quantum Country.</b> Review questions live inside the essay. The margin shows when they return.</figcaption></figure>
+      <figure><a href="https://vincent.bernat.ch/en/blog/2026-spanning-tree"><img src="img/bernat-stp.jpg" alt="An interactive article explaining the spanning tree protocol with a live diagram" loading="lazy"></a><figcaption><b>An interactive spanning tree article.</b> Networking taught with live diagrams and side notes.</figcaption></figure>
+      <figure><a href="https://press.stripe.com/"><img src="img/stripepress.jpg" alt="Stripe Press showing its books as a stack of spines" loading="lazy"></a><figcaption><b>Stripe Press.</b> Books as objects. The source of the shelf behind Contents.</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ============ NOTEBOOK ============ -->
+  <section class="dir" id="notebook">
+    <div class="dir-head">
+      <h2>The Notebook</h2>
+      <p>Your own study notebook, like Obsidian but small. Each topic starts with a short printed handout; underneath, you explain it in your own words. Your notes link up, and the app asks you questions about what you wrote.</p>
+    </div>
+    <div class="stage" data-stage><div class="stage-inner">
+      <div class="nb" id="nb">
+        <aside class="nb-side">
+          <h4>My CCNA notebook</h4>
+          <div class="tree">
+            <div class="f"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.5l3.5 3.5L4 9.5"/></svg>CCNA 1</div>
+            <div class="f"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4l3.5 3.5L9.5 4"/></svg>CCNA 2</div>
+            <button class="nt" type="button">Switching concepts <i>3 days ago</i></button>
+            <button class="nt" type="button">VLANs <i>yesterday</i></button>
+            <button class="nt cur" type="button">VLAN trunks <i>now</i></button>
+            <button class="nt" type="button" data-open="tag">802.1Q tag <i>yesterday</i></button>
+            <button class="nt empty" type="button">Router-on-a-stick <i>empty</i></button>
+            <div class="f"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.5l3.5 3.5L4 9.5"/></svg>CCNA 3</div>
+          </div>
+          <div class="nb-due"><b>3 notes to revisit</b>Switching concepts, IPv4 addressing and Wildcard masks have questions waiting.</div>
+        </aside>
+        <main class="nb-main">
+          <div class="nb-page">
+            <h1>VLAN trunks</h1>
+            <div class="nb-meta"><span>CCNA 2, module 3</span><span>Linked from <button class="lk2" type="button" data-open="vlans">VLANs</button></span></div>
+            <div class="print">
+              <span class="src">From the course</span>
+              <p>An access port carries one VLAN. A trunk carries all of them on one cable, so every frame needs a label saying which VLAN it belongs to. That label is the <button class="lk2" type="button" data-open="tag">802.1Q tag</button>.</p>
+              <p>One VLAN crosses untagged: the <button class="lk2" type="button" data-open="native">native VLAN</button>. Both ends must agree on it.</p>
+            </div>
+            <h2>In my words</h2>
+            <textarea class="mine" id="mine" aria-label="Your explanation" spellcheck="false">A trunk is one cable that carries several VLANs at once. Each frame gets a small tag (802.1Q) so the switch on the other end knows which VLAN it belongs to. The native VLAN goes across with no tag, so both sides have to</textarea>
+            <div class="hint-line"><button class="nb-btn pen" type="button" id="askBtn">Ask me about this</button><span>Claude reads your words and asks one question back.</span></div>
+            <div class="askcard" id="askCard" hidden><p>You wrote that the native VLAN crosses with no tag. If S1 says the native VLAN is 1 and R1 says it is 99, where does an untagged frame from S1 end up?</p><span>Answer it underneath in your own words. It comes back in 3 days.</span></div>
+            <div class="embed">
+              <svg viewBox="0 0 150 70" aria-hidden="true"><line x1="34" y1="35" x2="72" y2="35"/><line x1="96" y1="35" x2="124" y2="35"/><line class="cut" x1="104" y1="29" x2="114" y2="41"/><rect class="d" x="4" y="22" width="30" height="26" rx="5"/><rect class="d" x="72" y="22" width="24" height="26" rx="5"/><rect class="d" x="124" y="22" width="24" height="26" rx="5"/><text x="9" y="38">PC</text><text x="77" y="38">S1</text><text x="129" y="38">R1</text></svg>
+              <div><b>Lab: Router-on-a-stick</b><span>Embedded with <code>![[lab-7.2]]</code>. 2 of 3 checks passing.</span></div>
+              <button class="nb-btn" type="button">Open lab</button>
+            </div>
+          </div>
+        </main>
+        <aside class="nb-right">
+          <div class="pane graph" id="graphPane">
+            <h4>Linked notes</h4>
+            <svg viewBox="0 0 286 520" id="graph" aria-label="Notes linked to VLAN trunks">
+              <line x1="143" y1="240" x2="70" y2="110"/><line x1="143" y1="240" x2="226" y2="140"/><line x1="143" y1="240" x2="214" y2="360"/><line x1="143" y1="240" x2="74" y2="400"/><line x1="70" y1="110" x2="226" y2="140"/><line x1="70" y1="110" x2="120" y2="40"/>
+              <g class="gn" data-open="vlans"><circle cx="70" cy="110" r="9"/><text x="70" y="134" text-anchor="middle">VLANs</text></g>
+              <g class="gn" data-open="sw"><circle cx="120" cy="40" r="6"/><text x="120" y="24" text-anchor="middle">Switching concepts</text></g>
+              <g class="gn" data-open="tag"><circle cx="226" cy="140" r="8"/><text x="226" y="164" text-anchor="middle">802.1Q tag</text></g>
+              <g class="gn" data-open="native"><circle cx="214" cy="360" r="7"/><text x="214" y="384" text-anchor="middle">Native VLAN</text></g>
+              <g class="gn empty"><circle cx="74" cy="400" r="8"/><text x="74" y="424" text-anchor="middle">Router-on-a-stick</text></g>
+              <g class="gn me"><circle cx="143" cy="240" r="11"/><text x="143" y="268" text-anchor="middle">VLAN trunks</text></g>
+            </svg>
+            <span class="foot">The dashed one is a note you haven't written yet. The lab fills it in.</span>
+          </div>
+          <div class="pane note" id="notePane">
+            <button class="back" type="button" id="backBtn">Back to linked notes</button>
+            <h3 id="noteTitle">802.1Q tag</h3>
+            <div class="body" id="noteBody"></div>
+          </div>
+        </aside>
+      </div>
+    </div></div>
+    <div class="facts">
+      <div><h3>A session</h3><ul><li>Read the short handout for one topic.</li><li>Explain it in your own words, then answer the question Claude asks back.</li><li>Labs and review cards live inside your notes as embedded blocks.</li></ul></div>
+      <div><h3>Why it feels like learning</h3><p>Writing it yourself is how it sticks. Over months the notebook becomes yours: your words, linked the way you understand them.</p></div>
+      <div><h3>The risk</h3><p>It asks for effort every session. On a tired evening, a blank "in my words" box can feel like homework.</p></div>
+    </div>
+    <div class="refs">
+      <figure><a href="https://obsidian.md/"><img src="img/obsidian.jpg" alt="Obsidian app with a note and a graph view" loading="lazy"></a><figcaption><b>Obsidian.</b> Linked notes and the local graph, kept to one small pane here.</figcaption></figure>
+      <figure><a href="https://notes.andymatuschak.org/zKPv6qkSErdRGqyryvgS2wS"><img src="img/matuschak.jpg" alt="Andy Matuschak's notes, which open side by side" loading="lazy"></a><figcaption><b>Andy Matuschak's notes.</b> A link slides the next note in beside the one you're reading.</figcaption></figure>
+      <figure><a href="https://ia.net/writer"><img src="img/iawriter.jpg" alt="iA Writer's focused writing view" loading="lazy"></a><figcaption><b>iA Writer.</b> Nothing on screen but your words and a caret.</figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ============ ATLAS ============ -->
+  <section class="dir" id="atlas">
+    <div class="dir-head">
+      <h2>The Atlas</h2>
+      <p>The whole course as a quiet map. Each module is a town; roads are what you need first. Places you know are inked in, places you don't are still in pencil, and tonight's route is marked in red. Open a town to read its page.</p>
+    </div>
+    <div class="stage" data-stage><div class="stage-inner">
+      <div class="at" id="at">
+        <svg class="at-map" id="atMap" viewBox="0 0 1280 800" aria-label="Map of the CCNA course"></svg>
+        <div class="at-title"><h3>Your CCNA atlas</h3><p>18 of 47 places inked</p></div>
+        <div class="at-top"><button class="at-btn" type="button">Search</button><button class="at-btn" type="button">Review <span class="n">14</span></button></div>
+        <div class="at-legend" aria-label="Legend">
+          <div><svg viewBox="0 0 28 12" aria-hidden="true"><circle cx="14" cy="6" r="5" fill="var(--ink)"/></svg>Inked: you know it</div>
+          <div><svg viewBox="0 0 28 12" aria-hidden="true"><circle cx="14" cy="6" r="5" fill="var(--land)" stroke="var(--pencil)" stroke-width="1.5"/></svg>Pencil: not yet</div>
+          <div><svg viewBox="0 0 28 12" aria-hidden="true"><path d="M1 6 H 27" stroke="var(--route)" stroke-width="2.4" stroke-dasharray="7 5"/></svg>Tonight's route</div>
+        </div>
+        <span class="at-hint" id="atHint">Open VLANs to start tonight</span>
+        <div class="at-tip" id="atTip"></div>
+        <div class="at-sheet" id="atSheet" aria-hidden="true">
+          <div><h3 id="atTitle">VLANs</h3><p class="sub" id="atSub">Switching, Routing and Wireless, module 3</p></div>
+          <div class="body">
+            <p>An access port carries one VLAN. A trunk carries all of them on the same cable, so every frame needs a label saying which VLAN it belongs to: the 802.1Q tag.</p>
+            <svg class="mini" viewBox="0 0 430 120" aria-label="Two PCs in different VLANs reach S1, which trunks to R1">
+              <line class="l1" x1="104" y1="30" x2="186" y2="58"/><line class="l2" x1="104" y1="90" x2="186" y2="66"/><line class="l1" x1="250" y1="58" x2="320" y2="58"/><line class="l2" x1="250" y1="66" x2="320" y2="66"/>
+              <rect class="d" x="14" y="14" width="90" height="34" rx="7"/><text x="24" y="30">PC-SALES</text><text class="ad" x="24" y="42">VLAN 10</text>
+              <rect class="d" x="14" y="74" width="90" height="34" rx="7"/><text x="24" y="90">PC-ENG</text><text class="ad" x="24" y="102">VLAN 20</text>
+              <rect class="d" x="186" y="45" width="64" height="34" rx="7"/><text x="198" y="66">S1</text>
+              <rect class="d" x="320" y="45" width="96" height="34" rx="7"/><text x="332" y="61">R1</text><text class="ad" x="332" y="73">G0/0/1</text>
+            </svg>
+            <p>One VLAN crosses untagged: the native VLAN, VLAN 1 unless you change it.</p>
+            <div class="at-q" id="atQ">
+              <p>The native VLAN is 1. How does a frame from PC-SALES cross the trunk?</p>
+              <div class="opts"><button type="button">Untagged</button><button type="button" data-ok>Tagged 10</button><button type="button">Tagged 1</button></div>
+              <p class="fb" id="atFb"></p>
+            </div>
+          </div>
+          <div class="foot"><button class="at-ghost" type="button" id="atClose">Back to the map</button><button class="at-pri" type="button" id="atInk" disabled>Ink it in</button></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="facts">
+      <div><h3>A session</h3><ul><li>Open the app and see the whole course at once, calmly.</li><li>Follow tonight's red route: one town to read, one to review, one lab.</li><li>Answer the page's question and ink the town in yourself.</li></ul></div>
+      <div><h3>Why it feels like learning</h3><p>You see the shape of what you know growing. Every evening a little more of the map turns from pencil to ink.</p></div>
+      <div><h3>The risk</h3><p>A map is a home screen, not a study space. The reading sheet has to be as good as the Book's, or the map becomes decoration.</p></div>
+    </div>
+    <div class="refs">
+      <figure><a href="https://www.davidrumsey.com/"><img src="img/rumsey.jpg" alt="David Rumsey Map Collection home page" loading="lazy"></a><figcaption><b>David Rumsey Map Collection.</b> Survey maps: ink lines, pale land, quiet labels.</figcaption></figure>
+      <figure><a href="https://mapofsciences.com/"><img src="img/mapofsciences.jpg" alt="Map of Sciences home page" loading="lazy"></a><figcaption><b>Map of Sciences.</b> A subject as a map of what connects to what, here made calmer and drawn by hand.</figcaption></figure>
+      <figure><a href="https://ciechanow.ski/cameras-and-lenses/"><img src="img/ciechanowski.jpg" alt="Bartosz Ciechanowski's interactive article on cameras" loading="lazy"></a><figcaption><b>Bartosz Ciechanowski.</b> The bar for the reading sheet: short prose, then a figure you can touch.</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="ask">
+    <h2>Pick by feeling</h2>
+    <p>Tell me which one you would open on a tired Tuesday evening. Parts can also travel: the Book's margin memory, the Notebook's "in my words", or the Atlas as a home screen. After you pick, I'll build that one fully, in both light and dark.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  /* scale each 1280x800 sketch to its column */
+  document.querySelectorAll('[data-stage]').forEach(st => {
+    const inner = st.firstElementChild;
+    const fit = () => { const s = Math.min(1, st.clientWidth / 1280); inner.style.transform = `scale(${s})`; st.style.height = 800 * s + 'px'; };
+    new ResizeObserver(fit).observe(st); fit();
+  });
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- BOOK ---------- */
+  const bk = document.getElementById('bk');
+  const shelf = bk.querySelector('#bkShelf'), shelfBtn = bk.querySelector('#bkShelfBtn');
+  const setShelf = on => { shelf.classList.toggle('on', on); shelfBtn.setAttribute('aria-expanded', on); };
+  shelfBtn.addEventListener('click', () => setShelf(!shelf.classList.contains('on')));
+  shelf.addEventListener('click', e => { if (e.target === shelf) setShelf(false); });
+  bk.addEventListener('keydown', e => { if (e.key === 'Escape') setShelf(false); });
+  const frame = bk.querySelector('#bkFrame');
+  bk.querySelector('#bkSend').addEventListener('click', () => {
+    const pts = [[150, 52], [250, 110], [352, 106], [448, 106]];
+    const t = frame.querySelector('text'), r = frame.querySelector('rect');
+    const label = (s, w) => { t.textContent = s; r.setAttribute('x', -w / 2); r.setAttribute('width', w); };
+    if (reduce) { label('tag 10', 56); frame.setAttribute('transform', `translate(${pts[3][0]} ${pts[3][1] - 8})`); frame.style.opacity = 1; return; }
+    frame.style.transition = 'none'; label('untagged', 68); frame.setAttribute('transform', `translate(${pts[0][0]} ${pts[0][1] - 14})`); frame.style.opacity = 1;
+    let i = 1;
+    const step = () => {
+      if (i >= pts.length) { setTimeout(() => frame.style.opacity = 0, 1500); return; }
+      frame.style.transition = ''; frame.setAttribute('transform', `translate(${pts[i][0]} ${pts[i][1] - 14})`);
+      if (i === 2) label('tag 10', 56);
+      i++; setTimeout(step, 760);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(step));
+  });
+  bk.querySelector('#bkShow').addEventListener('click', () => { bk.querySelector('#bkA').hidden = false; bk.querySelector('#bkQrow').hidden = true; bk.querySelector('#bkGrade').hidden = false; });
+  bk.querySelector('#bkGrade').addEventListener('click', e => {
+    const b = e.target.closest('[data-g]'); if (!b) return;
+    const ok = b.dataset.g === 'ok', dot = bk.querySelector('#bkDot');
+    dot.classList.add('on'); dot.style.transform = ok ? 'translate(88px, -12px)' : 'translate(0, 0)';
+    bk.querySelector('#bkGrade').innerHTML = `<span>${ok ? 'Good. It comes back in 3 days.' : 'It comes back tomorrow, then further apart.'}</span>`;
+    bk.querySelector('#bkMemCap').textContent = 'All three questions in this chapter are answered. The margin shows when each returns.';
+  });
+  /* place the memory curve beside the question */
+  const placeMem = () => {
+    const q = bk.querySelector('#bkQ'), m = bk.querySelector('#bkMem'); m.style.top = q.offsetTop + 'px';
+    const refs = bk.querySelectorAll('.ref'), sns = bk.querySelectorAll('.sn');
+    refs.forEach((r, i) => { if (sns[i]) sns[i].style.top = (r.offsetTop - 14) + 'px'; });
+  };
+  document.fonts.ready.then(placeMem);
+  placeMem();
+
+  /* ---------- NOTEBOOK ---------- */
+  const nb = document.getElementById('nb');
+  const NOTES = {
+    tag: { t: '802.1Q tag', b: '<p>Four bytes added after the source MAC. Twelve bits of it are the VLAN number, so VLANs go from 1 to 4094.</p><p>The switch adds it when a frame enters a trunk and removes it when the frame leaves.</p><div class="mono">S1(config-if)# switchport mode trunk\nS1# show interfaces trunk</div>' },
+    native: { t: 'Native VLAN', b: '<p>The one VLAN that crosses a trunk untagged. VLAN 1 by default.</p><p>Change it on both ends together. A mismatch puts frames in the wrong VLAN without any error on the PC.</p><div class="mono">switchport trunk native vlan 99</div>' },
+    vlans: { t: 'VLANs', b: '<p>A VLAN splits one switch into separate broadcast domains. Sales can\'t see Engineering\'s broadcasts.</p><p>To talk across VLANs you need a router or a layer 3 switch.</p>' },
+    sw: { t: 'Switching concepts', b: '<p>A switch learns MAC addresses from source addresses and forwards by destination. Unknown destinations get flooded.</p>' },
+  };
+  const notePane = nb.querySelector('#notePane'), graphPane = nb.querySelector('#graphPane');
+  const openNote = k => { const n = NOTES[k]; if (!n) return; nb.querySelector('#noteTitle').textContent = n.t; nb.querySelector('#noteBody').innerHTML = n.b; notePane.classList.add('on'); graphPane.classList.add('dim'); };
+  nb.addEventListener('click', e => { const t = e.target.closest('[data-open]'); if (t) openNote(t.dataset.open); });
+  nb.querySelector('#backBtn').addEventListener('click', () => { notePane.classList.remove('on'); graphPane.classList.remove('dim'); });
+  nb.querySelector('#askBtn').addEventListener('click', () => { nb.querySelector('#askCard').hidden = false; });
+  const mine = nb.querySelector('#mine');
+  mine.addEventListener('focus', () => { const v = mine.value; mine.setSelectionRange(v.length, v.length); });
+
+  /* ---------- ATLAS ---------- */
+  const at = document.getElementById('at'), map = at.querySelector('#atMap');
+  const NS = 'http://www.w3.org/2000/svg';
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const blob = (cx, cy, rx, ry, n = 22, j = 0.085) => {
+    const pts = []; for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, k = 1 + (rnd() - 0.5) * 2 * j; pts.push([cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k]); }
+    return pts;
+  };
+  const smooth = (pts, s = 1) => {
+    const P = pts.map(([x, y]) => [x, y]), n = P.length; let d = `M${P[0][0].toFixed(1)} ${P[0][1].toFixed(1)}`;
+    for (let i = 0; i < n; i++) {
+      const p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
+      const c1 = [p1[0] + (p2[0] - p0[0]) / 6 * s, p1[1] + (p2[1] - p0[1]) / 6 * s], c2 = [p2[0] - (p3[0] - p1[0]) / 6 * s, p2[1] - (p3[1] - p1[1]) / 6 * s];
+      d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)}, ${c2[0].toFixed(1)} ${c2[1].toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+    }
+    return d + 'Z';
+  };
+  const scaleP = (pts, cx, cy, k) => pts.map(([x, y]) => [cx + (x - cx) * k, cy + (y - cy) * k]);
+  const REG = [
+    { id: 'itn', name: 'Introduction to Networks', a: [110, 560], b: [430, 470], amp: 62, cx: 270, cy: 520, rx: 215, ry: 150, mods: ['Networking today', 'Basic switch and end device configuration', 'Protocols and models', 'Physical layer', 'Number systems', 'Data link layer', 'Ethernet switching', 'Network layer', 'Address resolution', 'Basic router configuration', 'IPv4 addressing', 'IPv6 addressing', 'ICMP', 'Transport layer', 'Application layer', 'Network security fundamentals', 'Build a small network'], known: 16 },
+    { id: 'srwe', name: 'Switching, Routing and Wireless', a: [540, 300], b: [800, 330], amp: 56, cx: 670, cy: 300, rx: 190, ry: 135, mods: ['Basic device configuration', 'Switching concepts', 'VLANs', 'Inter-VLAN routing', 'STP concepts', 'EtherChannel', 'DHCPv4', 'SLAAC and DHCPv6', 'FHRP concepts', 'LAN security concepts', 'Switch security configuration', 'WLAN concepts', 'WLAN configuration', 'Routing concepts', 'IP static routing', 'Troubleshoot static and default routes'], known: 2 },
+    { id: 'ensa', name: 'Enterprise Networking', a: [920, 540], b: [1170, 560], amp: 50, cx: 1045, cy: 550, rx: 170, ry: 125, mods: ['Single-area OSPFv2 concepts', 'Single-area OSPFv2 configuration', 'Network security concepts', 'ACL concepts', 'ACLs for IPv4 configuration', 'NAT for IPv4', 'WAN concepts', 'VPN and IPsec concepts', 'QoS concepts', 'Network management', 'Network design', 'Network troubleshooting', 'Network virtualization', 'Network automation'], known: 0 },
+  ];
+  let svg = '';
+  REG.forEach(r => {
+    const pts = blob(r.cx, r.cy, r.rx, r.ry);
+    r.coast = pts;
+    [1.09, 1.18].forEach(k => svg += `<path class="ripple" d="${smooth(scaleP(pts, r.cx, r.cy, k))}"/>`);
+  });
+  REG.forEach(r => {
+    svg += `<path class="coast" d="${smooth(r.coast)}"/>`;
+    [0.8, 0.6].forEach(k => svg += `<path class="contour" d="${smooth(scaleP(r.coast, r.cx + 6, r.cy - 4, k))}"/>`);
+  });
+  /* towns: a winding road through each region */
+  REG.forEach(r => {
+    const n = r.mods.length; r.towns = [];
+    const dx = r.b[0] - r.a[0], dy = r.b[1] - r.a[1], L = Math.hypot(dx, dy), nx = -dy / L, ny = dx / L;
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1), w = Math.sin(t * Math.PI * 2.5) * r.amp;
+      r.towns.push([r.a[0] + dx * t + nx * w, r.a[1] + dy * t + ny * w]);
+    }
+  });
+  const roadD = (a, b) => { const mx = (a[0] + b[0]) / 2 + (b[1] - a[1]) * 0.12, my = (a[1] + b[1]) / 2 - (b[0] - a[0]) * 0.12; return `M${a[0].toFixed(1)} ${a[1].toFixed(1)} Q${mx.toFixed(1)} ${my.toFixed(1)} ${b[0].toFixed(1)} ${b[1].toFixed(1)}`; };
+  REG.forEach(r => r.towns.forEach((p, i) => { if (i) svg += `<path class="road${i > r.known ? ' pencil' : ''}" d="${roadD(r.towns[i - 1], p)}"/>`; }));
+  /* bridges between courses */
+  const I = REG[0], S = REG[1], E = REG[2];
+  svg += `<path class="bridge" d="${roadD(I.towns[16], S.towns[0])}"/><path class="bridge" d="${roadD(S.towns[15], E.towns[0])}"/>`;
+  /* tonight's route: VLANs to Inter-VLAN routing */
+  svg += `<path class="route" id="atRoute" d="${roadD(S.towns[2], S.towns[3])}"/>`;
+  svg += `<path class="road ink-anim" id="atInkRoad" d="${roadD(S.towns[2], S.towns[3])}"/>`;
+  REG.forEach(r => {
+    r.towns.forEach((p, i) => {
+      const here = r.id === 'srwe' && i === 2, cls = here ? 'here' : i < r.known ? 'inked' : 'pencil';
+      svg += `<g class="town ${cls}" data-r="${r.id}" data-i="${i}" tabindex="0" role="button" aria-label="${r.mods[i]}"><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${here ? 7 : 5.5}"/></g>`;
+    });
+    const lx = r.cx - r.rx * 0.55, ly = r.cy + r.ry * 0.86;
+    svg += `<text class="rname" x="${r.cx}" y="${r.cy - r.ry - 44}" text-anchor="middle">${r.name}</text>`;
+    svg += `<text class="rsub" x="${r.cx}" y="${r.cy - r.ry - 24}" text-anchor="middle">${r.known} of ${r.mods.length} inked</text>`;
+  });
+  /* a few labels only, so the map stays quiet */
+  const lab = (r, i, dx, dy, p) => { const t = r.towns[i]; svg += `<text class="tl${p ? ' p' : ''}" x="${(t[0] + dx).toFixed(1)}" y="${(t[1] + dy).toFixed(1)}">${r.mods[i]}</text>`; };
+  lab(S, 2, -22, -16); lab(S, 3, 12, 22, true);
+  map.innerHTML = svg;
+
+  const sheet = at.querySelector('#atSheet'), tip = at.querySelector('#atTip'), hint = at.querySelector('#atHint');
+  const here = S.towns[2]; hint.style.left = (here[0] - 150) + 'px'; hint.style.top = (here[1] + 44) + 'px';
+  const scaleOf = () => at.getBoundingClientRect().width / 1280;
+  map.addEventListener('pointerover', e => {
+    const g = e.target.closest('.town'); if (!g) return;
+    const r = REG.find(x => x.id === g.dataset.r), i = +g.dataset.i, p = r.towns[i];
+    tip.textContent = r.mods[i]; tip.style.left = p[0] + 'px'; tip.style.top = p[1] + 'px'; tip.classList.add('on');
+  });
+  map.addEventListener('pointerout', e => { if (e.target.closest('.town')) tip.classList.remove('on'); });
+  const open = (r, i) => {
+    at.querySelector('#atTitle').textContent = r.mods[i];
+    at.querySelector('#atSub').textContent = `${r.name}, module ${i + 1}`;
+    const cur = r.id === 'srwe' && i === 2;
+    at.querySelector('#atQ').hidden = !cur; at.querySelector('#atInk').hidden = !cur;
+    sheet.classList.add('on'); sheet.setAttribute('aria-hidden', 'false'); hint.style.opacity = 0; tip.classList.remove('on');
+  };
+  map.addEventListener('click', e => { const g = e.target.closest('.town'); if (g) open(REG.find(x => x.id === g.dataset.r), +g.dataset.i); });
+  map.addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const g = e.target.closest('.town'); if (g) { e.preventDefault(); open(REG.find(x => x.id === g.dataset.r), +g.dataset.i); } });
+  at.querySelector('#atClose').addEventListener('click', () => { sheet.classList.remove('on'); sheet.setAttribute('aria-hidden', 'true'); });
+  at.querySelector('#atQ').addEventListener('click', e => {
+    const b = e.target.closest('.opts button'); if (!b) return;
+    at.querySelectorAll('#atQ .opts button').forEach(x => x.classList.remove('ok', 'no'));
+    const ok = b.hasAttribute('data-ok'); b.classList.add(ok ? 'ok' : 'no');
+    at.querySelector('#atFb').textContent = ok ? 'Right. Only the native VLAN crosses untagged.' : 'Not quite. Sales is in VLAN 10, so its frames are tagged 10.';
+    at.querySelector('#atInk').disabled = !ok;
+  });
+  at.querySelector('#atInk').addEventListener('click', () => {
+    sheet.classList.remove('on'); sheet.setAttribute('aria-hidden', 'true');
+    const g = map.querySelector('.town[data-r="srwe"][data-i="2"]');
+    setTimeout(() => {
+      g.classList.remove('here'); g.classList.add('inked');
+      map.querySelector('#atRoute').style.opacity = 0;
+      map.querySelector('#atInkRoad').classList.add('go');
+      const nx = map.querySelector('.town[data-r="srwe"][data-i="3"]'); nx.classList.remove('pencil'); nx.classList.add('here');
+      at.querySelector('.at-title p').textContent = '19 of 47 places inked';
+      map.querySelectorAll('.rsub')[1].textContent = '3 of 16 inked';
+      hint.textContent = 'Next on your route: Inter-VLAN routing'; const p = S.towns[3]; hint.style.left = (p[0] - 120) + 'px'; hint.style.top = (p[1] + 40) + 'px'; hint.style.opacity = 1;
+    }, reduce ? 0 : 320);
+  });
+})();
+</script>
