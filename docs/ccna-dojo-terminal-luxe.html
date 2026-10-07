@@ -1,0 +1,608 @@
+<title>CCNA Dojo Terminal Luxe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Martian+Mono:wdth,wght@75..112.5,300..600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: the working app is the hero; a short reference of file types and keys sits underneath in one column. */
+:root {
+  --g-bg: #F2F1EF; --g-ink: #1A1816; --g-ink2: #5F5850; --g-line: #DEDAD4; --g-acc: #8A5A12;
+  --f-page: "Hanken Grotesk", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "Martian Mono", ui-monospace, "SF Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --g-bg: #0B0A09; --g-ink: #EDE7DE; --g-ink2: #A39A8E; --g-line: #2B2723; --g-acc: #D9B47A; color-scheme: dark; } }
+:root[data-theme="dark"] { --g-bg: #0B0A09; --g-ink: #EDE7DE; --g-ink2: #A39A8E; --g-line: #2B2723; --g-acc: #D9B47A; color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--g-bg); color: var(--g-ink); font: 400 16px/1.6 var(--f-page); -webkit-font-smoothing: antialiased; }
+.page { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 44px 96px; display: grid; gap: 32px; }
+.intro { display: grid; gap: 12px; max-width: 760px; }
+h1 { font-size: clamp(2rem, 4.4vw, 3rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.04; margin: 0; text-wrap: balance; }
+h2 { font-size: 1.6rem; font-weight: 650; letter-spacing: -0.02em; margin: 0; }
+p { margin: 0; text-wrap: pretty; }
+.lead { font-size: 1.1rem; color: var(--g-ink2); }
+.how { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .9rem; color: var(--g-ink2); }
+kbd { font: 400 .74rem/1 var(--f-mono); border: 1px solid var(--g-line); border-radius: 4px; padding: 3px 6px; color: var(--g-ink); }
+:focus-visible { outline: 2px solid var(--g-acc); outline-offset: 2px; }
+.stage { width: 100%; overflow: hidden; border-radius: 14px; }
+.stage-inner { width: 1200px; height: 760px; transform-origin: 0 0; }
+.doc { display: grid; gap: 22px; max-width: 900px; padding-top: 36px; }
+.types { display: grid; gap: 0; }
+.types div { display: grid; grid-template-columns: 140px 1fr 1fr; gap: 20px; padding: 14px 0; border-top: 1px solid var(--g-line); font-size: .95rem; }
+.types code { font: 500 .85rem var(--f-mono); color: var(--g-acc); }
+.types span { color: var(--g-ink2); }
+@media (max-width: 640px) { .types div { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ================= APP ================= */
+.app { --bk: #0E0D0C; --p1: #151311; --p2: #1C1916; --p3: #24201C; --ln: #2B2723; --tx: #EDE7DE; --t2: #A39A8E; --t3: #6F675E;
+  --tan: #D9B47A; --tan-soft: rgba(217,180,122,.13); --ok: #9DC79A; --no: #E08A75; --blue: #93B4D6;
+  width: 1200px; height: 760px; background: var(--bk); color: var(--tx); border-radius: 14px; overflow: hidden; position: relative; outline: none;
+  display: grid; grid-template-columns: 210px 1fr 290px; grid-template-rows: 38px 1fr 28px;
+  font: 300 12.5px/1.55 var(--f-mono); font-stretch: 87.5%; border: 1px solid var(--ln); box-shadow: 0 30px 70px -40px rgba(0,0,0,.7); }
+.app:focus-visible { box-shadow: 0 0 0 2px var(--tan); }
+.app button { font: inherit; font-stretch: inherit; color: inherit; cursor: pointer; }
+.tabs { grid-column: 1 / 4; display: flex; border-bottom: 1px solid var(--ln); background: var(--p1); }
+.tabs .dots { width: 210px; display: flex; gap: 7px; align-items: center; padding-left: 14px; border-right: 1px solid var(--ln); flex: none; }
+.tabs .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--ln); }
+.tabs button { background: transparent; border: 0; border-right: 1px solid var(--ln); padding: 0 16px; color: var(--t3); font-size: 12px; display: flex; gap: 8px; align-items: center; }
+.tabs button .x { color: var(--t3); }
+.tabs button[aria-selected="true"] { color: var(--tx); background: var(--bk); box-shadow: inset 0 -1.5px 0 var(--tan); }
+.tree { border-right: 1px solid var(--ln); padding: 10px 0; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 1px; background: var(--p1); font-size: 12px; min-width: 0; overflow: hidden; }
+.tree .dir { color: var(--t3); padding: 8px 14px 2px; }
+.tree button { background: transparent; border: 0; text-align: left; padding: 3px 14px 3px 26px; color: var(--t2); white-space: nowrap; display: flex; justify-content: space-between; gap: 8px; min-width: 0; }
+.tree button:hover { color: var(--tx); }
+.tree button[aria-current="true"] { background: var(--tan-soft); color: var(--tan); }
+.tree button .n { color: var(--t3); }
+.main { position: relative; overflow: hidden; }
+.view { position: absolute; inset: 0; display: none; }
+.view.on { display: grid; }
+.side { border-left: 1px solid var(--ln); background: var(--p1); position: relative; overflow: hidden; }
+.sv { position: absolute; inset: 0; padding: 16px; display: none; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 18px; overflow-y: auto; }
+.sv.on { display: grid; }
+.side h4 { margin: 0 0 6px; font-weight: 500; font-size: 10.5px; color: var(--t3); font-stretch: 75%; letter-spacing: .08em; }
+.row { display: flex; justify-content: space-between; color: var(--t2); padding: 1px 0; gap: 10px; }
+.row b { color: var(--tx); font-weight: 400; }
+.status { grid-column: 1 / 4; display: flex; justify-content: space-between; align-items: center; padding: 0 12px; border-top: 1px solid var(--ln); font-size: 11px; color: var(--t3); background: var(--p1); }
+.status .m { background: var(--tan); color: var(--bk); padding: 1px 8px; border-radius: 3px; margin-right: 12px; font-weight: 500; }
+.status .toast { color: var(--ok); }
+.k { border: 1px solid var(--ln); border-radius: 3px; padding: 0 5px; color: var(--t2); margin-right: 4px; }
+.hint { color: var(--t3); }
+.head { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; }
+.head h3 { margin: 0; font-stretch: 112.5%; font-weight: 500; font-size: 21px; letter-spacing: -0.02em; }
+.head span { color: var(--t3); font-size: 11.5px; white-space: nowrap; }
+.blk { border: 1px solid var(--ln); border-radius: 8px; background: var(--p1); overflow: hidden; }
+.blk-h { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; border-bottom: 1px solid var(--ln); font-size: 11px; color: var(--t3); }
+.btn { background: var(--tan); color: var(--bk) !important; border: 0; border-radius: 4px; font-size: 11px !important; padding: 3px 10px; font-weight: 500; }
+.btn.ghost { background: transparent; color: var(--t2) !important; border: 1px solid var(--ln); }
+
+/* topology svg */
+.topo .ln { stroke: var(--t3); stroke-width: 1.3; fill: none; transition: stroke .3s; }
+.topo .ln.tr { stroke: var(--tan); }
+.topo .ln.lit { stroke: var(--ok); stroke-width: 2; }
+.topo .nd rect { fill: var(--p1); stroke: var(--ln); stroke-width: 1.2; transition: stroke .2s; }
+.topo .nd.focus rect { stroke: var(--tan); }
+.topo .nd.ok rect { stroke: var(--ok); }
+.topo .nd.no rect { stroke: var(--no); }
+.topo text { font-family: var(--f-mono); font-stretch: 87.5%; }
+.topo .nm { font-size: 13px; font-weight: 500; fill: var(--tx); }
+.topo .sb { font-size: 10.5px; fill: var(--t3); }
+.topo .pt { font-size: 10px; fill: var(--t3); }
+.topo .say { font-size: 11px; fill: var(--t2); }
+.frame-dot { fill: var(--tan); }
+.frame-lbl { font-size: 10.5px; fill: var(--tan); }
+
+/* DEMO */
+.demo { grid-template-rows: auto 1fr auto auto; padding: 22px 30px 18px; gap: 14px; }
+.demo svg { width: 100%; height: 100%; }
+.caption { min-height: 86px; display: grid; gap: 4px; align-content: start; }
+.caption b { color: var(--tan); font-weight: 400; font-size: 11.5px; }
+.caption p { color: var(--tx); font-size: 14px; line-height: 1.6; font-weight: 300; max-width: 72ch; font-stretch: 100%; }
+.timeline { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+.steps { display: flex; align-items: center; }
+.steps button { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--t3); background: var(--bk); padding: 0; flex: none; }
+.steps button.done { background: var(--tan); border-color: var(--tan); }
+.steps button.cur { border-color: var(--tan); box-shadow: 0 0 0 4px var(--tan-soft); }
+.steps i { flex: 1; height: 1.5px; background: var(--ln); }
+.steps i.done { background: var(--tan); }
+.play { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--ln); background: var(--p2); display: grid; place-items: center; padding: 0; }
+.play svg { width: 12px; height: 12px; fill: var(--tx); }
+.pktlog { font-size: 11px; display: grid; gap: 0; }
+.pktlog .r { display: grid; grid-template-columns: 20px 1fr; gap: 6px; padding: 5px 0; border-top: 1px solid var(--ln); color: var(--t2); opacity: .35; }
+.pktlog .r.on { opacity: 1; }
+.pktlog .r.cur { color: var(--tx); }
+.pktlog .r span:first-child { color: var(--t3); }
+.cache { font-size: 11px; background: var(--bk); border: 1px solid var(--ln); border-radius: 6px; padding: 8px 10px; white-space: pre; color: var(--t2); }
+.cache .new { color: var(--tan); }
+
+/* LAB + FIX shared console */
+.lab { grid-template-rows: auto 210px 1fr; padding: 18px 22px 0; gap: 10px; }
+.lab svg { width: 100%; height: 100%; }
+.con { border: 1px solid var(--ln); border-bottom: 0; border-radius: 8px 8px 0 0; background: var(--p1); display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
+.con-tabs { display: flex; border-bottom: 1px solid var(--ln); }
+.con-tabs button { background: transparent; border: 0; padding: 6px 14px; font-size: 11.5px; color: var(--t3); border-bottom: 1.5px solid transparent; }
+.con-tabs button[aria-selected="true"] { color: var(--tx); border-bottom-color: var(--tan); }
+.con-tabs .sp { flex: 1; }
+.con-body { padding: 8px 12px; overflow-y: auto; white-space: pre; color: var(--t2); font-size: 12px; line-height: 1.6; }
+.con-body .c { color: var(--tx); }
+.con-body .e { color: var(--no); }
+.con-body .g { color: var(--ok); }
+.con-line { display: flex; }
+.con-line input { flex: 1; background: transparent; border: 0; outline: none; color: var(--tx); font: inherit; font-stretch: inherit; caret-color: var(--tan); padding: 0 0 0 8px; }
+.checks { display: grid; gap: 6px; }
+.chk { display: grid; grid-template-columns: 42px 1fr; gap: 6px; color: var(--t2); font-size: 11.5px; }
+.chk .s { font-weight: 500; }
+.chk .s.pass { color: var(--ok); } .chk .s.fail { color: var(--no); } .chk .s.wait { color: var(--t3); }
+.runout { background: var(--bk); border: 1px solid var(--ln); border-radius: 6px; padding: 10px; font-size: 11px; white-space: pre-wrap; color: var(--t2); min-height: 120px; }
+.runout .pass { color: var(--ok); } .runout .fail { color: var(--no); } .runout .dim { color: var(--t3); }
+
+/* FIX */
+.fix { grid-template-rows: auto auto auto 1fr; padding: 18px 22px 0; gap: 12px; }
+.ticket { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid var(--ln); border-left: 2px solid var(--no); border-radius: 6px; background: var(--p1); }
+.ticket .meta { display: flex; gap: 22px; font-size: 11px; color: var(--t3); }
+.ticket .meta b { color: var(--no); font-weight: 400; }
+.ticket p { font-size: 13.5px; color: var(--tx); font-stretch: 100%; }
+.evid pre { margin: 0; padding: 8px 12px; font: inherit; font-size: 11.5px; color: var(--t2); white-space: pre; }
+.evid .hl { color: var(--tan); }
+.diff { background: var(--bk); border: 1px solid var(--ln); border-radius: 6px; padding: 8px 10px; font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--t2); }
+.diff .m { color: var(--no); } .diff .p { color: var(--ok); }
+
+/* DRILL */
+.drill { grid-template-rows: auto 1fr; padding: 22px 30px; gap: 18px; }
+.repl { display: grid; align-content: end; gap: 3px; font-size: 13.5px; overflow: hidden; font-stretch: 100%; }
+.repl .r { display: grid; grid-template-columns: 54px 200px 170px 80px 1fr; gap: 10px; color: var(--t2); }
+.repl .r .ok { color: var(--ok); } .repl .r .no { color: var(--no); }
+.repl .r .n { color: var(--t3); }
+.repl .cur { display: grid; grid-template-columns: 54px 200px 1fr; gap: 10px; align-items: center; color: var(--tx); padding-top: 8px; margin-top: 6px; border-top: 1px solid var(--ln); }
+.repl .cur input { background: transparent; border: 0; outline: none; color: var(--tan); font: inherit; caret-color: var(--tan); }
+.repl .clock { color: var(--t3); font-size: 12px; }
+.spark { display: flex; align-items: flex-end; gap: 3px; height: 54px; }
+.spark i { flex: 1; background: var(--tan); opacity: .8; border-radius: 1px; min-height: 2px; }
+.spark i.slow { background: var(--no); }
+
+/* REVIEW */
+.review { place-items: center; padding: 30px; }
+.card { width: 620px; display: grid; gap: 18px; }
+.card .meta { display: flex; justify-content: space-between; color: var(--t3); font-size: 11.5px; }
+.card .bar { height: 2px; background: var(--ln); } .card .bar i { display: block; height: 100%; background: var(--tan); transition: width .3s; }
+.card .q { font: 400 19px/1.5 var(--f-mono); font-stretch: 100%; color: var(--tx); margin: 0; }
+.card .ans { display: grid; gap: 10px; border-top: 1px solid var(--ln); padding-top: 16px; }
+.card .ans code { font: 500 18px var(--f-mono); color: var(--tan); }
+.card .ans p { color: var(--t2); font-size: 13px; font-stretch: 100%; }
+.grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.grades button { background: var(--p1); border: 1px solid var(--ln); border-radius: 6px; padding: 8px 10px; text-align: left; display: grid; gap: 2px; }
+.grades button:hover { border-color: var(--t3); }
+.grades b { font-weight: 400; color: var(--tx); }
+.grades span { color: var(--t3); font-size: 11px; }
+
+@media (prefers-reduced-motion: reduce) { .topo .ln, .card .bar i { transition: none; } }
+</style>
+
+<div class="page">
+  <header class="intro">
+    <h1>Demos and exercises in Terminal Luxe</h1>
+    <p class="lead">Every learning object is a file, and each file type opens in its own runner. Open them from the tree on the left. Everything below works.</p>
+    <div class="how"><span><kbd>Alt</kbd> <kbd>1</kbd>-<kbd>5</kbd> switch file</span><span><kbd>Space</kbd> play the demo or reveal a card</span><span><kbd>Ctrl</kbd> <kbd>Enter</kbd> run checks</span><span>Type <kbd>?</kbd> in any console</span></div>
+  </header>
+
+  <div class="stage" id="stage"><div class="stage-inner" id="stageInner">
+  <div class="app" id="app" tabindex="0" aria-label="CCNA Dojo Terminal Luxe prototype">
+    <div class="tabs" role="tablist" id="tabs"><div class="dots" aria-hidden="true"><i></i><i></i><i></i></div></div>
+
+    <nav class="tree" id="tree">
+      <span class="dir">learn/</span>
+      <button type="button" data-open="demo">09-arp.demo <span class="n">ITN</span></button>
+      <span class="dir">labs/</span>
+      <button type="button" data-open="lab">lab-7.2.topo <span class="n">2/3</span></button>
+      <span class="dir">drills/</span>
+      <button type="button" data-open="drill">wildcard.drill <span class="n">slow</span></button>
+      <span class="dir">reviews/</span>
+      <button type="button" data-open="review">due-today.review <span class="n">24</span></button>
+      <span class="dir">tickets/</span>
+      <button type="button" data-open="fix">0412-vlan20.fault <span class="n">new</span></button>
+    </nav>
+
+    <main class="main">
+      <!-- DEMO -->
+      <section class="view demo" data-view="demo">
+        <div class="head"><h3>How PC1 finds its gateway's MAC</h3><span>demo, 5 steps, ITN 9.2 ARP</span></div>
+        <svg class="topo" viewBox="20 22 790 256" id="demoSvg" aria-label="PC1, PC2 and R1 connected to switch S1">
+          <line class="ln" x1="150" y1="150" x2="320" y2="150"/><line class="ln" x1="400" y1="140" x2="570" y2="68"/><line class="ln" x1="400" y1="160" x2="570" y2="232"/>
+          <text class="pt" x="270" y="140">Fa0/1</text><text class="pt" x="430" y="104">Fa0/2</text><text class="pt" x="430" y="214">Gi0/1</text>
+          <g class="nd" id="dPC1"><rect x="40" y="124" width="110" height="52" rx="6"/><text class="nm" x="54" y="146">PC1</text><text class="sb" x="54" y="164">.10.10</text></g>
+          <g class="nd" id="dS1"><rect x="320" y="124" width="80" height="52" rx="6"/><text class="nm" x="334" y="146">S1</text><text class="sb" x="334" y="164">2960</text></g>
+          <g class="nd" id="dPC2"><rect x="570" y="40" width="110" height="52" rx="6"/><text class="nm" x="584" y="62">PC2</text><text class="sb" x="584" y="80">.10.11</text></g>
+          <g class="nd" id="dR1"><rect x="570" y="206" width="130" height="52" rx="6"/><text class="nm" x="584" y="228">R1</text><text class="sb" x="584" y="246">.10.1 gateway</text></g>
+          <text class="say" id="sayPC2" x="700" y="70"></text><text class="say" id="sayR1" x="712" y="236"></text>
+          <g id="frames"></g>
+        </svg>
+        <div class="caption"><b id="capStep">Step 1 of 5</b><p id="capText"></p></div>
+        <div class="timeline">
+          <button class="play" type="button" id="playBtn" aria-label="Play"><svg viewBox="0 0 12 12" id="playIco"><path d="M2 1l9 5-9 5z"/></svg></button>
+          <div class="steps" id="steps"></div>
+          <span class="hint"><span class="k">Left</span><span class="k">Right</span>step</span>
+        </div>
+      </section>
+
+      <!-- LAB -->
+      <section class="view lab" data-view="lab">
+        <div class="head"><h3>Lab 7.2 Router-on-a-stick</h3><span id="labClock">06:42 of 10:00 par</span></div>
+        <svg class="topo" viewBox="0 0 800 210" aria-label="Lab topology">
+          <line class="ln" id="l1" x1="150" y1="44" x2="330" y2="100"/><line class="ln" id="l2" x1="150" y1="166" x2="330" y2="112"/>
+          <line class="ln tr" id="l3" x1="410" y1="102" x2="580" y2="102"/><line class="ln tr" id="l4" x1="410" y1="110" x2="580" y2="110"/>
+          <text class="pt" x="232" y="58">Fa0/5</text><text class="pt" x="232" y="160">Fa0/6</text><text class="pt" x="430" y="92">Gi0/1</text><text class="pt" x="520" y="92">G0/0/1</text><text class="pt" x="446" y="130">trunk 10,20</text>
+          <g class="nd"><rect x="20" y="18" width="130" height="50" rx="6"/><text class="nm" x="34" y="39">PC-SALES</text><text class="sb" x="34" y="56">192.168.10.10</text></g>
+          <g class="nd" id="nENG"><rect x="20" y="142" width="130" height="50" rx="6"/><text class="nm" x="34" y="163">PC-ENG</text><text class="sb" x="34" y="180">192.168.20.10</text></g>
+          <g class="nd"><rect x="330" y="80" width="80" height="50" rx="6"/><text class="nm" x="344" y="101">S1</text><text class="sb" x="344" y="118">2960</text></g>
+          <g class="nd focus" id="nR1"><rect x="580" y="80" width="130" height="50" rx="6"/><text class="nm" x="594" y="101">R1</text><text class="sb" x="594" y="118">ISR 4321</text></g>
+        </svg>
+        <div class="con" data-console="lab"></div>
+      </section>
+
+      <!-- DRILL -->
+      <section class="view drill" data-view="drill">
+        <div class="head"><h3>Wildcard masks</h3><span>10 rounds, target 15 s, generated</span></div>
+        <div class="repl" id="repl"></div>
+      </section>
+
+      <!-- REVIEW -->
+      <section class="view review" data-view="review">
+        <div class="card">
+          <div class="meta"><span id="rvTag"></span><span id="rvCount"></span></div>
+          <div class="bar"><i id="rvBar"></i></div>
+          <p class="q" id="rvQ"></p>
+          <span class="hint" id="rvHint"><span class="k">Space</span>show answer</span>
+          <div class="ans" id="rvAns" hidden>
+            <code id="rvA"></code><p id="rvWhy"></p>
+            <div class="grades" id="grades">
+              <button type="button" data-g="1"><b>1 again</b><span>10 min</span></button><button type="button" data-g="2"><b>2 hard</b><span>2 days</span></button>
+              <button type="button" data-g="3"><b>3 good</b><span>6 days</span></button><button type="button" data-g="4"><b>4 easy</b><span>15 days</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FIX -->
+      <section class="view fix" data-view="fix">
+        <div class="head"><h3>Ticket 0412</h3><span>troubleshooting, SRWE 4 and 11</span></div>
+        <div class="ticket">
+          <div class="meta"><span>severity <b>high</b></span><span>opened 08:02</span><span>reporter: helpdesk</span></div>
+          <p>Users in VLAN 20 (Engineering) cannot reach the file server at 192.168.30.10. VLAN 10 users are fine. Nothing was changed, according to the change log.</p>
+        </div>
+        <div class="blk evid">
+          <div class="blk-h"><span>evidence, captured 08:03</span><span>S1</span></div>
+          <pre>08:01:44 S1 %SYS-5-CONFIG_I: Configured from console by netops on vty0
+S1# show interfaces trunk
+Port    Mode   Encapsulation  Status    Native vlan
+Gi0/1   on     802.1q         trunking  1
+Port    Vlans allowed on trunk
+Gi0/1   10,30</pre>
+        </div>
+        <div class="con" data-console="fix"></div>
+      </section>
+    </main>
+
+    <aside class="side">
+      <div class="sv" data-side="demo">
+        <div><h4>PACKET LOG</h4><div class="pktlog" id="pktlog"></div></div>
+        <div><h4>PC1 ARP CACHE</h4><div class="cache" id="cache"></div></div>
+        <button class="btn" type="button" id="yourTurn" style="justify-self:start" hidden>Your turn: open Lab 7.2</button>
+      </div>
+      <div class="sv" data-side="lab">
+        <div><h4>TASKS</h4><div class="checks" id="labChecks"></div></div>
+        <div><h4 style="display:flex;justify-content:space-between">CHECK OUTPUT <button class="btn" type="button" data-run="lab">dojo check</button></h4><div class="runout" id="labOut"><span class="dim">Press Ctrl Enter to run the checks.</span></div></div>
+        <div class="hint">Stuck? Type <span class="k">?</span> in the console for the commands this mode accepts.</div>
+      </div>
+      <div class="sv" data-side="drill">
+        <div><h4>THIS ROUND</h4><div class="row"><span>correct</span><b id="dCorrect">0 / 0</b></div><div class="row"><span>average</span><b id="dAvg">-</b></div><div class="row"><span>last week</span><b>14.2 s</b></div><div class="row"><span>personal best</span><b>8.9 s</b></div></div>
+        <div><h4>SECONDS PER ANSWER</h4><div class="spark" id="spark"></div></div>
+        <div class="hint">Questions are generated, so this drill never runs out. Slow answers come back sooner.</div>
+      </div>
+      <div class="sv" data-side="review">
+        <div><h4>TODAY</h4><div class="row"><span>due</span><b>24</b></div><div class="row"><span>new</span><b>15</b></div><div class="row"><span>recall, 30 days</span><b>87%</b></div></div>
+        <div><h4>DECK</h4><div class="row"><span>ITN</span><b>612</b></div><div class="row"><span>SRWE</span><b>148 of 590</b></div><div class="row"><span>ENSA</span><b>locked</b></div></div>
+        <div class="hint">Cards come from lessons you have finished. Fading levels add their cards here first.</div>
+      </div>
+      <div class="sv" data-side="fix">
+        <div><h4 style="display:flex;justify-content:space-between">VERIFY <button class="btn" type="button" data-run="fix">dojo verify</button></h4><div class="runout" id="fixOut"><span class="dim">Investigate in the S1 console, fix it, then press Ctrl Enter.</span></div></div>
+        <div><h4>YOUR DIFF</h4><div class="diff" id="fixDiff"><span style="color:var(--t3)">No changes yet.</span></div></div>
+        <div><h4>SCORED ON</h4><div class="row"><span>time to fix</span><b id="fixTime">running</b></div><div class="row"><span>lines changed</span><b id="fixLines">0</b></div></div>
+      </div>
+    </aside>
+
+    <footer class="status"><span id="stL"></span><span id="stR"></span></footer>
+  </div>
+  </div></div>
+
+  <div class="doc">
+    <h2>Every learning object is a file</h2>
+    <div class="types">
+      <div><code>.lesson</code><span>A notebook: text, live diagrams, and config blocks you run in the simulator</span><span>Ctrl Enter runs the block under the cursor</span></div>
+      <div><code>.demo</code><span>A guided replay. The topology animates, a packet log fills in, each step is narrated</span><span>Space play, Left and Right step, then "your turn"</span></div>
+      <div><code>.topo</code><span>A lab. Topology, device consoles, and checks that run like a test suite</span><span>Type in consoles, Ctrl Enter runs dojo check</span></div>
+      <div><code>.drill</code><span>A timed prompt that generates questions forever and tracks your speed</span><span>Type the answer, Enter submits</span></div>
+      <div><code>.review</code><span>Spaced-repetition cards, scheduled from your forgetting curve</span><span>Space reveals, 1 to 4 grades</span></div>
+      <div><code>.fault</code><span>An incident ticket with evidence. Find the cause, fix it, verify. Scored on time and on how few lines you changed</span><span>Investigate in the console, Ctrl Enter verifies</span></div>
+      <div><code>.exam</code><span>A timed mock exam that mixes questions and simulator tasks</span><span>Not in this prototype yet</span></div>
+    </div>
+    <p style="color:var(--g-ink2)">The same files open from the terminal too: <code style="font-family:var(--f-mono);font-size:.88em">dojo open 7.2</code>, <code style="font-family:var(--f-mono);font-size:.88em">dojo drill wildcard</code>, <code style="font-family:var(--f-mono);font-size:.88em">dojo review</code>.</p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const $ = s => app.querySelector(s), $$ = s => [...app.querySelectorAll(s)];
+  const stage = document.getElementById('stage'), inner = document.getElementById('stageInner');
+  const fit = () => { const s = Math.min(1, stage.clientWidth / 1200); inner.style.transform = `scale(${s})`; stage.style.height = (760 * s) + 'px'; };
+  new ResizeObserver(fit).observe(stage); fit();
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  /* ---------- files, tabs, status ---------- */
+  const FILES = [
+    ['demo', '09-arp.demo', 'DEMO', 'learn/09-arp.demo', '<span class="k">Space</span>play  <span class="k">Left</span><span class="k">Right</span>step'],
+    ['lab', 'lab-7.2.topo', 'LAB', 'labs/lab-7.2.topo', '<span class="k">Ctrl Enter</span>dojo check  <span class="k">?</span>help'],
+    ['drill', 'wildcard.drill', 'DRILL', 'drills/wildcard.drill', '<span class="k">Enter</span>submit  <span class="k">Tab</span>skip'],
+    ['review', 'due-today.review', 'REVIEW', 'reviews/due-today.review', '<span class="k">Space</span>reveal  <span class="k">1-4</span>grade'],
+    ['fix', '0412-vlan20.fault', 'FIX', 'tickets/0412-vlan20.fault', '<span class="k">Ctrl Enter</span>dojo verify  <span class="k">?</span>help'],
+  ];
+  $('#tabs').insertAdjacentHTML('beforeend', FILES.map(f => `<button type="button" role="tab" data-open="${f[0]}" aria-selected="false">${f[1]}</button>`).join(''));
+  let cur = 'demo';
+  const status = (toast) => { const f = FILES.find(x => x[0] === cur); $('#stL').innerHTML = `<span class="m">${f[2]}</span>${toast ? `<span class="toast">${toast}</span>` : f[3]}`; $('#stR').innerHTML = f[4]; };
+  const open = (name) => {
+    cur = name;
+    $$('.view').forEach(v => v.classList.toggle('on', v.dataset.view === name));
+    $$('.sv').forEach(v => v.classList.toggle('on', v.dataset.side === name));
+    $$('[data-open]').forEach(b => { if (b.closest('.tabs')) b.setAttribute('aria-selected', b.dataset.open === name); else b.setAttribute('aria-current', b.dataset.open === name); });
+    status();
+    if (name === 'drill') setTimeout(() => $('#drillIn') && $('#drillIn').focus({ preventScroll: true }), 0);
+  };
+  app.addEventListener('click', e => { const b = e.target.closest('[data-open]'); if (b) open(b.dataset.open); });
+
+  /* ---------- DEMO ---------- */
+  const P = { PC1: [156, 150], S1: [360, 150], PC2: [550, 74], R1: [550, 226] };
+  const STEPS = [
+    { t: 'PC1 wants to ping 192.168.20.10. That address is outside 192.168.10.0/24, so the frame must go to the default gateway, 192.168.10.1. PC1 knows the gateway\'s IP but not its MAC, and its ARP cache is empty.', f: [], focus: 'PC1', log: 0, cache: 'Internet Address   Physical Address\n(empty)' },
+    { t: 'PC1 broadcasts an ARP request: "Who has 192.168.10.1? Tell 192.168.10.10." The destination MAC is ffff.ffff.ffff, so every device in the VLAN must look at it.', f: [[['PC1', 'S1'], 'ARP who-has .1']], focus: 'S1', log: 1 },
+    { t: 'S1 learns PC1\'s MAC on Fa0/1, then floods the broadcast out every other port in VLAN 10. PC2 sees the request is not for its IP and drops it. R1 recognises its own address and also caches PC1\'s MAC for later.', f: [[['S1', 'PC2'], 'broadcast'], [['S1', 'R1'], 'broadcast']], focus: 'R1', log: 1, say: { PC2: 'not mine, drop', R1: 'that is me' } },
+    { t: 'R1 answers with a unicast ARP reply. S1 already learned PC1 on Fa0/1 a moment ago, so the reply goes only there. No flooding this time.', f: [[['R1', 'S1', 'PC1'], 'ARP reply', 'var(--ok)']], focus: 'PC1', log: 2 },
+    { t: 'PC1 stores 00a3.d1f2.0b01 for 192.168.10.1 and finally sends the ICMP echo. The IP destination is 192.168.20.10, but the MAC destination is R1. Every later packet skips ARP until the entry ages out.', f: [[['PC1', 'S1', 'R1'], 'ICMP to .20.10', 'var(--blue)']], focus: 'R1', log: 3, cache: 'Internet Address   Physical Address\n<span class="new">192.168.10.1       00a3.d1f2.0b01</span>' },
+  ];
+  const LOG = [
+    'ARP  0050.7966.6801 to ffff.ffff.ffff  Who has 192.168.10.1? Tell 192.168.10.10',
+    'ARP  00a3.d1f2.0b01 to 0050.7966.6801  192.168.10.1 is at 00a3.d1f2.0b01',
+    'ICMP 192.168.10.10 to 192.168.20.10  Echo request',
+  ];
+  $('#steps').innerHTML = STEPS.map((_, i) => `${i ? '<i></i>' : ''}<button type="button" data-step="${i}" aria-label="Step ${i + 1}"></button>`).join('');
+  $('#pktlog').innerHTML = LOG.map((l, i) => `<div class="r" data-log="${i}"><span>${i + 1}</span><span>${l}</span></div>`).join('');
+  let step = 0, playing = null, anims = [];
+  const movePath = (g, pts, dur) => new Promise(res => {
+    if (reduce) { const p = pts[pts.length - 1]; g.setAttribute('transform', `translate(${p[0]} ${p[1]})`); return res(); }
+    const segs = []; let total = 0;
+    for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(d); total += d; }
+    const t0 = performance.now();
+    const tick = now => {
+      let k = Math.min(1, (now - t0) / dur); const e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      let dist = e * total, i = 0; while (i < segs.length - 1 && dist > segs[i]) { dist -= segs[i]; i++; }
+      const a = pts[i], b = pts[i + 1], r = segs[i] ? dist / segs[i] : 1;
+      g.setAttribute('transform', `translate(${a[0] + (b[0] - a[0]) * r} ${a[1] + (b[1] - a[1]) * r})`);
+      if (k < 1) anims.push(requestAnimationFrame(tick)); else res();
+    };
+    anims.push(requestAnimationFrame(tick));
+  });
+  const renderStep = () => {
+    anims.forEach(cancelAnimationFrame); anims = [];
+    const s = STEPS[step];
+    $('#capStep').textContent = `Step ${step + 1} of ${STEPS.length}`; $('#capText').textContent = s.t;
+    $$('#steps button').forEach((b, i) => { b.classList.toggle('done', i < step); b.classList.toggle('cur', i === step); });
+    $$('#steps i').forEach((b, i) => b.classList.toggle('done', i < step));
+    ['PC1', 'S1', 'PC2', 'R1'].forEach(n => $('#d' + n).classList.toggle('focus', n === s.focus));
+    $('#sayPC2').textContent = s.say ? s.say.PC2 : ''; $('#sayR1').textContent = s.say ? s.say.R1 : '';
+    $$('#pktlog .r').forEach((r, i) => { r.classList.toggle('on', i < s.log); r.classList.toggle('cur', i === s.log - 1); });
+    const lastCache = [...STEPS.slice(0, step + 1)].reverse().find(x => x.cache); $('#cache').innerHTML = lastCache.cache;
+    $('#yourTurn').hidden = step !== STEPS.length - 1;
+    const fr = $('#frames'); fr.innerHTML = '';
+    s.f.forEach(([path, label, color]) => {
+      const pts = path.map(n => P[n]);
+      fr.insertAdjacentHTML('beforeend', `<g transform="translate(${pts[0][0]} ${pts[0][1]})"><circle class="frame-dot" r="6" style="${color ? 'fill:' + color : ''}"/><text class="frame-lbl" x="${pts[pts.length - 1][0] < 300 ? 10 : -10}" y="-12" text-anchor="${pts[pts.length - 1][0] < 300 ? 'start' : 'end'}" style="${color ? 'fill:' + color : ''}">${label}</text></g>`);
+      movePath(fr.lastElementChild, pts, 1200 + 400 * (pts.length - 2));
+    });
+  };
+  const setStep = n => { step = Math.max(0, Math.min(STEPS.length - 1, n)); renderStep(); };
+  const togglePlay = () => {
+    if (playing) { clearInterval(playing); playing = null; }
+    else { if (step === STEPS.length - 1) setStep(0); playing = setInterval(() => { if (step === STEPS.length - 1) { togglePlay(); return; } setStep(step + 1); }, 2800); }
+    $('#playIco').innerHTML = playing ? '<path d="M2 1h3v10H2zM7 1h3v10H7z"/>' : '<path d="M2 1l9 5-9 5z"/>';
+    $('#playBtn').setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  };
+  $('#playBtn').addEventListener('click', togglePlay);
+  $('#steps').addEventListener('click', e => { const b = e.target.closest('[data-step]'); if (b) setStep(+b.dataset.step); });
+  $('#yourTurn').addEventListener('click', () => open('lab'));
+  renderStep();
+
+  /* ---------- IOS console engine ---------- */
+  const VOCAB = ['configure', 'terminal', 'interface', 'interfaces', 'encapsulation', 'dot1q', 'ip', 'address', 'end', 'exit', 'show', 'brief', 'switchport', 'trunk', 'allowed', 'vlan', 'add', 'running-config', 'ping', 'route', 'no', 'shutdown', 'do'];
+  const normIf = w => w.replace(/^g(i(g(a(b(i(t(e(t(h(e(r(n(e(t)?)?)?)?)?)?)?)?)?)?)?)?)?)?(?=\d)/i, 'gigabitethernet');
+  const expand = line => { const out = []; line.trim().toLowerCase().split(/\s+/).forEach(w => {
+    const prev = out[out.length - 1];
+    if (/^g[a-z]*\d/.test(w)) return out.push(normIf(w));
+    if (/^[\d.,/]+$/.test(w) || w === '?') return out.push(w);
+    if (prev === 'ip' && 'address'.startsWith(w)) return out.push('address');
+    if (prev === 'show' && w.length >= 3 && 'interfaces'.startsWith(w)) return out.push('interfaces');
+    if (prev === 'show' && w.length >= 3 && 'running-config'.startsWith(w)) return out.push('running-config');
+    const m = VOCAB.filter(v => v.startsWith(w)); out.push(m.includes(w) ? w : (m[0] || w));
+  }); return out.join(' '); };
+  const makeConsole = (root, devices, startDev, handlers) => {
+    const st = { dev: startDev, hist: Object.fromEntries(devices.map(d => [d.name, d.hist || []])), mode: Object.fromEntries(devices.map(d => [d.name, { m: 'exec', ifc: null }])) };
+    const promptOf = d => { const m = st.mode[d]; if (d.startsWith('PC')) return 'C:\\>'; return d + (m.m === 'exec' ? '#' : m.m === 'config' ? '(config)#' : m.m === 'if' ? '(config-if)#' : '(config-subif)#'); };
+    root.innerHTML = `<div class="con-tabs">${devices.map(d => `<button type="button" data-dev="${d.name}" aria-selected="${d.name === startDev}">${d.name}</button>`).join('')}<span class="sp"></span></div><div class="con-body"></div>`;
+    const body = root.querySelector('.con-body');
+    const render = () => {
+      body.innerHTML = st.hist[st.dev].map(([p, c, o, cls]) => `<div><span class="c">${esc(p)} ${esc(c)}</span></div>${o ? `<div class="${cls || ''}">${o}</div>` : ''}`).join('') +
+        `<div class="con-line"><span class="c">${esc(promptOf(st.dev))}</span><input aria-label="${st.dev} console" spellcheck="false" autocomplete="off"></div>`;
+      body.scrollTop = body.scrollHeight;
+    };
+    root.querySelector('.con-tabs').addEventListener('click', e => { const b = e.target.closest('[data-dev]'); if (!b) return; st.dev = b.dataset.dev; root.querySelectorAll('[data-dev]').forEach(x => x.setAttribute('aria-selected', x === b)); render(); body.querySelector('input').focus(); });
+    body.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.target.tagName !== 'INPUT') return;
+      e.stopPropagation(); const raw = e.target.value; const p = promptOf(st.dev);
+      if (!raw.trim()) { st.hist[st.dev].push([p, '', '']); render(); body.querySelector('input').focus(); return; }
+      let x = expand(raw); const mode = st.mode[st.dev];
+      if (x.startsWith('do ')) x = x.slice(3);
+      let out = null, cls = '';
+      if (x === '?') out = handlers.help(st.dev, mode);
+      else if (x === 'configure terminal' && mode.m === 'exec' && !st.dev.startsWith('PC')) { mode.m = 'config'; out = 'Enter configuration commands, one per line.  End with CNTL/Z.'; }
+      else if (x === 'end') { mode.m = 'exec'; mode.ifc = null; out = ''; }
+      else if (x === 'exit') { mode.m = mode.m === 'config' ? 'exec' : mode.m === 'exec' ? 'exec' : 'config'; mode.ifc = mode.m === 'config' ? null : mode.ifc; out = ''; }
+      else if (/^interface /.test(x) && mode.m !== 'exec') { const ifc = x.slice(10); mode.ifc = ifc; mode.m = ifc.includes('.') ? 'subif' : 'if'; out = handlers.onIf ? handlers.onIf(st.dev, ifc) || '' : ''; }
+      else out = handlers.cmd(st.dev, mode, x);
+      if (out === null || out === undefined) { out = `${' '.repeat(p.length + 1)}^\n% Invalid input detected at '^' marker.  Type ? for help.`; cls = 'e'; }
+      st.hist[st.dev].push([p, raw, out, cls]); render(); body.querySelector('input').focus();
+    });
+    render();
+    return st;
+  };
+
+  /* ---------- LAB ---------- */
+  const lab = { sub20: { encap: false, ip: false }, start: 402, done: false };
+  const R1_BRIEF = () => `Interface              IP-Address      OK? Method Status    Protocol
+GigabitEthernet0/0/1   unassigned      YES unset  up        up
+Gi0/0/1.10             192.168.10.1    YES manual up        up` + (lab.sub20.ip ? `\nGi0/0/1.20             192.168.20.1    YES manual up        up` : '');
+  makeConsole($('[data-console="lab"]'), [
+    { name: 'R1', hist: [['R1#', 'show ip interface brief', R1_BRIEF()]] }, { name: 'S1' }, { name: 'PC-SALES' },
+  ], 'R1', {
+    help: (d, m) => d === 'R1' ? ({ exec: 'configure terminal\nping <ip>\nshow ip interface brief\nshow ip route', config: 'interface <name>     e.g. interface g0/0/1.20\nend', subif: 'encapsulation dot1Q <vlan>\nip address <ip> <mask>\nexit\nend', if: 'exit\nend' })[m.m] : d === 'S1' ? 'show vlan brief\nshow interfaces trunk' : 'ping <ip>',
+    onIf: (d, ifc) => (d === 'R1' && ifc === 'gigabitethernet0/0/1.20') ? '' : '',
+    cmd: (d, m, x) => {
+      if (d === 'R1') {
+        if (m.m === 'exec' && x === 'show ip interface brief') return R1_BRIEF();
+        if (m.m === 'exec' && x === 'show ip route') return `C        192.168.10.0/24 is directly connected, GigabitEthernet0/0/1.10` + (lab.sub20.ip ? `\nC        192.168.20.0/24 is directly connected, GigabitEthernet0/0/1.20` : '');
+        if (m.m === 'exec' && x === 'ping 192.168.20.10') return lab.sub20.ip && lab.sub20.encap ? 'Type escape sequence to abort.\n<span class="g">!!!!!</span>\nSuccess rate is 100 percent (5/5)' : 'Type escape sequence to abort.\n.....\nSuccess rate is 0 percent (0/5)';
+        if (m.m === 'subif' && m.ifc === 'gigabitethernet0/0/1.20') {
+          if (x === 'encapsulation dot1q 20') { lab.sub20.encap = true; return ''; }
+          if (x === 'ip address 192.168.20.1 255.255.255.0') { if (!lab.sub20.encap) return '% Configuring IP routing on a LAN subinterface is only allowed if that\nsubinterface is already configured as part of an IEEE 802.10, IEEE 802.1Q,\nor ISL vLAN.'; lab.sub20.ip = true; return ''; }
+        }
+        if (m.m === 'subif' && /^(encapsulation|ip address)/.test(x)) return '';
+      }
+      if (d === 'S1' && m.m === 'exec') {
+        if (x === 'show vlan brief') return 'VLAN Name     Status    Ports\n10   SALES    active    Fa0/5\n20   ENG      active    Fa0/6';
+        if (x === 'show interfaces trunk') return 'Port    Mode  Encapsulation  Status    Native vlan\nGi0/1   on    802.1q         trunking  1\nPort    Vlans allowed on trunk\nGi0/1   10,20';
+      }
+      if (d === 'PC-SALES' && x === 'ping 192.168.20.10') return lab.sub20.ip && lab.sub20.encap ? 'Reply from 192.168.20.10: bytes=32 time<1ms TTL=127\nReply from 192.168.20.10: bytes=32 time<1ms TTL=127' : 'Request timed out.\nRequest timed out.';
+      return null;
+    },
+  });
+  const LAB_CHECKS = [['vlans_exist', 'S1 has VLAN 10 SALES and 20 ENG', () => true], ['trunk_allowed', 'Gi0/1 trunks 10 and 20', () => true], ['sales_reaches_eng', 'PC-SALES pings 192.168.20.10', () => lab.sub20.encap && lab.sub20.ip]];
+  const drawChecks = (ran) => { $('#labChecks').innerHTML = LAB_CHECKS.map(([id, d, f], i) => { const s = !ran && i === 2 ? 'wait' : f() ? 'pass' : 'fail'; return `<div class="chk"><span class="s ${s}">${s}</span><span>${d}</span></div>`; }).join(''); };
+  drawChecks(false);
+  const runLab = () => {
+    const res = LAB_CHECKS.map(([id, d, f]) => [id, d, f()]);
+    const pass = res.filter(r => r[2]).length;
+    let out = `<span class="dim">$ dojo check 7.2\nrunning 3 checks</span>\n` + res.map(([id, d, ok]) => `  <span class="${ok ? 'pass' : 'fail'}">${ok ? 'pass' : 'FAIL'}</span>  ${id.padEnd(18, '.')} ${ok ? 'ok' : ''}`).join('\n');
+    if (pass < 3) out += `\n\n<span class="fail">sales_reaches_eng</span>: 0 of 5 echoes returned.\n<span class="dim">hint 1 of 3: compare R1's subinterfaces with the VLANs on the trunk.</span>`;
+    else out += `\n\n<span class="pass">3 passed</span> in 0.42 s. Level 07 lab complete.`;
+    $('#labOut').innerHTML = out; drawChecks(true);
+    if (pass === 3 && !lab.done) { lab.done = true; ['l1', 'l3', 'l4', 'l2'].forEach((id, i) => setTimeout(() => app.querySelector('#' + id).classList.add('lit'), 140 * i)); app.querySelector('#nENG').classList.add('ok'); status('All checks pass. Lab 7.2 complete.'); }
+  };
+
+  /* ---------- FIX ---------- */
+  const fx = { allowed: '10,30', t0: performance.now(), done: false };
+  makeConsole($('[data-console="fix"]'), [{ name: 'S1' }, { name: 'PC-ENG' }], 'S1', {
+    help: (d, m) => d === 'S1' ? ({ exec: 'configure terminal\nshow interfaces trunk\nshow vlan brief\nshow running-config interface <name>', config: 'interface <name>     e.g. interface g0/1\nend', if: 'switchport trunk allowed vlan <list>\nswitchport trunk allowed vlan add <vlan>\nexit\nend' })[m.m] || 'end' : 'ping <ip>',
+    cmd: (d, m, x) => {
+      if (d === 'S1') {
+        if (m.m === 'exec' && x === 'show interfaces trunk') return `Port    Mode  Encapsulation  Status    Native vlan\nGi0/1   on    802.1q         trunking  1\nPort    Vlans allowed on trunk\nGi0/1   ${fx.allowed}`;
+        if (m.m === 'exec' && x === 'show vlan brief') return 'VLAN Name     Status    Ports\n10   SALES    active    Fa0/5\n20   ENG      active    Fa0/6\n30   SERVERS  active';
+        if (m.m === 'exec' && /^show running-config/.test(x)) return `interface GigabitEthernet0/1\n switchport mode trunk\n switchport trunk allowed vlan ${fx.allowed}`;
+        if (m.m === 'if' && m.ifc === 'gigabitethernet0/1') {
+          let mm;
+          if ((mm = x.match(/^switchport trunk allowed vlan add ([\d,]+)$/))) { const s = new Set(fx.allowed.split(',').concat(mm[1].split(','))); fx.allowed = [...s].map(Number).sort((a, b) => a - b).join(','); updDiff(); return ''; }
+          if ((mm = x.match(/^switchport trunk allowed vlan ([\d,]+)$/))) { fx.allowed = mm[1]; updDiff(); return ''; }
+        }
+      }
+      if (d === 'PC-ENG' && x === 'ping 192.168.30.10') return fx.allowed.split(',').includes('20') ? 'Reply from 192.168.30.10: bytes=32 time=1ms TTL=127' : 'Request timed out.\nRequest timed out.';
+      return null;
+    },
+  });
+  const updDiff = () => {
+    const changed = fx.allowed !== '10,30';
+    $('#fixDiff').innerHTML = changed ? ` interface GigabitEthernet0/1\n<span class="m">-  switchport trunk allowed vlan 10,30</span>\n<span class="p">+  switchport trunk allowed vlan ${fx.allowed}</span>` : '<span style="color:var(--t3)">No changes yet.</span>';
+    $('#fixLines').textContent = changed ? '1' : '0';
+  };
+  const runFix = () => {
+    const ok = fx.allowed.split(',').includes('20'), keeps = ['10', '30'].every(v => fx.allowed.split(',').includes(v));
+    let out = `<span class="dim">$ dojo verify 0412</span>\n  <span class="${ok ? 'pass' : 'fail'}">${ok ? 'pass' : 'FAIL'}</span>  vlan20_reaches_server\n  <span class="${keeps ? 'pass' : 'fail'}">${keeps ? 'pass' : 'FAIL'}</span>  vlan10_still_works`;
+    if (ok && keeps) {
+      const s = Math.round((performance.now() - fx.t0) / 1000), mm = String(Math.floor(s / 60)).padStart(2, '0'), ss = String(s % 60).padStart(2, '0');
+      out += `\n\n<span class="pass">Resolved.</span> Root cause: VLAN 20 was pruned from the trunk at 08:01. One line changed.`;
+      if (!fx.done) { fx.done = true; $('#fixTime').textContent = `${mm}:${ss}`; status('Ticket 0412 resolved.'); }
+    } else if (!keeps) out += `\n\n<span class="fail">You fixed VLAN 20 but removed another VLAN from the trunk.</span>`;
+    else out += `\n\n<span class="dim">Engineering still cannot reach 192.168.30.10. Look at what the trunk allows.</span>`;
+    $('#fixOut').innerHTML = out;
+  };
+  app.addEventListener('click', e => { const b = e.target.closest('[data-run]'); if (b) (b.dataset.run === 'lab' ? runLab : runFix)(); });
+
+  /* ---------- DRILL ---------- */
+  const rnd = n => Math.floor(Math.random() * n);
+  const toIp = n => [24, 16, 8, 0].map(s => (n >>> s) & 255).join('.');
+  const genQ = () => { const p = 8 + rnd(23); const mask = p === 0 ? 0 : (0xFFFFFFFF << (32 - p)) >>> 0; const base = ([10, 172, 192][rnd(3)] << 24 | rnd(256) << 16 | rnd(256) << 8 | rnd(256)) >>> 0; return { net: toIp((base & mask) >>> 0) + '/' + p, ans: toIp((~mask) >>> 0) }; };
+  const dr = { n: 6, hist: [['172.16.32.0/20', '0.0.15.255', 1, 9.8], ['10.40.0.0/13', '0.7.255.255', 1, 12.1], ['192.168.4.128/26', '0.0.0.63', 1, 11.4], ['10.0.0.0/9', '0.128.255.255', 0, 16.2], ['172.20.0.0/14', '0.3.255.255', 1, 13.0]], q: null, t0: 0 };
+  const renderDrill = () => {
+    const rows = dr.hist.map(([q, a, ok, t], i) => `<div class="r"><span class="n">${String(i + 1).padStart(2, ' ')}/10</span><span>${q}</span><span>${a}</span><span class="${ok ? 'ok' : 'no'}">${ok ? 'correct' : 'wrong'}</span><span class="n">${t.toFixed(1)} s</span></div>`).join('');
+    const done = dr.hist.length >= 10;
+    $('#repl').innerHTML = rows + (done ? `<div class="cur"><span class="n">done</span><span>10 of 10</span><span class="clock">Round saved. Type nothing, press Enter to start a new round.<input id="drillIn" aria-label="Start new round" style="width:10px"></span></div>` :
+      `<div class="cur"><span class="n">${String(dr.hist.length + 1).padStart(2, ' ')}/10</span><span>${dr.q.net}</span><span>wildcard&gt; <input id="drillIn" aria-label="Wildcard mask" spellcheck="false" autocomplete="off" style="width:160px"> <span class="clock" id="dClock"></span></span></div>`);
+    const c = dr.hist.filter(h => h[2]).length; $('#dCorrect').textContent = `${c} / ${dr.hist.length}`;
+    $('#dAvg').textContent = dr.hist.length ? (dr.hist.reduce((s, h) => s + h[3], 0) / dr.hist.length).toFixed(1) + ' s' : '-';
+    $('#spark').innerHTML = dr.hist.map(h => `<i class="${h[3] > 15 ? 'slow' : ''}" style="height:${Math.min(100, h[3] / 20 * 100)}%"></i>`).join('');
+    if (cur === 'drill') $('#drillIn').focus({ preventScroll: true });
+  };
+  const nextQ = () => { dr.q = genQ(); dr.t0 = performance.now(); renderDrill(); };
+  $('#repl').addEventListener('keydown', e => {
+    if (e.target.id !== 'drillIn') return;
+    if (e.key === 'Tab') { e.preventDefault(); if (dr.hist.length < 10) { dr.hist.push([dr.q.net, dr.q.ans, 0, (performance.now() - dr.t0) / 1000]); nextQ(); } return; }
+    if (e.key !== 'Enter') return; e.stopPropagation();
+    if (dr.hist.length >= 10) { dr.hist = []; nextQ(); return; }
+    const a = e.target.value.trim(); if (!a) return;
+    const t = (performance.now() - dr.t0) / 1000;
+    dr.hist.push([dr.q.net, a === dr.q.ans ? a : `${a}  (${dr.q.ans})`, a === dr.q.ans ? 1 : 0, t]); nextQ();
+  });
+  setInterval(() => { const c = app.querySelector('#dClock'); if (c && dr.q) c.textContent = ((performance.now() - dr.t0) / 1000).toFixed(1) + ' s'; }, 100);
+  nextQ();
+
+  /* ---------- REVIEW ---------- */
+  const CARDS = [
+    ['L09 DHCP and relays', "R2's clients are on 10.2.2.0/24. The DHCP server is R1 at 10.1.1.1. Which single command on R2's LAN interface lets them get leases?", 'ip helper-address 10.1.1.1', "R2 turns each client's broadcast DISCOVER into a unicast to R1 and writes its own interface address into giaddr, so R1 picks the right pool."],
+    ['L08 Loops and bundles', 'S1 and S2 both run STP priority 32769. S1 has MAC 000a.0001 and S2 has 000a.0002. Which one is the root bridge?', 'S1', 'Priorities tie, so the lower MAC address breaks the tie. The bridge ID is priority first, then MAC.'],
+    ['L13 Threats and ACLs', 'What wildcard mask matches every address in 172.16.32.0/20?', '0.0.15.255', 'A /20 mask is 255.255.240.0. The wildcard is its inverse: 255 minus each octet.'],
+  ];
+  let rv = 0, done = 8;
+  const renderCard = () => {
+    const c = CARDS[rv % CARDS.length];
+    $('#rvTag').textContent = c[0]; $('#rvCount').textContent = `${done + 1} of 24`; $('#rvBar').style.width = `${(done / 24) * 100}%`;
+    $('#rvQ').textContent = c[1]; $('#rvA').textContent = c[2]; $('#rvWhy').textContent = c[3];
+    $('#rvAns').hidden = true; $('#rvHint').hidden = false;
+  };
+  const reveal = () => { $('#rvAns').hidden = false; $('#rvHint').hidden = true; };
+  const gradeCard = g => { rv++; done = Math.min(23, done + 1); renderCard(); status(`Scheduled again in ${['10 min', '2 days', '6 days', '15 days'][g - 1]}.`); };
+  $('#grades').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b) gradeCard(+b.dataset.g); });
+  $('#rvHint').addEventListener('click', reveal);
+  renderCard();
+
+  /* ---------- keyboard ---------- */
+  app.addEventListener('keydown', e => {
+    if (e.altKey && /^[1-5]$/.test(e.key)) { e.preventDefault(); open(FILES[+e.key - 1][0]); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); if (cur === 'lab') runLab(); if (cur === 'fix') runFix(); return; }
+    if (e.target.tagName === 'INPUT') return;
+    if (cur === 'demo') {
+      if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+      if (e.key === 'ArrowRight') setStep(step + 1);
+      if (e.key === 'ArrowLeft') setStep(step - 1);
+    }
+    if (cur === 'review') {
+      if (e.key === ' ') { e.preventDefault(); if ($('#rvAns').hidden) reveal(); }
+      else if (!$('#rvAns').hidden && /^[1-4]$/.test(e.key)) gradeCard(+e.key);
+    }
+  });
+  open('demo');
+})();
+</script>
