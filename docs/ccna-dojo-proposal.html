@@ -1,0 +1,557 @@
+<title>CCNA Dojo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a console-room spec sheet. One reading column, with wide "equipment" blocks (TUI, diagram, roadmap) that break out of it. */
+:root {
+  --ground: #EBEEF0;
+  --surface: #F7F9FA;
+  --ink: #13202A;
+  --muted: #566672;
+  --rule: #CAD2D8;
+  --accent: #A85F00;
+  --accent-soft: #F2E2C6;
+  --ok: #2B7549;
+  --itn: #34658F;
+  --srwe: #237466;
+  --ensa: #85466F;
+  --beyond: #56616B;
+  --term-bg: #0D171E;
+  --term-fg: #C6D3DB;
+  --term-dim: #6D8292;
+  --term-acc: #F0A532;
+  --term-ok: #6BCB8B;
+  --term-dev: #8EC5F0;
+  --term-sel: #13202A;
+  --term-hi: #FFFFFF;
+  --f-display: "Chakra Petch", "Bahnschrift", "Arial Narrow", sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0C1318; --surface: #121B22; --ink: #DAE3E9; --muted: #8C9CA8; --rule: #25323C;
+    --accent: #EFA83A; --accent-soft: #3A2B14; --ok: #6BCB8B;
+    --itn: #7FB0DA; --srwe: #6CC2B1; --ensa: #D493BE; --beyond: #A3AEB8;
+    --term-bg: #070D11; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0C1318; --surface: #121B22; --ink: #DAE3E9; --muted: #8C9CA8; --rule: #25323C;
+  --accent: #EFA83A; --accent-soft: #3A2B14; --ok: #6BCB8B;
+  --itn: #7FB0DA; --srwe: #6CC2B1; --ensa: #D493BE; --beyond: #A3AEB8;
+  --term-bg: #070D11; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font: 400 16px/1.6 var(--f-body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 80px; }
+.col { max-width: 720px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+h1, h2, h3, h4 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h2 { font-size: clamp(1.6rem, 3.2vw, 2.1rem); font-weight: 600; letter-spacing: .005em; }
+h3 { font-size: 1.25rem; font-weight: 600; }
+h4 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+code, pre, .mono { font-family: var(--f-mono); }
+.eyebrow { font: 600 .74rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+section.block { display: grid; gap: 22px; padding-block: 56px 0; }
+.lede { font-size: 1.08rem; color: var(--ink); }
+.muted { color: var(--muted); }
+.stack { display: grid; gap: 14px; }
+
+/* masthead */
+.mast { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; }
+.mast span { font: 500 .78rem/1.4 var(--f-mono); color: var(--muted); }
+.hero { display: grid; gap: 18px; padding-block: 40px 28px; }
+.hero h1 { font-size: clamp(3rem, 9vw, 5.6rem); font-weight: 700; letter-spacing: -.01em; line-height: .95; }
+.hero h1 .prompt { color: var(--accent); }
+.hero .lede { max-width: 640px; font-size: 1.15rem; }
+
+/* terminal */
+.term { background: var(--term-bg); color: var(--term-fg); border-radius: 10px; overflow-x: auto; box-shadow: 0 1px 0 var(--rule), 0 18px 40px -24px rgba(0,0,0,.45); }
+.term pre { margin: 0; padding: 18px 20px; font: 400 13px/1.45 var(--f-mono); white-space: pre; width: max-content; }
+.t-acc { color: var(--term-acc); } .t-ok { color: var(--term-ok); } .t-wait { color: var(--term-dim); }
+.t-h { color: var(--term-hi); font-weight: 600; } .t-dev { color: var(--term-dev); } .t-warn { color: var(--term-acc); }
+.t-sel { background: var(--term-acc); color: var(--term-sel); } .t-cur { color: var(--term-acc); animation: blink 1.1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.caption { font-size: .86rem; color: var(--muted); }
+
+/* decisions */
+.decisions { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+.decisions > div { padding: 16px 18px 18px 0; border-bottom: 1px solid var(--rule); display: grid; gap: 4px; min-width: 0; }
+.decisions dt { font: 600 .72rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.decisions dd { margin: 0; font-weight: 500; }
+.decisions dd small { display: block; font-weight: 400; color: var(--muted); font-size: .88rem; }
+
+/* compare */
+.compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.compare > div { padding: 18px; border-radius: 8px; min-width: 0; display: grid; gap: 8px; align-content: start; }
+.compare .no { border: 1px dashed var(--rule); }
+.compare .yes { background: var(--surface); border: 1px solid var(--accent); }
+.compare h4 { font-size: 1rem; }
+.compare pre { margin: 0; font-size: .82rem; white-space: pre-wrap; color: var(--muted); }
+.compare .yes pre { color: var(--ink); }
+
+/* architecture */
+.arch { display: grid; gap: 10px; }
+.layer { display: grid; grid-template-columns: 150px 1fr; gap: 14px; align-items: stretch; }
+.layer-l { font: 600 .72rem/1.3 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 14px; }
+.boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; min-width: 0; }
+.box { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; }
+.box b { font: 600 .92rem/1.2 var(--f-mono); color: var(--ink); }
+.box span { font-size: .85rem; color: var(--muted); line-height: 1.45; }
+.box.hot { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.box.opt { border-style: dashed; }
+.arrow { text-align: center; font: 400 .8rem/1 var(--f-mono); color: var(--muted); padding-left: 164px; }
+@media (max-width: 640px) { .layer { grid-template-columns: 1fr; gap: 6px; } .layer-l { padding-top: 0; } .arrow { padding-left: 0; } }
+
+/* tables */
+.tbl { overflow-x: auto; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 600 .72rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+td code { font-size: .85rem; white-space: nowrap; }
+kbd { font: 600 .8rem/1 var(--f-mono); border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 2px 6px; background: var(--ground); }
+
+/* roadmap */
+.rail { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.node { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2px solid currentColor; text-decoration: none; font: 600 .82rem/1 var(--f-mono); background: var(--surface); transition: transform .15s; }
+.node:hover { transform: translateY(-2px); }
+.n-itn { color: var(--itn); } .n-srwe { color: var(--srwe); } .n-ensa { color: var(--ensa); } .n-beyond { color: var(--beyond); border-style: dashed; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .84rem; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+.course { display: grid; gap: 14px; padding-top: 26px; }
+.course-h { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; border-bottom: 2px solid var(--c); padding-bottom: 8px; }
+.course-meta { font: 500 .8rem/1 var(--f-mono); color: var(--muted); }
+#c-itn { --c: var(--itn); } #c-srwe { --c: var(--srwe); } #c-ensa { --c: var(--ensa); } #c-beyond { --c: var(--beyond); }
+.lvls { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+@media (max-width: 420px) { .lvls { grid-template-columns: 1fr; } }
+.lvl { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; scroll-margin-top: 16px; }
+.lvl:target { border-color: var(--c); box-shadow: 0 0 0 2px var(--c); }
+.lvl-h { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.lvl-n { font: 700 1.1rem/1 var(--f-display); color: var(--c); border: 1.5px solid var(--c); border-radius: 4px; padding: 5px 6px 4px; }
+.lvl-t { display: grid; gap: 3px; min-width: 0; }
+.lvl-m { font-size: .82rem; color: var(--muted); line-height: 1.4; }
+.ex { display: grid; gap: 8px; border-top: 1px dashed var(--rule); padding-top: 12px; font-size: .92rem; }
+.kind { justify-self: start; font: 600 .68rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); padding: 4px 7px; border-radius: 3px; }
+.cfg { margin: 0; background: var(--term-bg); color: var(--term-fg); border-radius: 6px; padding: 10px 12px; font-size: .78rem; line-height: 1.5; overflow-x: auto; }
+.pass { font-size: .86rem; color: var(--muted); }
+.pass-l { font: 600 .68rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ok); margin-right: 4px; }
+
+/* forge */
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.mode { border: 1px solid var(--rule); border-radius: 8px; padding: 18px; background: var(--surface); display: grid; gap: 10px; align-content: start; }
+.mode .scope { display: flex; gap: 4px; flex-wrap: wrap; }
+.mode .scope span { width: 22px; height: 8px; border-radius: 2px; background: var(--rule); }
+.mode .scope span.on { background: var(--accent); }
+.mode .scope span.wk { background: var(--accent); opacity: .45; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; counter-reset: s; }
+.steps li { counter-increment: s; border-top: 2px solid var(--accent); padding-top: 10px; display: grid; gap: 4px; font-size: .9rem; }
+.steps li::before { content: "Step " counter(s); font: 600 .7rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.steps b { font-weight: 600; }
+.code { background: var(--term-bg); color: var(--term-fg); border-radius: 8px; overflow-x: auto; }
+.code pre { margin: 0; padding: 16px 18px; font: 400 .82rem/1.55 var(--f-mono); }
+.code .c { color: var(--term-dim); } .code .k { color: var(--term-dev); } .code .s { color: var(--term-ok); } .code .a { color: var(--term-acc); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font: 500 .82rem/1 var(--f-mono); border: 1px solid var(--rule); border-radius: 999px; padding: 7px 12px; background: var(--surface); }
+
+/* phases */
+.phases { display: grid; gap: 0; border-left: 2px solid var(--rule); margin-left: 6px; }
+.phase { position: relative; padding: 0 0 22px 24px; display: grid; gap: 4px; }
+.phase::before { content: ""; position: absolute; left: -7px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--ground); border: 2px solid var(--accent); }
+.phase.first::before { background: var(--accent); }
+.phase h4 span { font: 600 .78rem/1 var(--f-mono); color: var(--accent); margin-right: 8px; }
+.phase p { font-size: .93rem; color: var(--muted); max-width: 680px; }
+
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 16px; border-radius: 0 6px 6px 0; font-size: .93rem; }
+.sources { font-size: .86rem; color: var(--muted); display: grid; gap: 6px; padding-left: 18px; margin: 0; }
+footer { margin-top: 64px; border-top: 1px solid var(--rule); padding-top: 14px; font: 500 .78rem/1.5 var(--f-mono); color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .t-cur { animation: none; } .node { transition: none; } }
+</style>
+
+<div class="wrap">
+  <div class="mast"><span>Proposal · 07 Oct 2026</span><span>repo Exercism-Classes · branch claude/gracious-faraday-oqgori</span></div>
+
+  <header class="hero">
+    <span class="eyebrow">Personal offline training rig</span>
+    <h1><span class="prompt">&gt;</span> CCNA Dojo</h1>
+    <p class="lede">A fast Rust terminal app for learning CCNA 1, 2 and 3 by doing. It ships with its own network simulator, labs that are graded on whether the network actually works, spaced-repetition drills, and an optional AI forge that drafts new exercises for you.</p>
+  </header>
+
+  <figure class="stack" style="margin:0">
+    <div class="term" role="img" aria-label="Mockup of the CCNA Dojo terminal app: home dashboard with due reviews, mastery bars per course, weak spots, and an open inter-VLAN routing lab with a console session"><pre>┌─ <b class="t-acc">CCNA DOJO</b> ───────────────────────────────────────────── streak 12d ─ due 34 ─ Tue 07 Oct ─┐
+│ <span class="t-sel">[1]Home</span>  [2]Roadmap  [3]Labs  [4]Drills  [5]Review  [6]Forge  [7]Stats                     │
+├──────────────────────────────┬─────────────────────────────────────────────────────────────┤
+│ <span class="t-h">TODAY</span>                        │ <span class="t-h">LAB 7.2 · Router-on-a-stick</span>              level 7 · SRWE 3-4 │
+│  &gt; Review  34 cards  ~18m    │                                                             │
+│  &gt; Drill   VLSM x10          │   <span class="t-dev">[PC-SALES]</span>──Fa0/5─┐                                       │
+│  &gt; Lab     7.2 inter-VLAN    │                     ├<span class="t-dev">[S1]</span><span class="t-acc">══Gi0/1══</span><span class="t-dev">[R1]</span>                      │
+│                              │   <span class="t-dev">[PC-ENG]</span>────Fa0/6─┘      trunk 10,20                      │
+│ <span class="t-h">MASTERY</span>                      │                                                             │
+│  ITN   <span class="t-acc"><span class="t-acc">██████</span>█████</span>░░░  82%   │ <span class="t-ok">[ok]</span> VLAN 10 SALES / 20 ENG exist on S1                     │
+│  SRWE  ██████░░░░░░░░  41%   │ <span class="t-ok">[ok]</span> Gi0/1 trunking, allowed 10,20                          │
+│  ENSA  <span class="t-acc">█</span>░░░░░░░░░░░░░   6%   │ <span class="t-wait">[  ]</span> PC-SALES -&gt; PC-ENG  (F5 to check)                      │
+│                              ├─────────────────────────────────────────────────────────────┤
+│ <span class="t-h">WEAK SPOTS</span>                   │ R1(config)# interface g0/0/1.20                             │
+│  · wildcard masks     <span class="t-warn">58%</span>    │ R1(config-subif)# encapsulation dot1Q 20                    │
+│  · STP port roles     61%    │ R1(config-subif)# ip address 192.168.20.1 255.255.255.0     │
+│  · IPv6 compression   64%    │ R1(config-subif)# end                                       │
+│                              │ R1# ping 192.168.20.10                                      │
+│                              │ <span class="t-ok">!!!!!</span>                                                       │
+│                              │ R1# sh ip int br<span class="t-cur">█</span>                                           │
+└──────────────────────────────┴─────────────────────────────────────────────────────────────┘
+ ? help   Tab complete   F5 check   p packet-step   h hint   : command   q quit
+</pre></div>
+    <figcaption class="caption">Mockup of the home screen during a lab. The left pane is your accountability panel, the right pane is the live lab: topology, task checks, and a real IOS-style console.</figcaption>
+  </figure>
+
+  <section class="block">
+    <span class="eyebrow">What you decided</span>
+    <dl class="decisions">
+      <div><dt>Scope</dt><dd>ITN + SRWE + ENSA<small>All three Networking Academy courses, 47 modules, plus a Beyond track</small></dd></div>
+      <div><dt>Goal</dt><dd>Real skills first<small>Content is tagged to exam objectives, but nothing stops at the blueprint</small></dd></div>
+      <div><dt>Stack</dt><dd>Rust, premium TUI<small>ratatui + crossterm, single binary, no lag</small></dd></div>
+      <div><dt>Labs</dt><dd>Built-in simulator<small>Not capped at the exam. A bridge to real IOS images comes later</small></dd></div>
+      <div><dt>Content</dt><dd>Written by Claude<small>A full roadmap with a worked exercise per level</small></dd></div>
+      <div><dt>AI forge</dt><dd>Optional, two modes<small>Any API or a copy-paste prompt. Focused or cumulative</small></dd></div>
+    </dl>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Core idea</span>
+      <h2>Graded on what the network does, not on what you typed</h2>
+      <p>Most practice tools compare your commands to an answer key, so a correct config written a different way gets marked wrong. The Dojo checks the result. Did the ping go through? Did R3 learn the route? Is the port trunking the right VLANs? That is how you get judged on a real job, and it means you can solve each lab your own way.</p>
+    </div>
+    <div class="compare">
+      <div class="no"><h4>Answer-key grading</h4><pre>expect: "switchport mode trunk"
+you:    "sw mo tr"           → wrong
+you:    "switchport trunk allowed vlan 10,20"
+        (before mode trunk)   → wrong order</pre></div>
+      <div class="yes"><h4>State-based grading (the Dojo)</h4><pre>check ping   PC-SALES → 192.168.20.10   ok
+check trunk  S1 Gi0/1 allowed = [10,20] ok
+check route  R3 has O 192.168.10.0/24  ok
+any config that produces this state passes</pre></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Architecture</span>
+      <h2>One Cargo workspace, seven crates</h2>
+      <p>The simulator and the IOS shell are the heart. Everything else is built on the same engine, so drills, labs, and AI-generated exercises all run against one source of truth.</p>
+    </div>
+    <div class="arch" aria-label="Layered architecture diagram">
+      <div class="layer"><div class="layer-l">Interface</div><div class="boxes">
+        <div class="box hot"><b>dojo-tui</b><span>ratatui screens, keymaps, themes, topology canvas, console pane</span></div>
+      </div></div>
+      <div class="arrow">↓ calls</div>
+      <div class="layer"><div class="layer-l">Learning</div><div class="boxes">
+        <div class="box"><b>labs</b><span>Lab specs, state checks, break-it faults, scoring</span></div>
+        <div class="box"><b>drills</b><span>Generated subnetting, VLSM, IPv6, wildcard, ports, route-choice drills</span></div>
+        <div class="box"><b>srs</b><span>FSRS spaced repetition, the scheduler modern Anki uses</span></div>
+        <div class="box opt"><b>forge</b><span>Optional AI exercise drafting, feature-gated</span></div>
+      </div></div>
+      <div class="arrow">↓ runs on</div>
+      <div class="layer"><div class="layer-l">Engine</div><div class="boxes">
+        <div class="box hot"><b>netsim</b><span>Deterministic event loop: frames, MAC tables, ARP, STP, routing, OSPF, NAT, ACLs, DHCP</span></div>
+        <div class="box hot"><b>ios-cli</b><span>Modes, <code>?</code> help, Tab completion, abbreviations, <code>do</code>, <code>no</code>, show output</span></div>
+      </div></div>
+      <div class="arrow">↓ persists to</div>
+      <div class="layer"><div class="layer-l">Data</div><div class="boxes">
+        <div class="box"><b>store</b><span>SQLite (rusqlite): progress, reviews, attempts, streaks</span></div>
+        <div class="box"><b>content/</b><span>Lessons in Markdown, labs and cards in TOML, versioned in git</span></div>
+      </div></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Concern</th><th>Choice</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>Terminal UI</td><td><code>ratatui</code> + <code>crossterm</code></td><td>Immediate-mode rendering, works the same on Linux, macOS and Windows terminals</td></tr>
+        <tr><td>Simulation</td><td>Custom, single-threaded, tick-based</td><td>Deterministic, so every lab and check can be replayed and tested</td></tr>
+        <tr><td>Data</td><td><code>rusqlite</code> (bundled), <code>serde</code> + <code>toml</code></td><td>One file on disk, zero setup, fully offline</td></tr>
+        <tr><td>Scheduling</td><td><code>fsrs</code> crate</td><td>Better recall-per-minute than the classic SM-2 algorithm</td></tr>
+        <tr><td>AI forge</td><td><code>reqwest</code> + <code>keyring</code>, behind a cargo feature</td><td>API keys live in the OS keychain. The core app never touches the network</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Screens</span>
+      <h2>Seven screens, one keystroke apart</h2>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Key</th><th>Screen</th><th>What you do there</th></tr></thead>
+      <tbody>
+        <tr><td><kbd>1</kbd></td><td>Home</td><td>Today's plan: reviews due, one drill, the next lab. Mastery bars and weak spots</td></tr>
+        <tr><td><kbd>2</kbd></td><td>Roadmap</td><td>The 17 levels below as a map. Locked, in progress and mastered states</td></tr>
+        <tr><td><kbd>3</kbd></td><td>Labs</td><td>Topology canvas, task checklist, multi-device console, packet-step mode (<kbd>p</kbd>)</td></tr>
+        <tr><td><kbd>4</kbd></td><td>Drills</td><td>Timed generators: subnet in under 20 seconds, wildcard masks, IPv6 compression</td></tr>
+        <tr><td><kbd>5</kbd></td><td>Review</td><td>Spaced-repetition queue for concepts, ports and show-output reading</td></tr>
+        <tr><td><kbd>6</kbd></td><td>Forge</td><td>Draft new exercises with AI or export a prompt for any chat or agent</td></tr>
+        <tr><td><kbd>7</kbd></td><td>Stats</td><td>Streak, time on task, accuracy per objective, mock-exam history</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note"><b>Packet-step mode</b> is likely the most valuable feature. Pause any ping, then step it device by device. At each hop you see why it moved: ARP lookup, MAC table hit or flood, routing-table match, ACL line hit, NAT rewrite. Predict the next hop before you press <kbd>Space</kbd> and the app scores you.</p>
+  </section>
+
+  <section class="block" id="roadmap">
+    <div class="col stack">
+      <span class="eyebrow">Roadmap</span>
+      <h2>17 levels, each with a worked exercise</h2>
+      <p>Each level follows the module groups Networking Academy uses for its exams, so a level maps to a real chunk of the course. You master a level when you clear its drills at 85% or better <em>and</em> pass its lab. Every level ships with the starter exercise shown here, and the forge can draft more.</p>
+    </div>
+    <div class="stack">
+      <div class="rail" aria-label="Level map"><a class="node n-itn" href="#l1" title="L01 First contact"><span>01</span></a><a class="node n-itn" href="#l2" title="L02 Bits on the wire"><span>02</span></a><a class="node n-itn" href="#l3" title="L03 First hop"><span>03</span></a><a class="node n-itn" href="#l4" title="L04 Address math"><span>04</span></a><a class="node n-itn" href="#l5" title="L05 Ports and conversations"><span>05</span></a><a class="node n-itn" href="#l6" title="L06 Small network, hardened"><span>06</span></a><a class="node n-srwe" href="#l7" title="L07 VLANs and inter-VLAN routing"><span>07</span></a><a class="node n-srwe" href="#l8" title="L08 Loops and bundles"><span>08</span></a><a class="node n-srwe" href="#l9" title="L09 Addresses on demand"><span>09</span></a><a class="node n-srwe" href="#l10" title="L10 Edge security and wireless"><span>10</span></a><a class="node n-srwe" href="#l11" title="L11 The routing table"><span>11</span></a><a class="node n-ensa" href="#l12" title="L12 OSPFv2"><span>12</span></a><a class="node n-ensa" href="#l13" title="L13 Threats and ACLs"><span>13</span></a><a class="node n-ensa" href="#l14" title="L14 Leaving the building"><span>14</span></a><a class="node n-ensa" href="#l15" title="L15 Keep it running"><span>15</span></a><a class="node n-ensa" href="#l16" title="L16 Networks as code"><span>16</span></a><a class="node n-beyond" href="#l17" title="L17 Past the blueprint"><span>17</span></a></div>
+      <div class="legend"><span><i style="background:var(--itn)"></i>CCNA 1 · ITN</span><span><i style="background:var(--srwe)"></i>CCNA 2 · SRWE</span><span><i style="background:var(--ensa)"></i>CCNA 3 · ENSA</span><span><i style="background:var(--beyond)"></i>Beyond</span></div>
+    </div>
+    <section class="course" id="c-itn"><div class="course-h"><h3>CCNA 1 · Introduction to Networks</h3><span class="course-meta">17 modules · L01–L06</span></div><div class="lvls"><article class="lvl" id="l1">
+  <header class="lvl-h"><span class="lvl-n">L01</span><div class="lvl-t"><h4>First contact</h4><p class="lvl-m">ITN 1–3 · Networking today · switch and end-device basics · protocols and models</p></div></header>
+  <div class="ex"><span class="kind">Lab</span><p>Bring a factory-fresh switch onto the management network and lock the front door.</p><pre class="cfg"><code>hostname S1
+enable secret ********
+service password-encryption
+banner motd #Authorized access only#
+interface vlan 1
+ ip address 192.168.1.2 255.255.255.0
+ no shutdown
+ip default-gateway 192.168.1.1</code></pre><p class="pass"><span class="pass-l">Pass when</span> PC1 pings 192.168.1.2 · running-config shows no plaintext passwords · config saved to NVRAM</p></div>
+</article>
+<article class="lvl" id="l2">
+  <header class="lvl-h"><span class="lvl-n">L02</span><div class="lvl-t"><h4>Bits on the wire</h4><p class="lvl-m">ITN 4–7 · Physical layer · number systems · data link · Ethernet switching</p></div></header>
+  <div class="ex"><span class="kind">Drill</span><p>Convert 172.16.45.200 to binary and 0xC0A8 to decimal. Then: S1 receives a broadcast frame from AAAA.0001 on Fa0/1. Say exactly what it does.</p><p class="pass"><span class="pass-l">Pass when</span> 10101100.00010000.00101101.11001000 · 49320 · learn AAAA.0001 on Fa0/1, flood out every other port in that VLAN</p></div>
+</article>
+<article class="lvl" id="l3">
+  <header class="lvl-h"><span class="lvl-n">L03</span><div class="lvl-t"><h4>First hop</h4><p class="lvl-m">ITN 8–10 · Network layer · ARP · basic router configuration</p></div></header>
+  <div class="ex"><span class="kind">Lab + packet-step</span><p>Address R1 for two LANs and route between them. Then step PC1&#x27;s first ping hop by hop and predict who PC1 ARPs for.</p><pre class="cfg"><code>interface g0/0/0
+ ip address 192.168.10.1 255.255.255.0
+ no shutdown
+interface g0/0/1
+ ip address 192.168.20.1 255.255.255.0
+ no shutdown</code></pre><p class="pass"><span class="pass-l">Pass when</span> PC1 reaches PC2 · first ARP request targets the gateway 192.168.10.1, not PC2</p></div>
+</article>
+<article class="lvl" id="l4">
+  <header class="lvl-h"><span class="lvl-n">L04</span><div class="lvl-t"><h4>Address math</h4><p class="lvl-m">ITN 11–13 · IPv4 and VLSM · IPv6 addressing · ICMP</p></div></header>
+  <div class="ex"><span class="kind">Drill</span><p>Carve 192.168.50.0/24 for LANs of 60, 28 and 12 hosts plus one point-to-point link. Then compress 2001:0db8:0000:0000:0a00:0000:0000:0001.</p><p class="pass"><span class="pass-l">Pass when</span> .0/26 · .64/27 · .96/28 · .112/30 · 2001:db8::a00:0:0:1 (the leftmost of two equal zero runs gets the ::)</p></div>
+</article>
+<article class="lvl" id="l5">
+  <header class="lvl-h"><span class="lvl-n">L05</span><div class="lvl-t"><h4>Ports and conversations</h4><p class="lvl-m">ITN 14–15 · Transport layer · application layer</p></div></header>
+  <div class="ex"><span class="kind">Drill</span><p>Client sends SYN seq=100. Server answers SYN-ACK seq=300. Fill in the server&#x27;s ack and the client&#x27;s final seq/ack. Then match DNS, DHCP, TFTP, NTP, SNMP and syslog to their ports.</p><p class="pass"><span class="pass-l">Pass when</span> ack=101 · seq=101 ack=301 · 53 · 67/68 · 69 · 123 · 161 · 514</p></div>
+</article>
+<article class="lvl" id="l6">
+  <header class="lvl-h"><span class="lvl-n">L06</span><div class="lvl-t"><h4>Small network, hardened</h4><p class="lvl-m">ITN 16–17 · Security fundamentals · build a small network</p></div></header>
+  <div class="ex"><span class="kind">Lab</span><p>Replace Telnet with SSH on R1 and slow down password guessing.</p><pre class="cfg"><code>ip domain-name dojo.lab
+crypto key generate rsa modulus 2048
+username admin secret ********
+security passwords min-length 10
+login block-for 120 attempts 3 within 60
+line vty 0 4
+ transport input ssh
+ login local</code></pre><p class="pass"><span class="pass-l">Pass when</span> Telnet to R1 is refused · SSH as admin succeeds · 3 bad logins trigger a 120 s block</p></div>
+</article></div></section>
+<section class="course" id="c-srwe"><div class="course-h"><h3>CCNA 2 · Switching, Routing and Wireless Essentials</h3><span class="course-meta">16 modules · L07–L11</span></div><div class="lvls"><article class="lvl" id="l7">
+  <header class="lvl-h"><span class="lvl-n">L07</span><div class="lvl-t"><h4>VLANs and inter-VLAN routing</h4><p class="lvl-m">SRWE 1–4 · Switch configuration · switching concepts · VLANs · inter-VLAN routing</p></div></header>
+  <div class="ex"><span class="kind">Lab</span><p>Split Sales and Engineering into VLANs 10 and 20 and route between them on one trunk.</p><pre class="cfg"><code>interface g0/0/1.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+interface g0/0/1.20
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0</code></pre><p class="pass"><span class="pass-l">Pass when</span> PC-SALES pings PC-ENG · S1 Gi0/1 trunks only VLANs 10 and 20</p></div>
+</article>
+<article class="lvl" id="l8">
+  <header class="lvl-h"><span class="lvl-n">L08</span><div class="lvl-t"><h4>Loops and bundles</h4><p class="lvl-m">SRWE 5–6 · STP concepts · EtherChannel</p></div></header>
+  <div class="ex"><span class="kind">Predict + lab</span><p>Three switches in a triangle with equal-cost links. S1 and S2 run priority 32769 (S1 has the lower MAC) and S3 runs 24577. Name the root bridge and the blocked port. Then bundle S1–S2 Gi0/1-2 with LACP.</p><pre class="cfg"><code>interface range g0/1 - 2
+ channel-group 1 mode active</code></pre><p class="pass"><span class="pass-l">Pass when</span> Root is S3 (lowest priority) · S2&#x27;s port facing S1 is the alternate (blocked) port · Po1 shows (SU) with both members (P)</p></div>
+</article>
+<article class="lvl" id="l9">
+  <header class="lvl-h"><span class="lvl-n">L09</span><div class="lvl-t"><h4>Addresses on demand</h4><p class="lvl-m">SRWE 7–9 · DHCPv4 · SLAAC and DHCPv6 · FHRP concepts</p></div></header>
+  <div class="ex"><span class="kind">Lab</span><p>Make R1 the DHCP server for its own LAN and for R2&#x27;s LAN, which reaches it through a relay.</p><pre class="cfg"><code>ip dhcp excluded-address 192.168.10.1 192.168.10.10
+ip dhcp pool LAN10
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 192.168.30.53
+! plus a second pool for R2&#x27;s LAN
+! on R2&#x27;s LAN interface:
+ip helper-address 10.1.1.1</code></pre><p class="pass"><span class="pass-l">Pass when</span> First client lease is 192.168.10.11 · R2&#x27;s clients get leases through the relay</p></div>
+</article>
+<article class="lvl" id="l10">
+  <header class="lvl-h"><span class="lvl-n">L10</span><div class="lvl-t"><h4>Edge security and wireless</h4><p class="lvl-m">SRWE 10–13 · LAN security · switch security · WLAN concepts and configuration</p></div></header>
+  <div class="ex"><span class="kind">Troubleshoot</span><p>Break-it lab: PC3 lost connectivity after someone plugged a hub into Fa0/5. Find out why from show commands alone and recover the port.</p><p class="pass"><span class="pass-l">Pass when</span> Fa0/5 is err-disabled by port-security (max 2, sticky, violation shutdown) · fixed with shutdown / no shutdown after removing the hub</p></div>
+</article>
+<article class="lvl" id="l11">
+  <header class="lvl-h"><span class="lvl-n">L11</span><div class="lvl-t"><h4>The routing table</h4><p class="lvl-m">SRWE 14–16 · Routing concepts · static routing · troubleshooting static routes</p></div></header>
+  <div class="ex"><span class="kind">Drill + troubleshoot</span><p>R1 has routes for 172.16.0.0/16, 172.16.5.0/24 and 172.16.5.64/26. Which one carries a packet to 172.16.5.70? Then fix a static route that points at the wrong next hop.</p><p class="pass"><span class="pass-l">Pass when</span> /26, because the longest prefix wins (it covers .64–.127) · the static route points at the neighbour&#x27;s real next hop</p></div>
+</article></div></section>
+<section class="course" id="c-ensa"><div class="course-h"><h3>CCNA 3 · Enterprise Networking, Security and Automation</h3><span class="course-meta">14 modules · L12–L16</span></div><div class="lvls"><article class="lvl" id="l12">
+  <header class="lvl-h"><span class="lvl-n">L12</span><div class="lvl-t"><h4>OSPFv2</h4><p class="lvl-m">ENSA 1–2 · Single-area OSPFv2 concepts and configuration</p></div></header>
+  <div class="ex"><span class="kind">Lab + predict</span><p>Run OSPF area 0 across three routers with passive LAN ports. Predict the DR on the shared segment, then force R1 to win it.</p><pre class="cfg"><code>router ospf 10
+ router-id 1.1.1.1
+ network 10.0.0.0 0.0.0.255 area 0
+ passive-interface g0/0/0
+interface g0/0/1
+ ip ospf priority 255</code></pre><p class="pass"><span class="pass-l">Pass when</span> R3 shows R1&#x27;s LAN as an O route · after clear ip ospf process, show ip ospf neighbor lists R1 as DR</p></div>
+</article>
+<article class="lvl" id="l13">
+  <header class="lvl-h"><span class="lvl-n">L13</span><div class="lvl-t"><h4>Threats and ACLs</h4><p class="lvl-m">ENSA 3–5 · Network security concepts · ACL concepts · IPv4 ACL configuration</p></div></header>
+  <div class="ex"><span class="kind">Drill + lab</span><p>Write the wildcard for 172.16.32.0/20. Then allow only web traffic from VLAN 10 to the server at 192.168.30.10, placed as close to the source as possible.</p><pre class="cfg"><code>ip access-list extended WEB-ONLY
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.30.10 eq 80
+ permit tcp 192.168.10.0 0.0.0.255 host 192.168.30.10 eq 443
+ deny ip 192.168.10.0 0.0.0.255 host 192.168.30.10
+ permit ip any any</code></pre><p class="pass"><span class="pass-l">Pass when</span> 0.0.15.255 · HTTPS to the server passes, ping to it is dropped, other traffic is untouched</p></div>
+</article>
+<article class="lvl" id="l14">
+  <header class="lvl-h"><span class="lvl-n">L14</span><div class="lvl-t"><h4>Leaving the building</h4><p class="lvl-m">ENSA 6–8 · NAT for IPv4 · WAN concepts · VPN and IPsec concepts</p></div></header>
+  <div class="ex"><span class="kind">Lab</span><p>PAT the whole inside network behind R1&#x27;s outside interface, and publish the web server on a static public address.</p><pre class="cfg"><code>interface g0/0/0
+ ip nat inside
+interface g0/0/1
+ ip nat outside
+access-list 1 permit 192.168.0.0 0.0.255.255
+ip nat inside source list 1 interface g0/0/1 overload
+ip nat inside source static 192.168.30.10 209.165.200.226</code></pre><p class="pass"><span class="pass-l">Pass when</span> Inside hosts reach the ISP · show ip nat translations shows PAT entries and the static mapping</p></div>
+</article>
+<article class="lvl" id="l15">
+  <header class="lvl-h"><span class="lvl-n">L15</span><div class="lvl-t"><h4>Keep it running</h4><p class="lvl-m">ENSA 9–12 · QoS · network management · network design · troubleshooting</p></div></header>
+  <div class="ex"><span class="kind">Troubleshoot capstone</span><p>Three faults are hidden in a 6-device network: a wrong access VLAN, an OSPF hello-timer mismatch and an ACL that drops DNS. Point NTP and syslog at the server first, then use the logs to find all three.</p><p class="pass"><span class="pass-l">Pass when</span> All three faults fixed · scored on time taken and on how few config lines you changed</p></div>
+</article>
+<article class="lvl" id="l16">
+  <header class="lvl-h"><span class="lvl-n">L16</span><div class="lvl-t"><h4>Networks as code</h4><p class="lvl-m">ENSA 13–14 · Network virtualization · network automation</p></div></header>
+  <div class="ex"><span class="kind">Drill</span><p>The built-in mock REST API returns interface state as JSON. Find the interface that is down, then write the JSON body that sets its description.</p><pre class="cfg"><code>GET /restconf/data/ietf-interfaces:interfaces</code></pre><p class="pass"><span class="pass-l">Pass when</span> Correct interface named from the JSON · valid PATCH body accepted by the mock API</p></div>
+</article></div></section>
+<section class="course" id="c-beyond"><div class="course-h"><h3>Beyond CCNA</h3><span class="course-meta">Open-ended · L17</span></div><div class="lvls"><article class="lvl" id="l17">
+  <header class="lvl-h"><span class="lvl-n">L17</span><div class="lvl-t"><h4>Past the blueprint</h4><p class="lvl-m">Beyond · OSPFv3 · multi-area OSPF · EIGRP · eBGP basics · real-lab bridge</p></div></header>
+  <div class="ex"><span class="kind">Lab</span><p>Run OSPFv3 for IPv6 between R1 and R2. Then export the same lab to containerlab or GNS3 with your own IOS images and re-run the checks against real devices.</p><pre class="cfg"><code>ipv6 unicast-routing
+ipv6 router ospf 1
+ router-id 1.1.1.1
+interface g0/0/0
+ ipv6 ospf 1 area 0</code></pre><p class="pass"><span class="pass-l">Pass when</span> Same checks pass in the simulator and on real IOS</p></div>
+</article></div></section>
+  </section>
+
+  <section class="block" id="forge">
+    <div class="col stack">
+      <span class="eyebrow">AI forge</span>
+      <h2>Unlimited practice, checked by the simulator</h2>
+      <p>The forge drafts new exercises for any level. It works with any provider you link, or with no provider at all. The safeguard is that AI output is never trusted blindly: every generated lab must include a reference solution, and the Dojo runs that solution in the simulator. If any check fails, the lab is rejected before you ever see it.</p>
+    </div>
+    <div class="modes">
+      <div class="mode">
+        <h4>Focused mode</h4>
+        <div class="scope" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span class="on"></span><span></span><span></span></div>
+        <p class="muted">Only the current level's topics. Use it to drill a new skill until it sticks.</p>
+      </div>
+      <div class="mode">
+        <h4>Cumulative mode</h4>
+        <div class="scope" aria-hidden="true"><span class="wk"></span><span class="on"></span><span class="wk"></span><span class="on"></span><span class="wk"></span><span class="wk"></span><span class="on"></span><span></span><span></span></div>
+        <p class="muted">The current level plus everything before it, weighted toward the weak spots your review history shows. Use it to stop old skills from fading.</p>
+      </div>
+    </div>
+    <ol class="steps">
+      <li><b>Context</b><span class="muted">Level topics, mode, your weak spots, the lab schema</span></li>
+      <li><b>Draft</b><span class="muted">Sent to your provider, or copied as a prompt you paste anywhere</span></li>
+      <li><b>Parse</b><span class="muted">TOML is validated against the schema</span></li>
+      <li><b>Prove</b><span class="muted">The reference solution runs in netsim and every check must pass</span></li>
+      <li><b>Queue</b><span class="muted">Saved to your content library and scheduled</span></li>
+    </ol>
+    <div class="stack">
+      <span class="eyebrow">Providers</span>
+      <div class="chips"><span class="chip">Claude API</span><span class="chip">OpenAI / ChatGPT API</span><span class="chip">DeepSeek</span><span class="chip">OpenRouter</span><span class="chip">Ollama (local, offline)</span><span class="chip">Copy-paste prompt</span></div>
+      <p class="caption">DeepSeek, OpenRouter and Ollama all speak the OpenAI-compatible format, so one adapter plus a Claude adapter covers all of them. Copy-paste mode needs no key at all: copy the prompt into ChatGPT, Claude or an agent, then paste the answer back.</p>
+    </div>
+    <div class="code"><pre><span class="c"># forge prompt, cumulative mode (shortened)</span>
+You are writing one CCNA practice lab for CCNA Dojo.
+<span class="a">Mode:</span> CUMULATIVE. Level 9 (SRWE 7–9: DHCPv4, SLAAC/DHCPv6, FHRP)
+plus earlier levels, weighted toward the learner's weak spots:
+  wildcard masks (58%), STP port roles (61%)
+Return ONLY TOML that matches the schema below. Include a [solution]
+block with the full config of every device. The app runs it in its
+simulator and rejects the lab if any [[check]] fails.
+<span class="c">&lt;schema&gt; … &lt;/schema&gt;</span></pre></div>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Content format</span>
+      <h2>Labs are plain files you can read and edit</h2>
+      <p>Everything lives in <code>content/</code> as Markdown and TOML. Each item is tagged with its Networking Academy module and its exam objective, so the same lab appears in your course view and your exam view.</p>
+    </div>
+    <div class="code"><pre><span class="k">[lab]</span>
+id      = <span class="s">"srwe-l07-router-on-a-stick"</span>
+level   = <span class="a">7</span>
+academy = [<span class="s">"SRWE-3"</span>, <span class="s">"SRWE-4"</span>]
+exam    = [<span class="s">"v1.1:2.1"</span>, <span class="s">"v1.1:2.2"</span>]
+
+<span class="k">[topology]</span>
+devices = [<span class="s">"R1:isr4321"</span>, <span class="s">"S1:c2960"</span>, <span class="s">"PC-SALES:host"</span>, <span class="s">"PC-ENG:host"</span>]
+links   = [<span class="s">"PC-SALES:eth0 -- S1:Fa0/5"</span>, <span class="s">"PC-ENG:eth0 -- S1:Fa0/6"</span>, <span class="s">"S1:Gi0/1 -- R1:G0/0/1"</span>]
+
+<span class="k">[[check]]</span>
+desc = <span class="s">"PC-SALES reaches PC-ENG"</span>
+ping = { from = <span class="s">"PC-SALES"</span>, to = <span class="s">"192.168.20.10"</span> }
+
+<span class="k">[[check]]</span>
+desc  = <span class="s">"S1 Gi0/1 trunks only VLANs 10 and 20"</span>
+trunk = { device = <span class="s">"S1"</span>, port = <span class="s">"Gi0/1"</span>, allowed = [<span class="a">10</span>, <span class="a">20</span>] }
+
+<span class="k">[[fault]]</span>   <span class="c"># optional: break-it variant</span>
+device = <span class="s">"S1"</span>
+inject = <span class="s">"interface fa0/6\n switchport access vlan 30"</span></pre></div>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Accountability</span>
+      <h2>The app keeps score so you can't fool yourself</h2>
+    </div>
+    <div class="decisions">
+      <div><dt>Mastery gates</dt><dd>A level counts only when both its drills and its lab pass<small>Knowing the theory alone never unlocks the next level</small></dd></div>
+      <div><dt>Daily plan</dt><dd>Reviews due + one drill + one lab<small>Sized to the time budget you set, for example 45 minutes</small></dd></div>
+      <div><dt>Decay</dt><dd>Mastery fades if you stop reviewing<small>FSRS predicts recall, and the bars show it honestly</small></dd></div>
+      <div><dt>Mock exams</dt><dd>Timed, mixed, weighted by blueprint<small>Includes simulator tasks, not only multiple choice</small></dd></div>
+      <div><dt>Streak + log</dt><dd>Every session is written to SQLite<small>Export a weekly report as Markdown</small></dd></div>
+      <div><dt>Troubleshoot score</dt><dd>Time to fix and lines changed<small>Rewards the precise fix, not a rebuild from scratch</small></dd></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Build order</span>
+      <h2>Useful from the first week, deeper every phase</h2>
+    </div>
+    <div class="phases">
+      <div class="phase first"><h4><span>P0</span>Skeleton</h4><p>Cargo workspace, TUI shell with all seven screens stubbed, content loader, SQLite schema, CI with tests.</p></div>
+      <div class="phase"><h4><span>P1</span>Drills and reviews</h4><p>Subnetting, VLSM, IPv6, wildcard, binary/hex and port generators. FSRS review queue. Usable for daily practice right away.</p></div>
+      <div class="phase"><h4><span>P2</span>Layer 2 engine</h4><p>netsim frames, MAC learning, VLANs, trunks. ios-cli with modes, help, completion. Lab runner and checks. Levels 1–3 and 7.</p></div>
+      <div class="phase"><h4><span>P3</span>Layer 3 and services</h4><p>IPv4/IPv6 forwarding, ARP, static routes, inter-VLAN routing, DHCP, ACLs, NAT. Packet-step mode. Levels 4–6, 9, 11, 13, 14.</p></div>
+      <div class="phase"><h4><span>P4</span>Control planes</h4><p>STP/RSTP, EtherChannel (LACP), HSRP, OSPFv2, port security, syslog/NTP. Break-it faults. Levels 8, 10, 12, 15.</p></div>
+      <div class="phase"><h4><span>P5</span>Forge and full content</h4><p>AI forge with both modes and every provider, mock REST API for level 16, mock exams, all 17 levels fully written.</p></div>
+      <div class="phase"><h4><span>P6</span>Beyond</h4><p>OSPFv3, multi-area OSPF, EIGRP, eBGP basics, and the real-lab bridge that exports labs to containerlab or GNS3 and checks real IOS over SSH.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Exam versions</span>
+      <p class="note">Cisco has published a CCNA 200-301 <b>v2.0</b> blueprint. Secondary sources say v1.1 retires on <b>2 Feb 2027</b> and v2.0 adds AI in network operations, OSPFv3, SFTP/SCP and more Layer 2 security. The roadmap above already covers those topics. Content will carry both v1.1 and v2.0 objective tags once the v2.0 IDs are confirmed from Cisco's own PDF.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="col stack">
+      <span class="eyebrow">Sources</span>
+      <ul class="sources">
+        <li><a href="https://learningcontent.cisco.com/documents/marketing/exam-topics/200-301_CCNA_v2.0_Exam_Topics_PDF.pdf">Cisco: 200-301 CCNA v2.0 exam topics (PDF)</a></li>
+        <li><a href="https://smenode-academy.com/blog/ccna-v2-0-what-exam-topics-changed-feb-2027-deadline/">SMEnode: CCNA v2.0 changes and the Feb 2027 date</a></li>
+        <li><a href="https://open-exam-prep.com/study-guides/ccna/introduction/exam-domains-and-weights">Open Exam Prep: v1.1 domains and weights</a></li>
+        <li><a href="https://ciscoac.uokerbala.edu.iq/wp-content/uploads/sites/5/2023/03/ITN-v7.02-Release-Notes.pdf">ITN v7.02 release notes (module list)</a></li>
+        <li><a href="https://staff.helenaschools.org/wp-content/uploads/sites/16/2020/07/Cisco-2-Syllabus-and-Procedures-21-22.pdf">SRWE syllabus (module list)</a></li>
+        <li><a href="https://staff.helenaschools.org/wp-content/uploads/sites/16/2020/07/Cisco-3-Syllabus-and-Procedures-21-22.pdf">ENSA syllabus (module list)</a></li>
+        <li><a href="https://alternativeto.net/software/cisco-packet-tracer">Packet Tracer alternatives</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>CCNA Dojo · proposal draft 1 · nothing here is built yet</footer>
+</div>
