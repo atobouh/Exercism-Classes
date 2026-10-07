@@ -1,0 +1,892 @@
+<title>CCNA Dojo Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the working prototype is the hero; the design rationale reads underneath in one calm column. */
+:root {
+  --p-bg: oklch(0.985 0.003 250);
+  --p-ink: oklch(0.22 0.015 255);
+  --p-ink-2: oklch(0.45 0.015 255);
+  --p-line: oklch(0.88 0.008 255);
+  --p-well: oklch(0.955 0.006 255);
+  --p-accent: oklch(0.52 0.12 240);
+  --f-ui: "Geist", "Segoe UI Variable", "SF Pro Text", system-ui, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SF Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --p-bg: oklch(0.155 0.01 255); --p-ink: oklch(0.95 0.006 255); --p-ink-2: oklch(0.72 0.012 255);
+    --p-line: oklch(0.27 0.012 255); --p-well: oklch(0.19 0.012 255); --p-accent: oklch(0.82 0.085 228);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --p-bg: oklch(0.155 0.01 255); --p-ink: oklch(0.95 0.006 255); --p-ink-2: oklch(0.72 0.012 255);
+  --p-line: oklch(0.27 0.012 255); --p-well: oklch(0.19 0.012 255); --p-accent: oklch(0.82 0.085 228);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--p-bg); color: var(--p-ink); font: 400 16px/1.6 var(--f-ui); -webkit-font-smoothing: antialiased; }
+.page { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 96px; display: grid; gap: 28px; }
+.intro { display: grid; gap: 10px; max-width: 760px; }
+.intro h1 { font-size: clamp(2rem, 4.4vw, 3rem); font-weight: 650; letter-spacing: -0.025em; line-height: 1.05; margin: 0; text-wrap: balance; }
+.intro p { margin: 0; color: var(--p-ink-2); font-size: 1.08rem; text-wrap: pretty; }
+.how { font-size: .9rem; color: var(--p-ink-2); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.how kbd, .doc kbd { font: 500 .78rem/1 var(--f-mono); border: 1px solid var(--p-line); border-radius: 5px; padding: 2px 6px; background: var(--p-well); color: var(--p-ink); }
+.stage { width: 100%; overflow: hidden; border-radius: 16px; }
+.stage-inner { width: 1200px; height: 760px; transform-origin: 0 0; }
+.doc { max-width: 760px; display: grid; gap: 64px; padding-top: 40px; }
+.doc section { display: grid; gap: 18px; }
+.doc h2 { font-size: 1.7rem; font-weight: 620; letter-spacing: -0.02em; line-height: 1.15; margin: 0; text-wrap: balance; }
+.doc h3 { font-size: 1.05rem; font-weight: 600; margin: 0; }
+.doc p { margin: 0; text-wrap: pretty; }
+.doc .lead { font-size: 1.08rem; }
+.muted { color: var(--p-ink-2); }
+.wide { max-width: 1200px; }
+a { color: var(--p-accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--p-accent); outline-offset: 2px; }
+
+/* day timeline */
+.day { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.day li { display: grid; grid-template-columns: 64px 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid var(--p-line); }
+.day time { font: 500 .9rem/1.6 var(--f-mono); color: var(--p-ink-2); font-variant-numeric: tabular-nums; }
+.day b { font-weight: 600; }
+.day p { color: var(--p-ink-2); font-size: .95rem; }
+
+/* principles */
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px 40px; }
+.principle { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.principle p { color: var(--p-ink-2); font-size: .95rem; }
+.principle cite { font-style: normal; font-size: .82rem; color: var(--p-ink-2); }
+
+/* visual system */
+.controls { display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; padding: 16px 18px; background: var(--p-well); border-radius: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--p-line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 .88rem var(--f-ui); background: transparent; color: var(--p-ink); border: 0; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--p-ink); color: var(--p-bg); }
+.controls label { font-size: .88rem; display: inline-flex; gap: 10px; align-items: center; }
+.controls input[type=range] { width: 160px; accent-color: var(--p-accent); }
+.swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px 24px; }
+.sw { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; min-width: 0; }
+.sw i { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--p-line); }
+.sw b { font-weight: 600; font-size: .95rem; display: block; }
+.sw span { font-size: .82rem; color: var(--p-ink-2); }
+.scale { display: grid; gap: 10px; }
+.scale div { display: grid; grid-template-columns: 70px 1fr; gap: 16px; align-items: baseline; border-top: 1px solid var(--p-line); padding-top: 10px; }
+.scale code { font: 400 .8rem var(--f-mono); color: var(--p-ink-2); }
+.specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px 32px; }
+.specs div { display: grid; gap: 4px; }
+.specs p { font-size: .93rem; color: var(--p-ink-2); }
+.term { background: oklch(0.17 0.012 255); color: oklch(0.9 0.008 255); border-radius: 12px; overflow-x: auto; }
+.term pre { margin: 0; padding: 18px 20px; font: 400 13px/1.6 var(--f-mono); }
+.term .a { color: oklch(0.82 0.085 228); } .term .g { color: oklch(0.8 0.13 155); } .term .d { color: oklch(0.6 0.012 255); }
+.skills { display: grid; gap: 0; }
+.skills div { display: grid; grid-template-columns: 190px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--p-line); }
+.skills code { font: 500 .85rem var(--f-mono); }
+.skills p { font-size: .93rem; color: var(--p-ink-2); }
+@media (max-width: 560px) { .skills div, .day li { grid-template-columns: 1fr; gap: 4px; } }
+.refs { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: .9rem; color: var(--p-ink-2); }
+
+/* ================= APP PROTOTYPE ================= */
+.app {
+  --bg: oklch(0.165 0.012 255); --panel: oklch(0.195 0.012 255); --raised: oklch(0.235 0.012 255); --hover: oklch(0.27 0.012 255);
+  --line: oklch(1 0 0 / 0.1); --t1: oklch(0.96 0.006 255); --t2: oklch(0.75 0.012 255); --t3: oklch(0.59 0.012 255);
+  --acc: oklch(0.82 0.085 228); --acc-ink: oklch(0.2 0.03 240); --acc-soft: oklch(0.82 0.085 228 / 0.14);
+  --up: oklch(0.8 0.13 155); --fade: oklch(0.83 0.12 80); --down: oklch(0.72 0.15 25); --mono-bg: oklch(0.145 0.012 255);
+  width: 1200px; height: 760px; background: var(--bg); color: var(--t1); border-radius: 16px;
+  border: 1px solid var(--line); overflow: hidden; position: relative; font: 400 14px/1.45 var(--f-ui);
+  display: grid; grid-template-columns: 64px 1fr; grid-template-rows: 44px 1fr 34px; outline: none;
+  box-shadow: 0 30px 80px -40px oklch(0.1 0.02 255 / 0.55);
+}
+.app:focus-visible { box-shadow: 0 0 0 2px var(--acc), 0 30px 80px -40px oklch(0.1 0.02 255 / 0.55); }
+.app button { font: inherit; color: inherit; }
+.topbar { grid-column: 1 / 3; display: grid; grid-template-columns: 64px 1fr auto; align-items: center; border-bottom: 1px solid var(--line); padding-right: 12px; }
+.lights { display: flex; gap: 7px; padding-left: 16px; } .lights i { width: 11px; height: 11px; border-radius: 50%; background: var(--hover); }
+.crumb { font-size: 13px; color: var(--t2); padding-left: 14px; }
+.crumb b { color: var(--t1); font-weight: 500; }
+.cmdk { display: inline-flex; align-items: center; gap: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px 5px 12px; color: var(--t3); font-size: 13px; cursor: pointer; width: 300px; justify-content: space-between; }
+.k { font: 500 11px/1 var(--f-mono); color: var(--t2); background: var(--raised); border-radius: 4px; padding: 3px 5px; border: 1px solid var(--line); }
+.rail { grid-row: 2 / 3; display: grid; align-content: start; justify-items: center; gap: 4px; padding-top: 12px; border-right: 1px solid var(--line); }
+.rail button { width: 40px; height: 40px; border-radius: 10px; border: 0; background: transparent; color: var(--t3); display: grid; place-items: center; cursor: pointer; position: relative; }
+.rail button:hover { background: var(--panel); color: var(--t2); }
+.rail button[aria-current="page"] { background: var(--raised); color: var(--t1); }
+.rail svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.rail .tip { position: absolute; left: 48px; white-space: nowrap; background: var(--raised); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font-size: 12px; color: var(--t1); opacity: 0; pointer-events: none; transition: opacity .12s; z-index: 5; }
+.rail button:hover .tip { opacity: 1; }
+.main { grid-row: 2 / 3; position: relative; overflow: hidden; }
+.screen { position: absolute; inset: 0; display: none; }
+.screen.on { display: grid; }
+.actionbar { grid-column: 1 / 3; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding: 0 12px 0 16px; font-size: 12.5px; color: var(--t2); background: var(--panel); }
+.actionbar .ctx { display: flex; align-items: center; gap: 10px; }
+.toast { color: var(--up); }
+.actions { display: flex; gap: 16px; align-items: center; }
+.actions span { display: inline-flex; gap: 6px; align-items: center; }
+
+/* shared */
+.h-xl { font-size: 34px; font-weight: 640; letter-spacing: -0.025em; line-height: 1.1; margin: 0; }
+.h-l { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+.t2 { color: var(--t2); } .t3 { color: var(--t3); }
+.btn { display: inline-flex; align-items: center; gap: 10px; border: 0; border-radius: 9px; padding: 10px 16px; cursor: pointer; font-weight: 550; transition: transform .1s; }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--acc); color: var(--acc-ink); }
+.btn.primary .k { background: oklch(0 0 0 / 0.12); color: var(--acc-ink); border-color: transparent; }
+.btn.ghost { background: transparent; color: var(--t2); padding: 10px 8px; }
+.btn.ghost:hover { color: var(--t1); }
+.mono { font-family: var(--f-mono); font-size: 12.5px; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Today */
+.today { grid-template-columns: 1fr 380px; gap: 48px; padding: 48px 56px 32px 64px; }
+.today-main { display: grid; align-content: start; gap: 28px; }
+.today-head { display: grid; gap: 8px; }
+.today-head .date { font-size: 13.5px; color: var(--t3); }
+.today-head p { margin: 0; color: var(--t2); font-size: 15px; max-width: 520px; }
+.plan { list-style: none; margin: 0; padding: 0; display: grid; }
+.plan li { display: grid; grid-template-columns: 28px 1fr auto; gap: 14px; align-items: center; padding: 14px 12px; border-radius: 10px; margin: 0 -12px; }
+.plan li:hover { background: var(--panel); }
+.plan .n { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; font-size: 11.5px; color: var(--t3); font-variant-numeric: tabular-nums; }
+.plan b { font-weight: 550; font-size: 15px; display: block; }
+.plan .sub { font-size: 13px; color: var(--t3); }
+.plan .sub .fade { color: var(--fade); }
+.plan .dur { font-size: 13px; color: var(--t2); font-variant-numeric: tabular-nums; }
+.today-cta { display: flex; gap: 8px; align-items: center; }
+.today-side { display: grid; gap: 28px; align-content: start; padding-top: 6px; }
+.week { display: grid; grid-template-columns: 124px 1fr; gap: 20px; align-items: center; }
+.rings circle { fill: none; stroke-width: 9; stroke-linecap: round; }
+.rings .track { stroke: var(--raised); }
+.ring-legend { display: grid; gap: 8px; font-size: 13px; }
+.ring-legend div { display: grid; grid-template-columns: 10px 1fr auto; gap: 8px; align-items: center; }
+.ring-legend i { width: 8px; height: 8px; border-radius: 50%; }
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 11.5px; color: var(--t3); }
+.days span { display: grid; gap: 6px; justify-items: center; }
+.days i { width: 22px; height: 22px; border-radius: 50%; border: 1.5px dashed var(--line); }
+.days i.done { background: var(--acc); border: 0; }
+.days i.now { border: 1.5px solid var(--acc); background: var(--acc-soft); }
+.side-block { display: grid; gap: 10px; }
+.side-block h4 { margin: 0; font-size: 13px; font-weight: 550; color: var(--t2); }
+.note { font-size: 13px; color: var(--t2); }
+.mini-net { background: var(--panel); border-radius: 12px; padding: 14px; display: grid; gap: 10px; cursor: pointer; border: 1px solid transparent; }
+.mini-net:hover { border-color: var(--line); }
+.mini-net svg { width: 100%; height: 86px; }
+
+/* Review */
+.review { place-items: center; padding: 30px; }
+.card { width: 640px; display: grid; gap: 22px; }
+.card-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--t3); }
+.progress { height: 3px; background: var(--raised); border-radius: 2px; overflow: hidden; } .progress i { display: block; height: 100%; width: 37.5%; background: var(--acc); }
+.q { font-size: 24px; line-height: 1.35; font-weight: 520; letter-spacing: -0.012em; margin: 0; text-wrap: pretty; }
+.answer { display: grid; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+.answer code { font: 500 20px var(--f-mono); color: var(--acc); }
+.answer p { margin: 0; color: var(--t2); font-size: 15px; max-width: 560px; }
+.reveal-hint { color: var(--t3); font-size: 13.5px; display: flex; gap: 8px; align-items: center; }
+.grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.grades button { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; cursor: pointer; display: grid; gap: 2px; text-align: left; }
+.grades button:hover { background: var(--raised); }
+.grades b { font-weight: 550; display: flex; justify-content: space-between; }
+.grades span { font-size: 12px; color: var(--t3); }
+
+/* Lab */
+.lab { grid-template-columns: 1fr 320px; grid-template-rows: auto 1fr 196px; }
+.lab-head { grid-column: 1 / 3; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 10px 24px; }
+.lab-head .h-l span { color: var(--t3); font-weight: 500; margin-right: 8px; }
+.segc { display: inline-flex; background: var(--panel); border-radius: 9px; padding: 3px; gap: 2px; }
+.segc button { border: 0; background: transparent; padding: 5px 12px; border-radius: 7px; font-size: 13px; color: var(--t2); cursor: pointer; }
+.segc button[aria-pressed="true"] { background: var(--raised); color: var(--t1); }
+.timer { font: 500 13px var(--f-mono); color: var(--t2); }
+.timer b { color: var(--t1); font-weight: 500; }
+.canvas { position: relative; background-image: radial-gradient(oklch(1 0 0 / 0.07) 1px, transparent 1px); background-size: 22px 22px; margin: 0 0 0 16px; border-radius: 12px; overflow: hidden; }
+.canvas svg { width: 100%; height: 100%; display: block; }
+.link { stroke: var(--t3); stroke-width: 1.6; fill: none; transition: stroke .3s, stroke-width .3s; }
+.link.trunk { stroke: var(--acc); stroke-width: 1.6; }
+.link.lit { stroke: var(--up); stroke-width: 2.4; }
+.port { font: 500 10.5px var(--f-mono); fill: var(--t3); }
+.led { fill: var(--up); }
+.node rect { fill: var(--panel); stroke: var(--line); stroke-width: 1; transition: stroke .2s; }
+.node.focus rect { stroke: var(--acc); stroke-width: 1.5; }
+.node .nm { font: 600 13px var(--f-ui); fill: var(--t1); }
+.node .sb { font: 400 11px var(--f-mono); fill: var(--t3); }
+.node .gl { fill: none; stroke: var(--t2); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.pkt { transition: transform .5s cubic-bezier(.45,0,.2,1); }
+.pkt circle.core { fill: var(--acc); }
+.pkt circle.halo { fill: var(--acc-soft); }
+.inspector { grid-row: 2 / 4; grid-column: 2; border-left: 1px solid var(--line); padding: 4px 18px 16px; display: grid; align-content: start; gap: 18px; overflow: hidden; }
+.inspector h4 { margin: 0 0 8px; font-size: 12.5px; font-weight: 550; color: var(--t3); }
+.checks { display: grid; gap: 8px; }
+.check { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; font-size: 13.5px; }
+.check i { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--t3); margin-top: 2px; display: grid; place-items: center; transition: background .25s, border-color .25s; }
+.check.ok i { background: var(--up); border-color: var(--up); }
+.check.ok i::after { content: ""; width: 6px; height: 3px; border-left: 1.6px solid var(--acc-ink); border-bottom: 1.6px solid var(--acc-ink); transform: rotate(-45deg) translate(1px, -1px); }
+.check.ok span { color: var(--t2); }
+.hop { display: grid; gap: 10px; }
+.hop-top { display: flex; justify-content: space-between; align-items: baseline; }
+.hop-top b { font-size: 15px; font-weight: 600; }
+.hop p { margin: 0; font-size: 13.5px; color: var(--t2); line-height: 1.5; }
+.tbl { background: var(--mono-bg); border-radius: 8px; padding: 8px 10px; font: 400 11.5px/1.6 var(--f-mono); color: var(--t2); white-space: pre; overflow: hidden; }
+.tbl .hl { color: var(--t1); background: var(--acc-soft); border-radius: 3px; }
+.predict { display: grid; gap: 8px; }
+.predict .label { font-size: 13px; color: var(--t1); font-weight: 500; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; }
+.chips button:hover { background: var(--raised); }
+.chips button.right { border-color: var(--up); color: var(--up); }
+.chips button.wrong { border-color: var(--down); color: var(--down); }
+.feedback { font-size: 12.5px; min-height: 18px; }
+.console { grid-column: 1; grid-row: 3; margin: 12px 0 0 16px; background: var(--mono-bg); border-radius: 12px 12px 0 0; display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
+.con-tabs { display: flex; gap: 2px; padding: 8px 10px 0; border-bottom: 1px solid var(--line); }
+.con-tabs button { border: 0; background: transparent; font: 500 12px var(--f-mono); color: var(--t3); padding: 6px 12px 8px; cursor: pointer; border-bottom: 1.5px solid transparent; }
+.con-tabs button[aria-selected="true"] { color: var(--t1); border-bottom-color: var(--acc); }
+.con-body { padding: 8px 14px; font: 400 12.5px/1.55 var(--f-mono); color: var(--t2); overflow-y: auto; white-space: pre; }
+.con-body .ok { color: var(--up); }
+.con-line { display: flex; }
+.con-line input { flex: 1; background: transparent; border: 0; outline: none; color: var(--t1); font: inherit; caret-color: var(--acc); padding: 0 0 0 6px; }
+.con-body .out { color: var(--t2); }
+.con-body .cmd { color: var(--t1); }
+
+/* Map */
+.map { grid-template-columns: 1fr 300px; }
+.map-canvas { position: relative; padding: 24px 0 16px 28px; display: grid; grid-template-rows: auto 1fr; gap: 6px; }
+.map-head { display: grid; gap: 4px; }
+.map-head p { margin: 0; color: var(--t2); font-size: 14px; }
+.map svg { width: 100%; height: 100%; }
+.site { fill: oklch(1 0 0 / 0.025); stroke: var(--line); stroke-dasharray: 3 5; }
+.site-l { font: 500 12px var(--f-ui); fill: var(--t3); }
+.e { stroke-width: 1.6; fill: none; }
+.e.up { stroke: oklch(0.8 0.13 155 / 0.55); }
+.e.flap { stroke: var(--fade); stroke-dasharray: 6 6; animation: flap 1.6s linear infinite; }
+.e.build { stroke: var(--acc); stroke-dasharray: 2 4; }
+.e.off { stroke: var(--line); stroke-dasharray: 1 5; }
+@keyframes flap { to { stroke-dashoffset: -24; } }
+.lv { cursor: pointer; }
+.lv circle.b { fill: var(--panel); stroke-width: 2; transition: r .15s; }
+.lv.up circle.b { stroke: var(--up); } .lv.fade circle.b { stroke: var(--fade); } .lv.build circle.b { stroke: var(--acc); } .lv.off circle.b { stroke: var(--hover); }
+.lv text { font: 600 11px var(--f-mono); fill: var(--t1); text-anchor: middle; pointer-events: none; }
+.lv.off text { fill: var(--t3); }
+.lv.sel circle.b { fill: var(--raised); stroke-width: 3; }
+.lv:hover circle.b { fill: var(--raised); }
+.map-side { border-left: 1px solid var(--line); padding: 24px 20px; display: grid; align-content: start; gap: 18px; }
+.state-pill { justify-self: start; font-size: 12px; font-weight: 550; padding: 3px 9px; border-radius: 999px; }
+.state-pill.up { color: var(--up); background: oklch(0.8 0.13 155 / 0.12); }
+.state-pill.fade { color: var(--fade); background: oklch(0.83 0.12 80 / 0.12); }
+.state-pill.build { color: var(--acc); background: var(--acc-soft); }
+.state-pill.off { color: var(--t3); background: var(--panel); }
+.kv { display: grid; gap: 10px; }
+.kv div { display: flex; justify-content: space-between; font-size: 13.5px; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.kv span:first-child { color: var(--t3); }
+.legend { display: grid; gap: 8px; font-size: 12.5px; color: var(--t2); margin-top: 8px; }
+.legend div { display: flex; align-items: center; gap: 10px; }
+.legend svg { width: 28px; height: 6px; flex: none; }
+
+/* Recap */
+.recap { padding: 56px 64px; grid-template-columns: 1fr 360px; gap: 56px; align-content: start; }
+.recap-main { display: grid; gap: 30px; align-content: start; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.stat { display: grid; gap: 4px; padding-top: 14px; border-top: 1px solid var(--line); }
+.stat .big { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat .big small { font-size: 15px; color: var(--t3); font-weight: 500; margin-left: 4px; }
+.stat span { font-size: 13px; color: var(--t2); }
+.stat .delta { color: var(--up); }
+.changed { display: grid; gap: 10px; }
+.changed div { display: grid; grid-template-columns: 10px 1fr; gap: 12px; align-items: center; font-size: 14.5px; }
+.changed i { width: 8px; height: 8px; border-radius: 50%; }
+.reflect { display: grid; gap: 8px; }
+.reflect label { font-size: 13px; color: var(--t2); }
+.reflect textarea { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; color: var(--t1); font: 400 14px/1.5 var(--f-ui); padding: 12px; resize: none; height: 76px; }
+.tomorrow { background: var(--panel); border-radius: 14px; padding: 20px; display: grid; gap: 14px; align-content: start; }
+.tomorrow ol { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 14px; color: var(--t2); }
+
+/* Command bar */
+.scrim { position: absolute; inset: 0; background: oklch(0.1 0.01 255 / 0.5); display: none; place-items: start center; padding-top: 110px; z-index: 20; }
+.scrim.on { display: grid; }
+.palette { width: 620px; background: var(--raised); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 60px -20px oklch(0 0 0 / 0.5); }
+.palette input { width: 100%; background: transparent; border: 0; outline: none; color: var(--t1); font: 400 17px var(--f-ui); padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.palette input::placeholder { color: var(--t3); }
+.pal-list { max-height: 380px; overflow-y: auto; padding: 6px; }
+.pal-group { font-size: 11.5px; color: var(--t3); padding: 10px 12px 4px; font-weight: 500; }
+.pal-item { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.pal-item span { color: var(--t3); font-size: 12.5px; }
+.pal-item.act { background: var(--hover); }
+.pal-foot { display: flex; justify-content: flex-end; gap: 16px; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--t3); }
+.pal-foot span { display: inline-flex; gap: 6px; align-items: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pkt, .link, .check i, .btn { transition: none; }
+  .e.flap { animation: none; }
+}
+</style>
+
+<div class="page">
+  <header class="intro">
+    <h1>CCNA Dojo</h1>
+    <p>The product design for your daily CCNA training app. The window below is a working prototype, not a picture. Click into it and use it the way you would every morning.</p>
+    <div class="how"><span><kbd>1</kbd>-<kbd>5</kbd> switch screens</span><span><kbd>Ctrl</kbd> <kbd>K</kbd> command bar</span><span><kbd>Space</kbd> step the packet or reveal a card</span><span>Type <kbd>sh ip int br</kbd> in the R1 console</span></div>
+  </header>
+
+  <div class="stage" id="stage"><div class="stage-inner" id="stageInner">
+  <div class="app" id="app" tabindex="0" aria-label="CCNA Dojo prototype">
+    <div class="topbar">
+      <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="crumb" id="crumb"><b>Today</b></div>
+      <button class="cmdk" id="cmdkBtn" type="button"><span>Search or run a command</span><span class="k">Ctrl K</span></button>
+    </div>
+
+    <nav class="rail" aria-label="Screens">
+      <button type="button" data-go="today" aria-current="page"><svg viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="13" rx="3"/><path d="M3 8.5h14M7 2.5v3M13 2.5v3"/></svg><span class="tip">Today <span class="k">1</span></span></button>
+      <button type="button" data-go="review"><svg viewBox="0 0 20 20"><rect x="3.5" y="6" width="13" height="11" rx="2.5"/><path d="M6 3.2h8"/></svg><span class="tip">Review <span class="k">2</span></span></button>
+      <button type="button" data-go="lab"><svg viewBox="0 0 20 20"><circle cx="4.5" cy="5" r="2"/><circle cx="15.5" cy="5" r="2"/><circle cx="10" cy="15" r="2"/><path d="M6.5 5h7M5.6 6.8l3.3 6.4M14.4 6.8l-3.3 6.4"/></svg><span class="tip">Lab <span class="k">3</span></span></button>
+      <button type="button" data-go="map"><svg viewBox="0 0 20 20"><circle cx="4" cy="10" r="1.8"/><circle cx="10" cy="4" r="1.8"/><circle cx="16" cy="10" r="1.8"/><circle cx="10" cy="16" r="1.8"/><path d="M5.3 8.7l3.4-3.4M11.3 5.3l3.4 3.4M14.7 11.3l-3.4 3.4M8.7 14.7l-3.4-3.4"/></svg><span class="tip">Knowledge network <span class="k">4</span></span></button>
+      <button type="button" data-go="recap"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M7 10.2l2.1 2.1L13.2 8"/></svg><span class="tip">Session recap <span class="k">5</span></span></button>
+    </nav>
+
+    <main class="main">
+      <!-- TODAY -->
+      <section class="screen today on" data-screen="today">
+        <div class="today-main">
+          <div class="today-head">
+            <span class="date">Wednesday, 7 October</span>
+            <h2 class="h-xl">Today's session</h2>
+            <p>46 minutes. It ends with the router-on-a-stick lab you left at 2 of 3 checks yesterday.</p>
+          </div>
+          <ol class="plan">
+            <li><span class="n">1</span><div><b>Review 24 cards</b><span class="sub">Includes 6 from <span class="fade">L04 Address math</span>, which is starting to fade</span></div><span class="dur">12 min</span></li>
+            <li><span class="n">2</span><div><b>Drill wildcard masks</b><span class="sub">Your slowest skill this week at 14.2 s per answer</span></div><span class="dur">8 min</span></li>
+            <li><span class="n">3</span><div><b>Lab 7.2 Router-on-a-stick</b><span class="sub">One check left: PC-SALES reaches PC-ENG</span></div><span class="dur">26 min</span></li>
+          </ol>
+          <div class="today-cta">
+            <button class="btn primary" type="button" data-go="review">Begin session <span class="k">Space</span></button>
+            <button class="btn ghost" type="button">Shorten to 25 min</button>
+          </div>
+        </div>
+        <aside class="today-side">
+          <div class="side-block">
+            <h4>This week</h4>
+            <div class="week">
+              <svg class="rings" viewBox="0 0 124 124" aria-label="Weekly rings: recall 82 percent, practice 64 percent, build 41 percent">
+                <circle class="track" cx="62" cy="62" r="52"/><circle cx="62" cy="62" r="52" style="stroke:var(--acc)" stroke-dasharray="267.9 326.7" transform="rotate(-90 62 62)"/>
+                <circle class="track" cx="62" cy="62" r="40"/><circle cx="62" cy="62" r="40" style="stroke:color-mix(in oklch, var(--acc) 55%, var(--t1))" stroke-dasharray="160.8 251.3" transform="rotate(-90 62 62)"/>
+                <circle class="track" cx="62" cy="62" r="28"/><circle cx="62" cy="62" r="28" style="stroke:var(--t2)" stroke-dasharray="72.1 175.9" transform="rotate(-90 62 62)"/>
+              </svg>
+              <div class="ring-legend">
+                <div><i style="background:var(--acc)"></i><span>Recall</span><span class="num t2">82%</span></div>
+                <div><i style="background:color-mix(in oklch, var(--acc) 55%, var(--t1))"></i><span>Practice</span><span class="num t2">64%</span></div>
+                <div><i style="background:var(--t2)"></i><span>Build</span><span class="num t2">41%</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="side-block">
+            <div class="days" aria-label="Show-up days this week">
+              <span>Mon<i class="done"></i></span><span>Tue<i class="done"></i></span><span>Wed<i class="now"></i></span><span>Thu<i></i></span><span>Fri<i></i></span><span>Sat<i></i></span><span>Sun<i></i></span>
+            </div>
+            <p class="note">Target is 5 days a week. A missed day can be repaired with a double session within 48 hours.</p>
+          </div>
+          <div class="mini-net" data-go="map" role="button" tabindex="0">
+            <h4 style="margin:0;font-size:13px;font-weight:550;color:var(--t2)">Knowledge network</h4>
+            <svg viewBox="0 0 300 86" aria-hidden="true" id="miniNet"></svg>
+            <span class="note">6 levels up, 1 flapping, 10 not built yet</span>
+          </div>
+        </aside>
+      </section>
+
+      <!-- REVIEW -->
+      <section class="screen review" data-screen="review">
+        <div class="card">
+          <div class="card-meta"><span>L09 DHCP and relays</span><span class="num">9 of 24</span></div>
+          <div class="progress"><i></i></div>
+          <p class="q">R2's clients are on 10.2.2.0/24. The DHCP server is R1 at 10.1.1.1. Which single command on R2's LAN interface lets those clients get leases?</p>
+          <div class="reveal-hint" id="revealHint"><span class="k">Space</span> Show answer</div>
+          <div class="answer" id="answer" hidden>
+            <code>ip helper-address 10.1.1.1</code>
+            <p>R2 turns each client's broadcast DISCOVER into a unicast to R1 and writes its own interface address into the giaddr field, so R1 knows which pool to lease from.</p>
+            <div class="grades">
+              <button type="button"><b>Again <span class="k">1</span></b><span>in 10 minutes</span></button>
+              <button type="button"><b>Hard <span class="k">2</span></b><span>in 2 days</span></button>
+              <button type="button"><b>Good <span class="k">3</span></b><span>in 6 days</span></button>
+              <button type="button"><b>Easy <span class="k">4</span></b><span>in 15 days</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LAB -->
+      <section class="screen lab" data-screen="lab">
+        <div class="lab-head">
+          <h3 class="h-l"><span>Lab 7.2</span>Router-on-a-stick</h3>
+          <div class="segc" role="group" aria-label="Lab mode"><button type="button" aria-pressed="false">Build</button><button type="button" aria-pressed="true">Packet step</button><button type="button" aria-pressed="false">Configs</button></div>
+          <span class="timer"><b id="clock">06:42</b> of 10:00 par</span>
+        </div>
+        <div class="canvas">
+          <svg viewBox="0 0 800 380" id="topo" aria-label="Topology: PC-SALES and PC-ENG connect to switch S1, which trunks VLANs 10 and 20 to router R1">
+            <path class="link" id="lk1" d="M185 88 C 260 88, 270 190, 322 190"/>
+            <path class="link" id="lk2" d="M185 292 C 260 292, 270 202, 322 202"/>
+            <path class="link trunk" id="lk3" d="M438 192 H 586"/>
+            <path class="link trunk" id="lk4" d="M438 200 H 586"/>
+            <circle class="led" cx="190" cy="88" r="3"/><circle class="led" cx="316" cy="190" r="3"/>
+            <circle class="led" cx="190" cy="292" r="3"/><circle class="led" cx="316" cy="202" r="3"/>
+            <circle class="led" cx="444" cy="196" r="3"/><circle class="led" cx="580" cy="196" r="3"/>
+            <text class="port" x="232" y="80">Fa0/5</text><text class="port" x="232" y="310">Fa0/6</text>
+            <text class="port" x="448" y="180">Gi0/1</text><text class="port" x="530" y="180">G0/0/1</text>
+            <text class="port" x="470" y="222">trunk 10, 20</text>
+            <g class="node" id="nSALES" transform="translate(40 61)"><rect width="150" height="54" rx="10"/><g class="gl" transform="translate(14 15)"><rect x="0" y="0" width="22" height="15" rx="2.5"/><path d="M7 20h8M11 15v5"/></g><text class="nm" x="48" y="25">PC-SALES</text><text class="sb" x="48" y="41">192.168.10.10</text></g>
+            <g class="node" id="nENG" transform="translate(40 265)"><rect width="150" height="54" rx="10"/><g class="gl" transform="translate(14 15)"><rect x="0" y="0" width="22" height="15" rx="2.5"/><path d="M7 20h8M11 15v5"/></g><text class="nm" x="48" y="25">PC-ENG</text><text class="sb" x="48" y="41">192.168.20.10</text></g>
+            <g class="node" id="nS1" transform="translate(316 169)"><rect width="128" height="54" rx="10"/><g class="gl" transform="translate(14 17)"><rect x="0" y="0" width="24" height="20" rx="3"/><path d="M5 7h11l-3-3M19 13H8l3 3"/></g><text class="nm" x="48" y="25">S1</text><text class="sb" x="48" y="41">2960</text></g>
+            <g class="node" id="nR1" transform="translate(586 169)"><rect width="140" height="54" rx="10"/><g class="gl" transform="translate(14 15)"><circle cx="12" cy="12" r="11"/><path d="M12 5v14M5 12h14M12 5l-2.5 2.5M12 5l2.5 2.5M12 19l-2.5-2.5M12 19l2.5-2.5"/></g><text class="nm" x="48" y="25">R1</text><text class="sb" x="48" y="41">ISR 4321</text></g>
+            <g class="pkt" id="pkt" transform="translate(115 46)"><circle class="halo" r="13"/><circle class="core" r="6"/></g>
+          </svg>
+        </div>
+        <aside class="inspector">
+          <div>
+            <h4>Checks</h4>
+            <div class="checks">
+              <div class="check ok"><i></i><span>VLANs 10 SALES and 20 ENG exist on S1</span></div>
+              <div class="check ok"><i></i><span>Gi0/1 trunks only VLANs 10 and 20</span></div>
+              <div class="check" id="chk3"><i></i><span>PC-SALES reaches PC-ENG</span></div>
+            </div>
+          </div>
+          <div class="hop" id="hop"></div>
+        </aside>
+        <div class="console">
+          <div class="con-tabs" role="tablist">
+            <button type="button" role="tab" aria-selected="true" data-dev="R1">R1</button>
+            <button type="button" role="tab" aria-selected="false" data-dev="S1">S1</button>
+            <button type="button" role="tab" aria-selected="false" data-dev="PC-SALES">PC-SALES</button>
+          </div>
+          <div class="con-body" id="conBody"></div>
+        </div>
+      </section>
+
+      <!-- MAP -->
+      <section class="screen map" data-screen="map">
+        <div class="map-canvas">
+          <div class="map-head">
+            <h2 class="h-l">Knowledge network</h2>
+            <p>Each level is a node. A link comes up when you master both ends, and starts flapping when your recall of it drops below 80%.</p>
+          </div>
+          <svg viewBox="0 0 860 520" id="mapSvg" aria-label="Knowledge network of 17 levels"></svg>
+        </div>
+        <aside class="map-side" id="mapSide"></aside>
+      </section>
+
+      <!-- RECAP -->
+      <section class="screen recap" data-screen="recap">
+        <div class="recap-main">
+          <div class="today-head">
+            <span class="date">Wednesday, 7 October, 07:41 to 08:27</span>
+            <h2 class="h-xl">Session closed</h2>
+          </div>
+          <div class="stats">
+            <div class="stat"><span>Reviews</span><div class="big">21<small>of 24</small></div><span>87.5% recalled</span></div>
+            <div class="stat"><span>Wildcard drill</span><div class="big">13.6<small>s avg</small></div><span class="delta">0.6 s faster than last week</span></div>
+            <div class="stat"><span>Lab 7.2</span><div class="big">08:51</div><span>Passed under the 10:00 par, 1 hint used</span></div>
+          </div>
+          <div class="changed">
+            <div><i style="background:var(--up)"></i><span>L07 VLANs and inter-VLAN routing is now up</span></div>
+            <div><i style="background:var(--acc)"></i><span>L08 Loops and bundles is unlocked</span></div>
+            <div><i style="background:var(--fade)"></i><span>L04 Address math is still flapping. 4 cards return tomorrow</span></div>
+          </div>
+          <div class="reflect">
+            <label for="reflectBox">What clicked today? This goes into your weekly report.</label>
+            <textarea id="reflectBox">The router never sees VLAN 10 frames untagged. The subinterface is what makes the trunk useful.</textarea>
+          </div>
+        </div>
+        <aside class="tomorrow">
+          <h3 class="h-l" style="font-size:16px">Tomorrow, about 44 min</h3>
+          <ol>
+            <li>Review 19 cards</li>
+            <li>Drill STP port roles</li>
+            <li>Lab 8.1 Root bridge election</li>
+          </ol>
+          <button class="btn primary" type="button" data-go="today" style="justify-self:start">Close the day</button>
+        </aside>
+      </section>
+
+      <!-- COMMAND BAR -->
+      <div class="scrim" id="scrim">
+        <div class="palette" role="dialog" aria-label="Command bar">
+          <input id="palInput" type="text" placeholder="Search labs, drills, commands, concepts" autocomplete="off" aria-label="Command">
+          <div class="pal-list" id="palList"></div>
+          <div class="pal-foot"><span><span class="k">Up</span><span class="k">Down</span> move</span><span><span class="k">Enter</span> open</span><span><span class="k">Esc</span> close</span></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="actionbar">
+      <div class="ctx" id="ctx">Today</div>
+      <div class="actions" id="acts"></div>
+    </footer>
+  </div>
+  </div></div>
+
+  <div class="doc">
+    <section>
+      <h2>What a day with it feels like</h2>
+      <p class="lead">You should never have to decide what to study. The app decides from what you are forgetting and what you are about to unlock, and you just show up.</p>
+      <ol class="day">
+        <li><time>07:40</time><div><b>Open the app.</b><p>Today already holds one composed session sized to your time budget: reviews first, then one drill, then a lab. One button starts it.</p></div></li>
+        <li><time>07:41</time><div><b>Review.</b><p>Spaced-repetition cards, including any level that is fading. Space reveals, 1 to 4 grades. No mouse needed.</p></div></li>
+        <li><time>07:53</time><div><b>Drill.</b><p>Timed generated questions on your slowest skill, so speed improves where it is weakest.</p></div></li>
+        <li><time>08:01</time><div><b>Lab.</b><p>Configure real IOS syntax, then step a packet through the network and predict each hop before it moves.</p></div></li>
+        <li><time>08:27</time><div><b>Recap and close.</b><p>What changed in your knowledge network, one line of reflection, and tomorrow's plan. Then the app stays quiet.</p></div></li>
+        <li><time>Sunday</time><div><b>Weekly report.</b><p>Your reflections, speed trends and the links that went up, written to a Markdown file you keep.</p></div></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Six principles, each taken from a product that earned it</h2>
+      <div class="principles">
+        <div class="principle"><h3>One obvious next step</h3><p>Today shows a single composed session with one start button. Planning is the app's job.</p><cite>Things 3 Today view. Raycast's rule: fast, simple, delightful.</cite></div>
+        <div class="principle"><h3>Chrome recedes, the work comes forward</h3><p>The rail and bars sit a few steps dimmer than the canvas and the card. Lines are soft and few.</p><cite>Linear 2026 refresh: "Don't compete for attention you haven't earned."</cite></div>
+        <div class="principle"><h3>The app teaches its own shortcuts</h3><p>The bottom action bar always lists what you can do here and its key, so you go keyboard-only within a week.</p><cite>Raycast's action bar redesign.</cite></div>
+        <div class="principle"><h3>Understanding clicks through doing</h3><p>No reading-only lessons. Every concept is a lab, a drill or a prediction you can be wrong about.</p><cite>Brilliant: "where understanding clicks through doing, not reading."</cite></div>
+        <div class="principle"><h3>Accountability without fear</h3><p>Weekly rings and a 5 of 7 day target instead of a fragile streak. A missed day can be repaired, and there are no guilt notifications at night.</p><cite>Mobbin's study of 859 streak designs. Lally (UCL): one missed day does not materially affect habit formation.</cite></div>
+        <div class="principle"><h3>Your knowledge is a network</h3><p>Progress uses the words you are learning: links come up, flap when recall drops, and stay down until you build them.</p><cite>Drawn from the subject itself.</cite></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Visual system</h2>
+      <p>Following Linear's approach, the whole palette comes from three inputs: a base neutral, one accent and a contrast level. The colours are defined in OKLCH, so equal lightness looks equal to the eye. Try the controls and the prototype above updates.</p>
+      <div class="controls">
+        <div class="seg" role="group" aria-label="App theme"><button type="button" id="thDark" aria-pressed="true">Dark</button><button type="button" id="thLight" aria-pressed="false">Light</button></div>
+        <label for="contrast">Contrast <input type="range" id="contrast" min="0" max="100" value="50"></label>
+      </div>
+      <div class="swatches">
+        <div class="sw"><i style="background:oklch(0.82 0.085 228)"></i><div><b>Rollover blue</b><span>The accent. The colour of the Cisco console cable from your first lab. Focus, selection and progress.</span></div></div>
+        <div class="sw"><i style="background:oklch(0.8 0.13 155)"></i><div><b>Link up</b><span>Only for state: a passed check, a mastered level, a lit port.</span></div></div>
+        <div class="sw"><i style="background:oklch(0.83 0.12 80)"></i><div><b>Flapping</b><span>Recall is decaying. Never used for decoration.</span></div></div>
+        <div class="sw"><i style="background:oklch(0.72 0.15 25)"></i><div><b>Down</b><span>Errors and wrong predictions, always with the reason next to them.</span></div></div>
+        <div class="sw"><i style="background:oklch(0.195 0.012 255)"></i><div><b>Graphite</b><span>Neutrals carry a faint blue bias toward the accent, never a flat grey.</span></div></div>
+      </div>
+      <div class="scale">
+        <div><code>34 / 640</code><span style="font-size:34px;font-weight:640;letter-spacing:-0.025em;line-height:1.1">Today's session</span></div>
+        <div><code>20 / 600</code><span style="font-size:20px;font-weight:600">Router-on-a-stick</span></div>
+        <div><code>15 / 550</code><span style="font-size:15px;font-weight:550">Review 24 cards</span></div>
+        <div><code>13.5 / 400</code><span style="font-size:13.5px" class="muted">Subinterface G0/0/1.10 accepts tag 10.</span></div>
+        <div><code>Mono</code><span style="font:400 13px var(--f-mono)">ip helper-address 10.1.1.1</span></div>
+      </div>
+      <p class="muted">One family, Geist, for the whole interface. Geist Mono appears only where a real device would print text: configs, addresses, console output and keycaps.</p>
+      <div class="specs">
+        <div><h3>Shape</h3><p>6 px for keycaps, 9 to 10 px for controls and nodes, 12 to 14 px for panels, 16 px for the window. Nothing else.</p></div>
+        <div><h3>Motion</h3><p>Feedback within 120 ms. A packet hop takes 500 ms on one easing curve. The only orchestrated moment is links lighting in sequence when a lab passes.</p></div>
+        <div><h3>Sound, off by default</h3><p>Three sounds only: a soft two-note rise when a link comes up, a tick per packet hop, and one chord when you close the day.</p></div>
+        <div><h3>Density</h3><p>Calm on Today and Recap, where you decide. Dense in Lab and Console, where you work.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Where it runs</h2>
+      <p>I recommend a Tauri desktop app. The prototype above is built with the same web technology Tauri renders, so this is the look you would actually get, while the simulator runs in native Rust underneath.</p>
+      <p>Alongside it, a small terminal companion called <code>dojo</code> for quick drills between other work. It shares the same progress file and the same visual language:</p>
+      <div class="term"><pre><span class="d">$</span> dojo drill wildcard
+
+  <span class="a">Wildcard masks</span>   10 rounds, target 15 s
+
+  <span class="d"> 6/10</span>  172.16.32.0/20    0.0.15.255     <span class="g">correct</span>   9.8 s
+  <span class="d"> 7/10</span>  10.40.0.0/13      0.7.255.255    <span class="g">correct</span>  12.1 s
+  <span class="d"> 8/10</span>  192.168.4.128/26  <span class="a">0.0.0.63</span><span class="a">_</span>
+
+  <span class="d">enter submit   tab skip   q quit</span></pre></div>
+    </section>
+
+    <section>
+      <h2>Design toolkit now in the repo</h2>
+      <p>These skills are installed in <code>.claude/skills/</code> so every screen I build follows the same rules. I read each one and checked it for unsafe content first.</p>
+      <div class="skills">
+        <div><code>frontend-design</code><p>Anthropic's official skill. Sets the design brief and the anti-template rules.</p></div>
+        <div><code>taste-skill</code><p>The most widely used anti-slop rulebook, with density and motion dials and a long list of AI tells to avoid.</p></div>
+        <div><code>ui-ux-pro-max</code><p>A searchable database of styles, palettes, type pairings and UX rules, with a local Python search tool.</p></div>
+        <div><code>redesign-skill</code><p>An audit-first process for improving an existing design without breaking it.</p></div>
+        <div><code>baseline-ui</code><p>A fast polish pass for spacing, hierarchy and typography.</p></div>
+        <div><code>improve-ui</code><p>Structured UI critique with a written plan.</p></div>
+        <div><code>fixing-accessibility</code><p>Keyboard, focus, contrast and screen-reader checks.</p></div>
+        <div><code>fixing-motion-performance</code><p>Keeps animation smooth and cheap.</p></div>
+        <div><code>output-skill</code><p>Keeps generated code complete, with no placeholders.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>References</h2>
+      <ul class="refs">
+        <li><a href="https://linear.app/now/how-we-redesigned-the-linear-ui">Linear: How we redesigned the Linear UI</a> (LCH theme generation from base, accent and contrast)</li>
+        <li><a href="https://linear.app/now/behind-the-latest-design-refresh">Linear: A calmer interface for a product in motion</a></li>
+        <li><a href="https://www.raycast.com/blog/a-fresh-look-and-feel">Raycast: A fresh look and feel</a> (action bar that teaches shortcuts)</li>
+        <li><a href="https://www.macstories.net/reviews/things-3-beauty-and-delight-in-a-task-manager/">MacStories: Things 3, beauty and delight in a task manager</a></li>
+        <li><a href="https://blog.brilliant.org/hand-crafted-machine-made/">Brilliant: Hand-crafted, machine-made</a></li>
+        <li><a href="https://mobbin.com/blog/streaks-are-about-losing-a-study-of-859-streak-designs">Mobbin: Streaks are about losing, a study of 859 streak designs</a></li>
+        <li><a href="https://superdesign.dev/blog/design-skills-reviewed">Superdesign: Design skills for Claude Code, reviewed</a></li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const $ = (s, r = app) => r.querySelector(s);
+  const $$ = (s, r = app) => [...r.querySelectorAll(s)];
+
+  /* scale the fixed-size window to the page width */
+  const stage = document.getElementById('stage'), inner = document.getElementById('stageInner');
+  const fit = () => { const s = Math.min(1, stage.clientWidth / 1200); inner.style.transform = `scale(${s})`; stage.style.height = (760 * s) + 'px'; };
+  new ResizeObserver(fit).observe(stage); fit();
+
+  /* screens */
+  const NAMES = { today: 'Today', review: 'Review', lab: 'Lab 7.2', map: 'Knowledge network', recap: 'Session recap' };
+  const ACTS = {
+    today: [['Begin session', 'Space'], ['Command', 'Ctrl K']],
+    review: [['Show answer', 'Space'], ['Grade', '1-4'], ['Command', 'Ctrl K']],
+    lab: [['Next hop', 'Space'], ['Check lab', 'F5'], ['Hint', 'H'], ['Command', 'Ctrl K']],
+    map: [['Select level', 'Click'], ['Practice', 'Enter'], ['Command', 'Ctrl K']],
+    recap: [['Close the day', 'Enter'], ['Command', 'Ctrl K']],
+  };
+  let cur = 'today';
+  const go = (name, toast) => {
+    cur = name;
+    $$('.screen').forEach(s => s.classList.toggle('on', s.dataset.screen === name));
+    $$('.rail button').forEach(b => b.dataset.go === name ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+    $('#crumb').innerHTML = `<b>${NAMES[name]}</b>`;
+    $('#ctx').innerHTML = toast ? `<span class="toast">${toast}</span>` : NAMES[name];
+    $('#acts').innerHTML = ACTS[name].map(([l, k]) => `<span>${l} <span class="k">${k}</span></span>`).join('');
+  };
+  app.addEventListener('click', e => { const t = e.target.closest('[data-go]'); if (t) { go(t.dataset.go); app.focus({ preventScroll: true }); } });
+  go('today');
+
+  /* review */
+  const reveal = () => { $('#answer').hidden = false; $('#revealHint').hidden = true; };
+  const grade = () => { $('#answer').hidden = true; $('#revealHint').hidden = false; go('review', 'Scheduled. Next card in 6 days'); };
+  $$('.grades button').forEach(b => b.addEventListener('click', grade));
+
+  /* lab: packet step */
+  const POS = { 'PC-SALES': [115, 46], S1: [380, 152], R1: [656, 152], 'PC-ENG': [115, 250] };
+  const NODE = { 'PC-SALES': 'nSALES', S1: 'nS1', R1: 'nR1', 'PC-ENG': 'nENG' };
+  const HOPS = [
+    { at: 'PC-SALES', text: '192.168.20.10 is outside 192.168.10.0/24, so the frame goes to the default gateway 192.168.10.1. The ARP cache already holds R1 as 00a3.d1f2.0b01.',
+      tbl: 'Internet  192.168.10.1   00a3.d1f2.0b01', hl: 0, ask: 'Where does the frame go first?', opts: ['S1', 'R1', 'PC-ENG'], next: 'S1', why: 'Every frame from PC-SALES enters S1 on Fa0/5 first.' },
+    { at: 'S1', text: 'Arrives untagged on Fa0/5, access VLAN 10. S1 learns the source MAC there, finds R1 on Gi0/1 and forwards it with an 802.1Q tag of 10.',
+      tbl: 'Vlan  Mac Address       Ports\n  10  0050.7966.6801    Fa0/5\n  10  00a3.d1f2.0b01    Gi0/1', hl: 1, ask: 'Where next?', opts: ['R1', 'PC-ENG', 'Flood'], next: 'R1', why: "R1's MAC is already in the table on Gi0/1, so there is no flood." },
+    { at: 'R1', text: 'G0/0/1.10 accepts tag 10. The longest match for 192.168.20.10 is the connected route on G0/0/1.20, so R1 sends it back down the trunk tagged 20.',
+      tbl: 'C  192.168.20.0/24 is directly connected,\n   GigabitEthernet0/0/1.20', hl: 0, ask: 'Where next?', opts: ['S1', 'PC-ENG'], next: 'S1', why: 'R1 has only one physical link. Everything returns through S1.' },
+    { at: 'S1', text: 'Tag 20 arrives on the trunk. PC-ENG is known on Fa0/6 in VLAN 20, so S1 removes the tag and sends the frame out Fa0/6.',
+      tbl: 'Vlan  Mac Address       Ports\n  20  0050.7966.6802    Fa0/6', hl: 1, ask: 'Where next?', opts: ['PC-ENG', 'PC-SALES'], next: 'PC-ENG', why: 'The frame is in VLAN 20 now. PC-SALES is in VLAN 10.' },
+    { at: 'PC-ENG', text: 'Echo request delivered. The reply takes the same path in reverse. All three checks pass.', tbl: '', done: true },
+  ];
+  let hop = 0;
+  const renderHop = () => {
+    const h = HOPS[hop], [x, y] = POS[h.at];
+    $('#pkt').setAttribute('transform', `translate(${x} ${y})`);
+    Object.values(NODE).forEach(id => $('#' + id).classList.remove('focus'));
+    $('#' + NODE[h.at]).classList.add('focus');
+    const rows = h.tbl ? h.tbl.split('\n').map((r, i) => i === h.hl ? `<span class="hl">${r}</span>` : r).join('\n') : '';
+    $('#hop').innerHTML = `
+      <div class="hop-top"><b>${h.at}</b><span class="t3 num">Hop ${hop + 1} of ${HOPS.length}</span></div>
+      <p>${h.text}</p>${rows ? `<div class="tbl">${rows}</div>` : ''}
+      ${h.done ? `<button class="btn ghost" type="button" id="again" style="justify-self:start;padding-left:0">Step it again</button>` :
+      `<div class="predict"><span class="label">${h.ask}</span><div class="chips">${h.opts.map(o => `<button type="button" data-o="${o}">${o}</button>`).join('')}</div><span class="feedback" id="fb"></span></div>`}`;
+    if (h.done) {
+      $('#chk3').classList.add('ok');
+      ['lk1', 'lk3', 'lk4', 'lk2'].forEach((id, i) => setTimeout(() => $('#' + id).classList.add('lit'), 120 * i));
+      go('lab', `All checks pass. Lab 7.2 complete in ${$('#clock').textContent}, under the 10:00 par`);
+      $('#again').addEventListener('click', () => { hop = 0; resetLab(); renderHop(); app.focus({ preventScroll: true }); });
+    }
+  };
+  const resetLab = () => { $('#chk3').classList.remove('ok'); $$('.link').forEach(l => l.classList.remove('lit')); go('lab'); };
+  const advance = () => { if (hop < HOPS.length - 1) { hop++; renderHop(); app.focus({ preventScroll: true }); } };
+  $('#hop').addEventListener('click', e => {
+    const b = e.target.closest('[data-o]'); if (!b) return;
+    const h = HOPS[hop];
+    if (b.dataset.o === h.next) { b.classList.add('right'); $('#fb').innerHTML = `<span style="color:var(--up)">Correct.</span>`; setTimeout(advance, 450); }
+    else { b.classList.add('wrong'); $('#fb').innerHTML = `<span style="color:var(--down)">Not quite.</span> <span class="t2">${h.why}</span>`; }
+  });
+  renderHop();
+
+  /* lab: console */
+  const OUT = {
+    R1: {
+      'show ip interface brief': `Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0/0   unassigned      YES unset  administratively down down
+GigabitEthernet0/0/1   unassigned      YES unset  up                    up
+Gi0/0/1.10             192.168.10.1    YES manual up                    up
+Gi0/0/1.20             192.168.20.1    YES manual up                    up`,
+      'show ip route': `Gateway of last resort is not set
+
+      192.168.10.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.10.0/24 is directly connected, GigabitEthernet0/0/1.10
+L        192.168.10.1/32 is directly connected, GigabitEthernet0/0/1.10
+      192.168.20.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.20.0/24 is directly connected, GigabitEthernet0/0/1.20
+L        192.168.20.1/32 is directly connected, GigabitEthernet0/0/1.20`,
+      'ping 192.168.20.10': `Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 192.168.20.10, timeout is 2 seconds:
+<span class="ok">!!!!!</span>
+Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/3 ms`,
+    },
+    S1: {
+      'show vlan brief': `VLAN Name                             Status    Ports
+---- -------------------------------- --------- -------------------------------
+1    default                          active    Fa0/1, Fa0/2, Fa0/3, Fa0/4
+10   SALES                            active    Fa0/5
+20   ENG                              active    Fa0/6`,
+      'show interfaces trunk': `Port        Mode         Encapsulation  Status        Native vlan
+Gi0/1       on           802.1q         trunking      1
+
+Port        Vlans allowed on trunk
+Gi0/1       10,20`,
+    },
+    'PC-SALES': {
+      'ping 192.168.20.10': `Pinging 192.168.20.10 with 32 bytes of data:
+Reply from 192.168.20.10: bytes=32 time&lt;1ms TTL=127
+Reply from 192.168.20.10: bytes=32 time&lt;1ms TTL=127
+Reply from 192.168.20.10: bytes=32 time=1ms TTL=127
+Reply from 192.168.20.10: bytes=32 time&lt;1ms TTL=127`,
+    },
+  };
+  const WORDS = ['show', 'ip', 'interface', 'interfaces', 'brief', 'route', 'vlan', 'trunk', 'ping', 'running-config'];
+  const expand = cmd => cmd.trim().toLowerCase().split(/\s+/).map(w => {
+    if (/^[\d.]+$/.test(w)) return w;
+    const m = WORDS.filter(x => x.startsWith(w)); return m.length ? (m.includes(w) ? w : m[0]) : w;
+  }).join(' ').replace('show ip interfaces brief', 'show ip interface brief').replace('show interface trunk', 'show interfaces trunk');
+  const HIST = { R1: [['R1(config-subif)#', 'end'], ['R1#', 'ping 192.168.20.10', 'ping 192.168.20.10']], S1: [], 'PC-SALES': [] };
+  let dev = 'R1';
+  const prompt = d => d === 'PC-SALES' ? 'C:\\>' : d + '#';
+  const renderCon = () => {
+    const body = $('#conBody');
+    body.innerHTML = HIST[dev].map(([p, c, o]) => `<div class="cmd">${p} ${c}</div>${o ? `<div class="out">${OUT[dev][o] || o}</div>` : ''}`).join('') +
+      `<div class="con-line"><span class="cmd">${prompt(dev)}</span><input id="conIn" aria-label="${dev} console" spellcheck="false" autocomplete="off"></div>`;
+    body.scrollTop = body.scrollHeight;
+  };
+  $('#conBody').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.target.id !== 'conIn') return;
+    e.stopPropagation();
+    const raw = e.target.value; if (!raw.trim()) return;
+    const full = expand(raw);
+    const out = OUT[dev][full] ? full : `${' '.repeat(prompt(dev).length + 1)}^\n% Invalid input detected at '^' marker. Try: ${Object.keys(OUT[dev]).join(', ')}`;
+    HIST[dev].push([prompt(dev), raw, out]); renderCon(); $('#conIn').focus();
+  });
+  $$('.con-tabs button').forEach(b => b.addEventListener('click', () => {
+    dev = b.dataset.dev; $$('.con-tabs button').forEach(x => x.setAttribute('aria-selected', x === b)); renderCon(); $('#conIn').focus();
+  }));
+  renderCon();
+
+  /* knowledge network */
+  const LV = [
+    [1, 'First contact', 'ITN 1-3', 70, 110, 'up'], [2, 'Bits on the wire', 'ITN 4-7', 170, 70, 'up'], [3, 'First hop', 'ITN 8-10', 130, 210, 'up'],
+    [4, 'Address math', 'ITN 11-13', 250, 160, 'fade'], [5, 'Ports and conversations', 'ITN 14-15', 90, 330, 'up'], [6, 'Small network, hardened', 'ITN 16-17', 220, 300, 'up'],
+    [7, 'VLANs and inter-VLAN routing', 'SRWE 1-4', 370, 130, 'build'], [8, 'Loops and bundles', 'SRWE 5-6', 480, 80, 'off'], [9, 'Addresses on demand', 'SRWE 7-9', 440, 250, 'off'],
+    [10, 'Edge security and wireless', 'SRWE 10-13', 550, 210, 'off'], [11, 'The routing table', 'SRWE 14-16', 400, 380, 'off'],
+    [12, 'OSPFv2', 'ENSA 1-2', 640, 120, 'off'], [13, 'Threats and ACLs', 'ENSA 3-5', 760, 90, 'off'], [14, 'Leaving the building', 'ENSA 6-8', 700, 260, 'off'],
+    [15, 'Keep it running', 'ENSA 9-12', 800, 240, 'off'], [16, 'Networks as code', 'ENSA 13-14', 660, 400, 'off'], [17, 'Past the blueprint', 'Beyond', 790, 420, 'off'],
+  ];
+  const ED = [[1,2],[1,3],[2,4],[3,4],[3,5],[5,6],[4,6],[6,7],[4,7],[7,8],[7,9],[8,10],[9,10],[9,11],[4,11],[11,12],[12,13],[12,14],[13,14],[14,15],[13,15],[4,13],[15,16],[16,17],[12,17]];
+  const S = Object.fromEntries(LV.map(l => [l[0], l]));
+  const edgeState = (a, b) => { const sa = S[a][5], sb = S[b][5];
+    if (sa === 'fade' || sb === 'fade') return (sa === 'off' || sb === 'off') ? 'off' : 'flap';
+    if (sa === 'up' && sb === 'up') return 'up'; if ((sa === 'build' && sb !== 'off') || (sb === 'build' && sa !== 'off')) return 'build'; return 'off'; };
+  const STAT = { up: 'Up', fade: 'Flapping', build: 'Building', off: 'Not built' };
+  const DETAIL = {
+    1: [96, 91, 'Passed'], 2: [93, 88, 'Passed'], 3: [91, 90, 'Passed'], 4: [72, 86, 'Passed'], 5: [89, 94, 'Passed'], 6: [88, 92, 'Passed'], 7: [null, 91, '2 of 3 checks'],
+  };
+  const sites = `<rect class="site" x="30" y="30" width="270" height="345" rx="24"/><text class="site-l" x="48" y="58">CCNA 1</text>
+    <rect class="site" x="330" y="45" width="270" height="380" rx="24"/><text class="site-l" x="348" y="73">CCNA 2</text>
+    <rect class="site" x="610" y="55" width="235" height="400" rx="24"/><text class="site-l" x="628" y="83">CCNA 3</text>`;
+  const edges = ED.map(([a, b]) => `<line class="e ${edgeState(a, b)}" x1="${S[a][3]}" y1="${S[a][4]}" x2="${S[b][3]}" y2="${S[b][4]}"/>`).join('');
+  const nodes = LV.map(l => `<g class="lv ${l[5]}" data-l="${l[0]}" tabindex="0" role="button" aria-label="Level ${l[0]} ${l[1]}, ${STAT[l[5]]}"><circle class="b" cx="${l[3]}" cy="${l[4]}" r="19"/><text x="${l[3]}" y="${l[4] + 4}">${String(l[0]).padStart(2, '0')}</text></g>`).join('');
+  $('#mapSvg').innerHTML = sites + edges + nodes;
+  const legend = `<div class="legend">
+    <div><svg viewBox="0 0 28 6"><line x1="0" y1="3" x2="28" y2="3" stroke="oklch(0.8 0.13 155 / 0.55)" stroke-width="2"/></svg>Up: both levels mastered</div>
+    <div><svg viewBox="0 0 28 6"><line x1="0" y1="3" x2="28" y2="3" stroke="oklch(0.83 0.12 80)" stroke-width="2" stroke-dasharray="6 6"/></svg>Flapping: recall below 80%</div>
+    <div><svg viewBox="0 0 28 6"><line x1="0" y1="3" x2="28" y2="3" stroke="oklch(0.82 0.085 228)" stroke-width="2" stroke-dasharray="2 4"/></svg>Building: in progress</div>
+    <div><svg viewBox="0 0 28 6"><line x1="0" y1="3" x2="28" y2="3" stroke="oklch(1 0 0 / 0.25)" stroke-width="2" stroke-dasharray="1 5"/></svg>Not built yet</div></div>`;
+  const selectLv = n => {
+    const l = S[n], d = DETAIL[n];
+    $$('.lv').forEach(g => g.classList.toggle('sel', +g.dataset.l === n));
+    $('#mapSide').innerHTML = `<span class="state-pill ${l[5]}">${STAT[l[5]]}</span>
+      <div><div class="t3" style="font-size:13px">Level ${n}, ${l[2]}</div><h3 class="h-l" style="margin-top:4px">${l[1]}</h3></div>
+      <div class="kv"><div><span>Recall</span><span class="num">${d && d[0] != null ? d[0] + '%' : 'Not started'}</span></div><div><span>Drills</span><span class="num">${d ? d[1] + '%' : 'Locked'}</span></div><div><span>Lab</span><span>${d ? d[2] : 'Locked'}</span></div></div>
+      ${l[5] === 'off' ? `<p class="note">Unlocks when the levels linked to it are up.</p>` : `<button class="btn primary" type="button" style="justify-self:start" data-go="${n === 7 ? 'lab' : 'review'}">${n === 7 ? 'Continue lab' : 'Practice now'} <span class="k">Enter</span></button>`}
+      ${legend}`;
+  };
+  $('#mapSvg').addEventListener('click', e => { const g = e.target.closest('.lv'); if (g) selectLv(+g.dataset.l); });
+  selectLv(4);
+  /* mini network on Today */
+  const mini = LV.map(l => [l[3] * 0.33 + 6, l[4] * 0.17 + 4, l[5]]);
+  const MC = { up: 'var(--up)', fade: 'var(--fade)', build: 'var(--acc)', off: 'var(--hover)' };
+  $('#miniNet').innerHTML = ED.map(([a, b]) => { const st = edgeState(a, b); return `<line x1="${mini[a-1][0]}" y1="${mini[a-1][1]}" x2="${mini[b-1][0]}" y2="${mini[b-1][1]}" stroke="${st === 'up' ? 'oklch(0.8 0.13 155 / 0.5)' : st === 'flap' ? 'var(--fade)' : st === 'build' ? 'var(--acc)' : 'oklch(1 0 0 / 0.1)'}" stroke-width="1.2"/>`; }).join('') +
+    mini.map(([x, y, s]) => `<circle cx="${x}" cy="${y}" r="4.5" fill="var(--panel)" stroke="${MC[s]}" stroke-width="1.8"/>`).join('');
+
+  /* command bar */
+  const CMDS = [
+    ['Session', 'Begin today\'s session', '46 min', 'review'], ['Session', 'Continue Lab 7.2 Router-on-a-stick', '2 of 3 checks', 'lab'],
+    ['Practice', 'Drill wildcard masks', 'slowest skill', 'today'], ['Practice', 'Review fading cards from L04 Address math', '6 cards', 'review'],
+    ['Practice', 'Drill subnetting /27 to /30', 'timed', 'today'],
+    ['Learn', 'Explain ip helper-address', 'L09', 'review'], ['Learn', 'Explain OSPF DR election', 'L12', 'map'], ['Learn', 'Explain native VLAN mismatch', 'L07', 'lab'],
+    ['Navigate', 'Open knowledge network', '4', 'map'], ['Navigate', 'Open last session recap', '5', 'recap'],
+  ];
+  let sel = 0, shown = CMDS;
+  const renderPal = () => {
+    const q = $('#palInput').value.toLowerCase().trim();
+    shown = CMDS.filter(c => !q || c[1].toLowerCase().includes(q) || c[0].toLowerCase().includes(q));
+    sel = Math.min(sel, Math.max(0, shown.length - 1));
+    let g = '', html = '';
+    shown.forEach((c, i) => { if (c[0] !== g) { g = c[0]; html += `<div class="pal-group">${g}</div>`; } html += `<div class="pal-item ${i === sel ? 'act' : ''}" data-i="${i}"><b style="font-weight:450">${c[1]}</b><span>${c[2]}</span></div>`; });
+    $('#palList').innerHTML = html || `<div class="pal-group">No match. Try "ospf", "drill" or "explain".</div>`;
+  };
+  const openPal = () => { $('#scrim').classList.add('on'); $('#palInput').value = ''; sel = 0; renderPal(); $('#palInput').focus(); };
+  const closePal = () => { $('#scrim').classList.remove('on'); app.focus({ preventScroll: true }); };
+  const runPal = i => { const c = shown[i]; if (!c) return; closePal(); go(c[3]); };
+  $('#cmdkBtn').addEventListener('click', openPal);
+  $('#palInput').addEventListener('input', () => { sel = 0; renderPal(); });
+  $('#palList').addEventListener('click', e => { const it = e.target.closest('.pal-item'); if (it) runPal(+it.dataset.i); });
+  $('#scrim').addEventListener('click', e => { if (e.target.id === 'scrim') closePal(); });
+
+  /* keyboard */
+  app.addEventListener('keydown', e => {
+    const palOpen = $('#scrim').classList.contains('on');
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); palOpen ? closePal() : openPal(); return; }
+    if (palOpen) {
+      if (e.key === 'Escape') closePal();
+      else if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, shown.length - 1); renderPal(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); renderPal(); }
+      else if (e.key === 'Enter') runPal(sel);
+      return;
+    }
+    if (e.target.matches('input, textarea')) return;
+    if (/^[1-5]$/.test(e.key) && !(cur === 'review' && !$('#answer').hidden)) { go(['today', 'review', 'lab', 'map', 'recap'][+e.key - 1]); return; }
+    if (e.key === ' ') {
+      e.preventDefault();
+      if (cur === 'today') go('review');
+      else if (cur === 'review') $('#answer').hidden ? reveal() : null;
+      else if (cur === 'lab') { const h = HOPS[hop]; if (!h.done) { const b = $(`[data-o="${h.next}"]`); b && b.click(); } }
+    }
+    if (cur === 'review' && !$('#answer').hidden && /^[1-4]$/.test(e.key)) grade();
+    if (cur === 'recap' && e.key === 'Enter') go('today');
+  });
+  $('#revealHint').addEventListener('click', reveal);
+
+  /* timer */
+  let secs = 402; setInterval(() => { if (cur === 'lab' && !HOPS[hop].done) { secs++; $('#clock').textContent = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0'); } }, 1000);
+
+  /* theme generator: base, accent, contrast */
+  let mode = 'dark';
+  const applyTheme = () => {
+    const k = (+document.getElementById('contrast').value) / 100;
+    const v = mode === 'dark' ? {
+      bg: `oklch(${(0.185 - 0.04 * k).toFixed(3)} 0.012 255)`, panel: `oklch(${(0.21 - 0.03 * k).toFixed(3)} 0.012 255)`, raised: `oklch(${(0.245 - 0.02 * k).toFixed(3)} 0.012 255)`,
+      hover: `oklch(${(0.28 - 0.01 * k).toFixed(3)} 0.012 255)`, line: `oklch(1 0 0 / ${(0.07 + 0.07 * k).toFixed(3)})`,
+      t1: 'oklch(0.96 0.006 255)', t2: `oklch(${(0.66 + 0.18 * k).toFixed(3)} 0.012 255)`, t3: `oklch(${(0.5 + 0.18 * k).toFixed(3)} 0.012 255)`,
+      acc: 'oklch(0.82 0.085 228)', 'acc-ink': 'oklch(0.2 0.03 240)', 'acc-soft': 'oklch(0.82 0.085 228 / 0.14)',
+      up: 'oklch(0.8 0.13 155)', fade: 'oklch(0.83 0.12 80)', down: 'oklch(0.72 0.15 25)', 'mono-bg': `oklch(${(0.165 - 0.04 * k).toFixed(3)} 0.012 255)`,
+    } : {
+      bg: 'oklch(0.99 0.003 255)', panel: `oklch(${(0.97 - 0.015 * k).toFixed(3)} 0.005 255)`, raised: 'oklch(1 0 0)', hover: `oklch(${(0.935 - 0.03 * k).toFixed(3)} 0.006 255)`,
+      line: `oklch(0.25 0.02 255 / ${(0.09 + 0.08 * k).toFixed(3)})`, t1: `oklch(${(0.24 - 0.06 * k).toFixed(3)} 0.015 255)`,
+      t2: `oklch(${(0.5 - 0.14 * k).toFixed(3)} 0.014 255)`, t3: `oklch(${(0.63 - 0.15 * k).toFixed(3)} 0.012 255)`,
+      acc: 'oklch(0.53 0.12 240)', 'acc-ink': 'oklch(0.99 0 0)', 'acc-soft': 'oklch(0.53 0.12 240 / 0.12)',
+      up: 'oklch(0.55 0.13 155)', fade: 'oklch(0.62 0.13 70)', down: 'oklch(0.56 0.17 25)', 'mono-bg': `oklch(${(0.965 - 0.02 * k).toFixed(3)} 0.005 255)`,
+    };
+    Object.entries(v).forEach(([n, c]) => app.style.setProperty('--' + n, c));
+  };
+  document.getElementById('thDark').addEventListener('click', e => { mode = 'dark'; e.target.setAttribute('aria-pressed', 'true'); document.getElementById('thLight').setAttribute('aria-pressed', 'false'); applyTheme(); });
+  document.getElementById('thLight').addEventListener('click', e => { mode = 'light'; e.target.setAttribute('aria-pressed', 'true'); document.getElementById('thDark').setAttribute('aria-pressed', 'false'); applyTheme(); });
+  document.getElementById('contrast').addEventListener('input', applyTheme);
+  applyTheme();
+})();
+</script>
