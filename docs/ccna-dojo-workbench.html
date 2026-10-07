@@ -1,0 +1,576 @@
+<title>CCNA Dojo Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: the app is the hero, built on one loop (edit, apply, see, watch). The research that shaped it reads below in one column. */
+:root {
+  --g-bg: #F4F5F7; --g-ink: #181A21; --g-ink2: #5E6371; --g-line: #DDE0E6; --g-acc: #3D5BC9;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+  --f-read: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --g-bg: #111218; --g-ink: #E6E8EF; --g-ink2: #9AA0B0; --g-line: #262935; --g-acc: #9DB2F5; color-scheme: dark; } }
+:root[data-theme="dark"] { --g-bg: #111218; --g-ink: #E6E8EF; --g-ink2: #9AA0B0; --g-line: #262935; --g-acc: #9DB2F5; color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--g-bg); color: var(--g-ink); font: 400 16px/1.6 var(--f-read); -webkit-font-smoothing: antialiased; }
+.page { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 44px 96px; display: grid; gap: 30px; }
+.intro { display: grid; gap: 12px; max-width: 780px; }
+h1 { font: 700 clamp(1.9rem, 4.2vw, 2.9rem)/1.05 var(--f-read); letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+h2 { font: 600 1.55rem/1.2 var(--f-read); letter-spacing: -0.02em; margin: 0; }
+p { margin: 0; text-wrap: pretty; }
+.lead { font-size: 1.1rem; color: var(--g-ink2); }
+.how { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: .9rem; color: var(--g-ink2); }
+kbd { font: 500 .74rem/1 var(--f-mono); border: 1px solid var(--g-line); border-radius: 4px; padding: 3px 6px; color: var(--g-ink); }
+a { color: var(--g-acc); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--g-acc); outline-offset: 2px; }
+.stage { width: 100%; overflow: hidden; border-radius: 12px; }
+.stage-inner { width: 1200px; height: 760px; transform-origin: 0 0; }
+.doc { display: grid; gap: 22px; max-width: 900px; padding-top: 40px; }
+.steal { display: grid; gap: 0; }
+.steal > div { display: grid; grid-template-columns: 180px 1fr; gap: 6px 24px; padding: 16px 0; border-top: 1px solid var(--g-line); }
+.steal b { font-weight: 600; }
+.steal .src { font-size: .85rem; color: var(--g-ink2); }
+.steal p { font-size: .95rem; color: var(--g-ink2); }
+.steal p strong { color: var(--g-ink); font-weight: 600; }
+@media (max-width: 640px) { .steal > div { grid-template-columns: 1fr; } }
+.refs { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: .88rem; color: var(--g-ink2); }
+
+/* ================= APP ================= */
+.app {
+  --tabs: #14161D; --ed: #191B24; --pane: #1D1F2A; --raise: #252836; --sel: #2A2E3E; --ln: #262A37;
+  --tx: #D6DAE6; --t2: #8B91A3; --t3: #565C6E; --acc: #8FA8F0; --kw: #8FA8F0; --val: #A9D18E; --ifn: #E2C08D; --cm: #565C6E;
+  --ok: #A9D18E; --no: #E88E8E; --v10: #E3A857; --v20: #5BB3A6; --station: #F2F3F7;
+  width: 1200px; height: 760px; background: var(--ed); color: var(--tx); border-radius: 12px; overflow: hidden; position: relative; outline: none;
+  display: grid; grid-template-columns: 650px 1fr; grid-template-rows: 34px 1fr 28px; font: 400 13px/1.6 var(--f-mono); border: 1px solid #2A2D3A;
+  box-shadow: 0 30px 70px -40px rgba(10,12,20,.7);
+}
+.app button { font: inherit; color: inherit; cursor: pointer; }
+.tabs { grid-column: 1; display: flex; background: var(--tabs); }
+.tabs button { background: transparent; border: 0; padding: 0 18px; color: var(--t2); display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.tabs button[aria-selected="true"] { background: var(--ed); color: var(--tx); font-weight: 600; }
+.tabs .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--t2); }
+.tabs .x { color: var(--t3); font-weight: 400; }
+.phead { grid-column: 2; display: flex; align-items: center; gap: 22px; padding: 0 18px; background: var(--pane); font-size: 13px; color: var(--t2); border-left: 1px solid var(--ln); }
+.phead .go { color: var(--acc); font-weight: 600; }
+.phead .ok { color: var(--ok); } .phead .no { color: var(--no); }
+.phead .sp { flex: 1; }
+.left { grid-column: 1; grid-row: 2; position: relative; overflow: hidden; }
+.right { grid-column: 2; grid-row: 2; background: var(--pane); border-left: 1px solid var(--ln); position: relative; overflow: hidden; }
+.status { grid-column: 1 / 3; display: flex; align-items: center; gap: 26px; padding: 0 16px; background: var(--tabs); font-size: 12.5px; color: var(--t2); }
+.status .sp { flex: 1; }
+.status b { color: var(--tx); font-weight: 500; }
+.status .live { color: var(--ok); }
+
+/* editor */
+.editor { position: absolute; inset: 0; display: grid; grid-template-columns: 46px 1fr; padding-top: 14px; }
+.gutter { text-align: right; padding-right: 14px; color: var(--t3); white-space: pre; user-select: none; }
+.code { position: relative; overflow: hidden; }
+.code pre, .code textarea { position: absolute; inset: 0; margin: 0; padding: 0 20px 0 6px; font: inherit; line-height: 1.6; white-space: pre; tab-size: 2; border: 0; }
+.code pre { pointer-events: none; color: var(--tx); }
+.code textarea { background: transparent; color: transparent; caret-color: var(--acc); resize: none; outline: none; overflow: hidden; }
+.code textarea::selection { background: rgba(143,168,240,.28); color: transparent; }
+.ln-row { display: block; }
+.ln-row.cur { background: rgba(255,255,255,.035); }
+.ln-row.hit { background: rgba(143,168,240,.16); box-shadow: inset 2px 0 0 var(--acc); }
+.ln-row.blame { background: rgba(232,142,142,.12); box-shadow: inset 2px 0 0 var(--no); }
+.kw { color: var(--kw); } .val { color: var(--val); } .ifn { color: var(--ifn); } .cm { color: var(--cm); }
+
+/* lesson */
+.lesson { position: absolute; inset: 0; padding: 34px 56px 30px 52px; overflow: hidden; display: grid; align-content: start; gap: 16px; font: 400 15.5px/1.68 var(--f-read); color: #C9CEDB; }
+.lesson .meta { font: 400 12.5px var(--f-mono); color: var(--t2); }
+.lesson h3 { margin: 0; font: 600 30px/1.15 var(--f-read); letter-spacing: -0.02em; color: var(--tx); }
+.lesson p { max-width: 62ch; }
+.lesson strong { color: var(--tx); font-weight: 600; }
+.lesson .remember { display: grid; gap: 6px; padding: 14px 16px; background: var(--pane); border-radius: 8px; font-size: 14.5px; }
+.lesson .remember b { font: 600 12px var(--f-mono); color: var(--acc); }
+.lesson .remember span { display: grid; grid-template-columns: 150px 1fr; gap: 12px; }
+.lesson .remember em { font-style: normal; color: var(--tx); font-weight: 500; }
+.lesson pre { margin: 0; font: 400 13px/1.6 var(--f-mono); background: var(--pane); border-radius: 8px; padding: 12px 16px; color: var(--tx); }
+.lesson .try { display: flex; gap: 14px; align-items: center; font: 400 13px var(--f-mono); color: var(--t2); }
+.lesson .try button { background: var(--acc); color: #141622; border: 0; border-radius: 6px; padding: 6px 14px; font-weight: 600; }
+
+/* right pane modes */
+.mode { position: absolute; inset: 0; display: none; grid-template-rows: auto 1fr; }
+.mode.on { display: grid; }
+.mapwrap { position: relative; padding: 14px 18px 0; }
+.mapwrap svg { width: 100%; height: 100%; display: block; }
+.map .track { fill: none; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.map .track.v10 { stroke: var(--v10); } .map .track.v20 { stroke: var(--v20); }
+.map .track.off { stroke: var(--raise); }
+.map .stn { fill: var(--station); stroke: #1D1F2A; stroke-width: 3; }
+.map .term { fill: var(--station); stroke-width: 4; }
+.map .nm { font: 600 12.5px var(--f-mono); fill: var(--tx); }
+.map .sub { font: 400 10.5px var(--f-mono); fill: var(--t2); }
+.map .pt { font: 400 10px var(--f-mono); fill: var(--t3); }
+.map .flow { fill: #fff; }
+.map .brk { fill: none; stroke: var(--no); stroke-width: 2.5; }
+.map .brk-l { font: 500 11px var(--f-mono); fill: var(--no); }
+.map .here { fill: none; stroke: var(--acc); stroke-width: 2; }
+.out { padding: 4px 18px 16px; overflow: hidden; display: grid; align-content: start; gap: 12px; font-size: 13px; }
+.out h4 { margin: 0; font-size: 12.5px; color: var(--acc); font-weight: 500; }
+.chk { display: grid; grid-template-columns: 52px 1fr; gap: 8px; color: var(--t2); }
+.chk .p { color: var(--ok); } .chk .f { color: var(--no); }
+.why { color: var(--tx); }
+.why .no { color: var(--no); }
+.review { display: grid; gap: 6px; }
+.review .r { display: grid; grid-template-columns: 70px 54px 1fr; gap: 10px; color: var(--t2); align-items: center; }
+.review .bar { height: 6px; border-radius: 3px; background: var(--raise); overflow: hidden; } .review .bar i { display: block; height: 100%; background: var(--ok); }
+.review .best { color: var(--ok); } .review .meh { color: var(--t3); }
+.watch { padding: 14px 18px; display: grid; align-content: start; gap: 14px; overflow: hidden; }
+.watch .prog { height: 3px; background: var(--raise); border-radius: 2px; overflow: hidden; } .watch .prog i { display: block; height: 100%; background: var(--acc); transition: width .25s; }
+.watch .mini { height: 230px; }
+.watch .mini svg { width: 100%; height: 100%; }
+.watch .where { color: var(--t2); } .watch .where b { color: var(--tx); font-weight: 600; margin-right: 10px; }
+.watch .say { color: var(--tx); font: 400 14.5px/1.6 var(--f-read); }
+.watch .say .no { color: var(--no); }
+.vars { display: grid; gap: 2px; }
+.vars .v { display: grid; grid-template-columns: 64px 1fr auto; gap: 10px; color: var(--t2); }
+.vars .v b { color: var(--tx); font-weight: 600; }
+.vars .v .new { color: var(--acc); }
+.vars .v code { font: inherit; color: var(--val); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chips { display: flex; gap: 8px; align-items: center; color: var(--t2); padding: 10px 18px 0; }
+.chips button { border: 1.5px solid var(--ln); background: var(--raise); border-radius: 999px; padding: 3px 12px; font-weight: 600; }
+.chips button[aria-pressed="true"].c10 { border-color: var(--v10); color: var(--v10); }
+.chips button[aria-pressed="true"].c20 { border-color: var(--v20); color: var(--v20); }
+.chips button[aria-pressed="false"] { color: var(--t3); text-decoration: line-through; }
+
+/* palette */
+.scrim { position: absolute; inset: 0; display: none; place-items: start center; padding-top: 70px; background: rgba(10,11,16,.45); z-index: 10; }
+.scrim.on { display: grid; }
+.pal { width: 690px; background: var(--raise); border: 1px solid #343849; border-radius: 10px; overflow: hidden; box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); }
+.pal-in { display: flex; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #343849; color: var(--t2); }
+.pal-in input { flex: 1; background: transparent; border: 0; outline: none; color: var(--tx); font: inherit; caret-color: var(--acc); }
+.pal-list { max-height: 360px; overflow-y: auto; padding: 4px 0; }
+.pi { padding: 4px 18px; cursor: pointer; display: grid; }
+.pi b { font-weight: 700; color: var(--tx); }
+.pi span { color: var(--t2); }
+.pi.act { background: #2E3243; }
+</style>
+
+<div class="page">
+  <header class="intro">
+    <h1>One loop, done perfectly</h1>
+    <p class="lead">Edit the config, apply it, see the network, watch a packet run. The window below works. It opens on a broken lab so you have something to fix.</p>
+    <div class="how"><span><kbd>Ctrl</kbd> <kbd>Enter</kbd> apply</span><span><kbd>Ctrl</kbd> <kbd>J</kbd> watch the packet</span><span><kbd>Ctrl</kbd> <kbd>K</kbd> menu</span><span><kbd>Left</kbd> <kbd>Right</kbd> step, <kbd>Esc</kbd> stop watching</span></div>
+  </header>
+
+  <div class="stage" id="stage"><div class="stage-inner" id="stageInner">
+  <div class="app" id="app" tabindex="0" aria-label="CCNA Dojo workbench prototype">
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div class="phead" id="phead"></div>
+
+    <div class="left">
+      <div class="editor" id="editor">
+        <div class="gutter" id="gutter"></div>
+        <div class="code"><pre id="hl" aria-hidden="true"></pre><textarea id="ta" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Device configuration"></textarea></div>
+      </div>
+      <div class="lesson" id="lesson" hidden>
+        <span class="meta">srwe / 03 vlans / trunks.md   3 min read, then the lab</span>
+        <h3>VLAN trunks</h3>
+        <p>A switch port normally belongs to one VLAN. That is fine for a PC, but the link between a switch and a router has to carry many VLANs at once. That link is a <strong>trunk</strong>.</p>
+        <p>On a trunk, every frame carries a 4-byte <strong>802.1Q tag</strong> holding its VLAN ID. The receiving device reads the tag, removes it, and treats the frame as part of that VLAN. One VLAN, the native VLAN, crosses untagged.</p>
+        <p>A router can route between VLANs over one trunk by giving each VLAN its own <strong>subinterface</strong>. Each subinterface accepts one tag and owns the gateway address for that VLAN.</p>
+        <div class="remember">
+          <b>remember</b>
+          <span><em>Access port</em>one VLAN, frames untagged</span>
+          <span><em>Trunk</em>many VLANs, every frame tagged</span>
+          <span><em>Router-on-a-stick</em>one subinterface per VLAN</span>
+        </div>
+        <pre><span class="kw">interface</span> <span class="ifn">GigabitEthernet0/0/1.20</span>
+ <span class="kw">encapsulation dot1Q</span> <span class="val">20</span>
+ <span class="kw">ip address</span> <span class="val">192.168.20.1 255.255.255.0</span></pre>
+        <div class="try"><span>On the right, remove VLAN 20 from the trunk.</span><button type="button" id="startLab">Start lab 7.2</button></div>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="mode on" data-mode="run">
+        <div class="mapwrap"><svg class="map" id="mapRun" viewBox="0 0 520 290" aria-label="Network map"></svg></div>
+        <div class="out" id="out"></div>
+      </div>
+      <div class="mode" data-mode="watch"><div class="watch" id="watch"></div></div>
+      <div class="mode" data-mode="learn">
+        <div style="display:grid;grid-template-rows:auto 1fr auto">
+          <div class="chips"><span>trunk allows</span><button type="button" class="c10" data-v="10" aria-pressed="true">10</button><button type="button" class="c20" data-v="20" aria-pressed="true">20</button></div>
+          <div class="mapwrap"><svg class="map" id="mapLearn" viewBox="0 0 520 290" aria-label="Network map, interactive"></svg></div>
+          <div class="out"><p class="why" id="learnSay" style="font:400 14.5px/1.6 var(--f-read)"></p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <div class="scrim" id="scrim">
+      <div class="pal" role="dialog" aria-label="Menu">
+        <div class="pal-in"><span>&gt;</span><input id="palIn" placeholder="Run a command" aria-label="Command"></div>
+        <div class="pal-list" id="palList"></div>
+      </div>
+    </div>
+  </div>
+  </div></div>
+
+  <div class="doc">
+    <h2>What I took, from whom, and why it works</h2>
+    <div class="steal">
+      <div><div><b>Your Python app</b><div class="src">reference you shared</div></div><p>Two panes, input and result, and one shortcut between them. <strong>Taken:</strong> config on the left, the live network on the right, Ctrl Enter to apply, a header that reports the run like a test runner.</p></div>
+      <div><div><b>Harry Beck, Tube map</b><div class="src">1933, Massimo Vignelli in 1972</div></div><p>Beck chose topology over geography, with straight lines, 45 degree turns and colour per line, and it became the most copied diagram in the world. <strong>Taken:</strong> the network is a transit map. Each VLAN is a coloured line, a trunk is lines sharing track, devices are stations.</p></div>
+      <div><div><b>Falstad circuit simulator</b><div class="src">falstad.com/circuit</div></div><p>Moving dots show current, so you see a closed loop instead of imagining it. <strong>Taken:</strong> traffic dots flow along the map all the time and stop at the exact point the network breaks.</p></div>
+      <div><div><b>Strudel live coding</b><div class="src">music, TidalCycles</div></div><p>It highlights the part of the code that is making the sound right now, which ties notation to effect. <strong>Taken:</strong> while you watch a packet, the config line that decided each hop lights up in the editor.</p></div>
+      <div><div><b>Python Tutor, Bret Victor</b><div class="src">"see the state", "follow the flow"</div></div><p>Learners understand code when they can see the data change step by step. <strong>Taken:</strong> watch the packet shows MAC tables, routes and tags changing per hop, marked new, like variables.</p></div>
+      <div><div><b>Lichess game review</b><div class="src">chess</div></div><p>After a game you scrub every move with an evaluation graph and see where it turned. <strong>Taken:</strong> after a lab, every apply is a move, graded against the checks, with the one that fixed it marked best.</p></div>
+      <div><div><b>PhET simulations</b><div class="src">University of Colorado</div></div><p>Implicit scaffolding: a few constrained controls guide exploration without instructions. <strong>Taken:</strong> each lesson has one control on a live network, here the VLANs allowed on the trunk.</p></div>
+      <div><div><b>Ableton Live</b><div class="src">music</div></div><p>"Window management has nothing to do with being a musician." One window, no tools to switch, direct manipulation. <strong>Taken:</strong> no modal screens. Reading, editing, running and watching all happen in the same two panes.</p></div>
+      <div><div><b>Execute Program</b><div class="src">spaced repetition for code</div></div><p>Reviews are small runnable examples, not trivia. <strong>Taken:</strong> review cards are tiny configs and show outputs you predict or complete.</p></div>
+      <div><div><b>3Blue1Brown</b><div class="src">maths</div></div><p>One idea at a time, until you feel you could have invented it. <strong>Taken:</strong> lessons are three short paragraphs, one rule box, one live control.</p></div>
+    </div>
+    <ul class="refs">
+      <li><a href="https://worrydream.com/LearnableProgramming/">Bret Victor, Learnable Programming</a></li>
+      <li><a href="https://3dvar.com/Guo2021Ten.pdf">Philip Guo, Python Tutor design guidelines after ten million users</a></li>
+      <li><a href="https://strudel.cc/learn/visual-feedback/">Strudel, visual feedback</a></li>
+      <li><a href="https://www.falstad.com/circuit/doc/overview.html">Falstad circuit simulator</a></li>
+      <li><a href="https://www.ltmuseum.co.uk/collections/stories/design/transforming-tube-map-harry-becks-iconic-design">London Transport Museum, Harry Beck's map</a> and <a href="https://www.nytransitmuseum.org/vignelli/">the Vignelli map</a></li>
+      <li><a href="https://arxiv.org/pdf/1306.6544">Podolefsky et al., implicit scaffolding in PhET simulations</a></li>
+      <li><a href="https://ericcarl.link/blog/ableton-live-and-designing-for-authenticity/">Eric Carl, Ableton Live and designing for authenticity</a></li>
+      <li><a href="https://www.executeprogram.com/spaced-repetition">Execute Program, spaced repetition</a></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const $ = s => app.querySelector(s), $$ = s => [...app.querySelectorAll(s)];
+  const stage = document.getElementById('stage'), inner = document.getElementById('stageInner');
+  const fit = () => { const s = Math.min(1, stage.clientWidth / 1200); inner.style.transform = `scale(${s})`; stage.style.height = (760 * s) + 'px'; };
+  new ResizeObserver(fit).observe(stage); fit();
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  /* ---------- files ---------- */
+  const ORIG = {
+    'R1.cfg': `hostname R1
+!
+interface GigabitEthernet0/0/1
+ no shutdown
+!
+interface GigabitEthernet0/0/1.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+!
+interface GigabitEthernet0/0/1.20
+ encapsulation dot1Q 30
+ ip address 192.168.20.1 255.255.255.0`,
+    'S1.cfg': `hostname S1
+!
+vlan 10
+ name SALES
+vlan 20
+ name ENG
+!
+interface FastEthernet0/5
+ switchport mode access
+ switchport access vlan 10
+!
+interface FastEthernet0/6
+ switchport mode access
+ switchport access vlan 20
+!
+interface GigabitEthernet0/1
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20`,
+  };
+  const files = { ...ORIG };
+  const applied = { ...ORIG };
+  const TABS = ['trunks.md', 'R1.cfg', 'S1.cfg'];
+  let curFile = 'R1.cfg', watching = false;
+
+  /* ---------- parse + simulate ---------- */
+  const canonIf = n => n.toLowerCase().replace(/^g[a-z]*/, 'gi').replace(/^f[a-z]*/, 'fa');
+  const parse = txt => {
+    const lines = txt.split('\n'), blocks = [], top = [];
+    let cur = null;
+    lines.forEach((raw, i) => {
+      const l = raw.trim().toLowerCase().replace(/\s+/g, ' ');
+      const m = l.match(/^int(?:e(?:r(?:f(?:a(?:c(?:e)?)?)?)?)?)? (\S+)$/);
+      if (m) { cur = { name: canonIf(m[1]), line: i, cmds: [] }; blocks.push(cur); return; }
+      if (/^vlan \d+$/.test(l)) { cur = { vlan: +l.split(' ')[1], line: i, cmds: [] }; blocks.push(cur); return; }
+      if (l === '!' || !l) { return; }
+      if (!raw.startsWith(' ') && !/^(name)/.test(l)) cur = null;
+      (cur ? cur.cmds : top).push({ l, i });
+    });
+    return blocks;
+  };
+  const find = (blk, re) => blk && blk.cmds.find(c => re.test(c.l));
+  const ipOk = (s, net) => { const m = s.match(/^ip add(?:r(?:e(?:s(?:s)?)?)?)? (\d+\.\d+\.\d+\.\d+) 255\.255\.255\.0$/); return m && m[1].startsWith(net) ? m[1] : null; };
+  const state = (r1txt, s1txt, allowOverride) => {
+    const R = parse(r1txt), S = parse(s1txt);
+    const vlans = {}; S.filter(b => b.vlan).forEach(b => { const n = find(b, /^name /); vlans[b.vlan] = { name: n ? n.l.slice(5).toUpperCase() : '', line: b.line }; });
+    const port = n => S.find(b => b.name === n);
+    const access = n => { const b = port(n), c = find(b, /^sw(?:itchport)? acc(?:ess)? vlan \d+$/); return c ? { v: +c.l.split(' ').pop(), line: c.i } : { v: 1, line: b ? b.line : null }; };
+    const tb = port('gi0/1');
+    const trunkMode = find(tb, /^sw(?:itchport)? mode trunk$/);
+    const allowC = find(tb, /^sw(?:itchport)? trunk allowed vlan [\d,]+$/);
+    let allowed = allowC ? allowC.l.split(' ').pop().split(',').map(Number) : 'all';
+    if (allowOverride) allowed = allowOverride;
+    const allows = v => allowed === 'all' || allowed.includes(v);
+    const parent = R.find(b => b.name === 'gi0/0/1');
+    const parentUp = parent && !find(parent, /^shut(?:down)?$/);
+    const subs = R.filter(b => b.name && b.name.startsWith('gi0/0/1.')).map(b => { const e = find(b, /^encap(?:sulation)? dot1q \d+$/); const ip = b.cmds.find(c => /^ip add/.test(c.l)); return { name: b.name, line: b.line, tag: e ? +e.l.split(' ').pop() : null, tagLine: e ? e.i : b.line, ip: ip ? ip.l : '', ipLine: ip ? ip.i : null }; });
+    return { vlans, access, trunkMode, allowC, allowed, allows, parentUp, parent, subs, tb };
+  };
+  // walk the ping and build hops; stop at the first failure
+  const simulate = (st) => {
+    const H = []; const fail = (at, file, line, msg, pos) => { H.push({ at, file, line, text: msg, fail: true, pos }); return { ok: false, hops: H }; };
+    H.push({ at: 'PC-SALES', file: null, text: '192.168.20.10 is outside 192.168.10.0/24, so PC-SALES sends the frame to its gateway, 192.168.10.1.', vars: [['arp', '192.168.10.1  00a3.d1f2.0b01', '']], pos: 0 });
+    const a5 = st.access('fa0/5');
+    if (!st.vlans[a5.v]) return fail('S1', 'S1.cfg', a5.line, `Fa0/5 is in VLAN ${a5.v}, but VLAN ${a5.v} does not exist on S1. The frame is dropped.`, 2);
+    H.push({ at: 'S1  Fa0/5', file: 'S1.cfg', line: a5.line, text: `Arrives untagged on Fa0/5. This line places it in VLAN ${a5.v}, and S1 learns the sender's MAC on this port.`, vars: [['mac', `${a5.v}  0050.7966.6801  Fa0/5`, 'new']], pos: 2 });
+    if (!st.trunkMode) return fail('S1  Gi0/1', 'S1.cfg', st.tb ? st.tb.line : null, 'Gi0/1 is not a trunk, so it cannot carry tagged frames to R1.', 3);
+    if (!st.allows(a5.v)) return fail('S1  Gi0/1', 'S1.cfg', st.allowC ? st.allowC.i : null, `VLAN ${a5.v} is not allowed on the trunk, so S1 never sends this frame to R1.`, 3);
+    H.push({ at: 'S1  Gi0/1', file: 'S1.cfg', line: st.allowC ? st.allowC.i : null, text: `R1's MAC is on Gi0/1, and VLAN ${a5.v} is allowed on the trunk. The frame leaves with an 802.1Q tag of ${a5.v}.`, vars: [['frame', `tag ${a5.v}  dst 00a3.d1f2.0b01`, 'new']], pos: 3 });
+    if (!st.parentUp) return fail('R1  G0/0/1', 'R1.cfg', st.parent ? st.parent.line : null, 'G0/0/1 is shut down, so every subinterface on it is down.', 4);
+    const inS = st.subs.find(s => s.tag === a5.v);
+    if (!inS) return fail('R1  G0/0/1', 'R1.cfg', null, `No subinterface on R1 accepts tag ${a5.v}. The frame is dropped.`, 4);
+    if (!ipOk(inS.ip, '192.168.10.1')) return fail('R1  ' + inS.name, 'R1.cfg', inS.ipLine || inS.line, `This subinterface is not 192.168.10.1/24, so it is not PC-SALES's gateway.`, 4);
+    const outS = st.subs.find(s => ipOk(s.ip, '192.168.20.'));
+    if (!outS) return fail('R1', 'R1.cfg', null, 'R1 has no interface in 192.168.20.0/24, so it has no route to PC-ENG.', 4);
+    H.push({ at: 'R1  ' + inS.name.replace('gi', 'G'), file: 'R1.cfg', line: inS.tagLine, text: `Tag ${a5.v} matches this subinterface. The longest match for 192.168.20.10 is 192.168.20.0/24, directly connected on ${outS.name.replace('gi', 'G')}.`, vars: [['route', `C 192.168.20.0/24  ${outS.name.replace('gi', 'G')}`, '']], pos: 4 });
+    const a6 = st.access('fa0/6');
+    if (outS.tag === null) return fail('R1  ' + outS.name.replace('gi', 'G'), 'R1.cfg', outS.line, 'This subinterface has no encapsulation line, so it cannot send tagged frames.', 5);
+    if (!st.allows(outS.tag) || !st.vlans[outS.tag]) return fail('R1  ' + outS.name.replace('gi', 'G'), 'R1.cfg', outS.tagLine, `This subinterface tags frames ${outS.tag}, but S1 does not carry VLAN ${outS.tag} on the trunk. S1 drops the frame.`, 5);
+    H.push({ at: 'R1  ' + outS.name.replace('gi', 'G'), file: 'R1.cfg', line: outS.tagLine, text: `R1 rewrites the source MAC and sends the frame back down the same cable, now tagged ${outS.tag}.`, vars: [['frame', `tag ${outS.tag}  dst 0050.7966.6802`, 'new']], pos: 5 });
+    if (a6.v !== outS.tag) return fail('S1  Fa0/6', 'S1.cfg', a6.line, `PC-ENG's port is in VLAN ${a6.v}, but the frame arrives in VLAN ${outS.tag}. S1 cannot deliver it.`, 6);
+    H.push({ at: 'S1  Fa0/6', file: 'S1.cfg', line: a6.line, text: `Tag ${outS.tag} maps to VLAN ${a6.v}. PC-ENG is known on Fa0/6, so S1 removes the tag and delivers the frame.`, vars: [['mac', `${a6.v}  0050.7966.6802  Fa0/6`, '']], pos: 6 });
+    H.push({ at: 'PC-ENG', file: null, text: 'Echo request delivered. The reply retraces the same path in reverse.', vars: [['icmp', 'echo reply  ttl 254', 'new']], pos: 7 });
+    return { ok: true, hops: H };
+  };
+
+  /* ---------- map (transit style) ---------- */
+  const PATH = [[78, 74], [160, 74], [236, 150 - 6], [430, 144], [430, 156], [236, 156], [160, 226], [78, 226]];
+  const SEGCOL = ['v10', 'v10', 'v10', null, 'v20', 'v20', 'v20'];
+  const segLen = PATH.slice(1).map((p, i) => Math.hypot(p[0] - PATH[i][0], p[1] - PATH[i][1]));
+  const TOTAL = segLen.reduce((a, b) => a + b, 0);
+  const cum = segLen.reduce((a, l, i) => (a.push(a[i] + l), a), [0]);
+  const at = d => { let i = 0; while (i < segLen.length - 1 && d > cum[i + 1]) i++; const r = (d - cum[i]) / segLen[i]; return [PATH[i][0] + (PATH[i + 1][0] - PATH[i][0]) * r, PATH[i][1] + (PATH[i + 1][1] - PATH[i][1]) * r, i]; };
+  const posD = [0, 0, cum[2] + 8, cum[2] + 70, cum[3], cum[4] + 40, cum[5] + 4, TOTAL];
+  const drawMap = (svg, st, res, opts = {}) => {
+    const t10 = st.allows(10) && st.trunkMode, t20 = st.allows(20) && st.trunkMode;
+    const brk = res.ok ? null : at(Math.min(TOTAL, posD[res.hops[res.hops.length - 1].pos] || 0));
+    svg.innerHTML = `
+      <path class="track v10" d="M78 74 H160 L230 144"/>
+      <path class="track ${t10 ? 'v10' : 'off'}" d="M230 144 H430"/>
+      <path class="track ${t20 ? 'v20' : 'off'}" d="M230 156 H430"/>
+      <path class="track v20" d="M78 226 H160 L230 156"/>
+      <rect class="stn" x="220" y="130" width="22" height="40" rx="11"/>
+      <rect class="stn" x="419" y="130" width="22" height="40" rx="11"/>
+      <circle class="term" cx="74" cy="74" r="9" stroke="var(--v10)"/>
+      <circle class="term" cx="74" cy="226" r="9" stroke="var(--v20)"/>
+      <text class="nm" x="56" y="40">PC-SALES</text><text class="sub" x="56" y="55">192.168.10.10  VLAN 10</text>
+      <text class="nm" x="56" y="256">PC-ENG</text><text class="sub" x="56" y="271">192.168.20.10  VLAN 20</text>
+      <text class="nm" x="231" y="118" text-anchor="middle">S1</text><text class="sub" x="231" y="190" text-anchor="middle">2960</text>
+      <text class="nm" x="430" y="118" text-anchor="middle">R1</text><text class="sub" x="430" y="190" text-anchor="middle">ISR 4321</text>
+      <text class="pt" x="200" y="128" text-anchor="end">Fa0/5</text><text class="pt" x="192" y="182" text-anchor="end">Fa0/6</text>
+      <text class="pt" x="252" y="134">Gi0/1</text><text class="pt" x="378" y="134">G0/0/1</text>
+      <text class="pt" x="290" y="176">trunk ${st.allowed === 'all' ? 'all' : st.allowed.join(', ')}</text>
+      ${brk ? `<circle class="brk" cx="${brk[0]}" cy="${brk[1]}" r="12"/><path class="brk" d="M${brk[0] - 5} ${brk[1] - 5}l10 10m0-10l-10 10"/>` : ''}
+      <g class="flows"></g>
+      ${opts.here != null ? `<circle class="here" id="hereRing" r="14" cx="${at(posD[opts.here])[0]}" cy="${at(posD[opts.here])[1]}"/>` : ''}`;
+    svg._limit = brk ? posD[res.hops[res.hops.length - 1].pos] : TOTAL;
+    svg._flow = !opts.noflow;
+  };
+  const flowLoop = () => {
+    const t = performance.now() / 1000;
+    $$('svg.map').forEach(svg => {
+      const g = svg.querySelector('.flows'); if (!g) return;
+      if (!svg._flow || reduce) { g.innerHTML = ''; return; }
+      const n = 14, speed = 70, lim = svg._limit; let html = '';
+      for (let k = 0; k < n; k++) {
+        const d = ((t * speed) + k * (TOTAL / n)) % TOTAL; if (d > lim) continue;
+        const [x, y, i] = at(d); const fade = lim < TOTAL && lim - d < 30 ? Math.max(0.15, (lim - d) / 30) : 1;
+        html += `<circle class="flow" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${SEGCOL[i] ? 2.6 : 2}" opacity="${fade.toFixed(2)}"/>`;
+      }
+      g.innerHTML = html;
+    });
+    requestAnimationFrame(flowLoop);
+  };
+
+  /* ---------- editor ---------- */
+  const ta = $('#ta'), hl = $('#hl'), gutter = $('#gutter');
+  const KW = /^(\s*)(hostname|interface|vlan|name|switchport|mode|access|trunk|allowed|encapsulation|dot1q|ip|address|no|shutdown)\b/i;
+  const hiLine = l => {
+    if (/^\s*!/.test(l)) return `<span class="cm">${esc(l)}</span>`;
+    let h = esc(l);
+    h = h.replace(/\b(GigabitEthernet|FastEthernet|Gi|Fa|g|f)(\d[\d/.]*)/g, '<span class="ifn">$1$2</span>');
+    h = h.replace(/\b(hostname|interface|vlan|name|switchport|mode|access|trunk|allowed|encapsulation|dot1Q|ip|address|no|shutdown)\b(?![^<]*<\/span>)/gi, '<span class="kw">$1</span>');
+    h = h.replace(/(\s)(\d[\d.,]*)(?![^<]*<\/span>)(?=\s|$)/g, '$1<span class="val">$2</span>');
+    h = h.replace(/(name<\/span> )(\S+)/i, '$1<span class="val">$2</span>');
+    return h;
+  };
+  let hitLine = null, blameLine = null;
+  const curLineNo = () => ta.value.slice(0, ta.selectionStart).split('\n').length - 1;
+  const renderEditor = () => {
+    const lines = ta.value.split('\n'), cl = document.activeElement === ta ? curLineNo() : -1;
+    hl.innerHTML = lines.map((l, i) => `<span class="ln-row${i === cl ? ' cur' : ''}${i === hitLine ? ' hit' : ''}${i === blameLine ? ' blame' : ''}">${hiLine(l) || ' '}</span>`).join('');
+    gutter.textContent = lines.map((_, i) => i + 1).join('\n');
+    const col = ta.selectionStart - ta.value.lastIndexOf('\n', ta.selectionStart - 1);
+    $('#lnCol') && ($('#lnCol').innerHTML = `Ln ${curLineNo() + 1}   Col ${col}`);
+  };
+  ta.addEventListener('input', () => { files[curFile] = ta.value; renderTabs(); renderEditor(); });
+  ['keyup', 'click', 'focus', 'blur'].forEach(ev => ta.addEventListener(ev, renderEditor));
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab') { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText(' ', s, ta.selectionEnd, 'end'); ta.dispatchEvent(new Event('input')); }
+  });
+
+  /* ---------- tabs, header, status ---------- */
+  const renderTabs = () => {
+    $('#tabs').innerHTML = TABS.map(f => `<button type="button" role="tab" data-tab="${f}" aria-selected="${f === curFile}">${f}${f !== 'trunks.md' && files[f] !== applied[f] ? '<span class="dot" title="not applied"></span>' : ''}${f === curFile ? '<span class="x">x</span>' : ''}</button>`).join('');
+  };
+  let runN = 0, lastRes = null, history = [];
+  const renderHead = () => {
+    if (curFile === 'trunks.md') { $('#phead').innerHTML = `<span class="go">&gt; live</span><span>trunk Gi0/1</span><span class="sp"></span><span>try the toggles</span>`; return; }
+    if (watching) { const h = lastRes.hops; $('#phead').innerHTML = `<span class="go">&gt; watch the packet</span><span>hop ${wi + 1} of ${h.length}</span><span class="sp"></span><span>Left Right step</span><span>Esc</span>`; return; }
+    if (!runN) { $('#phead').innerHTML = `<span class="go">&gt; ready</span><span>lab 7.2 router-on-a-stick</span><span class="sp"></span><span>Ctrl Enter to apply</span>`; return; }
+    const pass = lastChecks.filter(c => c[2]).length;
+    $('#phead').innerHTML = `<span class="go">&gt; apply ${runN}</span><span>0.0${3 + (runN % 5)}s</span><span class="${pass === 3 ? 'ok' : 'no'}">${pass} of 3 checks</span>`;
+  };
+  const renderStatus = () => {
+    const path = curFile === 'trunks.md' ? '~\\dojo\\srwe\\03-vlans\\trunks.md' : `~\\dojo\\labs\\7.2\\${curFile}`;
+    $('#status').innerHTML = `<b>${path}</b><span>${curFile === 'trunks.md' ? 'lesson' : 'ios 15.2'}</span><span class="live">&#9679; sim</span><span class="sp"></span><span id="lnCol"></span><span>^Enter apply</span><span>^J watch</span><span>^K menu</span>`;
+    renderEditor();
+  };
+  const openFile = f => {
+    curFile = f; stopWatch(true);
+    const isLesson = f === 'trunks.md';
+    $('#editor').hidden = isLesson; $('#lesson').hidden = !isLesson;
+    if (!isLesson) { ta.value = files[f]; hitLine = null; blameLine = lastRes && !lastRes.ok && lastBlame && lastBlame.file === f ? lastBlame.line : null; }
+    setMode(isLesson ? 'learn' : 'run');
+    renderTabs(); renderHead(); renderStatus();
+    if (isLesson) renderLearn();
+  };
+  const setMode = m => $$('.mode').forEach(x => x.classList.toggle('on', x.dataset.mode === m));
+  app.addEventListener('click', e => { const t = e.target.closest('[data-tab]'); if (t) openFile(t.dataset.tab); });
+
+  /* ---------- apply + output ---------- */
+  let lastChecks = [], lastBlame = null, solved = false;
+  const apply = () => {
+    if (curFile === 'trunks.md') return;
+    Object.assign(applied, files); runN++;
+    const st = state(files['R1.cfg'], files['S1.cfg']); const res = simulate(st); lastRes = res;
+    lastChecks = [
+      ['vlans_exist', 'S1 has VLAN 10 SALES and 20 ENG', !!(st.vlans[10] && st.vlans[10].name === 'SALES' && st.vlans[20] && st.vlans[20].name === 'ENG')],
+      ['trunk_allowed', 'Gi0/1 trunks VLANs 10 and 20', !!(st.trunkMode && st.allows(10) && st.allows(20))],
+      ['sales_reaches_eng', 'PC-SALES pings 192.168.20.10', res.ok],
+    ];
+    const pass = lastChecks.filter(c => c[2]).length;
+    const prev = history.length ? history[history.length - 1] : null;
+    history.push({ n: runN, pass, note: diffNote() });
+    const f = res.hops[res.hops.length - 1];
+    lastBlame = !res.ok ? { file: f.file, line: f.line } : null;
+    blameLine = lastBlame && lastBlame.file === curFile ? lastBlame.line : null; hitLine = null;
+    drawMap($('#mapRun'), st, res);
+    let out = `<div><h4>checks</h4>${lastChecks.map(([id, d, ok]) => `<div class="chk"><span class="${ok ? 'p' : 'f'}">${ok ? 'pass' : 'fail'}</span><span>${d}</span></div>`).join('')}</div>`;
+    if (!res.ok) out += `<div><h4>where it breaks</h4><p class="why"><span class="no">${esc(f.at)}.</span> ${esc(f.text)}${f.file ? ` <span style="color:var(--t2)">${f.file}${f.line != null ? ', line ' + (f.line + 1) : ''}</span>` : ''}</p></div><div style="color:var(--t2)">Ctrl J to watch the packet up to the break.</div>`;
+    else {
+      if (!solved) { solved = true; }
+      out += `<div><h4>lab review</h4><div class="review">${history.map((h, i) => `<div class="r"><span>apply ${h.n}</span><div class="bar"><i style="width:${h.pass / 3 * 100}%"></i></div><span class="${h.pass === 3 && (i === 0 || history[i - 1].pass < 3) ? 'best' : 'meh'}">${h.pass}/3  ${esc(h.note)}${h.pass === 3 && (i === 0 || history[i - 1].pass < 3) ? '  best move' : ''}</span></div>`).join('')}</div></div>
+      <p class="why" style="color:var(--t2)">Solved in ${history.length} ${history.length === 1 ? 'apply' : 'applies'}. ${changedLines()} changed. The shortest fix is 1 line.</p>`;
+    }
+    $('#out').innerHTML = out;
+    renderTabs(); renderHead(); renderEditor();
+  };
+  const changedLines = () => { let n = 0; ['R1.cfg', 'S1.cfg'].forEach(f => { const a = ORIG[f].split('\n'), b = files[f].split('\n'); for (let i = 0; i < Math.max(a.length, b.length); i++) if (a[i] !== b[i]) n++; }); return n === 1 ? '1 line' : `${n} lines`; };
+  const diffNote = () => { const out = []; ['R1.cfg', 'S1.cfg'].forEach(f => { const a = ORIG[f].split('\n'), b = files[f].split('\n'); b.forEach((l, i) => { if (a[i] !== l) out.push(l.trim()); }); }); return out.length ? 'changed ' + out.slice(-1)[0] : 'no changes'; };
+
+  /* ---------- watch the packet ---------- */
+  let wi = 0;
+  const startWatch = () => {
+    if (curFile === 'trunks.md') return;
+    if (!lastRes) apply();
+    watching = true; wi = 0; setMode('watch'); renderWatch();
+  };
+  const stopWatch = quiet => { if (!watching) return; watching = false; hitLine = null; if (!quiet) { setMode('run'); renderHead(); if (curFile !== 'trunks.md') { ta.value = files[curFile]; renderEditor(); } } };
+  const renderWatch = () => {
+    const H = lastRes.hops, h = H[wi];
+    if (h.file && h.file !== curFile) { curFile = h.file; ta.value = files[curFile]; renderTabs(); renderStatus(); }
+    hitLine = h.file === curFile && h.line != null && !h.fail ? h.line : null;
+    blameLine = h.fail && h.file === curFile ? h.line : null;
+    renderEditor();
+    $('#watch').innerHTML = `<div class="prog"><i style="width:${((wi + 1) / H.length) * 100}%"></i></div>
+      <div class="mini"><svg class="map" id="mapWatch" viewBox="30 20 450 265"></svg></div>
+      <div class="where"><b>${esc(h.at)}</b>${h.file ? `${h.file}${h.line != null ? ', line ' + (h.line + 1) : ''}` : 'end host'}</div>
+      <p class="say">${h.fail ? '<span class="no">Dropped.</span> ' : ''}${esc(h.text)}</p>
+      ${h.vars ? `<div><h4 style="margin:0 0 6px;font-size:12.5px;color:var(--acc);font-weight:500">state</h4><div class="vars">${h.vars.map(([k, v, n]) => `<div class="v"><b>${k}</b><code>${esc(v)}</code><span class="new">${n}</span></div>`).join('')}</div></div>` : ''}
+      ${wi === H.length - 1 ? `<p style="color:var(--t2)">${lastRes.ok ? 'End of the path. Esc to go back.' : 'This is where it breaks. Fix the highlighted line, then Ctrl Enter.'}</p>` : ''}`;
+    const st = state(applied['R1.cfg'], applied['S1.cfg']);
+    drawMap($('#mapWatch'), st, lastRes, { here: h.pos, noflow: true, compact: true });
+    renderHead();
+  };
+
+  /* ---------- learn ---------- */
+  const learnAllow = { 10: true, 20: true };
+  const renderLearn = () => {
+    const allow = [10, 20].filter(v => learnAllow[v]);
+    const st = state(ORIG['R1.cfg'].replace('dot1Q 30', 'dot1Q 20'), ORIG['S1.cfg'], allow);
+    const res = simulate(st);
+    drawMap($('#mapLearn'), st, res);
+    $('#learnSay').innerHTML = res.ok ? 'Both VLANs cross the trunk, each frame tagged with its VLAN ID. Sales reaches Engineering through R1.'
+      : !learnAllow[10] ? '<span style="color:var(--no)">VLAN 10 is pruned.</span> Sales frames never leave S1, so nothing reaches R1 at all.'
+      : '<span style="color:var(--no)">VLAN 20 is pruned.</span> R1 routes the frame, but S1 drops it on the way back because VLAN 20 may not use the trunk.';
+  };
+  $$('.chips button').forEach(b => b.addEventListener('click', () => { const v = +b.dataset.v; learnAllow[v] = !learnAllow[v]; b.setAttribute('aria-pressed', learnAllow[v]); renderLearn(); }));
+  $('#startLab').addEventListener('click', () => openFile('R1.cfg'));
+
+  /* ---------- menu ---------- */
+  const CMDS = [
+    ['Apply config', 'Push R1 and S1 to the simulator and run the checks  (Ctrl+Enter)', () => apply()],
+    ['Watch the packet', 'Step a ping hop by hop and see which line decided  (Ctrl+J)', () => startWatch()],
+    ['Show hint', 'One nudge for this lab. Costs 5% of the score', () => hint()],
+    ['Open lesson: VLAN trunks', 'The 3-minute read behind this lab', () => openFile('trunks.md')],
+    ['Next device', 'Switch between R1.cfg and S1.cfg  (Alt+Right)', () => openFile(curFile === 'R1.cfg' ? 'S1.cfg' : 'R1.cfg')],
+    ['Reset lab', 'Restore both configs to how the lab started', () => { Object.assign(files, ORIG); Object.assign(applied, ORIG); runN = 0; history = []; lastRes = null; solved = false; $('#out').innerHTML = ''; boot(); }],
+    ['Review today', '24 cards due, about 12 minutes', () => toast('Reviews open in the full app')],
+  ];
+  let ps = 0, shown = CMDS;
+  const toast = m => { $('#phead').innerHTML = `<span class="go">&gt;</span><span>${esc(m)}</span>`; setTimeout(renderHead, 2200); };
+  const hint = () => { $('#out').insertAdjacentHTML('beforeend', `<p class="why" style="color:var(--t2)">Hint: compare the tag R1 uses on G0/0/1.20 with the VLAN number on S1.</p>`); };
+  const renderPal = () => { const q = $('#palIn').value.toLowerCase(); shown = CMDS.filter(c => (c[0] + c[1]).toLowerCase().includes(q)); ps = Math.min(ps, Math.max(0, shown.length - 1)); $('#palList').innerHTML = shown.map((c, i) => `<div class="pi ${i === ps ? 'act' : ''}" data-i="${i}"><b>${c[0]}</b><span>${c[1]}</span></div>`).join('') || '<div class="pi"><span>No command matches.</span></div>'; };
+  const openPal = () => { $('#scrim').classList.add('on'); $('#palIn').value = ''; ps = 0; renderPal(); $('#palIn').focus(); };
+  const closePal = () => { $('#scrim').classList.remove('on'); (curFile === 'trunks.md' ? app : ta).focus({ preventScroll: true }); };
+  const runPal = i => { const c = shown[i]; closePal(); if (c) c[2](); };
+  $('#palIn').addEventListener('input', () => { ps = 0; renderPal(); });
+  $('#palList').addEventListener('click', e => { const it = e.target.closest('[data-i]'); if (it) runPal(+it.dataset.i); });
+  $('#scrim').addEventListener('click', e => { if (e.target.id === 'scrim') closePal(); });
+
+  /* ---------- keys ---------- */
+  app.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
+    if ($('#scrim').classList.contains('on')) {
+      if (e.key === 'Escape') { e.preventDefault(); closePal(); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); ps = Math.min(ps + 1, shown.length - 1); renderPal(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); ps = Math.max(ps - 1, 0); renderPal(); }
+      else if (e.key === 'Enter') { e.preventDefault(); runPal(ps); }
+      return;
+    }
+    if (mod && k === 'k') { e.preventDefault(); openPal(); return; }
+    if (mod && (k === 'enter' || k === 'r')) { e.preventDefault(); stopWatch(); apply(); return; }
+    if (mod && k === 'j') { e.preventDefault(); watching ? stopWatch() : startWatch(); return; }
+    if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); openFile(TABS[(TABS.indexOf(curFile) + 1) % TABS.length]); return; }
+    if (watching) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); wi = Math.min(lastRes.hops.length - 1, wi + 1); renderWatch(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); wi = Math.max(0, wi - 1); renderWatch(); }
+      else if (e.key === 'Escape') { e.preventDefault(); stopWatch(); }
+      else if (!mod && e.target === ta && e.key.length === 1) { stopWatch(); }
+    }
+  });
+
+  const boot = () => {
+    const st = state(files['R1.cfg'], files['S1.cfg']); const res = simulate(st);
+    drawMap($('#mapRun'), st, res);
+    $('#out').innerHTML = `<div><h4>lab 7.2</h4><p class="why" style="font:400 14.5px/1.6 var(--f-read)">Sales can't reach Engineering. The traffic dots show where it dies. Fix the config, then press Ctrl Enter.</p></div>`;
+    openFile('R1.cfg');
+  };
+  boot();
+  requestAnimationFrame(flowLoop);
+})();
+</script>
