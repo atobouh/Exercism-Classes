@@ -1,0 +1,756 @@
+<title>Octet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&family=Funnel+Sans:wght@300..800&family=Azeret+Mono:wght@400;500;600&display=swap">
+<style>
+/* Hallmark · macrostructure: app-as-page · custom (vibe: "cable colour code, quiet desk tool") · paper oklch(97.2% 0.004 250) · accent: T568B pairs on Cat6 jacket blue · Funnel Display + Funnel Sans, Azeret Mono for IOS only
+ * Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · contrast: pass (40-41) · chrome: pass (47) · tokens: pass (48) · mobile: pass (34, 49-57)
+ * Layout: the working app is the page; a short system note follows in one column. Spacing runs on a 2px desktop sub-grid. */
+:root {
+  --pg-ground: oklch(97% 0.004 250); --pg-ink: oklch(25% 0.02 255); --pg-ink2: oklch(46% 0.018 255); --pg-line: oklch(90% 0.008 250); --pg-acc: oklch(46% 0.115 248);
+  /* primitives: the T568B pairs, the Cat6 jacket, the white of a striped conductor */
+  --t568b-orange: oklch(69% 0.16 52); --t568b-green: oklch(60% 0.14 148); --t568b-blue: oklch(54% 0.14 255); --t568b-brown: oklch(47% 0.07 50);
+  --jacket: oklch(46% 0.115 248); --jacket-deep: oklch(30% 0.075 248); --conductor-white: oklch(98.5% 0.003 250);
+  --night-ground: oklch(18.5% 0.018 252); --day-ground: oklch(97.2% 0.004 250);
+  --f-display: "Funnel Display", "Segoe UI Variable Display", system-ui, sans-serif;
+  --f-ui: "Funnel Sans", "Segoe UI Variable Text", system-ui, sans-serif;
+  --f-mono: "Azeret Mono", "Cascadia Mono", Consolas, monospace;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); --ease-io: cubic-bezier(0.77, 0, 0.175, 1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --pg-ground: oklch(17% 0.016 252); --pg-ink: oklch(94% 0.008 250); --pg-ink2: oklch(74% 0.02 250); --pg-line: oklch(30% 0.02 252); --pg-acc: oklch(72% 0.11 250); color-scheme: dark; } }
+:root[data-theme="dark"] { --pg-ground: oklch(17% 0.016 252); --pg-ink: oklch(94% 0.008 250); --pg-ink2: oklch(74% 0.02 250); --pg-line: oklch(30% 0.02 252); --pg-acc: oklch(72% 0.11 250); color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { overflow-x: clip; }
+body { margin: 0; background: var(--pg-ground); color: var(--pg-ink); font: 400 16px/1.55 var(--f-ui); -webkit-font-smoothing: antialiased; }
+::selection { background: color-mix(in oklch, var(--pg-acc) 30%, transparent); }
+.page { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 96px; display: grid; gap: 28px; }
+.intro { display: grid; gap: 10px; max-width: 720px; }
+.intro h1 { margin: 0; font: 600 clamp(2.2rem, 5vw, 3.4rem)/1 var(--f-display); letter-spacing: -0.02em; display: flex; align-items: center; gap: 16px; overflow-wrap: anywhere; min-width: 0; }
+.small-note { display: none; margin: 0; font-size: .92rem; color: var(--pg-ink2); }
+@media (max-width: 760px) { .small-note { display: block; } }
+.intro p { margin: 0; color: var(--pg-ink2); font-size: 1.08rem; text-wrap: pretty; }
+.keys { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: .9rem; color: var(--pg-ink2); }
+kbd { font: 500 .78rem/1 var(--f-ui); font-variant-numeric: tabular-nums; border: 1px solid var(--pg-line); border-radius: 5px; padding: 3px 6px; color: var(--pg-ink); }
+.stage { width: 100%; overflow: hidden; border-radius: 14px; }
+.stage-inner { width: 1280px; height: 800px; transform-origin: 0 0; }
+.notes { display: grid; gap: 40px; max-width: 900px; padding-top: 44px; }
+.notes h2 { margin: 0 0 12px; font: 600 1.5rem/1.15 var(--f-display); letter-spacing: -0.01em; overflow-wrap: anywhere; min-width: 0; }
+.notes { --green: var(--t568b-green); --wire-white: var(--conductor-white); --line2: var(--pg-line); }
+.notes p { margin: 0; color: var(--pg-ink2); max-width: 68ch; }
+.sys { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px 40px; }
+.sys > div { display: grid; gap: 4px; align-content: start; }
+.sys h3 { margin: 0; font: 600 1rem var(--f-ui); }
+.sys p { font-size: .95rem; }
+.chips { display: flex; gap: 6px; margin-top: 6px; align-items: center; } .chips > i { width: 28px; height: 28px; border-radius: 7px; box-shadow: inset 0 0 0 1px var(--pg-line); }
+.sw-orange { background: var(--t568b-orange); } .sw-green { background: var(--t568b-green); } .sw-blue { background: var(--t568b-blue); } .sw-brown { background: var(--t568b-brown); }
+.sw-jacket { background: var(--jacket); } .sw-jacket-deep { background: var(--jacket-deep); } .sw-day { background: var(--day-ground); } .sw-night { background: var(--night-ground); }
+.sample-wire { width: 120px; height: 10px; }
+a { color: var(--pg-acc); }
+:focus-visible { outline: 2px solid var(--pg-acc); outline-offset: 2px; }
+
+/* ===================== OCTET APP ===================== */
+.app {
+  --rail: var(--jacket); --rail-sel: oklch(53% 0.12 248); --rail-ink: oklch(96% 0.01 250); --rail-ink2: oklch(88% 0.03 248); --rail-line: oklch(55% 0.1 248);
+  --rail-hover: oklch(98% 0.004 250 / 0.08); --rail-well: oklch(20% 0.05 248 / 0.22); --rail-mark: oklch(98% 0.004 250 / 0.12); --rail-mark-edge: oklch(98% 0.004 250 / 0.2);
+  --ground: oklch(97.2% 0.004 250); --sheet: oklch(99.5% 0.002 250); --sunk: oklch(95% 0.006 250);
+  --ink: oklch(25% 0.02 255); --ink2: oklch(44% 0.018 255); --ink3: oklch(53% 0.016 255);
+  --line: oklch(90.5% 0.008 250); --line2: oklch(83% 0.012 250);
+  --orange: var(--t568b-orange); --green: var(--t568b-green); --blue: var(--t568b-blue); --brown: var(--t568b-brown);
+  --green-ink: oklch(50% 0.13 148);
+  --wire-white: var(--conductor-white); --cable: var(--jacket); --cut: oklch(57% 0.19 27);
+  --primary: var(--jacket); --primary-hover: oklch(50% 0.12 248); --on-primary: oklch(98% 0.005 250); --on-primary-key: oklch(98% 0.005 250 / 0.16);
+  --scrim: oklch(20% 0.03 252 / 0.28); --app-edge: oklch(25% 0.03 255 / 0.12); --app-drop: oklch(20% 0.04 255 / 0.45);
+  --con-bg: oklch(22% 0.02 255); --con-ink: oklch(90% 0.01 250); --con-ink2: oklch(68% 0.02 250); --con-line: oklch(31% 0.02 255);
+  --shadow: 0 1px 2px oklch(25% 0.03 255 / 0.06), 0 8px 24px -12px oklch(25% 0.03 255 / 0.18);
+  width: 1280px; height: 800px; display: grid; grid-template-columns: 228px 1fr; background: var(--ground); color: var(--ink);
+  font: 400 14px/1.5 var(--f-ui); border-radius: 14px; overflow: hidden; position: relative; outline: none;
+  box-shadow: 0 0 0 1px var(--app-edge), 0 40px 80px -40px var(--app-drop);
+}
+.app[data-theme="dark"] {
+  --rail: var(--jacket-deep); --rail-sel: oklch(38% 0.09 248); --rail-ink: oklch(95% 0.01 250); --rail-ink2: oklch(80% 0.03 248); --rail-line: oklch(40% 0.07 248);
+  --rail-well: oklch(10% 0.03 248 / 0.3);
+  --ground: var(--night-ground); --sheet: oklch(22.5% 0.02 252); --sunk: oklch(16.5% 0.017 252);
+  --ink: oklch(94% 0.008 250); --ink2: oklch(74% 0.02 250); --ink3: oklch(63% 0.02 250);
+  --line: oklch(30% 0.02 252); --line2: oklch(38% 0.022 252);
+  --orange: oklch(76% 0.15 58); --green: oklch(72% 0.14 148); --blue: oklch(70% 0.12 252); --brown: oklch(63% 0.07 52);
+  --green-ink: oklch(72% 0.14 148);
+  --wire-white: oklch(92% 0.01 250); --cable: oklch(62% 0.11 248); --cut: oklch(70% 0.17 27);
+  --primary: oklch(72% 0.11 250); --primary-hover: oklch(77% 0.1 250); --on-primary: oklch(18% 0.02 252); --on-primary-key: oklch(18% 0.02 252 / 0.14);
+  --scrim: oklch(5% 0.02 252 / 0.45); --app-edge: oklch(98% 0.004 250 / 0.08); --app-drop: oklch(2% 0.02 252 / 0.6);
+  --con-bg: oklch(15% 0.016 252); --con-line: oklch(27% 0.02 252);
+  --shadow: 0 1px 2px oklch(5% 0.02 252 / 0.4), 0 10px 30px -12px oklch(5% 0.02 252 / 0.6);
+}
+.app ::selection { background: color-mix(in oklch, var(--blue) 28%, transparent); }
+.app button { font: inherit; color: inherit; cursor: pointer; }
+.app :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+.app .rail :focus-visible { outline-color: var(--rail-ink); }
+.app * { scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+.app .console * { scrollbar-color: var(--con-line) transparent; }
+.c-itn { --c: var(--orange); } .c-srwe { --c: var(--green); } .c-ensa { --c: var(--blue); } .c-beyond { --c: var(--brown); }
+
+/* rail */
+.rail { background: var(--rail); color: var(--rail-ink); display: grid; grid-template-rows: auto 1fr auto; padding: 18px 22px 14px 14px; position: relative; overflow: hidden; }
+.jacket-print { position: absolute; top: 0; bottom: 0; right: 3px; writing-mode: vertical-rl; font: 600 8.5px/1 var(--f-ui); letter-spacing: 0.24em; color: var(--rail-ink); opacity: 0.2; white-space: nowrap; pointer-events: none; user-select: none; }
+.brand { display: flex; align-items: center; gap: 11px; padding: 4px 8px 22px; }
+.pinout { display: flex; gap: 2px; height: 18px; padding: 3px 4px; border-radius: 4px; background: var(--rail-mark); box-shadow: inset 0 0 0 1px var(--rail-mark-edge); }
+.pinout i { width: 3px; height: 12px; border-radius: 1px; }
+.pinout.big { height: 30px; gap: 3px; padding: 4px 6px; background: color-mix(in oklch, var(--pg-acc) 14%, transparent); box-shadow: none; }
+.pinout.big i { width: 5px; height: 22px; border-radius: 1.5px; }
+.pinout .s { background: var(--pc); } .pinout .l { background: repeating-linear-gradient(180deg, var(--conductor-white) 0 3px, var(--pc) 3px 5px); }
+.p-orange { --pc: var(--t568b-orange); } .p-green { --pc: var(--t568b-green); } .p-blue { --pc: var(--t568b-blue); } .p-brown { --pc: var(--t568b-brown); }
+.brand b { font: 600 21px/1 var(--f-display); letter-spacing: -0.01em; }
+.nav { display: grid; gap: 2px; align-content: start; }
+.nav button { display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: center; border: 0; background: transparent; color: var(--rail-ink2); padding: 8px 10px; border-radius: 8px; text-align: left; font-weight: 500; transition: background-color 120ms ease; }
+.nav button:hover { background: var(--rail-hover); color: var(--rail-ink); }
+.nav button[aria-current="page"] { background: var(--rail-sel); color: var(--rail-ink); }
+.nav svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.nav .n { font: 500 11.5px var(--f-ui); color: var(--rail-ink2); font-variant-numeric: tabular-nums; }
+.nav button[aria-current="page"] .n { color: var(--rail-ink); }
+.now { margin-top: 26px; padding: 14px 10px; border-top: 1px solid var(--rail-line); display: grid; grid-template-columns: 22px 1fr; gap: 4px 10px; align-items: center; }
+.now .wire { height: 8px; } .now b { font-weight: 550; }
+.now span:last-child { grid-column: 2; font-size: 12px; color: var(--rail-ink2); }
+.rail-foot { display: grid; gap: 10px; padding: 0 2px; }
+.theme { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; padding: 3px; border-radius: 9px; background: var(--rail-well); }
+.theme button { border: 0; background: transparent; color: var(--rail-ink2); padding: 6px; border-radius: 7px; font-size: 12.5px; font-weight: 500; }
+.theme button:hover { color: var(--rail-ink); }
+.theme button[aria-pressed="true"] { background: var(--rail-sel); color: var(--rail-ink); }
+.device-note { font-size: 11.5px; color: var(--rail-ink2); padding: 0 8px; }
+
+/* main */
+.main { display: grid; grid-template-rows: 48px 1fr; min-width: 0; position: relative; }
+.titlebar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--line); }
+.sess { font-size: 12.5px; color: var(--ink2); display: flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+.sess .cord { display: flex; gap: 3px; } .sess .cord i { width: 22px; height: 6px; border-radius: 3px; background: var(--line2); } .sess .cord i.d { background: var(--ink3); } .sess .cord i.c { background: var(--primary); }
+.search { width: 380px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line); background: var(--sheet); color: var(--ink3); border-radius: 9px; padding: 6px 8px 6px 12px; font-size: 13px; transition: border-color 120ms ease; }
+.search:hover { border-color: var(--line2); }
+.k { font: 500 11px/1 var(--f-ui); font-variant-numeric: tabular-nums; color: var(--ink2); border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; background: var(--ground); }
+.view { position: absolute; inset: 48px 0 0 0; display: none; overflow: hidden; }
+.view.on { display: block; }
+.h-title { margin: 0; font: 500 40px/1.05 var(--f-display); letter-spacing: -0.02em; text-wrap: balance; }
+.h-sub { margin: 0; color: var(--ink2); font-size: 15px; }
+.h-sec { margin: 0; font: 600 15px var(--f-ui); }
+.btn { display: inline-flex; align-items: center; gap: 10px; border: 0; border-radius: 9px; padding: 10px 16px; font-weight: 600; font-size: 14px; transition: transform 160ms var(--ease-out), background-color 120ms ease; }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--primary); color: var(--on-primary); }
+.btn.primary:hover { background: var(--primary-hover); }
+.btn.primary .k { background: var(--on-primary-key); color: var(--on-primary); border-color: transparent; }
+.btn.quiet { background: transparent; color: var(--ink2); padding-inline: 10px; }
+.btn.quiet:hover { color: var(--ink); background: var(--sunk); }
+.btn.line { background: var(--sheet); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line2); }
+.btn.line:hover { box-shadow: inset 0 0 0 1px var(--ink3); }
+.btn.link { padding: 0; margin-top: 6px; color: var(--primary); background: transparent; }
+.btn.link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* the wire */
+.wire { display: flex; gap: 3px; height: 10px; }
+.wire i { flex: 1; min-width: 0; border-radius: 2px; transition: background-color 300ms ease; }
+.wire i:first-child { border-top-left-radius: 5px; border-bottom-left-radius: 5px; }
+.wire i:last-child { border-top-right-radius: 5px; border-bottom-right-radius: 5px; }
+.s-solid { background: var(--c); }
+.s-learn { background: linear-gradient(180deg, var(--wire-white) 0 30%, var(--c) 30% 70%, var(--wire-white) 70%); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--c) 55%, transparent); }
+.s-hollow { background: transparent; box-shadow: inset 0 0 0 1.25px var(--line2); }
+
+/* TODAY */
+.today { padding: 40px 72px 32px; display: grid; gap: 30px; align-content: start; max-width: 1052px; }
+.today-head { display: grid; gap: 10px; }
+.plan { display: grid; grid-template-columns: repeat(3, 1fr); position: relative; }
+.plan::before { content: ""; position: absolute; left: 9px; right: calc(33.333% - 9px); top: 6px; height: 5px; border-radius: 3px; background: var(--cable); }
+.step { display: grid; gap: 4px; padding-right: 28px; position: relative; }
+.plug { width: 18px; height: 17px; position: relative; z-index: 1; margin-bottom: 10px; display: block; }
+.plug svg { width: 18px; height: 17px; display: block; }
+.plug .body { fill: var(--c); } .plug .pins { stroke: var(--sheet); stroke-width: 1.1; } .plug .latch { fill: var(--c); opacity: .7; }
+.step b { font-size: 17px; font-weight: 600; letter-spacing: -0.005em; }
+.step span { font-size: 13px; color: var(--ink2); }
+.go { display: flex; gap: 6px; align-items: center; }
+.cable-sec { display: grid; gap: 16px; padding-top: 24px; border-top: 1px solid var(--line); }
+.cable-head { display: flex; justify-content: space-between; align-items: baseline; }
+.legend { display: flex; gap: 18px; font-size: 12.5px; color: var(--ink2); }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend .wire { width: 26px; height: 8px; align-items: stretch; } .legend .wire i { border-radius: 4px !important; }
+.cable-rows { display: grid; gap: 16px; }
+.course-row { display: grid; grid-template-columns: 210px 1fr 96px; gap: 22px; align-items: center; }
+.course-row .nm b { display: block; font-weight: 600; font-size: 14px; }
+.course-row .nm span { font-size: 12.5px; color: var(--ink3); }
+.course-row .ct { text-align: right; font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.course-row .wire { height: 12px; cursor: default; }
+.course-row .wire i:hover { filter: brightness(1.08); }
+.fading { font-size: 13.5px; color: var(--ink2); }
+.fading b { color: var(--ink); font-weight: 550; }
+
+/* COURSE */
+.course { padding: 44px 72px; display: grid; gap: 34px; align-content: start; overflow-y: auto; height: 100%; }
+.course-head { display: grid; gap: 8px; } .course-title { font-size: 34px; }
+.cblock { display: grid; gap: 14px; }
+.cblock-head { display: grid; grid-template-columns: 1fr auto; gap: 8px 20px; align-items: baseline; }
+.cblock-head h3 { margin: 0; font: 600 18px var(--f-display); }
+.cblock-head h3 span { font: 400 15px var(--f-ui); color: var(--ink2); margin-left: 4px; }
+.cblock-head span { color: var(--ink3); font-size: 13px; }
+.cblock .wire { grid-column: 1 / 3; height: 8px; }
+.mods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px 26px; }
+.mod { display: grid; grid-template-columns: 14px 26px 1fr; gap: 8px; align-items: center; padding: 6px 8px; margin-left: -8px; border-radius: 7px; border: 0; background: transparent; text-align: left; color: var(--ink2); }
+.mod:hover { background: var(--sunk); color: var(--ink); }
+.mod .sw { width: 14px; height: 8px; border-radius: 4px; }
+.mod .no { font: 500 12px var(--f-ui); color: var(--ink3); font-variant-numeric: tabular-nums; }
+.mod.cur { color: var(--ink); font-weight: 550; }
+
+/* LESSON */
+.lesson { display: grid; grid-template-columns: 500px 1fr; height: 100%; }
+.read { padding: 44px 44px 28px 56px; display: grid; grid-template-rows: auto 1fr auto; gap: 20px; border-right: 1px solid var(--line); min-width: 0; }
+.read-head { display: grid; gap: 8px; }
+.read h2 { margin: 0; font: 500 32px/1.1 var(--f-display); letter-spacing: -0.015em; }
+.read-head p { margin: 0; font-size: 13px; color: var(--ink2); }
+.stepper { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.stepper .wire { width: 92px; height: 6px; gap: 2px; }
+.prose { display: grid; gap: 12px; align-content: start; font-size: 15.5px; line-height: 1.62; color: var(--ink); }
+.prose p { margin: 0; max-width: 60ch; }
+.prose .em { font-weight: 600; }
+.check { display: grid; gap: 10px; padding: 16px; border-radius: 12px; background: var(--sunk); margin-top: 6px; }
+.check p { margin: 0; font-weight: 550; font-size: 14.5px; }
+.opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.opt { border: 0; background: var(--sheet); box-shadow: inset 0 0 0 1px var(--line2); border-radius: 8px; padding: 7px 12px; font-size: 13.5px; transition: transform 160ms var(--ease-out); }
+.opt:active { transform: scale(0.97); }
+.opt:hover { box-shadow: inset 0 0 0 1px var(--ink3); }
+.opt.right { box-shadow: inset 0 0 0 1.5px var(--green); color: var(--green-ink); font-weight: 600; }
+.opt.wrong { box-shadow: inset 0 0 0 1.5px var(--cut); color: var(--cut); }
+.fb { font-size: 13.5px; color: var(--ink2); min-height: 20px; margin: 0; }
+.read-foot { display: flex; justify-content: space-between; align-items: center; }
+.figure { position: relative; display: grid; grid-template-rows: auto 1fr auto; padding: 28px 36px 24px; gap: 8px; min-width: 0; }
+.fig-hint { font-size: 13px; color: var(--ink2); display: flex; align-items: center; gap: 8px; }
+.fig-hint i { width: 8px; height: 8px; border-radius: 50%; background: var(--cable); }
+.figure svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* network drawing (lesson + lab) */
+.net .jacket { fill: none; stroke: var(--cable); stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 280ms var(--ease-out), stroke-width 160ms ease; cursor: pointer; }
+.net .cable:hover .jacket { stroke-width: 14; }
+.net .cond { fill: none; stroke-width: 4; stroke-linecap: round; opacity: 0; transition: opacity 200ms ease; pointer-events: none; }
+.net .cable.stripped .cond { opacity: 1; }
+.net .hit { fill: none; stroke: transparent; stroke-width: 26; cursor: pointer; }
+.net .clab { font: 500 11px var(--f-ui); opacity: 0; transition: opacity 200ms ease; pointer-events: none; }
+.net .cable.stripped .clab { opacity: 1; }
+.net .port { font: 500 10.5px var(--f-mono); fill: var(--ink3); }
+.net .dev rect { fill: var(--sheet); stroke: var(--line2); stroke-width: 1; }
+.net .dev .nm { font: 600 13.5px var(--f-ui); fill: var(--ink); }
+.net .dev .sb { font: 400 11px var(--f-mono); fill: var(--ink3); }
+.net .dev .gl { fill: none; stroke: var(--ink2); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.net .tag rect { fill: var(--orange); } .net .tag text { font: 650 11px var(--f-ui); fill: var(--sheet); }
+.net .dev .sb.ui { font-family: var(--f-ui); font-size: 11.5px; }
+.net .tag { transition: transform 900ms var(--ease-io), opacity 200ms ease; }
+.cutmark { transition: opacity 300ms ease; }
+.cutmark circle { fill: var(--sheet); stroke: var(--cut); stroke-width: 2; }
+.cutmark path { stroke: var(--cut); stroke-width: 2; stroke-linecap: round; }
+.cutmark text { font: 550 12px var(--f-ui); fill: var(--cut); }
+.bridge { transition: opacity 300ms ease; }
+
+/* REVIEW */
+.review { display: grid; place-items: center; height: 100%; padding: 30px; }
+.card { width: 620px; display: grid; gap: 20px; }
+.card-meta { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--ink3); padding-top: 4px; font-variant-numeric: tabular-nums; }
+.card-meta .src { display: flex; align-items: center; gap: 10px; }
+.card-meta .src .wire { width: 34px; height: 8px; }
+.card .q { margin: 0; font: 500 25px/1.32 var(--f-display); letter-spacing: -0.01em; text-wrap: pretty; }
+.reveal { display: flex; gap: 10px; align-items: center; color: var(--ink2); font-size: 13.5px; border: 0; background: transparent; padding: 0; justify-self: start; }
+.reveal:hover { color: var(--ink); }
+.ans { display: grid; gap: 12px; padding-top: 18px; border-top: 1px solid var(--line); }
+.ans code { font: 500 18px var(--f-mono); color: var(--ink); }
+.ans p { margin: 0; color: var(--ink2); font-size: 14.5px; max-width: 58ch; }
+.grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 6px; }
+.grades button { border: 0; background: var(--sheet); box-shadow: inset 0 0 0 1px var(--line2); border-radius: 10px; padding: 10px 12px; text-align: left; display: grid; gap: 2px; transition: transform 160ms var(--ease-out); }
+.grades button:active { transform: scale(0.97); }
+.grades button:hover { box-shadow: inset 0 0 0 1px var(--ink3); }
+.grades b { font-weight: 600; display: flex; justify-content: space-between; }
+.grades span { color: var(--ink3); font-size: 12px; }
+.done-card { display: grid; gap: 14px; justify-items: start; }
+.done-title { font-size: 30px; }
+
+/* LAB */
+.lab { display: grid; grid-template-columns: 290px 1fr; grid-template-rows: auto 1fr 214px; height: 100%; }
+.lab-head { grid-column: 1 / 3; display: flex; align-items: center; gap: 22px; padding: 18px 26px 16px 28px; border-bottom: 1px solid var(--line); }
+.lab-head h2 { margin: 0; font: 500 24px/1 var(--f-display); letter-spacing: -0.01em; }
+.lab-head h2 span { color: var(--ink3); margin-right: 8px; }
+.lab-head .sp { flex: 1; }
+.checksum { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.checksum .wires { display: flex; gap: 4px; } .checksum .wires i { width: 26px; height: 8px; border-radius: 4px; background: var(--green); transition: background-color 300ms ease; }
+.checksum .wires i.cutw { background: linear-gradient(90deg, var(--green) 0 40%, transparent 40% 60%, var(--green) 60%); box-shadow: inset 0 0 0 0 transparent; }
+.tasks { grid-row: 2 / 4; border-right: 1px solid var(--line); padding: 20px 22px; display: grid; align-content: start; gap: 16px; }
+.task { display: grid; grid-template-columns: 18px 1fr; gap: 10px; align-items: start; }
+.task .st { width: 16px; height: 16px; border-radius: 50%; margin-top: 2px; box-shadow: inset 0 0 0 1.5px var(--line2); display: grid; place-items: center; }
+.task.ok .st { background: var(--green); box-shadow: none; }
+.task.ok .st::after { content: ""; width: 7px; height: 4px; border-left: 1.6px solid var(--sheet); border-bottom: 1.6px solid var(--sheet); transform: rotate(-45deg) translate(1px, -1px); }
+.task.cur .st { box-shadow: inset 0 0 0 1.5px var(--primary); }
+.task.cur .st::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+.task b { font-weight: 550; font-size: 14px; display: block; }
+.task span { font-size: 13px; color: var(--ink2); }
+.task.ok b { color: var(--ink2); font-weight: 500; }
+.ios { font-family: var(--f-mono); font-size: 12px; }
+.hintbox { font-size: 13px; color: var(--ink2); padding: 12px 14px; background: var(--sunk); border-radius: 10px; }
+.canvas { position: relative; min-width: 0; background-image: radial-gradient(color-mix(in oklch, var(--ink3) 30%, transparent) 1px, transparent 1px); background-size: 22px 22px; }
+.canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.console { grid-column: 2; background: var(--con-bg); color: var(--con-ink); display: grid; grid-template-rows: auto 1fr; font: 400 12.5px/1.6 var(--f-mono); }
+.con-tabs { display: flex; gap: 2px; padding: 0 14px; border-bottom: 1px solid var(--con-line); }
+.con-tabs button { border: 0; background: transparent; color: var(--con-ink2); padding: 9px 12px 8px; font: 500 12.5px var(--f-ui); border-bottom: 1.5px solid transparent; }
+.con-tabs button:hover { color: var(--con-ink); }
+.con-tabs button[aria-selected="true"] { color: var(--con-ink); border-bottom-color: var(--blue); }
+.con-body { padding: 8px 18px 10px; overflow-y: auto; white-space: pre; color: var(--con-ink2); }
+.con-body .c { color: var(--con-ink); } .con-body .e { color: var(--cut); } .con-body .g { color: var(--green); }
+.con-line { display: flex; } .con-line input { flex: 1; background: transparent; border: 0; outline: none; color: var(--con-ink); font: inherit; caret-color: var(--blue); padding: 0 0 0 8px; }
+
+/* palette + toast + tip */
+.scrim { position: absolute; inset: 0; z-index: 30; display: none; place-items: start center; padding-top: 96px; background: var(--scrim); }
+.scrim.on { display: grid; }
+.pal { width: 600px; background: var(--sheet); border-radius: 12px; box-shadow: var(--shadow), 0 0 0 1px var(--line); overflow: hidden; }
+.pal input { width: 100%; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); caret-color: var(--primary); font: 400 16px var(--f-ui); padding: 16px 18px; outline: none; }
+.pal input::placeholder { color: var(--ink3); }
+.pal-list { padding: 6px; max-height: 340px; overflow-y: auto; }
+.pi { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 9px 12px; border-radius: 8px; cursor: pointer; }
+.pi b { font-weight: 500; } .pi span { color: var(--ink3); font-size: 12.5px; }
+.pi.act { background: var(--sunk); }
+.toast { position: absolute; left: 50%; bottom: 24px; transform: translate(-50%, 0); background: var(--ink); color: var(--ground); padding: 10px 16px; border-radius: 10px; font-size: 13.5px; font-weight: 500; z-index: 40; box-shadow: var(--shadow); transition: transform 260ms var(--ease-out), opacity 200ms ease; display: flex; gap: 10px; align-items: center; }
+.toast.hide { opacity: 0; transform: translate(-50%, 12px); pointer-events: none; }
+.toast .wire { width: 30px; height: 8px; }
+.tip { position: absolute; z-index: 35; background: var(--ink); color: var(--ground); font-size: 12.5px; padding: 6px 10px; border-radius: 7px; pointer-events: none; white-space: nowrap; transform-origin: 50% 100%; transition: opacity 125ms var(--ease-out), transform 125ms var(--ease-out); }
+.tip.hide { opacity: 0; transform: scale(0.97); }
+.tip.instant { transition-duration: 0ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .net .jacket, .net .tag, .toast, .tip, .btn, .opt, .grades button { transition: opacity 150ms ease !important; }
+}
+</style>
+
+<div class="page">
+  <header class="intro">
+    <h1><span class="pinout big" aria-hidden="true" id="bigPin"></span>Octet</h1>
+    <p>Your CCNA desk. Learn a concept on a live network, practise what is fading, fix the lab. Everything here works: start the session and follow it through. The progress shown is sample data.</p>
+    <p class="small-note">Octet is a desktop app, so it is drawn at desktop size and scaled down here. Open this page on a computer to use it.</p>
+    <div class="keys"><span><kbd>Ctrl</kbd> <kbd>K</kbd> search</span><span><kbd>Space</kbd> show answer</span><span><kbd>Ctrl</kbd> <kbd>Enter</kbd> run checks</span><span>Click any cable to strip it</span></div>
+  </header>
+
+  <div class="stage" id="stage"><div class="stage-inner" id="stageInner">
+  <div class="app" id="app" tabindex="0" data-theme="light" aria-label="Octet app prototype">
+    <aside class="rail"><span class="jacket-print" aria-hidden="true">OCTET CAT6 UTP 4PR 23AWG T568B&#160;&#160;0041 M&#160;&#160;&#160;&#160;OCTET CAT6 UTP 4PR 23AWG T568B&#160;&#160;0042 M&#160;&#160;&#160;&#160;OCTET CAT6 UTP 4PR 23AWG T568B&#160;&#160;0043 M</span>
+      <div>
+        <div class="brand"><span class="pinout" aria-hidden="true" id="pin"></span><b>Octet</b></div>
+        <nav class="nav" aria-label="Main">
+          <button type="button" data-go="today" aria-current="page"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="M10 6.5V10l2.5 1.5"/></svg>Today</button>
+          <button type="button" data-go="course"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h9"/></svg>Course</button>
+          <button type="button" data-go="lab"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="5" cy="5.5" r="2"/><circle cx="15" cy="5.5" r="2"/><circle cx="10" cy="15" r="2"/><path d="M7 5.5h6M6 7.3l3 6M14 7.3l-3 6"/></svg>Labs</button>
+          <button type="button" data-go="review"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3.5" y="6" width="13" height="10.5" rx="2.5"/><path d="M6 3.5h8"/></svg>Review<span class="n" id="navDue">14</span></button>
+        </nav>
+        <div class="now c-srwe"><span class="wire"><i class="s-learn"></i></span><b>VLANs</b><span>CCNA 2, module 3, in progress</span></div>
+      </div>
+      <div></div>
+      <div class="rail-foot">
+        <div class="theme" role="group" aria-label="Theme"><button type="button" data-th="light" aria-pressed="true">Light</button><button type="button" data-th="dark" aria-pressed="false">Dark</button></div>
+        <span class="device-note">Stored on this computer. Works offline.</span>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="titlebar">
+        <div class="sess" id="sess"></div>
+        <button class="search" type="button" id="searchBtn"><span>Search lessons, labs, commands</span><span class="k">Ctrl K</span></button>
+        <div></div>
+      </div>
+
+      <!-- TODAY -->
+      <section class="view on" data-view="today">
+        <div class="today">
+          <div class="today-head">
+            <h1 class="h-title">Your session is ready</h1>
+            <p class="h-sub">About 40 minutes. It ends on the lab you left at 2 of 3 checks.</p>
+          </div>
+          <div class="plan">
+            <div class="step c-srwe"><span class="plug"><svg viewBox="0 0 18 17" aria-hidden="true"><rect class="body" x="1" y="1" width="16" height="11" rx="2.5"/><path class="pins" d="M4.5 2.5v3M7 2.5v3M9.5 2.5v3M12 2.5v3"/><rect class="latch" x="6" y="12" width="6" height="4" rx="1"/></svg></span><b>Learn VLAN trunks</b><span>CCNA 2, module 3, 12 min</span></div>
+            <div class="step c-itn"><span class="plug"><svg viewBox="0 0 18 17" aria-hidden="true"><rect class="body" x="1" y="1" width="16" height="11" rx="2.5"/><path class="pins" d="M4.5 2.5v3M7 2.5v3M9.5 2.5v3M12 2.5v3"/><rect class="latch" x="6" y="12" width="6" height="4" rx="1"/></svg></span><b>Practise 14 cards</b><span>3 on wildcard masks, 10 min</span></div>
+            <div class="step c-srwe"><span class="plug"><svg viewBox="0 0 18 17" aria-hidden="true"><rect class="body" x="1" y="1" width="16" height="11" rx="2.5"/><path class="pins" d="M4.5 2.5v3M7 2.5v3M9.5 2.5v3M12 2.5v3"/><rect class="latch" x="6" y="12" width="6" height="4" rx="1"/></svg></span><b>Finish lab 7.2</b><span id="labPlanLine">Router-on-a-stick, 2 of 3 checks, 18 min</span></div>
+          </div>
+          <div class="go"><button class="btn primary" type="button" id="startBtn">Start session <span class="k">Enter</span></button><button class="btn quiet" type="button" data-go="course">Choose something else</button></div>
+          <div class="cable-sec">
+            <div class="cable-head"><h2 class="h-sec">Your cable</h2>
+              <div class="legend"><span><span class="wire c-srwe"><i class="s-solid"></i></span>Mastered</span><span><span class="wire c-srwe"><i class="s-learn"></i></span>Learning</span><span><span class="wire"><i class="s-hollow"></i></span>Not started</span></div></div>
+            <div class="cable-rows" id="cableRows"></div>
+            <p class="fading" id="fadingLine"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- COURSE -->
+      <section class="view" data-view="course"><div class="course" id="courseView"></div></section>
+
+      <!-- LESSON -->
+      <section class="view" data-view="lesson">
+        <div class="lesson">
+          <div class="read">
+            <div class="read-head"><h2>One cable, many VLANs</h2><p>CCNA 2, module 3, lesson 4</p></div>
+            <div class="prose">
+              <p>An access port carries one VLAN. A trunk carries all of them on the same cable, so every frame needs a label saying which VLAN it belongs to.</p>
+              <p>That label is the <span class="em">802.1Q tag</span>: four bytes added to the frame, holding a 12-bit VLAN number. The switch at the far end reads it, removes it, and delivers the frame only inside that VLAN.</p>
+              <div class="check" id="lessonCheck">
+                <p>The trunk's native VLAN is 1. How does PC-SALES's frame cross it?</p>
+                <div class="opts"><button class="opt" type="button">Untagged</button><button class="opt" type="button" data-ok>Tagged 10</button><button class="opt" type="button">Tagged 1</button></div>
+                <p class="fb" id="lessonFb"></p>
+              </div>
+            </div>
+            <div class="read-foot"><button class="btn quiet" type="button" data-go="today">Back</button><span class="stepper c-srwe"><span class="wire"><i class="s-solid"></i><i class="s-solid"></i><i class="s-learn"></i><i class="s-hollow"></i></span>Step 3 of 4</span><button class="btn primary" type="button" id="toPractice">Continue to practice</button></div>
+          </div>
+          <div class="figure">
+            <div class="fig-hint"><i></i><span id="figHint">Click the cable between S1 and R1 to strip it.</span></div>
+            <svg class="net" id="lessonNet" viewBox="8 44 552 336" aria-label="PC-SALES and PC-ENG connect to switch S1, which trunks to router R1"></svg>
+            <div class="go"><button class="btn line" type="button" id="sendFrame">Send a frame from PC-SALES</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REVIEW -->
+      <section class="view" data-view="review"><div class="review"><div class="card" id="card"></div></div></section>
+
+      <!-- LAB -->
+      <section class="view" data-view="lab">
+        <div class="lab">
+          <div class="lab-head"><h2><span>Lab 7.2</span>Router-on-a-stick</h2><span class="sp"></span>
+            <div class="checksum"><span class="wires" id="checkWires"><i></i><i></i><i class="cutw"></i></span><span id="checkText">2 of 3 checks</span></div>
+            <button class="btn primary" type="button" id="runChecks">Run checks <span class="k">Ctrl Enter</span></button></div>
+          <div class="tasks">
+            <div class="task ok"><span class="st"></span><div><b>Create VLANs 10 and 20 on S1</b></div></div>
+            <div class="task ok"><span class="st"></span><div><b>Trunk Gi0/1 between S1 and R1</b></div></div>
+            <div class="task cur" id="task3"><span class="st"></span><div><b>Give VLAN 20 a gateway on R1</b><span>Engineering can't reach Sales. The cut on the trunk shows where traffic stops.</span></div></div>
+            <div class="hintbox" id="hintBox">Click the trunk to see which VLANs it carries. <button class="btn link" type="button" id="hintBtn">Show a hint</button></div>
+          </div>
+          <div class="canvas"><svg class="net" id="labNet" viewBox="20 30 840 320" aria-label="Lab topology"></svg></div>
+          <div class="console" id="console"></div>
+        </div>
+      </section>
+
+      <div class="scrim" id="scrim"><div class="pal" role="dialog" aria-label="Search"><input id="palIn" placeholder="Search lessons, labs, commands" aria-label="Search"><div class="pal-list" id="palList"></div></div></div>
+      <div class="toast hide" id="toast" role="status"></div>
+      <div class="tip hide" id="tip"></div>
+    </div>
+  </div>
+  </div></div>
+
+  <section class="notes">
+    <div>
+      <h2>The system</h2>
+      <p>Octet borrows one thing from the world of networking and uses it everywhere: the colour code on the wires inside every cable. Layout, navigation and controls stay the ones you already know from good desktop apps.</p>
+    </div>
+    <div class="sys">
+      <div><h3>Four pairs, four courses</h3><p>The T568B pairs that every network engineer crimps: orange for CCNA 1, green for CCNA 2, blue for CCNA 3, brown for what comes after.</p><div class="chips" aria-hidden="true"><i class="sw-orange"></i><i class="sw-green"></i><i class="sw-blue"></i><i class="sw-brown"></i></div></div>
+      <div><h3>The wire is the progress bar</h3><p>A white wire with a coloured stripe means you are learning it. A solid wire means mastered. If you start forgetting, it turns striped again. No points, no streaks.</p><div class="chips" aria-hidden="true"><span class="wire sample-wire c-srwe"><i class="s-solid"></i><i class="s-solid"></i><i class="s-learn"></i><i class="s-hollow"></i></span></div></div>
+      <div><h3>Cat6 jacket blue</h3><p>The shell is the colour of the patch cables in every lab. In the dark theme it deepens instead of disappearing.</p><div class="chips" aria-hidden="true"><i class="sw-jacket"></i><i class="sw-jacket-deep"></i><i class="sw-day"></i><i class="sw-night"></i></div></div>
+      <div><h3>Type</h3><p>Funnel Display for titles, Funnel Sans for everything you read and click. Azeret Mono appears only where a device prints text: configs, addresses, the console.</p></div>
+      <div><h3>The one signature move</h3><p>Click any cable to strip its jacket and see the VLANs inside. One wire on an access link, several on a trunk. A failed check shows as a cut wire that closes when you fix it.</p></div>
+      <div><h3>Your red lines</h3><p>Nothing gamified. Lessons are two short paragraphs, then something to touch. Each screen does one job, with at most three areas. No label ever sits above a title.</p></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const app = document.getElementById('app');
+  const $ = s => app.querySelector(s), $$ = s => [...app.querySelectorAll(s)];
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* fit the window to the page */
+  const stage = document.getElementById('stage'), inner = document.getElementById('stageInner');
+  const fit = () => { const s = Math.min(1, stage.clientWidth / 1280); inner.style.transform = `scale(${s})`; stage.style.height = (800 * s) + 'px'; };
+  new ResizeObserver(fit).observe(stage); fit();
+
+  /* pinout mark, T568B order */
+  const PIN = [['l', 'orange'], ['s', 'orange'], ['l', 'green'], ['s', 'blue'], ['l', 'blue'], ['s', 'green'], ['l', 'brown'], ['s', 'brown']];
+  const pinHTML = PIN.map(([k, c]) => `<i class="${k} p-${c}"></i>`).join('');
+  $('#pin').innerHTML = pinHTML;
+  document.getElementById('bigPin').innerHTML = pinHTML;
+
+  /* theme: follows the system until chosen */
+  const setTheme = t => { app.dataset.theme = t; $$('.theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === t)); };
+  setTheme(matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  $$('.theme button').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.th)));
+
+  /* course data */
+  const COURSES = [
+    { id: 'itn', short: 'CCNA 1', name: 'Introduction to Networks', mods: ['Networking today', 'Basic switch and end device configuration', 'Protocols and models', 'Physical layer', 'Number systems', 'Data link layer', 'Ethernet switching', 'Network layer', 'Address resolution', 'Basic router configuration', 'IPv4 addressing', 'IPv6 addressing', 'ICMP', 'Transport layer', 'Application layer', 'Network security fundamentals', 'Build a small network'] },
+    { id: 'srwe', short: 'CCNA 2', name: 'Switching, Routing and Wireless', mods: ['Basic device configuration', 'Switching concepts', 'VLANs', 'Inter-VLAN routing', 'STP concepts', 'EtherChannel', 'DHCPv4', 'SLAAC and DHCPv6', 'FHRP concepts', 'LAN security concepts', 'Switch security configuration', 'WLAN concepts', 'WLAN configuration', 'Routing concepts', 'IP static routing', 'Troubleshoot static and default routes'] },
+    { id: 'ensa', short: 'CCNA 3', name: 'Enterprise Networking, Security and Automation', mods: ['Single-area OSPFv2 concepts', 'Single-area OSPFv2 configuration', 'Network security concepts', 'ACL concepts', 'ACLs for IPv4 configuration', 'NAT for IPv4', 'WAN concepts', 'VPN and IPsec concepts', 'QoS concepts', 'Network management', 'Network design', 'Network troubleshooting', 'Network virtualization', 'Network automation'] },
+    { id: 'beyond', short: 'Beyond', name: 'Past the exam', mods: ['OSPFv3', 'Multi-area OSPF', 'EIGRP', 'eBGP basics', 'Real IOS images'] },
+  ];
+  const STATE = { itn: Array(17).fill('solid'), srwe: ['solid', 'solid', 'learn', 'learn', ...Array(12).fill('hollow')], ensa: Array(14).fill('hollow'), beyond: Array(5).fill('hollow') };
+  STATE.itn[10] = 'learn';
+  const WORD = { solid: 'mastered', learn: 'learning', hollow: 'not started' };
+  const wireHTML = (cid, arr, attrs = true) => arr.map((s, i) => `<i class="s-${s}"${attrs ? ` data-tip="${COURSES.find(c => c.id === cid).short}, module ${i + 1}: ${COURSES.find(c => c.id === cid).mods[i]}. ${s === 'learn' && cid === 'itn' && i === 10 ? 'Fading, back in practice' : WORD[s][0].toUpperCase() + WORD[s].slice(1)}"` : ''}></i>`).join('');
+  const countText = (cid) => { const a = STATE[cid], m = a.filter(s => s === 'solid').length; return cid === 'beyond' ? 'After CCNA 3' : `${m} of ${a.length}`; };
+  const renderToday = () => {
+    $('#cableRows').innerHTML = COURSES.map(c => `<div class="course-row c-${c.id}"><div class="nm"><b>${c.short}</b><span>${c.name}</span></div><div class="wire">${wireHTML(c.id, STATE[c.id])}</div><span class="ct">${countText(c.id)}</span></div>`).join('');
+    $('#fadingLine').innerHTML = `<b>IPv4 addressing</b> is fading from CCNA 1, so this session's practice includes 3 cards on wildcard masks.`;
+  };
+  const renderCourse = () => {
+    $('#courseView').innerHTML = `<div class="course-head"><h1 class="h-title course-title">Course</h1><p class="h-sub">Every module, coloured by the pair it belongs to. Open any one to learn or practise it.</p></div>` +
+      COURSES.map(c => `<div class="cblock c-${c.id}"><div class="cblock-head"><h3>${c.short}<span>${c.name}</span></h3><span>${countText(c.id)}</span><div class="wire">${wireHTML(c.id, STATE[c.id], false)}</div></div>
+        <div class="mods">${c.mods.map((m, i) => `<button type="button" class="mod${c.id === 'srwe' && i === 2 ? ' cur' : ''}" ${c.id === 'srwe' && i === 2 ? 'data-go="lesson"' : ''}><span class="sw s-${STATE[c.id][i]}"></span><span class="no">${String(i + 1).padStart(2, '0')}</span><span>${m}</span></button>`).join('')}</div></div>`).join('');
+  };
+
+  /* navigation */
+  let cur = 'today', session = 0; // 0 none, 1 learn, 2 practice, 3 lab
+  const SESS = ['', 'Learn', 'Practice', 'Lab'];
+  const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const today = () => { const d = new Date(); return `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  const renderSess = () => { $('#sess').innerHTML = session ? `<span class="cord">${[1, 2, 3].map(i => `<i class="${i < session ? 'd' : i === session ? 'c' : ''}"></i>`).join('')}</span><span>Session, step ${session} of 3: ${SESS[session]}</span>` : `<span>${today()}</span>`; };
+  const go = v => {
+    cur = v;
+    $$('.view').forEach(x => x.classList.toggle('on', x.dataset.view === v));
+    const navKey = v === 'lesson' ? 'course' : v;
+    $$('.nav button').forEach(b => b.dataset.go === navKey ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
+    if (v === 'course') renderCourse();
+    if (v === 'today') renderToday();
+    if (v === 'lesson' && session) session = 1;
+    if (v === 'review' && session) session = 2;
+    if (v === 'lab' && session) session = 3;
+    renderSess();
+    const a = document.activeElement; if (!app.contains(a) || a.offsetParent === null) app.focus({ preventScroll: true });
+  };
+  app.addEventListener('click', e => { const t = e.target.closest('[data-go]'); if (t) go(t.dataset.go); });
+  $('#startBtn').addEventListener('click', () => { session = 1; go('lesson'); });
+  $('#toPractice').addEventListener('click', () => go('review'));
+
+  /* toast */
+  let tT; const toast = (html) => { const t = $('#toast'); t.innerHTML = html; t.classList.remove('hide'); clearTimeout(tT); tT = setTimeout(() => t.classList.add('hide'), 3200); };
+
+  /* tooltips: delay first, instant after */
+  const tip = $('#tip'); let tipTimer, tipWarm = false, coolTimer;
+  app.addEventListener('pointerover', e => {
+    const el = e.target.closest('[data-tip]'); if (!el) return;
+    clearTimeout(tipTimer); clearTimeout(coolTimer);
+    const show = () => { const r = el.getBoundingClientRect(), a = tip.offsetParent.getBoundingClientRect(), s = app.getBoundingClientRect().width / 1280; tip.textContent = el.dataset.tip; tip.classList.toggle('instant', tipWarm); tip.style.left = ((r.left - a.left) / s + r.width / s / 2) + 'px'; tip.style.top = ((r.top - a.top) / s - 36) + 'px'; tip.style.translate = '-50% 0'; tip.classList.remove('hide'); tipWarm = true; };
+    tipWarm ? show() : (tipTimer = setTimeout(show, 450));
+  });
+  app.addEventListener('pointerout', e => { if (!e.target.closest('[data-tip]')) return; clearTimeout(tipTimer); tip.classList.add('hide'); coolTimer = setTimeout(() => tipWarm = false, 600); });
+
+  /* ---------- network drawing ---------- */
+  const NS = 'http://www.w3.org/2000/svg';
+  // sub is an address (Azeret Mono) unless ui is set, as for a model number
+  const dev = (x, y, w, name, sub, glyph, ui = false) => `<g class="dev" transform="translate(${x} ${y})"><rect width="${w}" height="56" rx="12"/>${glyph}<text class="nm" x="52" y="25">${name}</text><text class="sb${ui ? ' ui' : ''}" x="52" y="42">${sub}</text></g>`;
+  const G_PC = '<g class="gl" transform="translate(16 16)"><rect x="0" y="0" width="22" height="15" rx="2.5"/><path d="M7 21h8M11 15v6"/></g>';
+  const G_SW = '<g class="gl" transform="translate(15 17)"><rect x="0" y="0" width="24" height="20" rx="3"/><path d="M5 7h11l-3-3M19 13H8l3 3"/></g>';
+  const G_RT = '<g class="gl" transform="translate(15 16)"><circle cx="12" cy="12" r="11"/><path d="M12 5v14M5 12h14"/></g>';
+  // cable: id, path d, conductors [{vlan, color, dy, label}], label position
+  const cableSVG = (id, d, conds, lab) => `<g class="cable" data-cable="${id}">
+      ${conds.map((c, i) => `<path class="cond${c.cls ? ' ' + c.cls : ''}" d="${d}" stroke="var(--${c.color})" transform="translate(0 ${c.dy})"/>`).join('')}
+      <path class="jacket" d="${d}"/><path class="hit" d="${d}"/>
+      ${conds.map((c, i) => `<text class="clab" x="${lab[0]}" y="${lab[1] + i * 15}" fill="var(--${c.color})">${c.label}</text>`).join('')}
+    </g>`;
+  const armCables = svg => {
+    svg.querySelectorAll('.cable').forEach(g => {
+      const j = g.querySelector('.jacket'), L = j.getTotalLength();
+      j.style.strokeDasharray = `${L} ${L}`; j.style.strokeDashoffset = 0;
+      const toggle = () => { const on = !g.classList.contains('stripped'); g.classList.toggle('stripped', on); j.style.strokeDashoffset = on ? L : 0; svg.dispatchEvent(new CustomEvent('strip', { detail: { id: g.dataset.cable, on } })); };
+      g.querySelector('.hit').addEventListener('click', toggle);
+      j.addEventListener('click', toggle);
+    });
+  };
+
+  /* lesson figure */
+  const lessonNet = $('#lessonNet');
+  lessonNet.innerHTML = `
+    ${cableSVG('a10', 'M158 92 C 240 92, 250 196, 262 204', [{ color: 'orange', dy: 0, label: 'VLAN 10 only' }], [178, 132])}
+    ${cableSVG('a20', 'M158 338 C 240 338, 250 238, 262 230', [{ color: 'green', dy: 0, label: 'VLAN 20 only' }], [178, 306])}
+    ${cableSVG('trunk', 'M346 217 H 416', [{ color: 'orange', dy: -3.5, label: 'VLAN 10 Sales' }, { color: 'green', dy: 3.5, label: 'VLAN 20 Engineering' }], [334, 258])}
+    <text class="port" x="350" y="196">Gi0/1</text><text class="port" x="372" y="196" style="opacity:0">.</text>
+    ${dev(18, 64, 140, 'PC-SALES', '192.168.10.10', G_PC)}
+    ${dev(18, 310, 140, 'PC-ENG', '192.168.20.10', G_PC)}
+    ${dev(262, 189, 84, 'S1', '2960', G_SW, true)}
+    ${dev(416, 189, 132, 'R1', 'ISR 4321', G_RT, true)}
+    <g class="tag" id="ltag" style="opacity:0"><rect x="-22" y="-10" width="44" height="20" rx="6"/><text x="0" y="4" text-anchor="middle">tag 10</text></g>`;
+  armCables(lessonNet);
+  lessonNet.addEventListener('strip', e => {
+    if (e.detail.id === 'trunk') $('#figHint').textContent = e.detail.on ? 'Two VLANs share one cable. Each frame on it carries a tag.' : 'Click the cable between S1 and R1 to strip it.';
+    else if (e.detail.on) $('#figHint').textContent = 'An access cable carries a single VLAN, untagged.';
+  });
+  $('#sendFrame').addEventListener('click', () => {
+    const t = lessonNet.querySelector('#ltag');
+    const pts = [[140, 92], [262, 204], [346, 214], [416, 214]];
+    if (reduce) { t.style.opacity = 1; t.setAttribute('transform', `translate(${pts[3][0]} ${pts[3][1] - 22})`); return; }
+    t.style.transition = 'none'; t.setAttribute('transform', `translate(${pts[0][0]} ${pts[0][1] - 22})`); t.style.opacity = 1;
+    t.querySelector('text').textContent = 'untagged'; t.querySelector('rect').setAttribute('x', -32); t.querySelector('rect').setAttribute('width', 64);
+    let i = 1;
+    const step = () => {
+      if (i >= pts.length) { setTimeout(() => t.style.opacity = 0, 1400); return; }
+      t.style.transition = 'transform 700ms cubic-bezier(0.77, 0, 0.175, 1)';
+      t.setAttribute('transform', `translate(${pts[i][0]} ${pts[i][1] - 22})`);
+      if (i === 2) { t.querySelector('text').textContent = 'tag 10'; t.querySelector('rect').setAttribute('x', -24); t.querySelector('rect').setAttribute('width', 48); }
+      i++; setTimeout(step, 760);
+    };
+    requestAnimationFrame(() => requestAnimationFrame(step));
+  });
+  $('#lessonCheck').addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    $$('#lessonCheck .opt').forEach(x => x.classList.remove('right', 'wrong'));
+    const ok = b.hasAttribute('data-ok'); b.classList.add(ok ? 'right' : 'wrong');
+    $('#lessonFb').textContent = ok ? 'Right. Only the native VLAN crosses untagged. VLAN 10 is not native, so S1 adds a tag with VLAN number 10.' : 'Not quite. Only VLAN 1, the native VLAN, crosses untagged. PC-SALES is in VLAN 10, so its frames are tagged 10.';
+  });
+
+  /* ---------- review ---------- */
+  const CARDS = [
+    { c: 'srwe', src: 'CCNA 2, DHCPv4', q: "R2's clients are on 10.2.2.0/24. The DHCP server is R1 at 10.1.1.1. Which command on R2's LAN interface lets them get leases?", a: 'ip helper-address 10.1.1.1', w: "R2 relays each client's broadcast to R1 as a unicast and records its own address in the request, so R1 picks the right pool." },
+    { c: 'itn', src: 'CCNA 1, IPv4 addressing', q: 'What wildcard mask matches every address in 172.16.32.0/20?', a: '0.0.15.255', w: 'A /20 mask is 255.255.240.0. The wildcard is its inverse: 255 minus each octet.' },
+    { c: 'srwe', src: 'CCNA 2, STP concepts', q: 'S1 and S2 both use priority 32769. S1 has MAC 000a.0001 and S2 has 000a.0002. Which one becomes root?', a: 'S1', w: 'Priorities tie, so the lower MAC address wins. The bridge ID compares priority first, then MAC.' },
+  ];
+  let ci = 0, revealed = false;
+  const renderCard = () => {
+    if (ci >= CARDS.length) {
+      $('#card').innerHTML = `<div class="done-card"><h2 class="h-title done-title">Practice done</h2><p class="h-sub">3 of 3 recalled. Wildcard masks move out of this session's list.</p><button class="btn primary" type="button" data-go="lab">Continue to the lab</button></div>`;
+      $('#navDue').textContent = '11'; return;
+    }
+    const c = CARDS[ci]; revealed = false;
+    $('#card').innerHTML = `<p class="q">${esc(c.q)}</p>
+      <button class="reveal" type="button" id="revealBtn"><span class="k">Space</span>Show answer</button>
+      <div class="ans" id="ans" hidden><code>${esc(c.a)}</code><p>${esc(c.w)}</p>
+        <div class="grades"><button type="button" data-g="1"><b>Again <span class="k">1</span></b><span>In 10 minutes</span></button><button type="button" data-g="2"><b>Hard <span class="k">2</span></b><span>In 2 days</span></button><button type="button" data-g="3"><b>Good <span class="k">3</span></b><span>In 6 days</span></button><button type="button" data-g="4"><b>Easy <span class="k">4</span></b><span>In 15 days</span></button></div></div>
+      <div class="card-meta"><span class="src c-${c.c}"><span class="wire"><i class="s-learn"></i></span>${c.src}</span><span>Card ${ci + 9} of 14</span></div>`;
+  };
+  const reveal = () => { if (revealed || ci >= CARDS.length) return; revealed = true; $('#ans').hidden = false; $('#revealBtn').hidden = true; };
+  const grade = () => { ci++; renderCard(); };
+  $('#card').addEventListener('click', e => { if (e.target.closest('#revealBtn')) reveal(); if (e.target.closest('[data-g]')) grade(); });
+  renderCard();
+
+  /* ---------- lab ---------- */
+  const labNet = $('#labNet');
+  const L = { tag20: 30, fixed: false };
+  labNet.innerHTML = `
+    ${cableSVG('s', 'M192 96 C 300 96, 320 182, 360 186', [{ color: 'orange', dy: 0, label: 'VLAN 10' }], [236, 128])}
+    ${cableSVG('e', 'M192 292 C 300 292, 320 214, 360 210', [{ color: 'green', dy: 0, label: 'VLAN 20' }], [236, 272])}
+    <g class="cable" data-cable="t">
+      <path class="cond" d="M460 198 H 690" stroke="var(--orange)" transform="translate(0 -3.5)"/>
+      <path class="cond" d="M460 198 H 650" stroke="var(--green)" transform="translate(0 3.5)"/>
+      <path class="cond bridge" id="bridge" d="M650 198 H 690" stroke="var(--green)" transform="translate(0 3.5)" style="opacity:0"/>
+      <path class="jacket" d="M460 198 H 690"/><path class="hit" d="M460 198 H 690"/>
+      <text class="clab" x="470" y="236" fill="var(--orange)">VLAN 10 Sales</text><text class="clab" x="470" y="252" fill="var(--green)">VLAN 20 Engineering</text>
+    </g>
+    <g class="cutmark" id="cutmark"><circle cx="668" cy="198" r="11"/><path d="M663 193l10 10M673 193l-10 10"/><text x="548" y="160">VLAN 20 stops here</text></g>
+    <text class="port" x="198" y="84">Fa0/5</text><text class="port" x="198" y="316">Fa0/6</text><text class="port" x="466" y="180">Gi0/1</text><text class="port" x="642" y="180" style="opacity:0">.</text><text class="port" x="694" y="242">G0/0/1</text>
+    ${dev(40, 68, 152, 'PC-SALES', '192.168.10.10', G_PC)}
+    ${dev(40, 264, 152, 'PC-ENG', '192.168.20.10', G_PC)}
+    ${dev(360, 170, 100, 'S1', '2960', G_SW, true)}
+    ${dev(690, 170, 150, 'R1', 'ISR 4321', G_RT, true)}`;
+  armCables(labNet);
+  const applyLab = () => {
+    const ok = L.tag20 === 20;
+    labNet.querySelector('#bridge').style.opacity = ok ? 1 : 0;
+    labNet.querySelector('#cutmark').style.opacity = ok ? 0 : 1;
+  };
+  const runChecks = () => {
+    const ok = L.tag20 === 20;
+    $('#checkWires').lastElementChild.classList.toggle('cutw', !ok);
+    $('#checkText').textContent = ok ? '3 of 3 checks' : '2 of 3 checks';
+    applyLab();
+    if (ok && !L.fixed) {
+      L.fixed = true; $('#task3').classList.remove('cur'); $('#task3').classList.add('ok');
+      STATE.srwe[3] = 'solid'; $('#labPlanLine').textContent = 'Router-on-a-stick, passed';
+      toast(`<span class="wire c-srwe"><i class="s-solid"></i></span>Lab passed. Inter-VLAN routing is solid now.`);
+      session = 0; renderSess();
+    } else if (!ok) toast('PC-ENG still can\'t reach PC-SALES. The cut is on VLAN 20 at R1.');
+  };
+  $('#runChecks').addEventListener('click', runChecks);
+  $('#hintBtn').addEventListener('click', () => { $('#hintBox').innerHTML = "Compare the tag R1 uses on G0/0/1.20 with VLAN 20 on S1. Try <span class=\"ios\">show running-config interface g0/0/1.20</span> in the R1 console."; });
+
+  /* console */
+  const VOCAB = ['configure', 'terminal', 'interface', 'encapsulation', 'dot1q', 'ip', 'address', 'end', 'exit', 'show', 'brief', 'running-config', 'ping', 'vlan', 'interfaces', 'trunk'];
+  const expand = line => { const out = []; line.trim().toLowerCase().split(/\s+/).forEach(w => {
+    const prev = out[out.length - 1];
+    if (/^g[a-z]*\d/.test(w)) return out.push(w.replace(/^g[a-z]*/, 'gigabitethernet'));
+    if (/^[\d.,/]+$/.test(w) || w === '?') return out.push(w);
+    if (prev === 'ip' && 'address'.startsWith(w)) return out.push('address');
+    if (prev === 'show' && w.length >= 3 && 'running-config'.startsWith(w)) return out.push('running-config');
+    if (prev === 'show' && w.length >= 3 && 'interfaces'.startsWith(w) && w !== 'int') return out.push('interfaces');
+    const m = VOCAB.filter(v => v.startsWith(w)); out.push(m.includes(w) ? w : (m[0] || w)); }); return out.join(' '); };
+  const DEVS = ['R1', 'S1', 'PC-ENG']; let dv = 'R1';
+  const MODE = { R1: 'exec', S1: 'exec', 'PC-ENG': 'exec' }; let ifc = null;
+  const HIST = { R1: [['R1#', 'show ip interface brief', null]], S1: [], 'PC-ENG': [] };
+  const prompt = d => d === 'PC-ENG' ? 'C:\\>' : d + ({ exec: '#', config: '(config)#', subif: '(config-subif)#', if: '(config-if)#' })[MODE[d]];
+  const brief = () => `Interface              IP-Address      OK? Method Status    Protocol
+GigabitEthernet0/0/1   unassigned      YES unset  up        up
+Gi0/0/1.10             192.168.10.1    YES manual up        up
+Gi0/0/1.20             192.168.20.1    YES manual up        up`;
+  const HELP = { exec: 'configure terminal\nping <address>\nshow ip interface brief\nshow running-config interface <name>', config: 'interface <name>      for example interface g0/0/1.20\nend', subif: 'encapsulation dot1Q <vlan>\nip address <address> <mask>\nexit\nend', if: 'exit\nend' };
+  const run = (d, raw) => {
+    let x = expand(raw); if (x.startsWith('do ')) x = x.slice(3);
+    const m = MODE[d];
+    if (x === '?') return d === 'PC-ENG' ? 'ping <address>' : HELP[m];
+    if (d === 'PC-ENG') return x === 'ping 192.168.10.10' ? (L.tag20 === 20 ? 'Reply from 192.168.10.10: bytes=32 time<1ms TTL=127\nReply from 192.168.10.10: bytes=32 time<1ms TTL=127' : 'Request timed out.\nRequest timed out.') : null;
+    if (x === 'configure terminal' && m === 'exec') { MODE[d] = 'config'; return 'Enter configuration commands, one per line.  End with CNTL/Z.'; }
+    if (x === 'end') { MODE[d] = 'exec'; ifc = null; return ''; }
+    if (x === 'exit') { MODE[d] = m === 'config' || m === 'exec' ? 'exec' : 'config'; return ''; }
+    if (/^interface /.test(x) && m !== 'exec') { ifc = x.slice(10); MODE[d] = ifc.includes('.') ? 'subif' : 'if'; return ''; }
+    if (d === 'R1') {
+      if (m === 'exec' && x === 'show ip interface brief') return brief();
+      if (m === 'exec' && /^show running-config/.test(x)) return `interface GigabitEthernet0/0/1.20\n encapsulation dot1Q ${L.tag20}\n ip address 192.168.20.1 255.255.255.0`;
+      if (m === 'exec' && x === 'ping 192.168.10.10') return 'Type escape sequence to abort.\n<span class="g">!!!!!</span>\nSuccess rate is 100 percent (5/5)';
+      if (m === 'subif' && ifc === 'gigabitethernet0/0/1.20') {
+        let mm; if ((mm = x.match(/^encapsulation dot1q (\d+)$/))) { L.tag20 = +mm[1]; return ''; }
+        if (/^ip address 192\.168\.20\.1 255\.255\.255\.0$/.test(x)) return '';
+      }
+      if (m === 'subif' && /^(encapsulation dot1q \d+|ip address [\d.]+ [\d.]+)$/.test(x)) return '';
+    }
+    if (d === 'S1' && m === 'exec') {
+      if (x === 'show vlan brief') return 'VLAN Name     Status    Ports\n10   SALES    active    Fa0/5\n20   ENG      active    Fa0/6';
+      if (x === 'show interfaces trunk') return 'Port    Mode  Encapsulation  Status    Native vlan\nGi0/1   on    802.1q         trunking  1\nPort    Vlans allowed on trunk\nGi0/1   10,20';
+    }
+    return null;
+  };
+  const con = $('#console');
+  const renderCon = () => {
+    con.innerHTML = `<div class="con-tabs" role="tablist">${DEVS.map(d => `<button type="button" role="tab" data-dev="${d}" aria-selected="${d === dv}">${d}</button>`).join('')}</div>
+      <div class="con-body" id="conBody">${HIST[dv].map(([p, c, o, cls]) => `<div class="c">${esc(p)} ${esc(c)}</div>${o === null && c === 'show ip interface brief' ? `<div>${brief()}</div>` : o ? `<div class="${cls || ''}">${o}</div>` : ''}`).join('')}<div class="con-line"><span class="c">${esc(prompt(dv))}</span><input id="conIn" aria-label="${dv} console" spellcheck="false" autocomplete="off"></div></div>`;
+    const b = con.querySelector('#conBody'); b.scrollTop = b.scrollHeight;
+  };
+  con.addEventListener('click', e => { const t = e.target.closest('[data-dev]'); if (t) { dv = t.dataset.dev; renderCon(); con.querySelector('#conIn').focus(); } });
+  con.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.target.id !== 'conIn') return;
+    e.stopPropagation(); const raw = e.target.value; const p = prompt(dv);
+    if (!raw.trim()) { HIST[dv].push([p, '', '']); renderCon(); con.querySelector('#conIn').focus(); return; }
+    let out = run(dv, raw), cls = '';
+    if (out === null) { out = `${' '.repeat(p.length + 1)}^\n% Invalid input detected at '^' marker. Type ? for help.`; cls = 'e'; }
+    HIST[dv].push([p, raw, out, cls]); renderCon(); con.querySelector('#conIn').focus();
+  });
+  renderCon(); applyLab();
+
+  /* ---------- search ---------- */
+  const CMDS = [
+    ['Start tonight\'s session', 'About 40 min', () => { session = 1; go('lesson'); }],
+    ['Continue lesson: VLAN trunks', 'Switching module 3', () => go('lesson')],
+    ['Open lab 7.2 Router-on-a-stick', '2 of 3 checks', () => go('lab')],
+    ['Review due cards', '14 due', () => go('review')],
+    ['Practise wildcard masks', 'Fading', () => go('review')],
+    ['Open the course', '47 modules', () => go('course')],
+    ['Switch theme', 'Light or dark', () => setTheme(app.dataset.theme === 'dark' ? 'light' : 'dark')],
+  ];
+  let ps = 0, shown = CMDS;
+  const renderPal = () => { const q = $('#palIn').value.toLowerCase(); shown = CMDS.filter(c => (c[0] + ' ' + c[1]).toLowerCase().includes(q)); ps = Math.min(ps, Math.max(0, shown.length - 1)); $('#palList').innerHTML = shown.map((c, i) => `<div class="pi${i === ps ? ' act' : ''}" data-i="${i}"><b>${c[0]}</b><span>${c[1]}</span></div>`).join('') || '<div class="pi"><span>No match. Try "lab", "review" or "VLAN".</span></div>'; };
+  const openPal = () => { $('#scrim').classList.add('on'); $('#palIn').value = ''; ps = 0; renderPal(); $('#palIn').focus(); };
+  const closePal = () => { $('#scrim').classList.remove('on'); app.focus({ preventScroll: true }); };
+  const runPal = i => { const c = shown[i]; closePal(); if (c) c[2](); };
+  $('#searchBtn').addEventListener('click', openPal);
+  $('#palIn').addEventListener('input', () => { ps = 0; renderPal(); });
+  $('#palList').addEventListener('click', e => { const it = e.target.closest('[data-i]'); if (it) runPal(+it.dataset.i); });
+  $('#scrim').addEventListener('click', e => { if (e.target.id === 'scrim') closePal(); });
+
+  /* ---------- keys ---------- */
+  app.addEventListener('keydown', e => {
+    const mod = e.ctrlKey || e.metaKey;
+    if ($('#scrim').classList.contains('on')) {
+      if (e.key === 'Escape') { e.preventDefault(); closePal(); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); ps = Math.min(ps + 1, shown.length - 1); renderPal(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); ps = Math.max(ps - 1, 0); renderPal(); }
+      else if (e.key === 'Enter') { e.preventDefault(); runPal(ps); }
+      return;
+    }
+    if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); openPal(); return; }
+    if (mod && e.key === 'Enter') { e.preventDefault(); if (cur === 'lab') runChecks(); return; }
+    if (e.target.tagName === 'INPUT') return;
+    if (cur === 'today' && e.key === 'Enter' && e.target === app) { session = 1; go('lesson'); }
+    if (cur === 'review') { if (e.key === ' ') { e.preventDefault(); reveal(); } else if (revealed && /^[1-4]$/.test(e.key)) grade(); }
+  });
+
+  renderToday(); renderSess();
+})();
+</script>

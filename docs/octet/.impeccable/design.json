@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-07T23:10:00Z",
+  "title": "Design System: Octet",
+  "extensions": {
+    "colorMeta": {
+      "jacket": { "role": "primary", "displayName": "Cat6 Jacket Blue", "canonical": "oklch(46% 0.115 248)", "tonalRamp": ["oklch(18% 0.06 248)", "oklch(30% 0.075 248)", "oklch(38% 0.09 248)", "oklch(46% 0.115 248)", "oklch(53% 0.12 248)", "oklch(62% 0.11 248)", "oklch(76% 0.07 248)", "oklch(92% 0.025 248)"] },
+      "pair-orange": { "role": "secondary", "displayName": "Pair Orange (CCNA 1)", "canonical": "oklch(69% 0.16 52)" },
+      "pair-green": { "role": "secondary", "displayName": "Pair Green (CCNA 2)", "canonical": "oklch(60% 0.14 148)" },
+      "pair-blue": { "role": "secondary", "displayName": "Pair Blue (CCNA 3)", "canonical": "oklch(54% 0.14 255)" },
+      "pair-brown": { "role": "secondary", "displayName": "Pair Brown (Beyond)", "canonical": "oklch(47% 0.07 50)" },
+      "cut": { "role": "tertiary", "displayName": "Cut Red", "canonical": "oklch(57% 0.19 27)" },
+      "day-ground": { "role": "neutral", "displayName": "Day Ground", "canonical": "oklch(97.2% 0.004 250)" },
+      "night-ground": { "role": "neutral", "displayName": "Night Ground", "canonical": "oklch(18.5% 0.018 252)" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "One screen title per view." },
+      "ios": { "displayName": "IOS", "purpose": "Device text only: console, ports, addresses, command answers." }
+    },
+    "shadows": [
+      { "name": "float", "value": "0 1px 2px oklch(25% 0.03 255 / 0.06), 0 8px 24px -12px oklch(25% 0.03 255 / 0.18)", "purpose": "Search palette and toast, the only things that float." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Presses, tooltips, toasts, jacket strip (280ms)." },
+      { "name": "ease-in-out", "value": "cubic-bezier(0.77, 0, 0.175, 1)", "purpose": "The 802.1Q tag moving along the cables (700ms per hop, explanatory)." },
+      { "name": "press", "value": "transform 160ms ease-out; scale(0.97) on :active", "purpose": "Every pressable control." }
+    ]
+  },
+  "components": [
+    { "name": "Primary Button", "kind": "button", "refersTo": "button-primary", "description": "The one main action on a screen, with its shortcut keycap.", "html": "<button class=\"ds-btn-primary\">Start session <span class=\"ds-key\">Enter</span></button>", "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 10px; border: 0; border-radius: 9px; padding: 10px 16px; font: 600 14px 'Funnel Sans', system-ui, sans-serif; background: oklch(46% 0.115 248); color: oklch(98% 0.005 250); transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 120ms ease; cursor: pointer; } .ds-btn-primary:hover { background: oklch(50% 0.12 248); } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(54% 0.14 255); outline-offset: 2px; } .ds-key { font: 500 11px/1 'Funnel Sans', system-ui, sans-serif; border-radius: 4px; padding: 3px 5px; background: oklch(98% 0.005 250 / 0.16); }" },
+    { "name": "Wire", "kind": "custom", "refersTo": "wire", "description": "Progress as conductors: solid mastered, striped learning, hollow not started.", "html": "<span class=\"ds-wire\"><i class=\"ds-solid\"></i><i class=\"ds-solid\"></i><i class=\"ds-learn\"></i><i class=\"ds-hollow\"></i><i class=\"ds-hollow\"></i></span>", "css": ".ds-wire { --c: oklch(60% 0.14 148); display: flex; gap: 3px; height: 10px; width: 220px; } .ds-wire i { flex: 1; border-radius: 2px; } .ds-wire i:first-child { border-radius: 5px 2px 2px 5px; } .ds-wire i:last-child { border-radius: 2px 5px 5px 2px; } .ds-solid { background: var(--c); } .ds-learn { background: linear-gradient(180deg, oklch(98.5% 0.003 250) 0 30%, var(--c) 30% 70%, oklch(98.5% 0.003 250) 70%); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--c) 55%, transparent); } .ds-hollow { box-shadow: inset 0 0 0 1.25px oklch(83% 0.012 250); }" },
+    { "name": "Rail Nav Item", "kind": "nav", "refersTo": "nav-item-current", "description": "Navigation on the jacket-blue rail.", "html": "<nav class=\"ds-rail\"><button class=\"ds-nav\" aria-current=\"page\">Today</button><button class=\"ds-nav\">Course</button></nav>", "css": ".ds-rail { background: oklch(46% 0.115 248); padding: 12px; display: grid; gap: 2px; width: 200px; } .ds-nav { border: 0; background: transparent; color: oklch(88% 0.03 248); padding: 8px 10px; border-radius: 8px; text-align: left; font: 500 14px 'Funnel Sans', system-ui, sans-serif; transition: background-color 120ms ease; } .ds-nav:hover { background: oklch(98% 0.004 250 / 0.08); color: oklch(96% 0.01 250); } .ds-nav[aria-current='page'] { background: oklch(53% 0.12 248); color: oklch(96% 0.01 250); } .ds-nav:focus-visible { outline: 2px solid oklch(96% 0.01 250); outline-offset: 2px; }" },
+    { "name": "Console", "kind": "custom", "refersTo": "console", "description": "IOS-style console, always dark.", "html": "<div class=\"ds-con\"><div>R1# show ip interface brief</div><div class=\"ds-err\">% Invalid input detected at '^' marker.</div></div>", "css": ".ds-con { background: oklch(22% 0.02 255); color: oklch(90% 0.01 250); font: 400 12.5px/1.6 'Azeret Mono', Consolas, monospace; padding: 10px 18px; border-radius: 12px; } .ds-err { color: oklch(70% 0.17 27); }" }
+  ],
+  "narrative": {
+    "northStar": "The Colour Code",
+    "overview": "Octet takes one thing from networking and uses it everywhere: the colour code on the eight conductors inside every Ethernet cable. Course progress, network links, session steps and failed checks are all drawn as wires. Everything else is a quiet, standard desktop app.",
+    "keyCharacteristics": ["Progress drawn as wires: solid means mastered, white with a coloured stripe means learning or fading, hollow means not started.", "The four T568B pairs name the four tracks: orange for CCNA 1, green for CCNA 2, blue for CCNA 3, brown for Beyond.", "One signature interaction: click a cable to strip its jacket and see the VLAN conductors inside. A failed check shows as a cut conductor that closes when fixed.", "No label ever sits above a title."],
+    "rules": [
+      { "name": "The One Material Rule", "body": "Jacket blue is one material. The rail, the primary button, the session cord and every drawn cable jacket use the same blue, never a near-miss.", "section": "colors" },
+      { "name": "The Pair Rule", "body": "A pair colour always means its course. Orange is never used to mean warning, and green only means a pass because CCNA 2 owns green in the lab where it appears.", "section": "colors" },
+      { "name": "The Cut Rule", "body": "Red appears only where something is broken, and it disappears the moment the fix lands.", "section": "colors" },
+      { "name": "The Device Voice Rule", "body": "Mono is the voice of a device. Configs, ports, addresses and console output are mono. Keycaps, module numbers, counts and UI labels never are.", "section": "typography" },
+      { "name": "The No Kicker Rule", "body": "No label sits above a title. Dates go in the title bar, context goes in a line under the title, and step progress goes in the footer.", "section": "typography" },
+      { "name": "The No Halo Rule", "body": "Nothing glows. State is drawn with a ring, a fill or a wire, never a zero-offset coloured glow.", "section": "elevation" }
+    ]
+  }
+}
