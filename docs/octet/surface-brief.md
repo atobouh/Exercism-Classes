@@ -23,7 +23,7 @@ Signature interaction: click any cable to strip its jacket and see the VLAN cond
 
 ## Finish record
 
-- Finish review: run in-thread. The harness had no reviewer subagent, so the build thread stepped out and ran `reference/degraded/finish-reviewer.md` itself, against captures in `.impeccable/review/` (desktop 1440 light, mobile 390 dark).
+- Finish review: run in-thread. The harness had no reviewer subagent, so the build thread stepped out and ran `reference/degraded/finish-reviewer.md` itself, against captures in `docs/octet/.impeccable/review/` (desktop 1440 light, mobile 390 dark, taken after the fixes).
 - Review disposition: fix. There were eight material findings: the rail drifted to navy, labels sat above titles, mono leaked outside IOS text, window controls were drawn, small text and green text failed contrast, the notes section was broken, the weekday was hardcoded, and there were missing hover states, default scrollbars and a glow halo.
 - Verdict after fixes: seven of eight resolved. One remains open: FORM has no concept-roll seed key, because the Impeccable launcher was never run and the user picked the direction directly. That gap is in the process, not on screen. It cannot be honestly corroborated after the fact.
 - Recomputed disposition: fix (open item: seed key only).
