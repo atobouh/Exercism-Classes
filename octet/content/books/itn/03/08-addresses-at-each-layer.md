@@ -39,9 +39,11 @@ C:\> arp -a
 Interface: 192.168.1.10 --- 0x4
   Internet Address      Physical Address      Type
   192.168.1.1           00-e0-f9-a1-4c-01     dynamic
+  192.168.1.255         ff-ff-ff-ff-ff-ff     static
+  224.0.0.22            01-00-5e-00-00-16     static
 ```
 
-The ARP table shows the gateway's MAC address, because that is the device the PC sends frames to for anything off its network. It will not list the remote server's MAC address, which PC1 never learns.
+The ARP table holds the gateway's MAC address, along with the standard broadcast and multicast entries, because that is the device the PC sends frames to for anything off its network. It will not list the remote server's MAC address, which PC1 never learns.
 
 ## Following one packet
 

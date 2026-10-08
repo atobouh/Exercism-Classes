@@ -16,7 +16,7 @@ The data link layer finishes its work by producing a complete *frame*: addresses
 2. Encode those bits as a pattern, and send the pattern as a *signal* on the medium: changes in voltage on a copper wire, flashes of light in a glass fiber, or changes in a radio wave.
 3. At the other end, detect the signal, turn it back into bits, and hand the bits up to the data link layer as a frame again.
 
-That is all. The physical layer has no addresses, no idea where the frame is going and no way to check whether it arrived correctly. It moves bits and nothing else. Error checking is left to the layer above, which is why a damaged signal shows up on a switch as a frame with a bad check value, not as a physical layer message. You will read those counters in [chapter 7](itn/07/08-speed-duplex-and-auto-mdix) and again when you troubleshoot.
+That is all. The physical layer has no addresses, no idea where the frame is going and no way to check whether it arrived correctly. It moves bits and nothing else. Error checking is left to the layer above, which is why a damaged signal shows up on a switch as a frame with a bad check value, not as a physical layer message. You will learn to read those counters in [interface errors and duplex mismatch](itn/17/08-interface-errors-and-duplex).
 
 ```diagram
 caption = "A frame leaves PC1 as a signal. Over copper it is a voltage, over fiber it is light, over the air it is a radio wave."
