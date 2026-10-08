@@ -13,7 +13,7 @@ The router's own web page is reached at its LAN address, typed into a browser. T
 Change the administrator password before anything else. Choose a long, unique one. Anyone who reaches the admin page can rename your network, open it to strangers or lock you out.
 
 ```question
-prompt = "You have just unboxed a wireless router and opened its admin page. What should you change first?"
+prompt = "You have unboxed a wireless router and opened its admin page. What should you change first?"
 options = ["The wireless channel", "The administrator password", "The network mode", "The SSID broadcast setting"]
 answer = 1
 why = "The default login is public knowledge for that model. Every other setting can be altered by anyone who still has it."
@@ -71,7 +71,7 @@ Wireless LAN adapter Wi-Fi:
 ```
 
 ```recall
-front = "Which two things should you do to the default WPS and login settings on a new wireless router?"
+front = "What two things should you do on a new wireless router besides setting the SSID and passphrase?"
 back = "Change the default admin password, and disable WPS because its PIN method can be brute-forced."
 ```
 
