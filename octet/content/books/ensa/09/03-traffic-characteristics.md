@@ -15,13 +15,13 @@ A voice call is a stream of small packets, sent at a steady rhythm. Each packet 
 - **Drop sensitive.** About 1% loss or less before the call sounds damaged.
 - **Bandwidth.** Roughly 30 to 128 kbps per call, depending on the codec and the headers.
 
-Voice travels over *UDP*, usually carried in *RTP* (Real-time Transport Protocol), which adds sequence numbers and timestamps so the receiver can put sound back in order and pace it. Because the call is live, it gets priority treatment in the network.
+Voice travels over *UDP*, usually carried in *RTP* (Real-time Transport Protocol), which adds sequence numbers and timestamps so the receiver can put sound back in order and pace it. Because the call is live, it usually gets priority treatment in the network.
 
 ## Video
 
 Interactive video, such as a meeting, is larger and less tidy. It is *bursty*: a still picture sends little, but a sudden movement or scene change sends a lot at once. It is also *greedy*, because it will use as much bandwidth as it is given.
 
-- **Latency:** about 200 to 400 ms or less, a looser budget than voice because people tolerate a little more lag when the picture is also moving.
+- **Latency:** about 200 to 400 ms or less, a looser budget than voice.
 - **Jitter:** about 30 to 50 ms or less.
 - **Loss:** about 0.1 to 1% or less. Lost packets can show up as frozen or blocky frames.
 - **Bandwidth:** from around 384 kbps for a small call to over 20 Mbps for high-quality video.
@@ -52,7 +52,7 @@ why = "TCP notices lost segments and retransmits them, so the user only sees a d
 
 ## Why voice uses UDP
 
-It seems odd that the most important traffic skips the protocol that guarantees delivery. The reason is timing. Suppose a voice packet is lost. TCP would stop and wait for a resend. By then the call has moved on by a second or more, and the repeated sound would be played late, on top of the new speech. A short gap or crackle is far less disruptive. So for live media, a late packet is worse than a lost one. UDP simply sends and moves on, and the application decides what to do about a gap.
+It seems odd that the most important traffic skips the protocol that guarantees delivery. The reason is timing. Suppose a voice packet is lost. TCP would stop and wait for a resend. By then the call has moved on, and the repeated sound would be played late, on top of the new speech. A short gap or crackle is far less disruptive. So for live media, a late packet is worse than a lost one. UDP sends and moves on, and the application decides what to do about a gap.
 
 ```key
 Voice and video are live: they need low delay, low jitter and low loss, and they cannot use retransmission. Data is elastic: TCP recovers from loss and delay at the cost of speed.
