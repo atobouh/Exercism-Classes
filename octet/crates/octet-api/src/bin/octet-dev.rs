@@ -9,7 +9,8 @@ fn main() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let ui = root.join("app/ui");
     let data = std::env::var("OCTET_DATA").map(PathBuf::from).unwrap_or_else(|_| root.join("target/dev-data/octet.json"));
-    let mut app = App::open(&root.join("content"), &data).expect("content loads");
+    let content = std::env::var("OCTET_CONTENT").map(PathBuf::from).unwrap_or_else(|_| root.join("content"));
+    let mut app = App::open(&content, &data).expect("content loads");
     let port = std::env::var("PORT").unwrap_or_else(|_| "4173".into());
     let server = Server::http(format!("127.0.0.1:{port}")).expect("port is free");
     println!("Octet dev server on http://127.0.0.1:{port} (data in {})", data.display());

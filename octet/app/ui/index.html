@@ -11,7 +11,7 @@
 <body>
 <div class="lb" id="lb" tabindex="0" data-theme="light">
   <header class="titlebar" id="titlebar" data-tauri-drag-region>
-    <div class="tb-brand" data-tauri-drag-region><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3" width="4" height="14" rx="1" fill="var(--cloth-itn)"/><rect x="8" y="3" width="4" height="14" rx="1" fill="var(--cloth-srwe)"/><rect x="13.6" y="3.4" width="4" height="14" rx="1" transform="rotate(8 15.6 10.4)" fill="var(--cloth-ensa)"/></svg><b data-tauri-drag-region>Octet</b></div>
+    <div class="tb-brand" data-tauri-drag-region><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3" width="4" height="14" rx="1" fill="var(--cloth-itn)"/><rect x="8" y="3" width="4" height="14" rx="1" fill="var(--cloth-srwe)"/><rect x="13.6" y="3.4" width="4" height="14" rx="1" transform="rotate(8 15.6 10.4)" fill="var(--cloth-ensa)"/></svg><b data-tauri-drag-region>Octet</b><button type="button" class="tb-side" id="tbSide" aria-label="Sidebar" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="2"/><path d="M6.2 3v10"/></svg></button></div>
     <div class="tb-where" id="tbWhere" data-tauri-drag-region></div>
     <div class="tb-ctl" id="tbCtl" hidden>
       <button type="button" data-win="min" aria-label="Minimize" title="Minimize"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5.5h8"/></svg></button>
@@ -30,6 +30,7 @@
       <div id="navCols"></div>
     </nav>
     <div class="side-foot">
+      <button class="si" type="button" data-go="settings"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.6M8 12.6v1.6M1.8 8h1.6M12.6 8h1.6M3.6 3.6l1.1 1.1M11.3 11.3l1.1 1.1M3.6 12.4l1.1-1.1M11.3 4.7l1.1-1.1"/></svg>Settings</button>
       <div class="theme" role="group" aria-label="Theme"><button type="button" data-th="light" aria-pressed="true">Light</button><button type="button" data-th="dark" aria-pressed="false">Dark</button></div>
       <span>Stored on this computer</span>
     </div>
@@ -42,7 +43,7 @@
       <div class="list"><div class="list-head"><h2 id="chTitle"></h2><span id="chSub"></span></div><div class="items" id="items"></div></div>
       <div class="ed">
         <div class="ed-bar">
-          <span class="crumbs" id="crumbs" hidden></span><span></span>
+          <button class="tool" type="button" id="listBtn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M3 8h10M3 11.5h6"/></svg>Pages</button>
           <div class="ed-tools"><button class="tool" type="button" id="focusBtn" aria-pressed="false">Focus <span class="k">Ctrl .</span></button></div>
         </div>
         <div class="ed-scroll" id="edScroll"><article class="doc" id="doc"></article></div>
@@ -51,6 +52,7 @@
       </div>
     </section>
     <section class="view collection" data-view="collection"><div class="col-in"><div class="lib-head"><h1 id="colTitle"></h1><p id="colSub"></p></div><div class="blocks" id="colBlocks"></div></div></section>
+    <section class="view settings" data-view="settings"><div class="set-in" id="setIn"></div></section>
     <section class="view review" data-view="review"><div class="card" id="card"></div></section>
     <div class="toast hide" id="toast" role="status"></div>
   </div>
@@ -84,6 +86,7 @@
   </div>
 </div>
 <script src="figures.js"></script>
+<script src="blocks.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

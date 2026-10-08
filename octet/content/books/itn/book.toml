@@ -1,7 +1,8 @@
 id = "itn"
 title = "Introduction to Networks"
 short = "CCNA 1"
-cloth = "itn"
+cloth = "teal"
+pattern = "rings"
 
 [[chapter]]
 number = 1

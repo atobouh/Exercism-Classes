@@ -27,7 +27,7 @@
 
   /* ---------- library data ---------- */
   let LIB = null, cur = 'library', PAGE = null;
-  const SHORT = { itn: 'Networks', srwe: 'Switching', ensa: 'Enterprise' };
+  const SHORT = { itn: 'Networks', srwe: 'Switching', ensa: 'Enterprise', exam: 'The exam' };
   const COL_ICON = {
     commands: '<path d="M3.5 5l3 3-3 3M8.5 11.5h4"/>',
     wrong: '<circle cx="8" cy="8" r="5.5"/><path d="M8 5.2v3.3M8 10.8v.1"/>',
@@ -42,12 +42,12 @@
   const refresh = async () => { LIB = await api('library'); renderNav(); };
   const renderNav = () => {
     $('#dueN').textContent = LIB.due || '';
-    $('#navBooks').innerHTML = LIB.books.map(b => `<button class="si" type="button" data-book="${b.id}"><span class="spn ${b.cloth}"></span><span>${esc(SHORT[b.id] || b.short)}</span><span class="n">${b.pages ? `${b.read}/${b.pages}` : ''}</span></button>`).join('');
+    $('#navBooks').innerHTML = LIB.books.map(b => `<button class="si" type="button" data-book="${b.id}"><span class="spn c-${esc(b.cloth)}"></span><span>${esc(SHORT[b.id] || b.short)}</span><span class="n">${b.pages ? `${b.read}/${b.pages}` : ''}</span></button>`).join('');
     $('#navCols').innerHTML = LIB.collections.map(c => `<button class="si" type="button" data-col="${c.id}"><svg viewBox="0 0 16 16" aria-hidden="true">${COL_ICON[c.id] || COL_ICON.commands}</svg><span>${esc(c.title)}</span><span class="n">${c.count}</span></button>`).join('');
     markNav();
   };
   const markNav = (key) => {
-    $$('#nav .si').forEach(b => {
+    $$('.side .si').forEach(b => {
       const on = (b.dataset.go && b.dataset.go === cur) || (key && (b.dataset.col === key || b.dataset.book === key));
       on ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current');
     });
@@ -55,6 +55,7 @@
   const where = (...parts) => { $('#tbWhere').innerHTML = parts.filter(Boolean).map((p, i, a) => i === a.length - 1 ? `<b>${esc(p)}</b>` : `<span>${esc(p)}</span><span class="sep">/</span>`).join(''); };
   const show = (v, key) => {
     cur = v;
+    if (v !== 'reading' && lb.classList.contains('focus')) setFocus(false);
     if (v === 'library') where('Library');
     else if (v === 'review') where('Review');
     $$('.view').forEach(x => x.classList.toggle('on', x.dataset.view === v));
@@ -65,10 +66,17 @@
 
   /* ---------- covers ---------- */
   const PAT = {
-    itn: Array.from({ length: 7 }, (_, i) => `<circle cx="150" cy="96" r="${22 + i * 20}" fill="none" stroke="currentColor" stroke-opacity=".16"/>`).join(''),
-    srwe: Array.from({ length: 9 }, (_, i) => `<path d="M${-10 + i * 26} 0 V 70 L ${30 + i * 22} 150 V 300" fill="none" stroke="currentColor" stroke-opacity=".17"/>`).join(''),
-    ensa: Array.from({ length: 6 }, (_, i) => `<path d="M0 ${40 + i * 24} H 200" stroke="currentColor" stroke-opacity=".14"/><path d="M${30 + i * 30} 30 V 160" stroke="currentColor" stroke-opacity=".14"/>`).join('') + '<path d="M30 160 H 90 V 88 H 150 V 40 H 200" fill="none" stroke="currentColor" stroke-opacity=".38" stroke-width="1.6"/>',
+    rings: Array.from({ length: 7 }, (_, i) => `<circle cx="150" cy="96" r="${22 + i * 20}" fill="none" stroke="currentColor" stroke-opacity=".16"/>`).join(''),
+    traces: Array.from({ length: 9 }, (_, i) => `<path d="M${-10 + i * 26} 0 V 70 L ${30 + i * 22} 150 V 300" fill="none" stroke="currentColor" stroke-opacity=".17"/>`).join(''),
+    grid: Array.from({ length: 6 }, (_, i) => `<path d="M0 ${40 + i * 24} H 200" stroke="currentColor" stroke-opacity=".14"/><path d="M${30 + i * 30} 30 V 160" stroke="currentColor" stroke-opacity=".14"/>`).join('') + '<path d="M30 160 H 90 V 88 H 150 V 40 H 200" fill="none" stroke="currentColor" stroke-opacity=".38" stroke-width="1.6"/>',
+    // Rows of bits, a few of them set.
+    bits: Array.from({ length: 8 }, (_, r) => Array.from({ length: 8 }, (_, c) => `<rect x="${44 + c * 16}" y="${34 + r * 16}" width="9" height="9" rx="1.5" fill="currentColor" fill-opacity="${(r * 7 + c * 3 + r * c) % 5 < 2 ? '.34' : '.1'}"/>`).join('')).join(''),
+    waves: Array.from({ length: 9 }, (_, i) => `<path d="M-10 ${30 + i * 18} C 40 ${10 + i * 18}, 80 ${50 + i * 18}, 130 ${30 + i * 18} S 200 ${10 + i * 18}, 230 ${30 + i * 18}" fill="none" stroke="currentColor" stroke-opacity=".15"/>`).join(''),
+    stripes: Array.from({ length: 4 }, (_, i) => `<rect x="0" y="${26 + i * 14}" width="200" height="${i === 1 ? 6 : 2}" fill="currentColor" fill-opacity=".18"/>`).join(''),
+    dots: Array.from({ length: 9 }, (_, r) => Array.from({ length: 11 }, (_, c) => `<circle cx="${14 + c * 18 + (r % 2) * 9}" cy="${20 + r * 18}" r="1.7" fill="currentColor" fill-opacity=".2"/>`).join('')).join(''),
+    plain: '',
   };
+  const coverSVG = pattern => `<svg viewBox="0 0 200 292" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${PAT[pattern] || ''}</svg>`;
   const DIA = '<svg viewBox="0 0 200 70" aria-hidden="true"><line x1="44" y1="22" x2="84" y2="35"/><line x1="44" y1="50" x2="84" y2="37"/><line x1="122" y1="36" x2="156" y2="36" stroke-width="3"/><rect x="6" y="12" width="38" height="20" rx="4"/><rect x="6" y="40" width="38" height="20" rx="4"/><rect x="84" y="26" width="38" height="20" rx="4"/><rect x="156" y="26" width="38" height="20" rx="4"/></svg>';
   const piece = p => `<div class="blk">${p.kind === 'command' ? `<div class="bc">${esc(p.text)}</div>` : p.kind === 'note' ? `<div class="bm">${esc(p.text)}</div>` : p.kind === 'diagram' ? DIA : `<div class="bt">${esc(p.text)}</div>`}<span class="src">From ${esc(p.source)}</span></div>`;
 
@@ -85,27 +93,27 @@
     };
     const shelf = LIB.books.map(b => {
       const [m, s] = bookState(b);
-      return `<button class="book ${b.id}${b.pages ? '' : ' locked'}" type="button" data-book="${b.id}"><span class="cover ${b.cloth}"><svg viewBox="0 0 200 292" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${PAT[b.cloth] || ''}</svg>${ribbon && ribbon.book.id === b.id ? '<span class="ribbon" aria-hidden="true"></span>' : ''}<span><span class="t">${esc(b.title)}</span><span class="v" style="display:block">${esc(b.short)}</span></span></span><span class="meta"><b>${m}</b><span>${s}</span></span></button>`;
+      return `<button class="book${b.pages ? '' : ' locked'}" type="button" data-book="${esc(b.id)}"><span class="cover c-${esc(b.cloth)}">${coverSVG(b.pattern)}${ribbon && ribbon.book.id === b.id ? '<span class="ribbon" aria-hidden="true"></span>' : ''}<span><span class="t">${esc(b.title)}</span><span class="v" style="display:block">${esc(b.short)}</span></span></span><span class="meta"><b>${m}</b><span>${s}</span></span></button>`;
     }).join('');
     const cont = ribbon
       ? `<div class="continue"><div><b>${esc(ribbon.page.title)}</b><span>${esc(ribbon.book.title)}, chapter ${ribbon.chapter.number}. The ribbon is where you stopped.</span></div><button class="btn pri" type="button" data-open="${esc(ribbon.page.id)}" data-block="${LIB.ribbon.block}">Continue reading <span class="k">Enter</span></button></div>`
       : firstPage ? `<div class="continue"><div><b>${esc(firstPage.title)}</b><span>${esc(firstPage.summary)}</span></div><button class="btn pri" type="button" data-open="${esc(firstPage.id)}">Start reading <span class="k">Enter</span></button></div>` : '';
     const lab = nextLab ? `<div class="continue"><div><b>${esc(nextLab.title)}</b><span>${esc(nextLab.summary)}</span></div><button class="btn line" type="button" data-lab="${esc(nextLab.lab)}">Open the lab</button></div>` : '';
     const recent = LIB.recent.length ? `<div class="lib-sec"><h2>Lately collected</h2><div class="blocks">${LIB.recent.map(piece).join('')}</div></div>` : `<div class="lib-sec"><h2>Lately collected</h2><p style="margin:0;color:var(--ink3)">Select any sentence while reading and press Collect. It lands here and in your collections.</p></div>`;
-    $('#libIn').innerHTML = `<div class="lib-head"><h1>Your library</h1><p>Three books, read in order. The ribbon marks where you stopped.</p></div><div class="shelf">${shelf}</div>${cont}${lab}${recent}`;
+    $('#libIn').innerHTML = `<div class="lib-head"><h1>Your library</h1><p>${LIB.books.length === 4 ? 'Four' : LIB.books.length} books. The three courses read in order; the exam book ties them to the test. The ribbon marks where you stopped.</p></div><div class="shelf">${shelf}</div>${cont}${lab}${recent}`;
     show('library');
   };
 
   const openBook = id => {
     const b = LIB.books.find(x => x.id === id); if (!b) return;
-    $('#bookIn').innerHTML = `<div class="lib-head"><h1>${esc(b.title)}</h1><p>${esc(b.short)}. ${b.pages ? `${b.read} of ${b.pages} pages read.` : 'Its pages are being written. The chapters below follow the official course.'}</p></div><div class="ch-list">${b.chapters.map(c => `<button class="ch" type="button" ${c.pages.length ? `data-open="${esc(c.pages[0].id)}"` : 'disabled'}><span>${c.number}</span>${esc(c.title)}<span>${c.pages.length ? `${c.pages.filter(p => p.read).length} of ${c.pages.length} read` : ''}</span></button>`).join('')}</div>`;
+    $('#bookIn').innerHTML = `<div class="lib-head"><h1>${esc(b.title)}</h1><p>${esc(b.short)}. ${b.about ? esc(b.about) + ' ' : ''}${b.pages ? `${b.read} of ${b.pages} pages read.` : 'Its pages are being written.'}</p></div><div class="ch-list">${b.chapters.map(c => `<button class="ch" type="button" ${c.pages.length ? `data-open="${esc(c.pages[0].id)}"` : 'disabled'}><span>${c.number}</span>${esc(c.title)}<span>${c.pages.length ? `${c.pages.filter(p => p.read).length} of ${c.pages.length} read` : ''}</span></button>`).join('')}</div>`;
     show('book', id);
     where('Library', b.title);
   };
 
   /* ---------- reading ---------- */
   const inline = (text, marks) => {
-    let h = esc(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+    let h = esc(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/\[([^\]]+)\]\(([a-z0-9-]+\/\d+\/[a-z0-9-]+)\)/g, '<a class="xref" href="#" data-open="$2">$1</a>');
     for (const m of marks) { const e = esc(m); if (e && h.includes(e)) h = h.replace(e, `<mark>${e}</mark>`); }
     return h;
   };
@@ -133,14 +141,12 @@
     const blocks = p.blocks.map((b, i) => {
       let h = '';
       if (b.type === 'text') h = `<p data-b="${i}">${inline(b.text, PAGE.highlights.filter(x => x.block === i).map(x => x.text))}</p>`;
-      else if (b.type === 'question') {
-        const seen = PAGE.answered.includes(i);
-        h = `<div class="ask" data-b="${i}" data-q="${i}"><p>${esc(b.prompt)}</p><div class="opts">${b.options.map((o, c) => `<button class="opt" type="button" data-c="${c}">${esc(o)}</button>`).join('')}</div><p class="fb">${seen ? 'You have answered this before. It is in your review.' : ''}</p></div>`;
-      } else if (b.type === 'figure') h = `<div data-b="${i}" data-fig="${esc(b.id)}">${(window.OCTET_FIGURES[b.id] || { html: () => '' }).html()}</div>`;
+      else if (b.type === 'figure') h = `<div data-b="${i}" data-fig="${esc(b.id)}">${(window.OCTET_FIGURES[b.id] || { html: () => '' }).html()}</div>`;
       else if (b.type === 'lab') {
         const lp = allPages().find(x => x.lab === b.id);
         h = `<div class="lab-block" data-b="${i}"><div><b>${esc(lp ? lp.title : 'Lab')}</b><span>${lp && lp.passed ? 'Passed. Open it again any time.' : 'Opens on a live map of the network.'}</span></div><button class="btn pri" type="button" data-lab="${esc(b.id)}">Open the lab</button></div>`;
       }
+      else h = window.OCTET_BLOCKS.render(b, i, { inline, answered: PAGE.answered.includes(i) });
       return h + (notesBy[i] || []).map(noteHTML).join('');
     }).join('');
     const links = PAGE.links.map(l => `<button class="chip" type="button" data-open="${esc(l.id)}">${esc(l.title)}</button>`).join('');
@@ -148,18 +154,56 @@
     const nextBtn = next ? (next.lab ? `<button class="btn line" type="button" data-next="${esc(next.id)}" data-lab="${esc(next.lab)}">Next: ${esc(next.title)}</button>` : `<button class="btn line" type="button" data-next="${esc(next.id)}">Next page</button>`) : `<button class="btn line" type="button" data-done>Back to the library</button>`;
     $('#doc').innerHTML = `<h1>${esc(p.meta.title)}</h1><p class="sub">Page ${index + 1} of ${count} in this chapter.${PAGE.notes.length ? ` Your notes here: ${PAGE.notes.length}.` : ''}</p><div class="course" id="course">${blocks}</div>${links ? `<div class="linked"><h3>Linked pages</h3><div class="chips">${links}</div></div>` : ''}<div class="doc-foot"><span>${esc(loc.book.title)}, chapter ${loc.chapter.number}</span>${nextBtn}</div>`;
     $$('#course [data-fig]').forEach(el => { const f = window.OCTET_FIGURES[el.dataset.fig]; if (f) f.wire(el, reduce); });
+    window.OCTET_BLOCKS.wire($('#course'), { api });
   };
 
-  // Answer a question in the text.
-  lb.addEventListener('click', safe(async e => {
-    const opt = e.target.closest('.ask .opt'); if (!opt) return;
-    const ask = opt.closest('.ask'), block = +ask.dataset.q;
-    const r = await api('answer', { page: PAGE.page.id, block, choice: +opt.dataset.c });
-    ask.querySelectorAll('.opt').forEach(o => { o.classList.remove('ok', 'no'); o.disabled = true; });
-    opt.classList.add(r.correct ? 'ok' : 'no');
-    if (!r.correct) ask.querySelector(`.opt[data-c="${r.answer}"]`).classList.add('ok');
-    ask.querySelector('.fb').textContent = `${r.correct ? 'Right.' : 'Not quite.'} ${r.why} It comes back ${r.next.toLowerCase()}.${r.correct ? '' : ' Saved to Things I got wrong.'}`;
+  // Answer something in the text. Every answer becomes a review card.
+  const said = (box, r) => {
+    box.querySelector('.fb').textContent = `${r.correct ? 'Right.' : 'Not quite.'}${r.why ? ' ' + r.why : ''} It comes back ${r.next.toLowerCase()}.${r.correct ? '' : ' Saved to Things I got wrong.'}`;
     refresh();
+  };
+  lb.addEventListener('click', safe(async e => {
+    const opt = e.target.closest('.ask .opt'), check = e.target.closest('.ask [data-check]');
+    const knew = e.target.closest('.recall [data-knew]'), showR = e.target.closest('.recall [data-recall]');
+    if (showR) { const r = showR.closest('.recall'); showR.hidden = true; r.querySelector('.back').hidden = false; return; }
+    if (knew) {
+      const box = knew.closest('.recall'), r = await api('answer', { page: PAGE.page.id, block: +box.dataset.q, knew: knew.dataset.knew === '1' });
+      box.querySelectorAll('[data-knew]').forEach(o => { o.disabled = true; o.classList.toggle('ok', o === knew && r.correct); o.classList.toggle('no', o === knew && !r.correct); });
+      return said(box, r);
+    }
+    if (!opt && !check) return;
+    const ask = (opt || check).closest('.ask'), block = +ask.dataset.q, multi = +ask.dataset.multi || 0;
+    if (opt && multi) {
+      if (opt.disabled) return;
+      opt.classList.toggle('picked');
+      ask.querySelector('[data-check]').disabled = ask.querySelectorAll('.opt.picked').length !== multi;
+      return;
+    }
+    const picked = multi ? [...ask.querySelectorAll('.opt.picked')].map(o => +o.dataset.c) : [+opt.dataset.c];
+    const r = await api('answer', multi ? { page: PAGE.page.id, block, choices: picked } : { page: PAGE.page.id, block, choice: picked[0] });
+    const right = [].concat(r.answer);
+    ask.querySelectorAll('.opt').forEach(o => {
+      const c = +o.dataset.c; o.disabled = true; o.classList.remove('ok', 'no', 'picked');
+      if (right.includes(c)) o.classList.add('ok'); else if (picked.includes(c)) o.classList.add('no');
+    });
+    if (check) check.hidden = true;
+    said(ask, r);
+  }));
+  lb.addEventListener('keydown', safe(async e => {
+    const inp = e.target.closest && e.target.closest('.cmdq input');
+    if (!inp || e.key !== 'Enter' || !inp.value.trim() || inp.disabled) return;
+    e.preventDefault();
+    const box = inp.closest('.cmdq'), r = await api('answer', { page: PAGE.page.id, block: +box.dataset.q, text: inp.value });
+    inp.disabled = true; box.classList.add(r.correct ? 'good' : 'bad');
+    if (!r.correct) box.querySelector('.fb').insertAdjacentHTML('beforebegin', `<p class="cmd-ans"><span>The command is</span> <code>${esc(r.answer)}</code></p>`);
+    said(box, r);
+  }));
+  // Keep a block of device output in Show commands.
+  lb.addEventListener('click', safe(async e => {
+    const k = e.target.closest('[data-keep]'); if (!k) return;
+    const b = PAGE.page.blocks[+k.dataset.keep];
+    await api('collect', { collection: 'commands', kind: 'command', text: b.lines.join('\n'), source: PAGE.page.meta.title });
+    k.textContent = 'Collected'; k.disabled = true; refresh();
   }));
 
   // Notes save when you leave them.
@@ -248,12 +292,111 @@
       return;
     }
     const c = DUE[ci]; revealed = false;
-    card.innerHTML = `<p class="q">${esc(c.prompt)}</p><button class="reveal" type="button" id="rv"><span class="k">Space</span>Show answer</button><div class="ans" id="an" hidden><p style="margin:0;font:600 17px var(--f-ui);color:var(--ink)">${esc(c.answer)}</p><p>${esc(c.why)}</p><div class="grades">${['Again', 'Hard', 'Good', 'Easy'].map((g, i) => `<button type="button" data-g="${g.toLowerCase()}"><b>${g} <span class="k">${i + 1}</span></b><span>${esc(c.previews[i])}</span></button>`).join('')}</div></div><div class="card-meta"><span>From ${esc(c.source)}</span><span>${ci + 1} of ${DUE.length}</span></div>`;
+    const typed = c.kind === 'command'
+      ? `<label class="cmdline rv-cmd"><span class="pr">${esc(c.mode || '#')}</span><input id="rvIn" type="text" spellcheck="false" autocomplete="off" aria-label="Type the command" placeholder="Type it, then Enter"></label>`
+      : '';
+    const ansText = c.kind === 'command' ? `<code class="rv-code">${esc(c.answer)}</code>` : esc(c.answer);
+    card.innerHTML = `<p class="q">${esc(c.prompt)}</p>${typed}<p class="rv-mark" id="rvMark" hidden></p><button class="reveal" type="button" id="rv"><span class="k">${c.kind === 'command' ? 'Enter' : 'Space'}</span>${c.kind === 'command' ? 'Check' : 'Show answer'}</button><div class="ans" id="an" hidden><p style="margin:0;font:600 17px var(--f-ui);color:var(--ink)">${ansText}</p>${c.why ? `<p>${esc(c.why)}</p>` : ''}<div class="grades">${['Again', 'Hard', 'Good', 'Easy'].map((g, i) => `<button type="button" data-g="${g.toLowerCase()}"><b>${g} <span class="k">${i + 1}</span></b><span>${esc(c.previews[i])}</span></button>`).join('')}</div></div><div class="card-meta"><span>From ${esc(c.source)}</span><span>${ci + 1} of ${DUE.length}</span></div>`;
   };
-  const openReview = safe(async () => { DUE = await api('review_due'); ci = 0; renderCard(); show('review'); });
-  const reveal = () => { if (revealed || ci >= DUE.length) return; revealed = true; $('#an').hidden = false; $('#rv').hidden = true; };
-  const grade = safe(async g => { await api('review_grade', { id: DUE[ci].id, grade: g }); ci++; renderCard(); refresh(); });
+  const openReview = safe(async () => { DUE = await api('review_due'); ci = 0; renderCard(); show('review'); const i = $('#rvIn'); if (i) i.focus(); });
+  const reveal = safe(async () => {
+    if (revealed || ci >= DUE.length) return;
+    const c = DUE[ci], i = $('#rvIn');
+    if (c.kind === 'command' && i && i.value.trim()) {
+      const r = await api('check_command', { id: c.id, text: i.value });
+      const m = $('#rvMark'); m.hidden = false; m.className = 'rv-mark ' + (r.correct ? 'good' : 'bad');
+      m.textContent = r.correct ? 'Right. Grade how easily it came.' : 'Not that. Compare with the answer below.';
+      i.disabled = true;
+    }
+    revealed = true; $('#an').hidden = false; $('#rv').hidden = true; lb.focus({ preventScroll: true });
+  });
+  const grade = safe(async g => { await api('review_grade', { id: DUE[ci].id, grade: g }); ci++; renderCard(); refresh(); const i = $('#rvIn'); if (i) i.focus(); });
+  $('#card').addEventListener('keydown', e => { if (e.target.id === 'rvIn' && e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); reveal(); } });
   $('#card').addEventListener('click', e => { if (e.target.closest('#rv')) reveal(); const g = e.target.closest('[data-g]'); if (g) grade(g.dataset.g); });
+
+  /* ---------- settings ---------- */
+  const CLOTHS = ['teal', 'plum', 'ochre', 'navy', 'moss', 'brick', 'slate', 'linen', 'graphite', 'rose'];
+  const PATTERNS = ['rings', 'traces', 'grid', 'bits', 'waves', 'stripes', 'dots', 'plain'];
+  const cap = w => w[0].toUpperCase() + w.slice(1);
+  let CHECK = null, PICK = null, recover = null;
+  const miniCover = (b, cls = '') => `<span class="cover mini c-${esc(b.cloth)} ${cls}">${coverSVG(b.pattern)}<span><span class="t">${esc(b.title)}</span></span></span>`;
+  const coverPicker = (cloth, pattern) => `<div class="pick"><span class="pick-l">Cloth</span><div class="swatches" role="radiogroup" aria-label="Cloth">${CLOTHS.map(c => `<button type="button" role="radio" class="sw c-${c}" data-cloth="${c}" aria-checked="${c === cloth}" title="${cap(c)}"></button>`).join('')}</div><span class="pick-l">Pattern</span><div class="pats" role="radiogroup" aria-label="Pattern">${PATTERNS.map(x => `<button type="button" role="radio" class="pat" data-pattern="${x}" aria-checked="${x === pattern}">${cap(x)}</button>`).join('')}</div></div>`;
+  const renderCheck = () => {
+    const out = $('#bkOut'); if (!out) return;
+    if (!CHECK) { out.innerHTML = ''; return; }
+    if (!CHECK.ok) {
+      out.innerHTML = `<div class="bk-res bad"><b>Octet can't read it yet</b><ul>${CHECK.problems.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p>Paste these back to the assistant and ask it to fix them, or fix them in the box above.</p><button class="btn line" type="button" data-set="copy-problems">Copy the problems</button></div>`;
+      return;
+    }
+    const c = CHECK, b = { title: c.title, cloth: PICK.cloth, pattern: PICK.pattern };
+    out.innerHTML = `<div class="bk-res"><div class="bk-prev">${miniCover(b, 'big')}</div><div class="bk-info"><b>${esc(c.title)}</b><span>${esc(c.short)}. ${c.chapters.length} chapter${c.chapters.length === 1 ? '' : 's'}, ${c.pages} page${c.pages === 1 ? '' : 's'}, ${c.asks} thing${c.asks === 1 ? '' : 's'} to answer.</span><ol class="bk-chs">${c.chapters.map(ch => `<li><span>${ch.number}</span>${esc(ch.title)}<i>${ch.pages} page${ch.pages === 1 ? '' : 's'}</i></li>`).join('')}</ol>${coverPicker(PICK.cloth, PICK.pattern)}<div class="bk-go"><button class="btn pri" type="button" data-set="import">${c.updates ? `Add to ${esc(c.updates)}` : 'Put it on my shelf'}</button>${c.updates ? `<span>${c.shipped ? 'Your chapters sit on top of the shipped ones. You can undo them any time.' : 'The chapters in this text replace the same chapters in your book. The others stay.'}</span>` : ''}</div></div></div>`;
+  };
+  const renderSettings = about => {
+    $('#setIn').innerHTML = `<div class="lib-head"><h1>Settings</h1><p>Everything Octet keeps is on this computer.</p></div>
+      <section class="set-sec"><h2>Add a book of your own</h2><p class="set-p">Turn your class PDFs into a book on your shelf, with the same reader, highlights, questions and review as the others. An assistant reads the PDF and writes the pages in Octet's format. You paste its answer here.</p>
+        <ol class="steps">
+          <li><div><b>Copy the prompt</b><span>It tells the assistant exactly how Octet's pages are written.</span><div class="row"><button class="btn line" type="button" data-set="copy-prompt">Copy the prompt</button><button class="btn ghost" type="button" data-set="show-prompt">Read it first</button></div><pre class="prompt" id="promptText" hidden></pre></div></li>
+          <li><div><b>Give it your PDF</b><span>Open Claude, or another assistant that reads PDFs. Attach your PDF and paste the prompt. For a long PDF, ask for one chapter at a time; each answer adds that chapter to the same book.</span></div></li>
+          <li><div><b>Paste the answer</b><span>Paste the assistant's whole answer, then check it. Nothing is added until you say so.</span><textarea id="bkText" spellcheck="false" placeholder="=== book ===&#10;id = &quot;my-notes&quot;&#10;title = &quot;…&quot;"></textarea><div class="row"><button class="btn pri" type="button" data-set="check">Check it</button><button class="btn ghost" type="button" data-set="clear">Clear</button></div></div></li>
+        </ol>
+        <div id="bkOut"></div>
+      </section>
+      <section class="set-sec"><h2>Books on your shelf</h2><p class="set-p">Any book can grow. Copy it as text, give it to an assistant with your notes or a newer PDF, and paste the answer above. Your chapters replace the same chapters; everything else stays.</p><div class="mybooks">${LIB.books.map(b => `<div class="mybook" data-id="${esc(b.id)}">${miniCover(b)}<div class="mb-t"><b>${esc(b.title)}</b><span>${b.yours ? 'Added by you' : b.changed ? 'Ships with Octet, with your changes' : 'Ships with Octet'}. ${b.pages} page${b.pages === 1 ? '' : 's'}${b.read ? `, ${b.read} read` : ''}.</span></div><div class="row"><button class="btn ghost" type="button" data-set="recover">Change the cover</button><button class="btn ghost" type="button" data-set="export">Copy as text</button>${b.yours ? '<button class="btn ghost danger" type="button" data-set="remove">Remove</button>' : b.changed ? '<button class="btn ghost danger" type="button" data-set="remove">Undo my changes</button>' : ''}</div>${recover === b.id ? `<div class="mb-pick">${coverPicker(b.cloth, b.pattern)}</div>` : ''}</div>`).join('')}</div>${(LIB.broken || []).length ? `<div class="bk-res bad"><b>Some of your books couldn't be read</b><ul>${LIB.broken.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}</section>
+      <section class="set-sec"><h2>Where your things are</h2><dl class="where"><dt>Highlights, notes, review and labs</dt><dd>${esc(about.data)}</dd><dt>Books you added</dt><dd>${esc(about.books)}</dd><dt>Version</dt><dd>Octet ${esc(about.version)}</dd></dl></section>`;
+    renderCheck();
+  };
+  let ABOUT = null;
+  const openSettings = safe(async () => { ABOUT = ABOUT || await api('about'); renderSettings(ABOUT); show('settings'); where('Settings'); });
+  const copy = async (text, said) => { try { await navigator.clipboard.writeText(text); toast(said); } catch { toast("Couldn't reach the clipboard."); } };
+  $('#setIn').addEventListener('click', safe(async e => {
+    const sw = e.target.closest('[data-cloth]'), pt = e.target.closest('[data-pattern]');
+    const mb = e.target.closest('.mybook');
+    if ((sw || pt) && mb) {
+      const b = LIB.books.find(x => x.id === mb.dataset.id);
+      await api('book_cover', { id: b.id, cloth: sw ? sw.dataset.cloth : b.cloth, pattern: pt ? pt.dataset.pattern : b.pattern });
+      await refresh(); renderSettings(ABOUT); return;
+    }
+    if (sw || pt) { if (sw) PICK.cloth = sw.dataset.cloth; if (pt) PICK.pattern = pt.dataset.pattern; renderCheck(); return; }
+    const a = e.target.closest('[data-set]'); if (!a) return;
+    const act = a.dataset.set;
+    if (act === 'copy-prompt') copy(await api('book_prompt'), 'Prompt copied. Paste it into your assistant with your PDF.');
+    else if (act === 'show-prompt') { const pre = $('#promptText'); if (pre.hidden) pre.textContent = await api('book_prompt'); pre.hidden = !pre.hidden; a.textContent = pre.hidden ? 'Read it first' : 'Hide it'; }
+    else if (act === 'clear') { $('#bkText').value = ''; CHECK = null; renderCheck(); }
+    else if (act === 'check') {
+      const text = $('#bkText').value; if (!text.trim()) { toast('Paste the answer first.'); return; }
+      CHECK = await api('book_check', { text }); if (CHECK.ok) PICK = { cloth: CHECK.cloth, pattern: CHECK.pattern };
+      renderCheck(); $('#bkOut').scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' });
+    } else if (act === 'copy-problems') copy('Octet could not read the book yet. Please fix these and send the whole book again:\n' + CHECK.problems.map(x => '- ' + x).join('\n'), 'Problems copied.');
+    else if (act === 'import') {
+      const r = await api('book_import', { text: $('#bkText').value, cloth: PICK.cloth, pattern: PICK.pattern });
+      const title = CHECK.updates || CHECK.title;
+      $('#bkText').value = ''; CHECK = null; await refresh(); renderSettings(ABOUT); toast(`${title} is on your shelf.`);
+      void r;
+    } else if (act === 'recover') { recover = recover === mb.dataset.id ? null : mb.dataset.id; renderSettings(ABOUT); }
+    else if (act === 'export') copy(await api('book_export', { id: mb.dataset.id }), 'The whole book is copied as text.');
+    else if (act === 'remove') {
+      const b = LIB.books.find(x => x.id === mb.dataset.id), was = a.textContent;
+      if (a.dataset.sure !== '1') { a.dataset.sure = '1'; a.textContent = b.yours ? 'Remove for good' : 'Undo them for good'; setTimeout(() => { if (a.isConnected) { a.dataset.sure = ''; a.textContent = was; } }, 4000); return; }
+      await api('book_remove', { id: b.id }); await refresh(); renderSettings(ABOUT);
+      toast(b.yours ? `${b.title} is off your shelf. Your notes on it stay saved.` : `${b.title} is back to the shipped pages.`);
+    }
+  }));
+
+  /* ---------- hiding the sidebars ---------- */
+  const panes = { side: store.get('octet-side') !== 'hidden', list: store.get('octet-list') !== 'hidden' };
+  const setPane = (k, on) => {
+    panes[k] = on; lb.classList.toggle('no-' + k, !on); store.set('octet-' + k, on ? 'shown' : 'hidden');
+    const b = k === 'side' ? $('#tbSide') : $('#listBtn');
+    if (b) { b.setAttribute('aria-pressed', String(!on)); b.title = (on ? 'Hide ' : 'Show ') + (k === 'side' ? 'the sidebar (Ctrl B)' : 'the page list (Ctrl Shift B)'); }
+  };
+  setPane('side', panes.side); setPane('list', panes.list);
+  $('#tbSide').addEventListener('click', () => setPane('side', !panes.side));
+  $('#listBtn').addEventListener('click', () => setPane('list', !panes.list));
+  document.addEventListener('keydown', e => {
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'b' || labOn) return;
+    e.preventDefault();
+    if (e.shiftKey) setPane('list', !panes.list); else setPane('side', !panes.side);
+  });
 
   /* ---------- lab ---------- */
   const labw = $('#labw'), cv = $('#cv'), cvLinks = $('#cvLinks');
@@ -460,6 +603,7 @@
       const v = go.dataset.go;
       if (v === 'library') { await refresh(); renderLibrary(); }
       else if (v === 'review') openReview();
+      else if (v === 'settings') openSettings();
       else if (v === 'reading') { const r = LIB.ribbon || (allPages()[0] && { page: allPages()[0].id }); if (r) openPage(r.page, r.block); }
       return;
     }
@@ -467,7 +611,7 @@
     if (next) { await api('mark_read', { page: PAGE.page.id }); await refresh(); if (next.dataset.lab) openLab(next.dataset.lab); else openPage(next.dataset.next); return; }
     if (t.closest('[data-done]')) { await api('mark_read', { page: PAGE.page.id }); await refresh(); renderLibrary(); return; }
     const lab = t.closest('[data-lab]'); if (lab) { openLab(lab.dataset.lab); return; }
-    const open = t.closest('[data-open]'); if (open) { openPage(open.dataset.open, open.dataset.block ? +open.dataset.block : undefined); return; }
+    const open = t.closest('[data-open]'); if (open) { e.preventDefault(); openPage(open.dataset.open, open.dataset.block ? +open.dataset.block : undefined); return; }
     const book = t.closest('[data-book]'); if (book) { openBook(book.dataset.book); return; }
     const col = t.closest('[data-col]'); if (col) openCollection(col.dataset.col);
   }));
@@ -531,6 +675,9 @@
       items.push({ label: 'Library', run: () => lb.querySelector('[data-go="library"]').click() });
       items.push({ label: 'Reading now', run: () => lb.querySelector('[data-go="reading"]').click() });
       items.push({ label: 'Review', run: () => lb.querySelector('[data-go="review"]').click() });
+      items.push('-', { label: panes.side ? 'Hide the sidebar' : 'Show the sidebar', key: 'Ctrl B', run: () => setPane('side', !panes.side) });
+      if (cur === 'reading') items.push({ label: panes.list ? 'Hide the page list' : 'Show the page list', key: 'Ctrl Shift B', run: () => setPane('list', !panes.list) });
+      items.push({ label: 'Settings', run: () => openSettings() });
       items.push('-', { label: lb.dataset.theme === 'dark' ? 'Light theme' : 'Dark theme', run: () => setTheme(lb.dataset.theme === 'dark' ? 'light' : 'dark') });
     }
     openCtx(e.clientX, e.clientY, items);

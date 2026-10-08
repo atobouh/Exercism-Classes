@@ -1,5 +1,6 @@
 //! Octet's library: the books, what you keep from them, and spaced review.
 
+pub mod bundle;
 pub mod content;
 pub mod review;
 pub mod store;

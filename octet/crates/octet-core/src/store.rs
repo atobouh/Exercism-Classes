@@ -139,6 +139,10 @@ impl Store {
         fs::rename(&tmp, &self.path).map_err(io)
     }
 
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
     fn id(&mut self) -> u64 {
         let id = self.data.next_id;
         self.data.next_id += 1;

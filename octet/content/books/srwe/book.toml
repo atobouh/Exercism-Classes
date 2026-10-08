@@ -1,7 +1,8 @@
 id = "srwe"
 title = "Switching, Routing and Wireless"
 short = "CCNA 2"
-cloth = "srwe"
+cloth = "plum"
+pattern = "traces"
 
 [[chapter]]
 number = 1

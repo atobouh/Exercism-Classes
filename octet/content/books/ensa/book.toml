@@ -1,7 +1,8 @@
 id = "ensa"
 title = "Enterprise Networking, Security and Automation"
 short = "CCNA 3"
-cloth = "ensa"
+cloth = "ochre"
+pattern = "grid"
 
 [[chapter]]
 number = 1
