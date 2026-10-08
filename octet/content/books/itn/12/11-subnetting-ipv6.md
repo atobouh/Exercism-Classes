@@ -57,6 +57,12 @@ links = [
 ]
 ```
 
+## Checking the plan before you type
+
+Before configuring, read the table back for mistakes. Each subnet ID should appear once, since two networks with the same /64 cannot both be routed. Every router address should sit inside the subnet of the interface it is on. A router-link address of `2001:db8:acad:5::1/64` belongs to subnet 5, so the other end must also be in subnet 5, here `2001:db8:acad:5::2/64`. A typo that puts the far end in subnet 6 would leave both routers up and neither able to reach the other.
+
+Keep a spare subnet or two in the table and leave gaps if you expect growth. With 65,536 subnets in a /48 you can afford to reserve whole ranges, for example subnets 1 to 9 for the head office and `a` to `f` for a branch, so that a glance at the fourth hextet tells you where an address belongs.
+
 ## Configuring from the plan
 
 The plan turns directly into commands. On R1:

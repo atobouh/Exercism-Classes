@@ -25,7 +25,7 @@ The *prefix length* writes that point as a number. `192.168.10.10/24` means the 
 | /29 | 255.255.255.248 | 3 |
 | /30 | 255.255.255.252 | 2 |
 
-The host bits column is simply 32 minus the prefix. You will use it constantly.
+The host bits column is 32 minus the prefix. You will use it constantly.
 
 ## The logical AND
 

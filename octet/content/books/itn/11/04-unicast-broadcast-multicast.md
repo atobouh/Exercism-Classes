@@ -18,7 +18,7 @@ A *broadcast* goes from one sender to every host on a network. ARP requests are 
 
 **Limited broadcast** is the address `255.255.255.255`. It means "everyone on my own network" and it never leaves. A router that receives one does not forward it. A host booting up with no address yet uses it, for instance to find a DHCP server.
 
-**Directed broadcast** targets a specific network, and is made of that network with all host bits set to 1. For `172.16.4.0/24` the directed broadcast is `172.16.4.255`. A host elsewhere could send a packet to it, and it would be routed to that network and delivered to everyone there. This is also just the ordinary broadcast address from the last page, seen from the outside.
+**Directed broadcast** targets a specific network, and is made of that network with all host bits set to 1. For `172.16.4.0/24` the directed broadcast is `172.16.4.255`. A host elsewhere could send a packet to it, and a router that allows directed broadcasts would deliver it to everyone on that network. It is the same address as the ordinary broadcast from the last page, seen from outside the network.
 
 Directed broadcasts are a known way to amplify attacks, so Cisco IOS does not forward them by default. The interface setting is `no ip directed-broadcast`, and it is already the default.
 
@@ -52,7 +52,7 @@ A host *joins* a group by telling the network it wants that address. Until it do
 prompt = "Which destination address is a directed broadcast for the network 10.5.0.0/16?"
 options = ["10.5.0.255", "10.5.255.255", "255.255.255.255", "224.5.255.255"]
 answer = 1
-why = "A directed broadcast sets all host bits to 1. With a /16 the host bits are the last two octets, giving 10.5.255.255. 10.5.0.255 is just an ordinary host address in this network."
+why = "A directed broadcast sets all host bits to 1. With a /16 the host bits are the last two octets, giving 10.5.255.255. 10.5.0.255 is an ordinary host address in this network."
 ```
 
 ```question

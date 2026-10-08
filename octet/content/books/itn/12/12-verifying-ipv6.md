@@ -78,6 +78,17 @@ Ethernet adapter Ethernet:
 
 You can check three things at once. The prefix on the global address should match the subnet. A link-local address is present. The default gateway is the router's link-local address, here `fe80::1`.
 
+## Working through it in order
+
+Run the checks in the same order each time, from the bottom layer up, so you stop at the first thing that is wrong.
+
+1. `show ipv6 interface brief`: is each interface `[up/up]`, and does each have the address you meant to give it?
+2. `show ipv6 route`: is there a `C` route for each directly connected subnet? An interface that is not up leaves no route.
+3. Ping the router's own address on the host's subnet, then a host on the same subnet, then a host across the router.
+4. On the host, `ipconfig`: does its global address share the router's prefix, and is its gateway the router's link-local address?
+
+If the ping to the router works but the ping across it fails, the fault is further along the path, such as a missing route on the far router. If even the first ping fails, the fault is on the local link: a shut interface, a wrong prefix, or a cable.
+
 ## Common faults
 
 | Symptom | Likely cause |

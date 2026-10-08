@@ -59,7 +59,7 @@ why = "A /25 splits the last octet at 128. 130 falls in the upper half, which st
 
 ## You cannot assign the first or last
 
-A common misconception is that the network address and broadcast address are just two more addresses to hand out. They are not. A host given the broadcast address would receive traffic meant for everyone, and a host given the network address would be confused with the subnet itself. Operating systems and routers refuse or misbehave with them, so treat them as off limits.
+A common misconception is that the network address and broadcast address are two more addresses to hand out. They are not. A host given the broadcast address would receive traffic meant for everyone, and a host given the network address would be confused with the subnet itself. Treat both as off limits: a host configured with one of them shows faults that are hard to trace.
 
 ```trap
 In 192.168.10.0/24, the addresses 192.168.10.0 and 192.168.10.255 are not usable by hosts. In 10.1.1.0/25 the same is true of 10.1.1.0 and 10.1.1.127. The pattern holds in every subnet, whatever its size.

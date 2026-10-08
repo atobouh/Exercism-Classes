@@ -53,7 +53,7 @@ An IPv4 address has a network part, shared by every device on that network, and 
 
 ## Practice makes it fast
 
-Subnetting is the most practiced skill in the CCNA. The ideas are not hard, but speed comes only from repetition. So these pages carry `drill` blocks that generate endless fresh problems. They are never graded. Do a few each time you pass one, and the calculations will start to feel like reading rather than arithmetic.
+Subnetting is one of the most practiced skills in the CCNA. The ideas are not hard, but speed comes only from repetition. So these pages carry `drill` blocks that generate endless fresh problems. They are never graded. Do a few each time you pass one, and the calculations will start to feel like reading rather than arithmetic.
 
 ```recall
 front = "What are the two parts of an IPv4 address?"

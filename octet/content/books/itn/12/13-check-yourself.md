@@ -8,6 +8,8 @@ This page pulls the chapter together. Work through the questions without looking
 
 ## Notation
 
+Every question below has one best answer. For the address questions, expand the address in your head to eight hextets before you decide. That one habit catches most mistakes with `::`.
+
 ```question
 prompt = "Which is the correct fully compressed form of 2001:0db8:0000:0000:0001:0000:0000:0001?"
 options = ["2001:db8::1::1", "2001:db8::1:0:0:1", "2001:db8:0:0:1::1", "2001:db8::1"]
@@ -19,7 +21,7 @@ why = "The two zero runs are the same length, so the leftmost is compressed. Usi
 prompt = "Which address is written correctly?"
 options = ["2001:db8:acad::10::1", "2001:db8:0:1::10", "2001:db8:acad:1:::10", "2001:db8:acad:1:0:0:0:0:10"]
 answer = 1
-why = "2001:db8:0:1::10 has seven hextets' worth of fields plus one ::, which expands to eight. The others use :: twice, use three colons, or have nine hextets."
+why = "2001:db8:0:1::10 writes five hextets and one ::, which fills the other three to reach eight. The others use :: twice, use three colons, or expand to nine hextets."
 ```
 
 ```question
@@ -65,7 +67,7 @@ why = "DHCPv6 does not supply a gateway. Hosts learn it from the RA even when th
 
 ```question
 prompt = "What is the EUI-64 interface ID for MAC address 0a00.2700.0010?"
-options = ["0a00:27ff:fe00:0010", "0800:27ff:fe00:0010", "0a00:2700:fffe:0010", "0a00:27ff:fe00:0010 with the first byte flipped to 0b"]
+options = ["0a00:27ff:fe00:0010", "0800:27ff:fe00:0010", "0a00:2700:fffe:0010", "0b00:27ff:fe00:0010"]
 answer = 1
 why = "Insert fffe in the middle, then flip the seventh bit of 0a. 0a is 0000 1010, and flipping the bit worth 2 gives 0000 1000, which is 08."
 ```
@@ -91,6 +93,19 @@ why = "The subnet ID is hexadecimal and counts 1d, 1e, 1f, 20. There is no g in 
 ```drill
 ipv6
 ```
+
+## Address types in a table
+
+If any answer above surprised you, this summary is worth a slow read before you move on.
+
+| Address | Type | Where it works |
+| --- | --- | --- |
+| `2001:db8:acad:1::10` | Global unicast | Anywhere it is routed |
+| `fe80::1` | Link-local | One link only |
+| `fd12:3456:789a:1::1` | Unique local | Inside one organization |
+| `ff02::1` | Multicast, all nodes | The local link |
+| `::1` | Loopback | The device itself |
+| `::` | Unspecified | A source before an address is set |
 
 ## Cards to keep
 
