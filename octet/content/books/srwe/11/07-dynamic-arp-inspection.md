@@ -36,7 +36,7 @@ answer = ["ip arp inspection vlan 10"]
 why = "DAI is enabled per VLAN, with the VLAN number in the command."
 ```
 
-Trust the uplinks because ARP that arrives there was already inspected by the switch on the other side (or comes from a router you control). Leaving the uplink untrusted makes the switch check ARP from the gateway itself against a binding table that has no entry for it, and the gateway's ARP is dropped.
+Trust the uplinks because the ARP that arrives there comes from other switches or a router, which the switch has no binding for. Left untrusted, those ARP messages fail the check and are dropped, and hosts lose contact with the gateway.
 
 ## Extra checks
 
@@ -62,12 +62,7 @@ Untrusted ports are rate limited to 15 ARP packets per second by default. A port
 
 A host with a static IP address never used DHCP, so it has no binding. Its ARP messages are dropped as forged. Handle such hosts in one of two ways: make the port they use trusted, or write an ARP access list (`arp access-list`) that names the allowed IP and MAC pair and apply it with `ip arp inspection filter`. Servers, printers and routers with fixed addresses are the usual cases.
 
-```console S1
-S1# show ip arp inspection
-...
-```
-
-`show ip arp inspection` and `show ip arp inspection statistics` display what was forwarded and dropped per VLAN.
+Afterward, `show ip arp inspection` and `show ip arp inspection statistics` display what was forwarded and dropped per VLAN.
 
 ```question
 prompt = "A printer with a static address 192.168.10.50 sits on an untrusted port in a DAI-protected VLAN. What happens to its ARP?"
