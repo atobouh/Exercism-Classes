@@ -23,7 +23,7 @@ R1(config)# service password-encryption
 R1(config)# banner motd #Authorized access only#
 ```
 
-`enable secret` stores a hash. `service password-encryption` only scrambles the plain-text passwords on lines, in a form that is easily reversed, so treat it as a screen against a casual glance, not as security. For remote access, follow [SSH instead of Telnet](srwe/01/05-ssh-instead-of-telnet), which works the same way on a router.
+`enable secret` stores a hash. `service password-encryption` only scrambles the plain-text passwords on lines, in a form that is quick to reverse, so treat it as a screen against a casual glance, not as security. For remote access, follow [SSH instead of Telnet](srwe/01/05-ssh-instead-of-telnet), which works the same way on a router.
 
 ## Router interfaces
 
@@ -50,6 +50,8 @@ The `link-local` keyword replaces the automatically generated address with `fe80
 ```drill
 ipv6
 ```
+
+Compare this with a switch port, where a new cable brings the port up on its own. A router never assumes. Each interface you want in use needs an address, and `no shutdown`, and a cable that leads somewhere. If a log line does not appear after `no shutdown`, the interface is waiting for the far end, so check the cable and the device on the other side before you change the configuration.
 
 ## Making the router forward IPv6
 
@@ -81,6 +83,8 @@ R1(config-if)# ip address 10.0.0.1 255.255.255.255
 ```
 
 Loopbacks are used to test routing when no real link exists and later as a stable identity for the router, because the address stays up as long as the router does.
+
+A router carries a second, separate setting for addresses: the loopback address in this example uses a /32 mask because nothing else will ever share that "link". Real interfaces use the mask of the network they sit on.
 
 ## Save it
 

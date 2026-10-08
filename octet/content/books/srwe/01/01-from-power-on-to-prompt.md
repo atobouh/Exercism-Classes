@@ -4,7 +4,7 @@ summary = "What a Cisco switch does between the moment you plug it in and the mo
 links = ["itn/02/01-a-switch-out-of-the-box", "itn/02/06-saving-the-configuration", "srwe/01/02-the-switch-management-interface"]
 +++
 
-A small office has just received a new Catalyst 2960 for its second floor. It has two LANs and one router, and by the end of this chapter both boxes will be named, addressed, reachable over SSH and checked with `show` commands. Before you can configure anything, though, the switch has to start up, and sometimes it does not. Knowing what it does between power and prompt tells you where to look when it stays dark.
+A small office has received a new Catalyst 2960 for its second floor. It has two LANs and one router, and by the end of this chapter both boxes will be named, addressed, reachable over SSH and checked with `show` commands. Before you can configure anything, though, the switch has to start up, and sometimes it does not. Knowing what it does between power and prompt tells you where to look when it stays dark.
 
 You met the switch's first minutes in [a switch out of the box](itn/02/01-a-switch-out-of-the-box). This page goes underneath: the steps in order, the lights that report them, and the way back when the image is missing.
 
