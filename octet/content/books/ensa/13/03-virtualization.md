@@ -1,7 +1,7 @@
 +++
 title = "Virtualization and hypervisors"
 summary = "A hypervisor lets one physical server run many virtual machines, each with its own operating system."
-links = ["ensa/13/01-from-server-room-to-cloud", "ensa/13/04-containers-and-vrfs", "ensa/13/05-virtual-network-infrastructure", "field/09/02-hypervisors-and-virtual-machines"]
+links = ["ensa/13/01-from-server-room-to-cloud", "ensa/13/04-containers-and-vrfs", "ensa/13/05-virtual-network-infrastructure"]
 +++
 
 Normally an operating system owns the hardware under it. It talks to the processor, the memory, the disk and the network card directly, and only one operating system can do that at a time. *Virtualization* breaks that link. It puts a layer of software between the hardware and the operating systems, so several of them can share one machine, each unaware of the others. Each operating system, together with its applications, is packaged as a *virtual machine* (VM). This page explains why that is worth doing and the two ways the layer is built.

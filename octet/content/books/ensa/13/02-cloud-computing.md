@@ -1,7 +1,7 @@
 +++
 title = "Cloud computing"
 summary = "Software, platforms and infrastructure delivered as services, from public, private, hybrid or community clouds."
-links = ["ensa/13/01-from-server-room-to-cloud", "ensa/13/03-virtualization", "ensa/11/06-other-topologies", "field/09/07-cloud-computing"]
+links = ["ensa/13/01-from-server-room-to-cloud", "ensa/13/03-virtualization", "ensa/11/06-other-topologies"]
 +++
 
 You already use the cloud. Webmail, shared documents and online photo storage all run on machines you never see. Behind those examples is a general idea: instead of buying and running equipment, you rent a service and pay for what you use. The US standards body NIST gives the most widely quoted definition (NIST SP 800-145). Its five essential characteristics are on-demand self-service, broad network access, resource pooling, rapid elasticity and measured service. This page covers the three service models, which describe what you rent, and the four deployment models, which describe who owns and shares the cloud.

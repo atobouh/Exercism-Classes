@@ -1,7 +1,7 @@
 +++
 title = "Software-defined networking"
 summary = "A controller sits between applications and devices, talking north to software and south to switches and routers."
-links = ["ensa/13/06-control-and-data-planes", "ensa/13/08-controllers", "field/10/03-northbound-and-southbound-apis", "field/10/04-underlay-overlay-fabric"]
+links = ["ensa/13/06-control-and-data-planes", "ensa/13/08-controllers"]
 +++
 
 Once the control plane lives in a controller, the controller needs ways to talk to both sides. Above it are the programs that say what the network should do. Below it are the switches and routers that must do it. Those two conversations use different interfaces, named by where they sit on the diagram. This page lays out the layers, the two kinds of API, and a few words that come up whenever SDN is discussed.
