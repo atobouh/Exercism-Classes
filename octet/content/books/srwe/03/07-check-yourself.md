@@ -4,7 +4,7 @@ summary = "Mixed questions and a two-switch build that pull together VLANs, acce
 links = ["srwe/03/02-assigning-ports", "srwe/03/03-vlan-trunks", "srwe/03/06-dynamic-trunking-protocol", "srwe/03/08-lab-router-on-a-stick"]
 +++
 
-This page ties the chapter together. First you build a small network from nothing and read the output that proves it works. Then a set of mixed questions check the details that are easy to confuse: ranges, tag sizes, deleted VLANs and negotiation.
+This page ties the chapter together. First you build a small network from nothing and read the output that proves it works. Then a set of mixed questions check the details people often confuse: ranges, tag sizes, deleted VLANs and negotiation.
 
 ## The build
 

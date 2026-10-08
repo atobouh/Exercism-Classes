@@ -66,7 +66,7 @@ You will configure a voice VLAN on the [next page](srwe/03/02-assigning-ports) a
 
 ## VLAN 1 is not special
 
-Because every port starts in VLAN 1, it is easy to assume that VLAN 1 is the safe, official place for things. It is not. VLAN 1 is only the default, and it carries control traffic such as CDP and spanning tree by default. Leaving users, management and the native VLAN all in VLAN 1 mixes everything together, which defeats the point of having VLANs. Best practice is to move users into data VLANs, put management in its own VLAN, and give trunks a native VLAN that nothing else uses.
+Because every port starts in VLAN 1, it is tempting to assume that VLAN 1 is the safe, official place for things. It is not. VLAN 1 is only the default, and it carries control traffic such as CDP and spanning tree by default. Leaving users, management and the native VLAN all in VLAN 1 mixes everything together, which defeats the point of having VLANs. Best practice is to move users into data VLANs, put management in its own VLAN, and give trunks a native VLAN that nothing else uses.
 
 ```key
 A VLAN is a broadcast domain and an IP subnet. Hosts in different VLANs need a router to talk. VLAN 1 is only the starting VLAN, and it should not hold your users, your management address or your trunk's native VLAN.
