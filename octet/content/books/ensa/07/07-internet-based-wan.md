@@ -14,7 +14,7 @@ This page covers the ways a site reaches the internet, and how a business can ma
 
 At the customer end sits a *DSL modem*. At the provider end, the copper pairs from many customers end on a *DSLAM* (DSL access multiplexer), which combines their traffic onto the provider's network.
 
-*ADSL* (asymmetric DSL) gives much more bandwidth downstream than upstream, which suits browsing and downloads. Every DSL type loses speed with distance: the farther the customer is from the DSLAM, the weaker the signal and the slower the line. Beyond a few kilometers of copper, DSL may not work at all.
+*ADSL* (asymmetric DSL) gives much more bandwidth downstream than upstream, which suits browsing and downloads. Every DSL type loses speed with distance: the farther the customer is from the DSLAM, the weaker the signal and the slower the line.
 
 ## Cable
 
@@ -42,8 +42,8 @@ Fiber can carry far more than copper or coax, and providers push it closer to cu
 Where cables do not reach, or as a backup, a site can connect by radio.
 
 - *Municipal Wi-Fi*: some cities run wireless networks over public areas, reached with an ordinary Wi-Fi radio.
-- *Cellular*: a router with a cellular modem, or a phone hotspot, uses the mobile network. *4G* (LTE) and *5G* offer broadband speeds, and a cellular link is quick to install, which makes it a common backup.
-- *Satellite*: works almost anywhere with a view of the sky. Traditional internet satellites sit in geostationary orbit about 36,000 km up, so a request and its reply take about half a second or more to make the trip, which hurts voice and interactive use. Newer low-orbit services cut the delay considerably.
+- *Cellular*: a router with a cellular modem, or a phone hotspot, uses the mobile network. *4G* (LTE) and *5G* offer broadband speeds, and a cellular link is quick to install, which makes it a common backup. Older 3G networks are being shut down.
+- *Satellite*: works almost anywhere with a view of the sky. The site's small dish is a *VSAT* (very small aperture terminal). Traditional internet satellites sit in geostationary orbit about 36,000 km up, so a request and its reply take about half a second or more to make the trip, which hurts voice and interactive use. Newer low-orbit services cut the delay considerably.
 - *WiMAX* (IEEE 802.16): a long-range wireless standard once used for fixed broadband. It has been largely replaced by 4G and 5G.
 
 | Connection | Typical speed | Cost | Availability | Main limit |

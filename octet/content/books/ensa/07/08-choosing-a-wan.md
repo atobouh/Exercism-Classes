@@ -21,7 +21,7 @@ The managers want branch A to keep working if any single link fails, the small b
 
 Start with what each site needs, not with a technology.
 
-Branch A moves a lot of data and carries voice, which needs low, steady delay. That points to a private service with an SLA. Both sites are in one city, so a Metro Ethernet service fits well: high bandwidth, an Ethernet handoff the routers already understand, and often a price below MPLS for a single link. If Kestrel had many sites across the country, an MPLS service would be the stronger choice, because each site connects once to its PE and reaches all the others.
+Branch A moves a lot of data and carries voice, which needs low, steady delay. That points to a private service with an SLA. Both sites are in one city, so a Metro Ethernet service fits well: high bandwidth, an Ethernet handoff the routers already understand, and for a single link it can cost less than MPLS. If Kestrel had many sites across the country, an MPLS service would be the stronger choice, because each site connects once to its PE and reaches all the others.
 
 Branches B and C need modest bandwidth and are far from head office. A private circuit to each would cost a lot for six people. Business broadband with a site-to-site VPN to head office gives them private access over the internet for a fraction of the price. The towns have cable TV, so cable is the first choice, with DSL where cable is missing.
 
@@ -36,7 +36,7 @@ why = "The choice follows each site's needs: heavy traffic and voice favor a pri
 
 ## Step 2: Topology and redundancy
 
-Almost all traffic goes to head office, so a hub-and-spoke shape is natural, with head office as the hub. Branches B and C rarely talk to each other, and when they do, the extra hop through head office does not matter.
+Almost all traffic goes to head office, so a hub-and-spoke shape is natural, with head office as the hub. Branches B and C rarely talk to each other, and when they do, the extra hop through head office does not matter. A partial mesh, with direct links between a few busy sites, would only pay off if the branches talked to each other a lot.
 
 The hub is now a single point of failure, so head office gets the most protection. It buys internet access from two different ISPs, one link to each. That is *multihomed*: an outage at either ISP leaves the other working. Every VPN still has a path in.
 
