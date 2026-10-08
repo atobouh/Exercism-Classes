@@ -1,6 +1,6 @@
 +++
 title = "Access, distribution and core"
-summary = "Three layers, each with its own job, keep a campus network fast, stable and easy to grow."
+summary = "Three layers, each with its own job, keep a campus network fast, stable and ready to grow."
 links = ["ensa/11/01-growing-a-network", "ensa/11/03-scalable-design", "ensa/11/06-other-topologies"]
 +++
 
