@@ -35,12 +35,7 @@ why = "The WLAN is mapped to a dynamic interface, which carries the VLAN ID and 
 
 The 9800 does the same job with different parts. It has a *wireless management interface*, which is an SVI that APs use to join and that manages the controller. Client VLANs are not created as WLC interfaces. Instead the VLAN is named in the *policy profile* that the WLAN uses, and the VLAN is created on the 9800 as an ordinary VLAN.
 
-```console WLC9800
-WLC9800(config)# wireless management interface vlan 100
-WLC9800(config)# wireless profile policy STAFF-POLICY
-WLC9800(config-wireless-policy)# vlan 20
-WLC9800(config-wireless-policy)# no shutdown
-```
+In the 9800 configuration you create a policy profile for each kind of WLAN, name the client VLAN inside it (for example VLAN 20 for `Staff`), and make sure the profile is enabled. The wireless management interface is set up separately, as a VLAN interface that the APs can reach.
 
 The WLAN profile (SSID and security) joins the policy profile in a *policy tag*. The idea carries over: pick the policy, and you pick the VLAN.
 

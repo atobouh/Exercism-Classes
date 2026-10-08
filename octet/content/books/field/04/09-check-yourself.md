@@ -34,7 +34,7 @@ Notice what you gave up at each site. Branches lose guest access during an outag
 prompt = "At the branches, which is a reason to prefer FlexConnect over local mode?"
 options = ["Local-mode APs cannot serve guests", "FlexConnect can keep switching traffic locally if the WAN to the WLC fails", "FlexConnect removes the need for a WLC", "Local mode needs no trunk ports"]
 answer = 1
-why = "FlexConnect continues locally in standalone mode. FlexConnect still has a WLC, and local mode does not need trunks, but that is not the point here."
+why = "When the WAN to the WLC fails, a FlexConnect AP keeps switching locally in standalone mode. A local-mode AP loses its data path, so its clients are dropped."
 ```
 
 ## Mixed questions

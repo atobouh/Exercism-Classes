@@ -61,19 +61,7 @@ links = [
 
 ## Where it is configured
 
-On an AireOS WLC, you set the AP's mode to FlexConnect (the command is `config ap mode flexconnect` followed by the AP name), then enable local switching on each WLAN and set its VLAN. On a Catalyst 9800, you build a *flex profile* with the native VLAN and the VLAN list, and attach it to a *site tag*. A site tag with local site turned off tells its APs to behave as FlexConnect.
-
-```console WLC9800
-WLC9800(config)# wireless profile flex BRANCH1-FLEX
-WLC9800(config-wireless-flex-profile)# native-vlan-id 99
-WLC9800(config-wireless-flex-profile)# vlan-name STAFF
-WLC9800(config-wireless-flex-profile-vlan)# vlan-id 20
-WLC9800(config-wireless-flex-profile-vlan)# exit
-WLC9800(config-wireless-flex-profile)# exit
-WLC9800(config)# wireless tag site BRANCH1
-WLC9800(config-site-tag)# flex-profile BRANCH1-FLEX
-WLC9800(config-site-tag)# no local-site
-```
+On an AireOS WLC, you set the AP's mode to FlexConnect (the command is `config ap mode flexconnect` followed by the AP name), then enable local switching on each WLAN and set its VLAN. On a Catalyst 9800, you create a *flex profile* that holds the native VLAN and the locally switched VLANs, each with a name and an ID. You then create a *site tag*, attach the flex profile to it, and turn its Local Site option off. The APs that get this site tag run in FlexConnect mode. Only a site tag with Local Site turned off can carry a flex profile, so the two settings always go together.
 
 The policy profile on the 9800 also says whether a WLAN is central or local for switching and authentication. That sits with the WLAN, as on AireOS.
 

@@ -28,7 +28,7 @@ In this mode the AP's radios are off. It listens on the wired network and watche
 
 ## SE-Connect mode
 
-SE-Connect (spectrum expert connect) dedicates the radios to spectrum analysis. The AP sends raw spectrum data to a tool such as Cisco Spectrum Expert or MetaGeek Chanalyzer. You see non-Wi-Fi interference such as microwave ovens, cordless phones and video links, which ordinary 802.11 captures cannot show. Many APs with Cisco CleanAir can also do this while serving clients, but SE-Connect gives the radios over to the job.
+SE-Connect (spectrum expert connect) dedicates the radios to spectrum analysis. The AP sends raw spectrum data to a tool such as Cisco Spectrum Expert or MetaGeek Chanalyzer. You see non-Wi-Fi interference such as microwave ovens, cordless phones and video links, which ordinary 802.11 captures cannot show.
 
 ## Bridge (mesh) mode
 

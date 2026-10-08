@@ -27,10 +27,10 @@ S1(config-if)# switchport trunk allowed vlan 20,30,99
 Some older multilayer switches need `switchport trunk encapsulation dot1q` before the `switchport mode trunk` line.
 
 ```question
-prompt = "A switch port connects a FlexConnect AP that locally switches WLANs in VLANs 20 and 30. How should the port be configured?"
-options = ["Access port in VLAN 20", "Trunk allowing VLANs 20, 30 and the AP management VLAN", "Access port in the AP VLAN only", "Routed port with no VLANs"]
-answer = 1
-why = "Locally switched traffic leaves the AP tagged, so the port must be a trunk carrying those VLANs and the management VLAN."
+prompt = "A FlexConnect AP sits on an access port in VLAN 99. Its WLANs for VLANs 20 and 30 are switched locally. What goes wrong?"
+options = ["Clients on VLANs 20 and 30 cannot reach the network, because the access port carries only VLAN 99", "The AP cannot join the WLC at all", "The port turns into a trunk by itself and the clients work", "Clients get addresses from VLAN 99 and the WLANs work normally"]
+answer = 0
+why = "Locally switched traffic leaves the AP tagged in VLANs 20 and 30, and an access port carries only one VLAN. The AP can still join the WLC because its own traffic is in VLAN 99."
 ```
 
 ## WLC ports
@@ -96,7 +96,7 @@ Gi1/0/10  auto   on         22.5    AIR-AP3802I-B-K9    4     30.0
 ```
 
 ```trap
-A switch's total PoE budget is shared. Ten PoE+ ports do not all get 30 W if the supply can only deliver 370 W for the whole switch.
+A switch's total PoE budget is shared. With a 370 W budget, thirteen PoE+ ports that each draw their full 30 W need 390 W, so not all of them can be powered.
 ```
 
 ```recall

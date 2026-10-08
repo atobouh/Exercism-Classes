@@ -37,7 +37,7 @@ why = "Only management traffic goes to the cloud. Client data is switched locall
 
 | Model | Where the controller runs | Typical size | If the controller is unreachable |
 | --- | --- | --- | --- |
-| Centralized appliance | Data center or campus core | Large, up to thousands of APs | Local-mode APs stop serving; FlexConnect APs continue |
+| Centralized appliance | Data center or campus core | Large, up to thousands of APs | Local-mode APs stop serving; FlexConnect APs fall back to standalone mode |
 | Cloud-hosted (9800-CL) | VM in a private or public cloud | Medium to large | Same as the appliance |
 | Embedded in a switch | Catalyst 9000 switch | Small site | APs on that switch lose management |
 | Controller on an AP | One AP of the group | Small, up to about 100 APs | APs lose management until another takes over |

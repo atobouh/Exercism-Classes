@@ -74,7 +74,7 @@ R1(dhcp-config)# option 43 hex f104.0a01.640a
 The hex value reads: `f1` (type), `04` (one address, four bytes), `0a01.640a` (10.1.100.10).
 
 ```trap
-If the AP's VLAN has no DHCP option 43, no DNS name, and the WLC is on another subnet, none of the discovery methods succeed. The AP keeps trying and never joins.
+If the AP has never been primed with a controller name, its VLAN has no DHCP option 43, there is no DNS name, and the WLC is on another subnet, none of the discovery methods succeed. The AP keeps trying and never joins.
 ```
 
 ## The join sequence
