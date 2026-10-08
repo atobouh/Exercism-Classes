@@ -27,7 +27,7 @@ S1 has been cleared. PC1 (`0050.7966.6800`, Fa0/1) pings PC3 (`0050.7966.6802`, 
 
 **Step 1: PC1 sends an ARP request.** PC1 needs PC3's MAC, so it broadcasts. The destination is `ffff.ffff.ffff`. S1 learns `6800` on Fa0/1, then floods the frame out Fa0/2, Fa0/3 and Fa0/4.
 
-**Step 2: PC3 answers.** Only PC3 owns the address being asked about, so only PC3 replies, and the reply is unicast to `6800`. S1 learns `6802` on Fa0/3. The destination `6800` is now known, so the frame leaves by Fa0/1 only. PC2 and PC4 hear nothing.
+**Step 2: PC3 answers.** Only PC3 owns the address being asked about, so only PC3 replies, and the reply is unicast to `6800`. S1 learns `6802` on Fa0/3. The table now holds both PCs. The destination `6800` is known, so the frame leaves by Fa0/1 only. PC2 and PC4 hear nothing.
 
 **Step 3: the ping itself.** PC1 sends an ICMP echo to `6802`. Already known, so it goes out Fa0/3 only.
 
