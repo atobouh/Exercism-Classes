@@ -33,7 +33,7 @@ Here the client reaches Site A because the path through R2 is cheaper. If Site A
 
 ## Where it is used
 
-- **DNS.** The root servers are each reachable at one anycast address answered by many sites worldwide, and well-known public resolvers do the same.
+- **DNS.** Each DNS root server address is answered by many sites worldwide, and well-known public resolvers do the same.
 - **Content delivery.** A provider announces the same address from many data centers and serves each user from a nearby one.
 - **Spreading load and attacks.** A flood aimed at one anycast address is divided among the sites that announce it.
 
@@ -64,7 +64,7 @@ why = "The anycast keyword allows several devices to share the address and disab
 
 ## The subnet-router anycast address
 
-Every IPv6 subnet has one anycast address already defined: the subnet prefix with an all-zero interface ID. For `2001:db8:acad:1::/64` that is `2001:db8:acad:1::` itself. All routers on the subnet respond to it, and a packet sent there is delivered to one of them. It is rarely used, but it explains why you should never assign `2001:db8:acad:1::` to a host and why the first usable host address is traditionally `::1`.
+Every IPv6 subnet has one anycast address already defined: the subnet prefix with an all-zero interface ID. For `2001:db8:acad:1::/64` that is `2001:db8:acad:1::` itself. All routers on the subnet respond to it, and a packet sent there is delivered to one of them. It is rarely used, but it explains why you should never assign `2001:db8:acad:1::` to a host.
 
 ```question
 prompt = "What makes an address an anycast address?"
