@@ -51,7 +51,7 @@ Doing a full routing table search for every packet in software would be slow. Ci
 | Method | How it works |
 | --- | --- |
 | Process switching | The CPU handles every packet. It does a full table lookup each time. Slowest. |
-| Fast switching | The first packet of a flow is process switched, and the result is stored in a cache. Later packets for the same destination use the cache. |
+| Fast switching | The first packet for a destination is process switched, and the result is stored in a cache. Later packets for the same destination use the cache. |
 | Cisco Express Forwarding (CEF) | The router builds two tables ahead of time, so no per-packet search of the routing table is needed. |
 
 CEF's two tables are the *FIB* (Forwarding Information Base), which mirrors the routing table in a form that is fast to search, and the *adjacency table*, which holds the Layer 2 rewrite information (next-hop MAC address and exit interface) for each neighbor. The FIB changes only when the routing table changes, and the adjacency table changes when neighbors are learned. CEF is the default on Cisco routers.
