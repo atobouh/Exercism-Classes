@@ -38,7 +38,7 @@ why = "OSPF runs directly over IP as protocol 89. The group 224.0.0.5 means all 
 
 OSPF measures a path by *cost*. Each interface has a cost worked out from its bandwidth: faster links get lower costs. The cost of a path is the sum of the costs of the outgoing interfaces along it, and the lowest total wins. The exact formula, and a catch in its default, are in [OSPF cost and reference bandwidth](ensa/02/07-cost-and-reference-bandwidth).
 
-Because OSPF adds up cost, it does not care how many routers a path crosses. Two fast hops can beat one slow hop.
+Because OSPF adds up cost, it does not care how many routers a path crosses. Several fast links can beat one slow link.
 
 | Path from R1 to the server LAN on R4 | Links crossed | Cost |
 | --- | --- | --- |

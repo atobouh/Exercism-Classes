@@ -82,7 +82,7 @@ interface Vlan10
  ip address 192.168.10.2 255.255.255.0
 ```
 
-You can match several words at once by separating them with a bar inside the pattern, as in `show running-config | include username|enable`. To see just one interface, name it:
+You can match several words at once by separating them with a bar inside the pattern, as in `show running-config | include username|enable`. To see a single interface, name it:
 
 ```console S1
 S1# show running-config interface gigabitethernet 0/1

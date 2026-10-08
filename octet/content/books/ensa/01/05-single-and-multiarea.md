@@ -10,7 +10,7 @@ Every router in an OSPF area holds the same map and reruns SPF when anything on 
 
 ## Single-area OSPF
 
-In *single-area OSPF*, every router is in the same area, and that area is *area 0*, the backbone. There is one LSDB, identical on every router, and every router knows every link. It is simple to design and to troubleshoot, and it works well for small and medium networks.
+In *single-area OSPF*, every router is in the same area, and that area is normally *area 0*, the backbone. There is one LSDB, identical on every router, and every router knows every link. It is simple to design and to troubleshoot, and it works well for small and medium networks.
 
 This is what the CCNA courses configure, and it is what the next chapter builds: [Three routers, one area](ensa/02/01-the-reference-topology).
 

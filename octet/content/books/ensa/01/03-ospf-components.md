@@ -30,7 +30,7 @@ Neighbor ID     Pri   State           Dead Time   Address         Interface
 3.3.3.3           0   FULL/  -        00:00:38    10.0.13.2       GigabitEthernet0/0/1
 ```
 
-The *Neighbor ID* is the other router's router ID, a 32-bit name written like an IPv4 address. `FULL` means the two routers have finished swapping their maps. The *Address* is the neighbor's IP address on the shared link, which is the next hop for any route through it.
+The *Neighbor ID* is the other router's router ID, a 32-bit name written like an IPv4 address. `FULL` means the two routers have finished swapping their maps. The *Address* is the neighbor's IP address on the shared link, which is the next hop for any route through it. In this example both links are configured as point-to-point links, so there is no DR or BDR and the role column shows a dash. [Designated routers on a shared link](ensa/01/09-dr-and-bdr) covers the other case.
 
 ## The link-state database
 

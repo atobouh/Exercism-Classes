@@ -41,7 +41,7 @@ fields = [
 - *Area ID* (in the header): the area of the sending interface.
 - *Network mask*: the subnet mask of the sending interface.
 - *Hello interval*: how many seconds between this router's Hellos.
-- *Options*: flags for optional capabilities. One of them marks the area as a stub area.
+- *Options*: flags for optional capabilities. One of them, the E bit (external routing capability), is cleared in a stub area, which is how neighbors compare the stub setting.
 - *Router priority*: this router's priority in the DR and BDR election.
 - *Router dead interval*: how many seconds to wait without a Hello before declaring this router down.
 - *Designated router* and *backup designated router*: the interface addresses of the current DR and BDR on this link, or 0.0.0.0 if there are none yet.

@@ -4,7 +4,7 @@ summary = "Five steps take a router from power-on to a full routing table: meet 
 links = ["ensa/01/03-ospf-components", "ensa/01/06-ospf-packets", "ensa/01/08-neighbor-states"]
 +++
 
-Turn on a new router with OSPF configured and, a few seconds later, its routing table is full of `O` routes to networks it has never been told about directly. In between, it works through the same five steps every OSPF router follows.
+Turn on a new router with OSPF configured and, after a short wait, its routing table is full of `O` routes to networks it has never been told about directly. In between, it works through the same five steps every OSPF router follows.
 
 A network has *converged* when every router's tables agree with the real topology. Knowing the five steps lets you ask the right question when convergence fails: did the router meet its neighbors, did it get the LSAs, did it compute and install routes?
 

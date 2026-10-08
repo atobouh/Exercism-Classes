@@ -8,7 +8,7 @@ This page is for working things out rather than reading. It starts with one smal
 
 ## The scenario
 
-Three routers share an Ethernet segment, 192.168.1.0/24, through one switch. R3 also has a separate link to a fourth router, R5. All of them run OSPF in area 0 with default timers. Router IDs match the numbers in the names.
+Three routers share an Ethernet segment, 192.168.1.0/24, through one switch. R3 also has a separate serial link to a fourth router, R5. All of them run OSPF in area 0 with default timers. Router IDs match the numbers in the names.
 
 | Router | Router ID | Priority on the segment |
 | --- | --- | --- |
@@ -18,7 +18,7 @@ Three routers share an Ethernet segment, 192.168.1.0/24, through one switch. R3 
 | R5 | 5.5.5.5 | not on the segment |
 
 ```diagram
-caption = "R1, R2 and R3 share an Ethernet segment. R3 reaches R5 over a separate point-to-point link."
+caption = "R1, R2 and R3 share an Ethernet segment. R3 reaches R5 over a separate serial link."
 nodes = [
   { id = "R1", kind = "router", x = 0, y = 0, label = "1.1.1.1" },
   { id = "R2", kind = "router", x = 0, y = 1, label = "2.2.2.2" },
@@ -30,7 +30,7 @@ links = [
   { a = "R1", b = "S1", b_label = "F0/1" },
   { a = "R2", b = "S1", b_label = "F0/2" },
   { a = "S1", b = "R3", b_label = "F0/3", label = "192.168.1.0/24" },
-  { a = "R3", b = "R5", label = "10.0.35.0/30" },
+  { a = "R3", b = "R5", label = "10.0.35.0/30", style = "serial" },
 ]
 ```
 
@@ -62,7 +62,7 @@ why = "R1 is a DROTHER, so it forms a Full adjacency with both the DR and the BD
 ```
 
 ```question
-prompt = "What does R3's neighbor table show for R5 on the point-to-point link?"
+prompt = "What does R3's neighbor table show for R5 on the serial link, which runs as a point-to-point network?"
 options = ["FULL/DR, since R3 is closer to the segment", "2WAY/DROTHER, since neither is the DR", "FULL/BDR, since R3 is the BDR on the segment", "FULL/  -, since a point-to-point link has no DR or BDR"]
 answer = 3
 why = "Roles belong to the interface. On a point-to-point link the two routers become Full directly and no election takes place."
@@ -82,7 +82,7 @@ why = "The election is not preemptive. R4 becomes a DROTHER, and two DROTHERs st
 Think about the new link between R3 and R5 coming up.
 
 ```question
-prompt = "Which two packet types are in use while R3 is in the Loading state with R5?"
+prompt = "While R3 is in the Loading state with R5, which two packet types do the routers use to ask for and deliver the missing LSAs?"
 options = ["Hello", "Database Description", "Link-State Request", "Link-State Update"]
 answer = [2, 3]
 why = "In Loading, R3 asks for the LSAs it is missing with an LSR, and R5 delivers them in an LSU. The DBDs were exchanged in the state before."

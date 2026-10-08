@@ -70,8 +70,8 @@ On an Ethernet segment with four routers, one is the DR, one is the BDR, and the
 R3# show ip ospf neighbor
 
 Neighbor ID     Pri   State           Dead Time   Address         Interface
-1.1.1.1           1   FULL/BDR        00:00:35    192.168.1.1     GigabitEthernet0/0/0
-2.2.2.2           1   FULL/DR         00:00:37    192.168.1.2     GigabitEthernet0/0/0
+1.1.1.1          50   FULL/BDR        00:00:35    192.168.1.1     GigabitEthernet0/0/0
+2.2.2.2         100   FULL/DR         00:00:37    192.168.1.2     GigabitEthernet0/0/0
 4.4.4.4           1   2WAY/DROTHER    00:00:32    192.168.1.4     GigabitEthernet0/0/0
 ```
 
@@ -87,13 +87,13 @@ The state where routers stop points you to the cause:
 
 - **No neighbor at all, or stuck in Init**: Hellos are not arriving, or not arriving in both directions, or a Hello value does not match. See [Inside the Hello packet](ensa/01/07-hello-packet).
 - **Stuck in ExStart or Exchange**: the routers met but cannot trade DBDs. The usual cause is an *MTU mismatch* on the link: one router's DBDs are larger than the other will accept.
-- **Stuck in Loading**: requested LSAs are not arriving intact, which is rare and often points to a corrupted or filtered link.
+- **Stuck in Loading**: requested LSAs are not arriving intact, which is uncommon. It points to LSAs being corrupted, or large update packets being dropped on the way, for example by an MTU problem or a filter on the link.
 
 ```console R1
 R1# show ip ospf neighbor
 
 Neighbor ID     Pri   State           Dead Time   Address         Interface
-2.2.2.2           0   EXSTART/  -     00:00:36    10.0.12.2       GigabitEthernet0/0/1
+2.2.2.2           0   EXSTART/  -     00:00:36    10.0.12.2       GigabitEthernet0/0/0
 ```
 
 [Verifying and troubleshooting OSPF](ensa/02/10-verify-and-troubleshoot) walks through fixing these cases.

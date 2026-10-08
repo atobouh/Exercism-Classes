@@ -6,7 +6,7 @@ links = ["ensa/01/08-neighbor-states", "ensa/02/05-point-to-point-networks", "en
 
 Put four routers on one switch and every one of them can reach every other directly. If each pair became fully adjacent and swapped databases, the segment would carry a pile of duplicate conversations. OSPF avoids this by electing one router to act as the segment's spokesperson.
 
-This page explains the problem the election solves, the three roles that result, how a winner is picked, and the rule that surprises people most: the election does not run again just because a better router appears.
+This page explains the problem the election solves, the three roles that result, how a winner is picked, and the rule that surprises people most: the election does not run again merely because a better router appears.
 
 ## The problem with a crowded segment
 

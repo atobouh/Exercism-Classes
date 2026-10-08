@@ -91,7 +91,7 @@ You have met several sources of routes already. When two of them offer a route t
 | --- | --- | --- | --- |
 | Connected interface | Not a protocol | On the router itself | 0 |
 | Static route | Typed by hand | On one router | 1 |
-| EIGRP | Advanced distance vector | Inside an organization (IGP) | 90 |
+| EIGRP | Advanced distance vector | Inside an organization (IGP) | 90 (internal routes) |
 | OSPF | Link state | Inside an organization (IGP) | 110 |
 | RIP | Distance vector | Inside an organization (IGP) | 120 |
 | BGP | Path vector | Between organizations (EGP) | 20 external, 200 internal |
