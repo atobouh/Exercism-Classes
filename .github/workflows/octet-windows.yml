@@ -47,14 +47,14 @@ jobs:
       - name: Publish the download
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: octet-v0.1.0
-          name: Octet 0.1.0 for Windows
+          tag_name: octet-v0.2.0
+          name: Octet 0.2.0 for Windows
           target_commitish: ${{ github.sha }}
           prerelease: true
           body: |
             Octet, your offline CCNA library and lab.
 
-            Download **Octet_0.1.0_x64-setup.exe** and run it. Windows may say it protected your PC because the app isn't signed yet: click **More info**, then **Run anyway**.
+            Download **Octet_0.2.0_x64-setup.exe** and run it. Windows may say it protected your PC because the app isn't signed yet: click **More info**, then **Run anyway**.
           files: |
             octet/target/release/bundle/nsis/*.exe
             octet/target/release/bundle/msi/*.msi
