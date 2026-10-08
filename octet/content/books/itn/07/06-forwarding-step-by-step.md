@@ -4,7 +4,7 @@ summary = "Follow three frames through two switches and watch both MAC tables fi
 links = ["itn/07/05-how-a-switch-learns", "itn/07/07-switching-methods"]
 +++
 
-The rules from the last page are easier to believe once you watch them run. Here two switches are joined by an uplink, each with two PCs, and both MAC tables start empty. We follow three frames and track every table change.
+The rules from the last page are more convincing once you watch them run. Here two switches are joined by an uplink, each with two PCs, and both MAC tables start empty. We follow three frames and track every table change.
 
 ```diagram
 caption = "S1 and S2 are joined by an uplink. MAC addresses are shortened to the last digits."
@@ -61,21 +61,21 @@ Every device on both switches receives it. The two switches form a single broadc
 
 ## The tables afterward
 
-| Switch | MAC address | Port |
-| --- | --- | --- |
-| S1 | ..6801 | Fa0/1 |
-| S1 | ..6803 | Gi0/1 |
-| S1 | ..6802 | Fa0/2 |
-| S2 | ..6801 | Gi0/1 |
-| S2 | ..6803 | Fa0/1 |
-| S2 | ..6802 | Gi0/1 |
+| Switch | MAC address | Port | Learned in |
+| --- | --- | --- | --- |
+| S1 | ..6801 | Fa0/1 | Frame 1 |
+| S1 | ..6803 | Gi0/1 | Frame 2 |
+| S1 | ..6802 | Fa0/2 | Frame 3 |
+| S2 | ..6801 | Gi0/1 | Frame 1 |
+| S2 | ..6803 | Fa0/1 | Frame 2 |
+| S2 | ..6802 | Gi0/1 | Frame 3 |
 
 PC4 never sent a frame, so neither switch knows it yet. A frame to PC4 would still be flooded once, and PC4's reply would end that.
 
 Look at S2's table: ..6801 and ..6802 share one port, Gi0/1. A port can have many MAC addresses behind it, and an uplink to another switch usually does. A port to a single PC has one.
 
 ```trap
-Do not expect each switch to know every device's real port. S2 knows only that ..6801 is reachable through the uplink. Each switch holds just the next hop toward a host.
+Do not expect each switch to know every device's real port. S2 knows only that ..6801 is reachable through the uplink. Each switch holds only the next hop toward a host.
 ```
 
 ```question

@@ -8,7 +8,7 @@ Plug a PC into a switch and the link comes up at a speed and duplex both ends ac
 
 ## Autonegotiation
 
-Both ends of a copper link advertise what they can do: speeds such as 10, 100 and 1000 Mbps, each in half or full duplex. They then pick the best combination both support. This is *autonegotiation*, and it is the default on switch ports. Gigabit and faster links run full duplex, so the half-duplex question is mostly about 10 and 100 Mbps.
+Both ends of a copper link advertise what they can do: speeds such as 10, 100 and 1000 Mbps, each in half or full duplex. They then pick the best combination both support. This is *autonegotiation*, and it is the default on switch ports. Gigabit and faster links run full duplex in practice, so the half-duplex question is mostly about 10 and 100 Mbps.
 
 You can override the choice in interface configuration mode:
 
@@ -55,7 +55,7 @@ why = "With the server not negotiating, the switch port settled on 100 Mbps half
 
 ## Auto-MDIX
 
-Straight-through and crossover cables used to be a daily worry. *Auto-MDIX* (automatic medium-dependent interface crossover) lets a port detect the cable's wiring and swap its transmit and receive pairs if needed, so either cable works between any two devices. It is on by default on current Catalyst switches and can be set explicitly:
+Straight-through and crossover cables used to be a daily worry. *Auto-MDIX* (automatic medium-dependent interface crossover) lets a port detect the cable's wiring and swap its transmit and receive pairs if needed, so either cable works between any two devices. It is on by default on most current Catalyst switches and can be set explicitly:
 
 ```console S1
 S1(config-if)# mdix auto
@@ -70,6 +70,7 @@ S1# show interfaces fa0/1
 FastEthernet0/1 is up, line protocol is up (connected)
   Hardware is Fast Ethernet, address is 0cd9.9641.0a01 (bia 0cd9.9641.0a01)
   MTU 1500 bytes, BW 100000 Kbit/sec, DLY 100 usec,
+...
   Full-duplex, 100Mb/s, media type is 10/100BaseTX
   input flow-control is off, output flow-control is unsupported
 ...

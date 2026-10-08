@@ -51,7 +51,7 @@ why = "The OUI is the first 24 bits, which is the first three bytes (six hex dig
 
 ## Burned in, but changeable
 
-A NIC's manufacturer stores a *burned-in address* (BIA) in the card, and that is what the NIC uses by default. The `bia` in the output above is exactly that. Still, the operating system can override the address in software. Virtual machines, some security tools and some network features all do this. The burned-in value does not change; the software value is simply the one placed in outgoing frames.
+A NIC's manufacturer stores a *burned-in address* (BIA) in the card, and that is what the NIC uses by default. The `bia` in the output above is exactly that. Still, the operating system can override the address in software. Virtual machines, some security tools and some network features all do this. The burned-in value does not change; the software value is the one placed in outgoing frames.
 
 ```trap
 A MAC address that has been overridden still looks like a normal one. An address is not proof of which hardware sent a frame, so do not treat it as a secure identity.

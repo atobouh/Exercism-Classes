@@ -40,7 +40,7 @@ Add up the fields from the destination MAC to the FCS and you get the frame size
 
 The minimum exists for a historical reason. On a shared half-duplex wire a sender must still be transmitting when news of a collision comes back, and 64 bytes keeps it on the wire long enough. If a packet carries fewer than 46 bytes of data, the sender adds filler bytes, called *padding*, up to 46. The receiver uses the IP header's own length field to ignore the padding.
 
-When a VLAN tag is present (802.1Q, covered in the switching book), 4 more bytes are added, so the maximum becomes 1522.
+When a VLAN tag is present (802.1Q, covered in [VLAN trunks](srwe/03/03-vlan-trunks)), 4 more bytes are added, so the maximum becomes 1522.
 
 ```question
 prompt = "An Ethernet II frame carries 100 bytes of data and has no VLAN tag. How large is the frame, not counting the preamble and SFD?"
@@ -59,7 +59,7 @@ The EtherType tells the receiving NIC which protocol should get the data. Common
 | 0x86DD | IPv6 |
 | 0x0806 | ARP |
 
-A frame carrying an IPv6 packet, for instance, has `0x86DD` in that field. The receiver hands the data to its IPv6 code and not to IPv4.
+The same two bytes can instead hold a length. A value of 0x0600 (1536) or above is a type, and a smaller value is a length, as in the older IEEE 802.3 framing. Ethernet II frames always use a type. A frame carrying an IPv6 packet, for instance, has `0x86DD` in that field. The receiver hands the data to its IPv6 code and not to IPv4.
 
 ## Bad sizes
 

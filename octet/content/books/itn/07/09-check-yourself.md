@@ -68,7 +68,9 @@ FastEthernet0/3 is up, line protocol is up (connected)
   Hardware is Fast Ethernet, address is 0cd9.9641.0a03 (bia 0cd9.9641.0a03)
   Half-duplex, 100Mb/s, media type is 10/100BaseTX
 ...
-     12 late collision
+     0 output errors, 31 collisions, 0 interface resets
+     0 babbles, 12 late collision, 0 deferred
+...
 ```
 
 ```question

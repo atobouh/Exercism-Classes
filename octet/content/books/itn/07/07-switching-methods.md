@@ -10,10 +10,10 @@ Once a switch knows which port a frame should leave, it still has a choice: when
 
 A *store-and-forward* switch receives the entire frame into memory first. Only then does it compare the FCS it calculated with the one in the trailer. If they match, it looks up the destination and forwards. If they differ, or the frame is a runt or giant, the switch discards it. A damaged frame never reaches the next link.
 
-The price is delay. A large frame must be received completely before any of it leaves, so latency grows with frame size. Store-and-forward is also the method Cisco Catalyst switches use, and it is the only one that supports some features:
+The price is delay. A large frame must be received completely before any of it leaves, so latency grows with frame size. Cisco Catalyst campus switches such as the 2960 use store-and-forward, and some features depend on it:
 
 - **Quality of service.** The switch must see the whole frame, including its priority marking, before it can place it in the right queue.
-- **Speed mismatches.** A frame arriving on a 1 Gbps port and leaving on a 100 Mbps port has to be held while the slower port sends it.
+- **Speed mismatches.** A frame arriving on a 1 Gbps port and leaving on a 100 Mbps port has to be held while the slower port sends it. Switching between ports of different speeds is called asymmetric switching.
 
 ## Cut-through
 

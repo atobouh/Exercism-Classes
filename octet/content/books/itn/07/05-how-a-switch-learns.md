@@ -73,7 +73,7 @@ A static entry is configured in global configuration mode:
 S1(config)# mac address-table static 0050.7966.6800 vlan 1 interface fastethernet 0/1
 ```
 
-A static entry never ages out. A frame for that address always leaves the named port, and on a 2960 the entry stays until you remove it with `no mac address-table static`.
+A static entry never ages out. A frame for that address always leaves the named port, and it stays until you remove it by repeating the command with `no` in front: `no mac address-table static 0050.7966.6800 vlan 1 interface fastethernet 0/1`.
 
 ```question
 prompt = "Which statement about MAC learning is correct?"
