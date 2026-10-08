@@ -64,10 +64,10 @@ The prefix `::/0` matches every destination, so it is the IPv6 default route.
 prompt = "Make 2001:db8:acad:12::2 the default route."
 mode = "R1(config)#"
 answer = ["ipv6 route ::/0 2001:db8:acad:12::2"]
-why = "::/0 matches every address, so it catches whatever no longer-prefix route covers."
+why = "::/0 matches every address, so it catches whatever no more specific route covers."
 ```
 
-A *host route* has a /128 and reaches a single address, for example `ipv6 route 2001:db8:acad:2::10/128 2001:db8:acad:12::2`. Because the longest prefix wins, it overrides a wider route for just that device.
+A *host route* has a /128 and reaches a single address, for example `ipv6 route 2001:db8:acad:2::10/128 2001:db8:acad:12::2`. Because the longest prefix wins, it overrides a wider route for that one device.
 
 A *floating static route* is a backup. Give it an administrative distance higher than the primary's, which for a static route is 1. With `ipv6 route ::/0 2001:db8:acad:13::3 5`, the final number is the distance. The route stays out of the table while the distance-1 default works, and enters it when that one disappears.
 

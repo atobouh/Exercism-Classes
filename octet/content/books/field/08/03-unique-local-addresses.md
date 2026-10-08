@@ -14,7 +14,7 @@ The 48-bit site prefix is built like this:
 
 ```fields
 title = "Unique local address"
-caption = "Every site gets a /48, with 16 bits of subnet ID, just like a global /48."
+caption = "Every site gets a /48, with 16 bits of subnet ID, as with a global /48."
 unit = "bits"
 row = 128
 fields = [
@@ -56,7 +56,7 @@ That last row is the main difference. IPv4 private addresses exist because publi
 
 ## Two addresses at once
 
-A host on a LAN can easily have a ULA and a global address on the same interface. When it sends, it chooses a source address that suits the destination: talking to an internal server at a ULA, it normally sources from its ULA; talking to a web server on the internet, it uses its global one. This is *source address selection*, built into the host's operating system. As the network designer you only have to make sure that both prefixes exist on the LAN, usually by advertising both in router advertisements.
+A host on a LAN can have a ULA and a global address on the same interface. When it sends, it chooses a source address that suits the destination: talking to an internal server at a ULA, it normally sources from its ULA; talking to a web server on the internet, it uses its global one. This is *source address selection*, built into the host's operating system. As the network designer you only have to make sure that both prefixes exist on the LAN, usually by advertising both in router advertisements.
 
 ```question
 prompt = "Which statement about a unique local address is correct?"

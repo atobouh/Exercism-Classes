@@ -64,7 +64,7 @@ Because only 24 bits are copied, two addresses on a link can share a group. That
 
 ## From group to Ethernet address
 
-A switch has no concept of IPv6. It forwards on MAC addresses, so the IPv6 group needs an Ethernet address. The rule is easy to remember: `33:33` followed by the last 32 bits of the IPv6 group address.
+A switch has no concept of IPv6. It forwards on MAC addresses, so the IPv6 group needs an Ethernet address. The rule is short: `33:33` followed by the last 32 bits of the IPv6 group address.
 
 For `ff02::1:ff0a:1` the last 32 bits are `ff0a:0001`, so the MAC is `33:33:ff:0a:00:01`. For all nodes, `ff02::1`, it is `33:33:00:00:00:01`. A host's network card is told which of these multicast MACs to accept, so it drops all the rest without waking the CPU. That is the practical difference from broadcast, which every card must accept.
 

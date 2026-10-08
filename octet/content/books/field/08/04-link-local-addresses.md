@@ -30,7 +30,7 @@ answer = ["ipv6 address fe80::1 link-local"]
 why = "The link-local keyword tells IOS this is the link-local address, replacing the automatic one. It must be within fe80::/10."
 ```
 
-Use a scheme and stay with it. A common one is the same number as the router's role (`fe80::1` for R1, `fe80::2` for R2) on all interfaces. Then every link has a pair of easy, distinct addresses, and `FE80::2` in a routing table means "the neighbor R2".
+Use a scheme and stay with it. A common one is the same number as the router's role (`fe80::1` for R1, `fe80::2` for R2) on all interfaces. Then every link has a pair of short, distinct addresses, and `FE80::2` in a routing table means "the neighbor R2".
 
 ## Pinging a link-local
 
