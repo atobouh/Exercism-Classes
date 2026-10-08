@@ -26,7 +26,7 @@ Tracing route to 192.168.20.10 over a maximum of 30 hops:
 Trace complete.
 ```
 
-One hop, and it is R1's address in PC1's own subnet. The packet left through the gateway and was routed to the destination. The first ping after a reboot often times out once while ARP resolves, which is normal.
+The router is the one hop between them. Hop 1 is R1's address in PC1's own subnet, and hop 2 is PC2 itself. The first ping after a reboot often times out once while ARP resolves, which is normal.
 
 ## Read the router
 
@@ -82,7 +82,7 @@ GigabitEthernet0/0/1.10 is up, line protocol is up
   Description: Sales gateway
   Internet address is 192.168.10.1/24
   ...
-  Encapsulation 802.1Q Virtual LAN, Vlan ID 10.
+  Encapsulation 802.1Q Virtual LAN, Vlan ID  10.
   ...
 ```
 
@@ -90,7 +90,7 @@ The `Vlan ID` must match the VLAN of the hosts.
 
 ## Why the trunk output matters
 
-If a VLAN is missing from the allowed list, the router never sees its frames, and no setting on R1 can repair that. On the trunk output, check that the VLAN appears in the second and third lists (allowed and active, then forwarding). A VLAN in the allowed list but missing from the active list has not been created on the switch.
+If a VLAN is missing from the allowed list, the trunk never carries its frames, and no setting on R1 can repair that. On the trunk output, check that the VLAN appears in the first list (allowed on the trunk) and the second (allowed and active). A VLAN that is allowed but missing from the active list has not been created on the switch.
 
 ## Read the switch
 
@@ -99,15 +99,19 @@ The router-facing port must be trunking, with the VLANs allowed and active:
 ```console S1
 S1# show interfaces trunk
 Port        Mode         Encapsulation  Status        Native vlan
+Fa0/1       on           802.1q         trunking      99
 Gi0/1       on           802.1q         trunking      99
 
 Port        Vlans allowed on trunk
+Fa0/1       1-4094
 Gi0/1       1-4094
 
 Port        Vlans allowed and active in management domain
+Fa0/1       1,10,20,99
 Gi0/1       1,10,20,99
 
 Port        Vlans in spanning tree forwarding state and not pruned
+Fa0/1       1,10,20,99
 Gi0/1       1,10,20,99
 ```
 

@@ -51,7 +51,7 @@ why = "The packet leaves through the subinterface for VLAN 20, which tags the fr
 
 ## The switch side
 
-The switch port facing the router must be a trunk, or the tags never reach R1. The router does not run DTP, so do not wait for negotiation: set `switchport mode trunk` on the port yourself. A [trunk](srwe/03/03-vlan-trunks) with a dynamic mode on the switch side and a router on the other would never come up.
+The switch port facing the router must be a trunk, or the tags never reach R1. The router does not run DTP, so there is nothing to negotiate with. Set `switchport mode trunk` on the port yourself. A switch port left at `dynamic auto` stays an access port, and the router's tagged frames never get through. Trunk details are on [VLAN trunks](srwe/03/03-vlan-trunks).
 
 ## The native VLAN
 

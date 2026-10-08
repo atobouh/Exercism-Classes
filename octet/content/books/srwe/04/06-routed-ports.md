@@ -54,7 +54,7 @@ D1 knows its own VLAN subnets as connected routes. To reach anything else, it ne
 - A static default route toward the router: `ip route 0.0.0.0 0.0.0.0 198.51.100.1`.
 - A routing protocol such as OSPF, which lets D1 and R1 swap routes. That belongs to CCNA 3.
 
-Both routes matter. With only the default route on D1, packets get out but replies have no way back.
+Both sides need a route. With only the default route on D1, packets leave the site, but R1 has no path back to the VLAN subnets.
 
 R1 needs the reverse: a route back to the VLAN subnets, or replies from the internet cannot find their way home.
 
@@ -80,7 +80,7 @@ Switchport: Disabled
 
 ## Four kinds of port
 
-The chapter has now introduced every kind of interface a multilayer switch can use. Keep this table close, because the exam and the console both ask you to tell them apart.
+The chapter has now covered four kinds of interface on a multilayer switch. Keep this table close, because exams and the console both ask you to tell them apart.
 
 | Type | Carries | Used for |
 | --- | --- | --- |

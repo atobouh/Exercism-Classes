@@ -32,19 +32,23 @@ links = [
 ```console D1
 D1(config)# vlan 10
 D1(config-vlan)# name SALES
-D1(config-vlan)# vlan 20
+D1(config-vlan)# exit
+D1(config)# vlan 20
 D1(config-vlan)# name ENG
-D1(config-vlan)# interface vlan 10
+D1(config-vlan)# exit
+D1(config)# interface vlan 10
 D1(config-if)# ip address 192.168.10.1 255.255.255.0
 D1(config-if)# no shutdown
-D1(config-if)# interface vlan 20
+D1(config-if)# exit
+D1(config)# interface vlan 20
 D1(config-if)# ip address 192.168.20.1 255.255.255.0
 D1(config-if)# no shutdown
 D1(config-if)# exit
 D1(config)# interface gi1/0/5
 D1(config-if)# switchport mode access
 D1(config-if)# switchport access vlan 10
-D1(config-if)# interface gi1/0/6
+D1(config-if)# exit
+D1(config)# interface gi1/0/6
 D1(config-if)# switchport mode access
 D1(config-if)# switchport access vlan 20
 ```
@@ -101,7 +105,7 @@ C        192.168.20.0/24 is directly connected, Vlan20
 L        192.168.20.1/32 is directly connected, Vlan20
 ```
 
-Then ping from a host in one VLAN to a host in the other. A reply proves the whole path: access ports, SVIs, `ip routing` and the return route. A `tracert` from the host shows one hop, the SVI address of its own VLAN.
+Then ping from a host in one VLAN to a host in the other. A reply proves the whole path: access ports, SVIs, `ip routing` and the return route. A `tracert` from the host shows the SVI address of its own VLAN as the only hop before the destination.
 
 ## The management SVI
 

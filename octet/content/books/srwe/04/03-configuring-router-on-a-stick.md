@@ -19,14 +19,18 @@ On S1, create the VLANs and assign the access ports. The same VLANs must exist o
 ```console S1
 S1(config)# vlan 10
 S1(config-vlan)# name SALES
-S1(config-vlan)# vlan 20
+S1(config-vlan)# exit
+S1(config)# vlan 20
 S1(config-vlan)# name ENG
-S1(config-vlan)# vlan 99
+S1(config-vlan)# exit
+S1(config)# vlan 99
 S1(config-vlan)# name MGMT
-S1(config-vlan)# interface fa0/5
+S1(config-vlan)# exit
+S1(config)# interface fa0/5
 S1(config-if)# switchport mode access
 S1(config-if)# switchport access vlan 10
-S1(config-if)# interface fa0/6
+S1(config-if)# exit
+S1(config)# interface fa0/6
 S1(config-if)# switchport mode access
 S1(config-if)# switchport access vlan 20
 ```
@@ -37,7 +41,8 @@ Then the trunks. One goes to S2, and one goes to the router. Both are set static
 S1(config)# interface fa0/1
 S1(config-if)# switchport mode trunk
 S1(config-if)# switchport trunk native vlan 99
-S1(config-if)# interface g0/1
+S1(config-if)# exit
+S1(config)# interface g0/1
 S1(config-if)# switchport mode trunk
 S1(config-if)# switchport trunk native vlan 99
 ```
@@ -65,18 +70,20 @@ R1(config)# interface g0/0/1.10
 R1(config-subif)# description Sales gateway
 R1(config-subif)# encapsulation dot1Q 10
 R1(config-subif)# ip address 192.168.10.1 255.255.255.0
-R1(config-subif)# interface g0/0/1.20
+R1(config-subif)# exit
+R1(config)# interface g0/0/1.20
 R1(config-subif)# description Engineering gateway
 R1(config-subif)# encapsulation dot1Q 20
 R1(config-subif)# ip address 192.168.20.1 255.255.255.0
-R1(config-subif)# interface g0/0/1.99
+R1(config-subif)# exit
+R1(config)# interface g0/0/1.99
 R1(config-subif)# description Management gateway
 R1(config-subif)# encapsulation dot1Q 99 native
 R1(config-subif)# ip address 192.168.99.1 255.255.255.0
 ```
 
 ```trap
-On many IOS versions, `ip address` is refused on a subinterface until `encapsulation dot1Q` has been set. The router prints a message that the subinterface needs an encapsulation first. Type the encapsulation line before the address.
+IOS refuses `ip address` on a subinterface until `encapsulation dot1Q` has been set. It prints `% Configuring IP routing on a LAN subinterface is only allowed if that subinterface is already configured as part of an IEEE 802.10, IEEE 802.1Q, or ISL vLAN.` Type the encapsulation line before the address.
 ```
 
 ```command
@@ -88,7 +95,7 @@ why = "This command tags frames leaving the subinterface with VLAN 20 and accept
 
 ## Bring up the physical port
 
-The subinterfaces borrow their state from the physical interface above them. If G0/0/1 is shut down, so are all of its subinterfaces, no matter how well they are configured. Router interfaces start shut down, so this step is the one people forget. The physical port needs no IP address of its own.
+The subinterfaces borrow their state from the physical interface above them. If G0/0/1 is shut down, so are all of its subinterfaces, no matter how well they are configured. Router interfaces are often shut down by default, so this step is the one people forget. The physical port needs no IP address of its own.
 
 ```console R1
 R1(config)# interface g0/0/1
