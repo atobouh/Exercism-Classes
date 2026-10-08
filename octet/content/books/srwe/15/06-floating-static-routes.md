@@ -4,7 +4,7 @@ summary = "A backup route waits out of the table with a higher administrative di
 links = ["srwe/15/07-host-routes", "srwe/14/06-administrative-distance"]
 +++
 
-A static route never notices a failure elsewhere, but it can be told to step aside for a better route and to step in when that route vanishes. A *floating static route* is a backup route given a worse administrative distance than the route it protects. It floats just out of reach, and when the primary route disappears it becomes the best one left.
+A static route never notices a failure elsewhere, but it can be told to step aside for a better route and to step in when that route vanishes. A *floating static route* is a backup route given a worse administrative distance than the route it protects. It floats out of reach, and when the primary route disappears it becomes the best one left.
 
 ## The idea
 
