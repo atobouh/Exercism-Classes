@@ -132,7 +132,7 @@ why = "A Trojan horse looks useful but also does harm. A worm spreads without an
 
 ```question
 prompt = "Which two defenses help a home network? Choose two."
-options = ["Antivirus and antispyware software on the PCs", "A VPN concentrator in a data center", "The home router's firewall filtering", "An intrusion prevention system on every PC"]
+options = ["Antivirus and antispyware software on the PCs", "A VPN concentrator in a data center", "The home router's firewall filtering", "A dedicated IPS appliance at the network edge"]
 answer = [0, 2]
 why = "Home networks rely on host software and the router's built-in firewall. VPN concentrators and dedicated IPS are for larger networks."
 ```

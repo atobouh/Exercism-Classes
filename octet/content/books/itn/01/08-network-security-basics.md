@@ -13,7 +13,7 @@ External threats come from people and programs outside the organization.
 - A *virus* attaches itself to a file or program, and runs when a user opens it. It then copies itself into other files.
 - A *worm* spreads by itself across a network, using a weakness in software. Nobody has to open anything, so a worm can reach thousands of hosts in minutes.
 - A *Trojan horse* looks like useful software, but it does something harmful as well, such as opening a back door for the attacker.
-- *Spyware* secretly collects information about a user. *Adware* shows unwanted adverts, and sometimes tracks what you click.
+- *Spyware* secretly collects information about a user. *Adware* shows unwanted ads, and sometimes tracks what you click.
 - A *zero-day attack* uses a flaw that the software maker has not yet found or fixed, so no patch exists on the day it is used.
 - A *threat actor attack* is a planned attack by a person or group against a chosen target, to steal, damage or disrupt.
 - A *denial of service* (DoS) attack floods a host or network with so much traffic or so many requests that real users cannot get through. When the flood comes from many compromised hosts at once, it is a *distributed* DoS.
@@ -79,7 +79,7 @@ A larger network adds equipment built for the job:
 | Threat | A defense that addresses it |
 | --- | --- |
 | Virus, Trojan, spyware, adware | Antivirus and antispyware software, user training |
-| Worm, zero-day attack | Prompt patching, IPS, firewalls limiting what reaches hosts |
+| Worm, zero-day attack | Prompt patching (a zero-day has no patch yet), IPS, firewalls limiting what reaches hosts |
 | Denial of service | Firewall and IPS rules, the provider's filtering |
 | Data interception | VPN or other encryption, such as HTTPS and WPA on Wi-Fi |
 | Unauthorized access from the internet | Firewall, ACLs |

@@ -61,7 +61,7 @@ A protocol does not need to know how the ones below it work. HTTP has no idea wh
 
 ```question
 prompt = "A PC moves from an Ethernet cable to Wi-Fi and the browser keeps working without any change. Why is that possible?"
-options = ["HTTP detects the new medium and adjusts itself", "Each protocol relies only on the one below and does not depend on how it works inside", "Wi-Fi is just another name for Ethernet", "TCP converts web pages into wireless signals"]
+options = ["HTTP detects the new medium and adjusts itself", "Each protocol relies only on the one below and does not depend on how it works inside", "Wi-Fi is another name for Ethernet", "TCP converts web pages into wireless signals"]
 answer = 1
 why = "Because each protocol only needs the service of the one below, the bottom layer can be swapped without changing the upper ones."
 ```

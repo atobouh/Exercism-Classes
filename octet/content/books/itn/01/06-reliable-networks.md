@@ -88,7 +88,7 @@ Two things make that possible. Networks follow open, *standard protocols*, so ne
 
 *Congestion* happens when more traffic arrives for a link than the link can carry. The router has to hold packets in a queue, and if the queue fills, it drops them. For a file download that is a small delay. For a voice call it means choppy, broken speech, because a voice packet that arrives late is useless.
 
-*Quality of service* (QoS) gives the router rules for congestion: put voice and video packets at the front of the queue, and let bulk data wait. QoS does not create bandwidth. It decides who waits when there isn't enough. You will configure the ideas behind it in [the QoS chapter](ensa/09/01-why-qos).
+*Quality of service* (QoS) gives the router rules for congestion: put voice and video packets at the front of the queue, and let bulk data wait. QoS does not create bandwidth. It decides who waits when there isn't enough. You will study how it works in [the QoS chapter](ensa/09/01-why-qos).
 
 ## Security
 

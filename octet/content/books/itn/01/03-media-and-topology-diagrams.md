@@ -16,7 +16,7 @@ Engineers also need a way to show a network to each other: what is connected to 
 | Glass or plastic fiber | Pulses of light | Links between floors, buildings and cities |
 | Wireless | Radio waves through the air | Laptops, phones and tablets moving around |
 
-Copper is cheap and quick to fit with connectors, but an Ethernet copper run is limited to 100 meters and picks up electrical interference. Fiber carries data much farther, and because it carries light, motors and power cables don't disturb it. Wireless needs no cable at all, but every device in range shares the same air, and anyone nearby can receive the signal, so it must be encrypted.
+Copper is cheap and quick to fit with connectors, but an Ethernet twisted-pair run is limited to 100 meters and picks up electrical interference. Fiber carries data much farther, and because it carries light, motors and power cables don't disturb it. Wireless needs no cable at all, but every device in range shares the same air, and anyone nearby can receive the signal, so it must be encrypted.
 
 How each medium turns bits into signals is the subject of [the physical layer chapter](itn/04/01-bits-on-the-wire).
 

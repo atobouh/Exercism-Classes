@@ -10,7 +10,7 @@ The first thing to work out in any network is which devices are which. The ends 
 
 ## End devices
 
-An *end device* (a host) is where a message starts or finishes. PCs, laptops, phones, tablets, printers, IP phones, security cameras and servers are all end devices. 
+An *end device* (a host) is where a message starts or finishes. PCs, laptops, phones, tablets, printers, IP phones, security cameras and servers are all end devices.
 
 Hosts play one of two roles in a conversation. A *client* asks for a service: your web browser asks for a page. A *server* provides a service: a web server sends the page, a mail server stores your email, a file server holds shared folders.
 
@@ -43,11 +43,11 @@ why = "In a peer-to-peer network every PC manages its own shares and permissions
 
 | Device | What it connects | What it decides |
 | --- | --- | --- |
-| Switch | Hosts inside one LAN | Which port a frame goes out of, using MAC addresses |
-| Router | Different networks | Which path a packet takes, using IP addresses |
-| Access point (AP) | Wireless clients to the wired LAN | Which wireless clients may join, and it bridges radio to Ethernet |
-| Firewall | A trusted network to an untrusted one | Whether traffic is permitted or denied, by rule |
-| Wireless LAN controller (WLC) | Many access points | The settings every AP uses |
+| *Switch* | Hosts inside one LAN | Which port a frame goes out of, using MAC addresses |
+| *Router* | Different networks | Which path a packet takes, using IP addresses |
+| *Access point* (AP) | Wireless clients to the wired LAN | Which wireless clients may join, and it bridges radio to Ethernet |
+| *Firewall* | A trusted network to an untrusted one | Whether traffic is permitted or denied, by rule |
+| *Wireless LAN controller* (WLC) | Many access points | The settings every AP uses |
 
 ### Layer 2 and Layer 3 switches
 
@@ -55,7 +55,7 @@ An ordinary *Layer 2 switch* forwards frames between hosts in the same LAN, usin
 
 ### Firewalls, IPS and next-generation firewalls
 
-A *firewall* sits at a boundary, often between your network and the internet. It permits or denies traffic by rules, and it lets replies back in for connections that started inside. An *intrusion prevention system* (IPS) looks deeper, at the content of the traffic, and compares it with signatures of known attacks. On a match, it drops the traffic.
+A *firewall* sits at a boundary, often between your network and the internet. It permits or denies traffic by rules, and a *stateful* firewall (the usual kind today) lets replies back in for connections that started inside. An *intrusion prevention system* (IPS) looks deeper, at the content of the traffic, and compares it with signatures of known attacks. On a match, it drops the traffic.
 
 A *next-generation firewall* (NGFW) combines both and adds *application awareness*: it can tell a video call from a file upload even when both use the same port, and it can apply a rule per application or per user.
 
@@ -74,7 +74,7 @@ why = "Traffic between two networks must be routed. A Layer 3 switch routes in h
 
 IP phones, access points and cameras are often mounted on a ceiling or wall, far from an outlet. *Power over Ethernet* (PoE) lets a switch port send power down the same cable that carries the data. The device needs one cable, and the switch can turn its power off and on remotely.
 
-Original PoE supplies up to 15.4 W per port, PoE+ up to 30 W, and the newer 802.3bt standard up to 90 W. On a Catalyst switch, `show power inline` shows what each port supplies:
+The original PoE standard (802.3af) lets a switch port supply up to 15.4 W, PoE+ (802.3at) up to 30 W, and the newer 802.3bt standard up to 60 W or 90 W. The device at the far end receives a little less, because some power is lost in the cable. On a Catalyst switch, `show power inline` shows what each port supplies. The exact layout of the summary at the top varies by platform and IOS version.
 
 ```console S1
 S1# show power inline

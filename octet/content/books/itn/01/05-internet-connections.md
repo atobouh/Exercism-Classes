@@ -69,6 +69,13 @@ answer = 1
 why = "Metro Ethernet is a business service with guaranteed bandwidth, and the SLA promises uptime and repair times. Home cable is shared and makes no such promise."
 ```
 
+```question
+prompt = "A data center hosts a company's customer-facing web servers. It needs high bandwidth, equal speed in both directions, fixed public addresses and a contractual repair time. Which connection fits best?"
+options = ["Residential DSL", "A dedicated leased line", "Home cable service", "Cellular"]
+answer = 1
+why = "A leased line gives reserved, symmetric bandwidth backed by a service level agreement. Residential DSL, home cable and cellular are shared or best-effort and promise no repair time."
+```
+
 ## Converged networks
 
 Not long ago, a company ran three separate networks: telephone lines for calls, coaxial cable for TV and video, and a data network for computers. Each had its own cabling, its own equipment and its own staff.

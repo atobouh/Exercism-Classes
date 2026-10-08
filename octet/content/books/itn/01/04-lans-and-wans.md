@@ -24,8 +24,8 @@ A *wide area network* (WAN) joins LANs that are far apart: across a city, a coun
 | Cost | Bought once, low running cost | Monthly fee, high cost per bit |
 
 ```question
-prompt = "A hospital links its main building to a clinic across the city, using a connection leased from a telecommunications company. What kind of network is that link part of?"
-options = ["A LAN, because both sites belong to the hospital", "A WAN, because it joins distant sites through a provider", "An intranet, because only hospital staff use it"]
+prompt = "A hospital links its main building to a clinic across the city, using a connection leased from a telecommunications company. Judged by the distance it spans and who runs it, what type of network is that link?"
+options = ["A LAN, because both sites belong to the hospital", "A WAN, because it joins distant sites through a provider", "The internet, because it uses a telecommunications company"]
 answer = 1
 why = "The link spans a city and is run by a provider, which makes it a WAN. Who owns the sites at each end doesn't change that."
 ```

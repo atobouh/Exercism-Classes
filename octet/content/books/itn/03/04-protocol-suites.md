@@ -4,7 +4,7 @@ summary = "Protocols come in suites that are designed to work together. TCP/IP w
 links = ["itn/03/05-standards-organizations", "itn/03/06-the-osi-and-tcpip-models", "itn/14/04-udp-and-tcp-compared", "itn/15/05-dns", "itn/15/06-dhcp", "itn/09/02-arp-request-and-reply"]
 +++
 
-Protocols that must cooperate are better designed together than collected by accident. A set of protocols designed to work together is called a *protocol suite*. Each member does one job and expects the others to do theirs. This page looks at the suite your network almost certainly runs today, TCP/IP, and at why it won out over rivals that once looked just as likely to.
+Protocols that must cooperate are better designed together than collected by accident. A set of protocols designed to work together is called a *protocol suite*. Each member does one job and expects the others to do theirs. This page looks at the suite your network almost certainly runs today, TCP/IP, and at why it won out over rivals that once looked as likely to.
 
 ## Suites that came before
 
