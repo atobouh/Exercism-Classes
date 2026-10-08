@@ -25,7 +25,7 @@ Link-locals carry the traffic that only makes sense between neighbors.
 - The next hop in routing: routing protocols typically form neighbor relationships using link-local addresses.
 - The host's default gateway. A host learns its gateway from a router advertisement, and the gateway is the router's LLA, not its global address.
 
-That last point surprises people, so it is worth stating plainly. If a router has `2001:db8:acad:1::1` and `fe80::1` on an interface, hosts normally use `fe80::1` as the default gateway.
+That last point surprises people, so it is worth stating plainly. If a router has `2001:db8:acad:1::1` and `fe80::1` on an interface, hosts use `fe80::1` as the default gateway, because the router sends its advertisements from that link-local address.
 
 ## How the address is built
 

@@ -28,6 +28,7 @@ Look at the first few digits of an address and you can say what it is.
 | Loopback | `::1/128` | The device itself, like 127.0.0.1. |
 | Unspecified | `::/128` | "No address yet", used as a source before an address is set. |
 | Documentation | `2001:db8::/32` | For examples, never routed. |
+| IPv4-embedded | `::ffff:0:0/96` (IPv4-mapped) | The last 32 bits hold an IPv4 address, as in `::ffff:192.0.2.1`. |
 
 A GUA is the IPv6 counterpart of a public IPv4 address. At the time of writing all global unicast space handed out comes from `2000::/3`, which covers addresses from `2000::` to `3fff::`. The documentation prefix `2001:db8::/32` sits inside that range, which is why examples in this book start with `2001:db8`.
 
@@ -35,7 +36,7 @@ A *link-local address* is created by every IPv6 interface and only works on its 
 
 A *unique local address* is the closest thing to a private IPv4 address. It can be routed inside a company, but is not meant to cross onto the internet. The prefix `fc00::/7` covers `fc` and `fd`, and only `fd00::/8` is used in practice.
 
-There is also a way to embed an IPv4 address in the last 32 bits of an IPv6 address, as used by some transition mechanisms, for example `::ffff:192.0.2.1`. You will rarely type one, so just recognize that mixed notation.
+The last row is a mixed notation that places an IPv4 address in the last 32 bits. Software uses the IPv4-mapped form `::ffff:192.0.2.1` to represent IPv4 peers on a dual-stack socket, and transition mechanisms such as NAT64 use similar embedded forms. You will rarely type one, so recognize the notation when you see it.
 
 ## Many addresses on one interface
 

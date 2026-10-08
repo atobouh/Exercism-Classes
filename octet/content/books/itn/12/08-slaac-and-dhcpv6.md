@@ -8,7 +8,7 @@ Typing an address on every host does not scale. IPv6 gives the router a say in h
 
 ## The router advertisement
 
-When a host starts, it sends a *Router Solicitation* (RS) to `ff02::2`, the all-routers group, asking if any router is there. A router answers with a *Router Advertisement* (RA), sent to `ff02::1`, the all-nodes group, or directly to the host that asked. Routers also send RAs on their own at regular intervals. A Cisco router does this every 200 seconds by default once `ipv6 unicast-routing` is on.
+When a host starts, it sends a *Router Solicitation* (RS) to `ff02::2`, the all-routers group, asking if any router is there. A router answers with a *Router Advertisement* (RA), sent to `ff02::1`, the all-nodes group. A router may instead unicast the reply to a host that sent its RS from a real address. Routers also send RAs on their own at regular intervals. A Cisco router does this every 200 seconds by default once `ipv6 unicast-routing` is on.
 
 The RA contains the prefix and its length, the router's identity as a default gateway, and two flags, the M and O bits. These flags are not about security or priority. They are instructions about where to get configuration. A third flag, A, sits beside the prefix and tells hosts whether they are allowed to build an address from it.
 
@@ -26,7 +26,7 @@ Sometimes you want hosts to make their own addresses but get other settings, suc
 
 ## Method 3: stateful DHCPv6
 
-When you want to control which host gets which address, as with IPv4 DHCP, the router sets the M flag (*managed address configuration*). The host gets its address, and its other settings, from a DHCPv6 server that tracks leases. This is *stateful DHCPv6*. On the router the command is `ipv6 nd managed-config-flag`. The host still learns its default gateway from the RA, because DHCPv6 does not hand out a gateway. The router typically also clears the A flag so hosts do not make their own address.
+When you want to control which host gets which address, as with IPv4 DHCP, the router sets the M flag (*managed address configuration*). The host gets its address, and its other settings, from a DHCPv6 server that tracks leases. This is *stateful DHCPv6*. On the router the command is `ipv6 nd managed-config-flag`. The host still learns its default gateway from the RA, because DHCPv6 does not hand out a gateway. The router typically also clears the A flag, with `ipv6 nd prefix default no-autoconfig`, so hosts do not make their own address.
 
 | Method | Address comes from | DNS and other settings | Flags |
 | --- | --- | --- | --- |
@@ -72,5 +72,5 @@ back = "From the router advertisement. The gateway is the router's link-local ad
 
 ```recall
 front = "To which multicast groups are Router Solicitations and Router Advertisements sent?"
-back = "RS to ff02::2 (all routers). RA to ff02::1 (all nodes), or straight to the host that asked."
+back = "RS to ff02::2 (all routers). RA to ff02::1 (all nodes). A router may unicast a reply to a host that sent its RS from a real address."
 ```

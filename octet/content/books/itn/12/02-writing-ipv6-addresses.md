@@ -12,7 +12,7 @@ An address is 128 bits, written in hexadecimal as eight groups of four digits se
 
 `2001:0db8:0000:0000:00a0:0000:0000:0001`
 
-Hex digits can be written in upper or lower case. RFC 5952, which recommends one canonical text form, prefers lowercase, and most hosts follow it. Cisco IOS displays addresses in uppercase in its output. They are the same address.
+Hex digits can be written in upper or lower case. RFC 5952, which defines one canonical text form, requires lowercase. Cisco IOS displays addresses in uppercase in its output. They are the same address.
 
 ## Rule 1: drop leading zeros
 

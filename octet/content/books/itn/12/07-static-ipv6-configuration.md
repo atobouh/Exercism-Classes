@@ -4,7 +4,7 @@ summary = "Type in a GUA and a memorable link-local address on each router inter
 links = ["itn/12/06-link-local-addresses", "itn/12/12-verifying-ipv6", "itn/10/03-configuring-router-interfaces"]
 +++
 
-You already know how to give a router interface an IPv4 address. IPv6 needs the same steps with a few additions: a switch to turn IPv6 forwarding on, a global address and, if you want it, a short link-local address that is easy to read. This page walks through the router side, then the host side.
+You already know how to give a router interface an IPv4 address. IPv6 needs the same steps with a few additions: a global command to turn IPv6 routing on, a global address and, if you want it, a short link-local address that is easy to read. This page walks through the router side, then the host side.
 
 ## Turn on IPv6 routing first
 
@@ -65,7 +65,7 @@ Serial0/1/0            [administratively down/down]
     unassigned
 ```
 
-Each interface line shows the status in brackets, `[up/up]` when the line and protocol are both up. Below it, indented, are the addresses: first the link-local, then each global address, in uppercase. An interface that is shut or has no IPv6 shows `unassigned`.
+Each interface line shows the status in brackets, `[up/up]` when the line and protocol are both up. Below it, indented, are the addresses: first the link-local, then each global address, in uppercase. An interface with no IPv6 configured shows `unassigned`.
 
 ## A static address on a host
 

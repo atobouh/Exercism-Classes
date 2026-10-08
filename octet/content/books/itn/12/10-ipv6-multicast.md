@@ -8,7 +8,7 @@ IPv6 has no broadcast, so something else has to do the jobs a broadcast used to 
 
 ## The multicast block
 
-All IPv6 multicast addresses start with `ff`, so the block is `ff00::/8`. The second hextet's digits tell you the scope. The `ff02::` addresses, for example, stay on the local link and are never forwarded by a router. Several of them are *well-known assigned* addresses, fixed for a purpose.
+All IPv6 multicast addresses start with `ff`, so the block is `ff00::/8`. The second hex digit (after `ff0`) tells you the scope. The `ff02::` addresses, for example, stay on the local link and are never forwarded by a router. Several of them are *well-known assigned* addresses, fixed for a purpose.
 
 | Address | Group | Who joins |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ A second example with a MAC-derived address: `2001:db8:acad:1:250:79ff:fe66:6800
 
 ## Multicast on Ethernet
 
-An IPv6 multicast packet is delivered inside an Ethernet frame whose destination MAC starts with `33-33`. The last four bytes of the MAC copy the last four bytes of the IPv6 address. For `ff02::1` that is `33-33-00-00-00-01`. For `ff02::1:ff00:10` it is `33-33-FF-00-00-10`. Because those frames are multicast, switches flood them within the VLAN unless told otherwise, but a host's network card drops groups it has not joined without bothering the CPU.
+An IPv6 multicast packet is delivered inside an Ethernet frame whose destination MAC starts with `33-33`. The last four bytes of the MAC copy the last four bytes of the IPv6 address. For `ff02::1` that is `33-33-00-00-00-01`. For `ff02::1:ff00:10` it is `33-33-FF-00-00-10`. Because those frames are multicast, switches flood them within the VLAN unless told otherwise, but a host's network card usually filters out groups it has not joined, so the CPU never sees them.
 
 ## Seeing the groups on a router
 
