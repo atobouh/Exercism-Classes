@@ -21,7 +21,7 @@ ip dhcp pool LAN-POOL-1
  lease 7
 ```
 
-Check that the exclusion covers every static address and that the `network` line matches the subnet you meant.
+Check that the exclusion covers every static address and that the `network` line matches the subnet you meant. A typo here is the most common reason a pool does nothing: for example, a `network` statement for 192.168.1.0 on a router whose LAN is 192.168.10.0 is perfectly valid, and it will never match a single client. The running configuration shows what you asked for, not whether the server is using it, so move on to the next commands to see the result.
 
 ## What has been leased
 
