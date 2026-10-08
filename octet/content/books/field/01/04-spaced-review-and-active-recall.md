@@ -25,7 +25,7 @@ why = "Answering from memory and then checking is active recall. Rereading, high
 
 ## The spacing effect
 
-The second finding is about timing. The same total study time works much better spread over days and weeks than crammed into one sitting. This is the *spacing effect*. An hour of review split into six ten-minute sessions across two weeks beats one solid hour the night before.
+The second finding is about timing. The same total study time works much better spread over days and weeks than crammed into one sitting. This is the *spacing effect*. For lasting memory, an hour of review split into six ten-minute sessions across two weeks usually beats one solid hour the night before.
 
 The reason ties back to recall. A review is most useful when it is a little hard: you have started to forget and must work to retrieve the answer. Cramming reviews what you remember from ten minutes ago, which feels productive and does little.
 
@@ -33,11 +33,11 @@ The reason ties back to recall. A review is most useful when it is a little hard
 
 Picture a line falling over time: how likely you are to remember a fact. Right after you learn it the line is high, then it drops quickly over the first day or two. That shape is the *forgetting curve*.
 
-Each successful recall does two things: it lifts the line back up, and it makes the next fall slower. So the gap before the next review can be longer each time. A fact you recall well after one day might next need checking after six days, then after two weeks, then after a month. A handful of well-timed reviews can keep a fact for years.
+Each successful recall does two things: it lifts the line back up, and it makes the next fall slower. So the gap before the next review can be longer each time. A fact you recall well after one day might next need checking after six days, then after two weeks, then after a month. A handful of well-timed reviews can keep a fact for a long time.
 
 ## How Octet schedules your cards
 
-Every `question`, `command` and `recall` block in these books becomes a review card the first time you meet it. When a card is due, you answer it, reveal the answer, and grade yourself with one of four buttons:
+Every `question`, `command` and `recall` block in these books becomes a review card once you answer it on the page. That first answer counts as the first review: right sets the card to come back in 1 day, wrong in about 10 minutes. When a card is due, you answer it, reveal the answer, and grade yourself with one of four buttons:
 
 | Grade | Use it when | What happens next |
 | --- | --- | --- |
@@ -46,28 +46,28 @@ Every `question`, `command` and `recall` block in these books becomes a review c
 | Good | You got it after normal thought | The gap grows: 1 day, then 6, then about 2.5 times the last gap |
 | Easy | It came instantly | A longer jump (4 days the first time), and later gaps grow faster |
 
-A card you keep answering well drifts out to weeks and months. A card you miss comes back within minutes. A question you get wrong is also kept under "Things I got wrong", so your weak spots sit in one place.
+A card you keep answering well drifts out to weeks and months. A question you get wrong is also kept under "Things I got wrong", so your weak spots sit in one place.
 
 ```recall
-front = "In Octet's review, a new card graded Good, then Good again: when does it come back each time?"
-back = "After 1 day, then after 6 days. After that each Good multiplies the gap, by about 2.5 at first."
+front = "In Octet's review, a new card answered correctly and then graded Good each time it is due: when does it come back each time?"
+back = "After 1 day, then 6 days. After that each Good multiplies the gap, by about 2.5 at first."
 ```
 
 ## Rate honestly
 
-The schedule is only as good as your grades. If you hesitated, guessed, or got half of it, that is Hard or Again, not Good. Grading a shaky card as Good pushes it out to next week, and by then you have lost it. Nobody sees your grades; the only person a generous grade fools is you.
+The schedule is only as good as your grades. If you hesitated, guessed, or got half of it, that is Hard or Again, not Good. Grading a shaky card as Good pushes it out to next week, and by then you have lost it. A generous grade fools only you.
 
 For `command` cards, Octet checks what you typed. For `recall` cards you are the judge, so say the answer fully in your head (or out loud) before you reveal it. "I'd have got that" is not an answer.
 
 ## Interleaving
 
-If you review twenty subnetting cards in a row, by the fifth you are on autopilot: you know every answer is a subnet, so you never have to decide what kind of problem it is. Real work and real exams do not label the problem for you. *Interleaving* means mixing topics in one session: a subnetting card, then an STP card, then an ACL card. It feels harder, and it builds the skill of recognizing which tool a problem needs. Octet's review queue mixes cards from every page you have read for this reason.
+If you review twenty subnetting cards in a row, by the fifth you are on autopilot: you know every answer is a subnet, so you never have to decide what kind of problem it is. Real work and real exams do not label the problem for you. *Interleaving* means mixing topics in one session: a subnetting card, then an STP card, then an ACL card. It feels harder, and it tends to build the skill of recognizing which tool a problem needs. Octet's review queue lists due cards by due date, whatever page they came from, so topics mix on their own.
 
 ## How much, and how often
 
 Short and daily beats long and weekly. Fifteen minutes of review each day keeps the queue small, catches cards right when they are due, and gives you the spacing for free. A two-hour session once a week lets cards pile up past their best moment and turns review into a chore you skip.
 
-New pages raise the number of due cards for a few days, and then it settles. If the queue grows faster than you can clear it, read fewer new pages for a while.
+If the queue grows faster than you can clear it, read fewer new pages for a while.
 
 ## Writing your own cards
 

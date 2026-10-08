@@ -4,7 +4,7 @@ summary = "Why learning how a network behaves lasts longer, and works better, th
 links = ["field/01/02-follow-the-packet", "field/01/04-spaced-review-and-active-recall", "field/06/02-how-hsrp-works", "itn/15/06-dhcp"]
 +++
 
-Two people study the same chapter on first hop redundancy. The first can tell you that an HSRP router sends a hello every 3 seconds. The second can tell you why it sends hellos at all: the standby router has no other way to know the active router is still alive, so silence is the signal to take over. Ask both of them what happens when a firewall between the two routers starts dropping those hellos, and only the second can answer. Both routers stop hearing each other, both decide they are active, and you now have two gateways answering for one address.
+Two people study the same chapter on first hop redundancy. The first can tell you that an HSRP router sends a hello every 3 seconds. The second can tell you why it sends hellos at all: the standby router has no other way to know the active router is still alive, so silence is the signal to take over. Ask both of them what happens when a firewall between the two routers starts dropping those hellos, and only the second can answer. Each stops hearing the other, both decide they are active, and you now have two gateways answering for one address.
 
 This page is about how to study so you become the second person.
 
@@ -76,7 +76,7 @@ Every page works the same way, and the order matters:
 4. **Let the review cards bring it back.** Every question, command and recall card on the page returns in your review queue days later, right when you are close to forgetting it.
 
 ```trap
-Reading a page twice feels like learning, because the second reading is smooth and familiar. Familiar is not the same as remembered. The test is whether you can produce the answer with the page closed. Answering questions, even wrongly, builds memory far better than another read.
+Reading a page twice feels like learning, because the second reading is smooth and familiar. Familiar is not the same as remembered. The test is whether you can produce the answer with the page closed. Trying to answer from memory, even when you get it wrong, usually helps more than another read.
 ```
 
 ```recall

@@ -69,7 +69,7 @@ Serial0/1/0            unassigned      YES unset  administratively down down
 GigabitEthernet0       unassigned      YES NVRAM  down                  down
 ```
 
-The Status column is the first word pair's first half, and Protocol is the second. `unassigned` means the interface has no IPv4 address. That is normal on a switch port or an unused interface, and a problem on a router interface you meant to use. The Method column shows how the address was set: `manual` (typed), `DHCP`, or `unset`.
+The Status column is the first word pair's first half, and Protocol is the second. `unassigned` means the interface has no IPv4 address. That is normal on a switch port or an unused interface, and a problem on a router interface you meant to use. The Method column shows how the address was set: for example `manual` (typed), `DHCP`, `NVRAM` (from the saved configuration) or `unset`.
 
 ```command
 prompt = "Serial0/1/0 shows administratively down. Bring it up."

@@ -8,7 +8,7 @@ Good habits fall apart without a routine. This page turns the chapter into a wee
 
 ## A sample week
 
-Adjust the days to your life, and keep the shape. Reading and typing happen on separate days. Review happens every day, because that is what the spacing effect needs.
+Adjust the days to your life, and keep the shape. Reading and typing happen on separate days. Review happens every day, because a small daily queue catches each card close to when it is due.
 
 | Day | Main work | Every day |
 | --- | --- | --- |

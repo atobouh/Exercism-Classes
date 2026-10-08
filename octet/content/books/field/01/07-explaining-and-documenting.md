@@ -112,8 +112,8 @@ Keep a *change log* in your lab: date, device, what you changed and why, and wha
 
 | Time | Device | Change | Result |
 | --- | --- | --- | --- |
-| 19:05 | S1 | Removed VLAN 30 from the trunk allowed list | Guest PC lost its gateway, as expected |
-| 19:12 | S1 | Added VLAN 30 back | Ping to 192.168.30.1 works |
+| 19:05 | S1 | Removed VLAN 20 from the trunk allowed list | Engineering PC lost its gateway, as expected |
+| 19:12 | S1 | Added VLAN 20 back | Ping to 192.168.20.1 works |
 
 It looks like overkill for a lab. It is the same habit that saves a real network at two in the morning, when the question is "what changed since it last worked?"
 
