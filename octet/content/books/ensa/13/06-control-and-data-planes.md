@@ -23,10 +23,15 @@ The *data plane*, also called the forwarding plane, moves traffic. For each arri
 
 On Cisco routers and Layer 3 switches, forwarding uses *Cisco Express Forwarding* (CEF). The control plane's routing table is turned into a *FIB* (forwarding information base), an optimized copy built for quick lookup. Alongside it sits the *adjacency table*, which holds the Layer 2 rewrite information for each next hop, such as its MAC address learned through ARP. To forward a packet, the hardware finds the matching prefix in the FIB, then uses the adjacency entry to build the new Layer 2 header.
 
+The FIB is what `show ip cef` prints. Each prefix points to a next hop and an exit interface.
+
 ```console R1
-R1# show ip cef 10.1.1.0
-10.1.1.0/24
-  nexthop 192.168.12.2 GigabitEthernet0/0/1
+R1# show ip cef
+Prefix               Next Hop             Interface
+0.0.0.0/0            192.168.12.2         GigabitEthernet0/0/1
+10.1.1.0/24          192.168.12.2         GigabitEthernet0/0/1
+192.168.12.0/24      attached             GigabitEthernet0/0/1
+192.168.12.1/32      receive              GigabitEthernet0/0/1
 ```
 
 ```question

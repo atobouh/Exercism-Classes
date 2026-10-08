@@ -17,7 +17,7 @@ The OSI model has seven layers. The top three are the application, presentation 
 | 5 Session | Starting, keeping and restarting dialogs | Application |
 | 4 Transport | Delivering data between processes | Transport |
 
-Everything above the transport layer is the application layer's business. Everything below it just moves bytes.
+Everything above the transport layer is the application layer's business. Everything below it moves bytes.
 
 ## The presentation layer
 
@@ -42,7 +42,7 @@ why = "Formatting, compression and encryption belong to the presentation layer. 
 
 ## Applications and protocols are different things
 
-It is easy to blur two ideas.
+It is common to blur two ideas.
 
 - An *application* is the program you use: a web browser, an email app, a file-transfer tool.
 - An *application layer protocol* is the set of rules that program uses to talk to a server: HTTP, SMTP, DNS.

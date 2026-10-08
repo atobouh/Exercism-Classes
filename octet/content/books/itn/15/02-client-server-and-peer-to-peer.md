@@ -34,7 +34,7 @@ why = "In a peer-to-peer application each peer requests data (client role) and s
 
 ## Hybrid systems
 
-Some systems mix the two models. A central server keeps an index of who has what, and peers ask the index where to find an item. The actual transfer then goes directly between the peers. The central part is easy to search and manage, and the bulk of the traffic never passes through it.
+Some systems mix the two models. A central server keeps an index of who has what, and peers ask the index where to find an item. The actual transfer then goes directly between the peers. The central part can be searched and managed from one place, and the bulk of the traffic never passes through it.
 
 ## Comparing the models
 
