@@ -14,7 +14,7 @@ Two findings from memory research do most of the work: *active recall* and *spac
 
 The act of retrieving a memory changes it. Each time you dig an answer out, the path to it gets stronger, and the next retrieval is quicker and more certain. Rereading builds a feeling of familiarity, which is real but misleading: you recognize the words when you see them, and still cannot produce them when the page is closed. Researchers call the benefit of retrieval the *testing effect*, and it holds even when the test has no grade and nobody sees the result.
 
-Getting an answer wrong still helps, as long as you see the right answer straight after. The failed attempt marks exactly where the gap is, and the correction lands harder because of it.
+Getting an answer wrong still helps, as long as you see the right answer straight after. The failed attempt marks the gap, and the correction lands harder because of it.
 
 ```question
 prompt = "You have 20 minutes to prepare for questions on STP port roles. Which use of the time builds the most lasting memory?"
@@ -27,7 +27,7 @@ why = "Answering from memory and then checking is active recall. Rereading, high
 
 The second finding is about timing. The same total study time works much better spread over days and weeks than crammed into one sitting. This is the *spacing effect*. An hour of review split into six ten-minute sessions across two weeks beats one solid hour the night before.
 
-The reason ties back to recall. A review is most useful when it is a little hard: when you have started to forget and have to work to retrieve the answer. Cramming reviews things you still remember from ten minutes ago, which feels productive and does little.
+The reason ties back to recall. A review is most useful when it is a little hard: you have started to forget and must work to retrieve the answer. Cramming reviews what you remember from ten minutes ago, which feels productive and does little.
 
 ## The forgetting curve
 
@@ -46,7 +46,7 @@ Every `question`, `command` and `recall` block in these books becomes a review c
 | Good | You got it after normal thought | The gap grows: 1 day, then 6, then about 2.5 times the last gap |
 | Easy | It came instantly | A longer jump (4 days the first time), and later gaps grow faster |
 
-A card you keep answering well drifts out to weeks and months. A card you miss comes back the same session. Any question you get wrong is also kept under "Things I got wrong", so you can see your weak spots in one place.
+A card you keep answering well drifts out to weeks and months. A card you miss comes back within minutes. A question you get wrong is also kept under "Things I got wrong", so your weak spots sit in one place.
 
 ```recall
 front = "In Octet's review, a new card graded Good, then Good again: when does it come back each time?"
@@ -61,13 +61,13 @@ For `command` cards, Octet checks what you typed. For `recall` cards you are the
 
 ## Interleaving
 
-If you review twenty subnetting cards in a row, by the fifth you are on autopilot: you know every answer is a subnet, so you never have to decide what kind of problem it is. Real work and real exams do not label the problem for you. *Interleaving* means mixing topics in one session: a subnetting card, then an STP card, then an ACL card. It feels harder and slower, and it builds the skill of recognizing which tool a problem needs. Octet's review queue mixes cards from every page you have read for this reason.
+If you review twenty subnetting cards in a row, by the fifth you are on autopilot: you know every answer is a subnet, so you never have to decide what kind of problem it is. Real work and real exams do not label the problem for you. *Interleaving* means mixing topics in one session: a subnetting card, then an STP card, then an ACL card. It feels harder, and it builds the skill of recognizing which tool a problem needs. Octet's review queue mixes cards from every page you have read for this reason.
 
 ## How much, and how often
 
 Short and daily beats long and weekly. Fifteen minutes of review each day keeps the queue small, catches cards right when they are due, and gives you the spacing for free. A two-hour session once a week lets cards pile up past their best moment and turns review into a chore you skip.
 
-When you add new pages, the number of due cards rises for a few days and then settles. If the queue grows faster than you can clear it, read fewer new pages for a while.
+New pages raise the number of due cards for a few days, and then it settles. If the queue grows faster than you can clear it, read fewer new pages for a while.
 
 ## Writing your own cards
 
