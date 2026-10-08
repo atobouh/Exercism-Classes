@@ -83,7 +83,7 @@ Always check that the start is a multiple of the size. It is the same boundary r
 
 ## Odd shapes
 
-A wildcard does not have to be a run of ones on the right. Because each bit is independent, `192.168.10.1 0.0.0.254` matches every address whose last octet ends in 1, which means all odd hosts. These *non-contiguous* wildcards exist and you may see one in someone else's configuration. Recognize them and do not design around them. They are hard to read and easy to get wrong.
+A wildcard does not have to be a run of ones on the right. Because each bit is independent, `192.168.10.1 0.0.0.254` matches every address whose last octet ends in 1, which means all odd hosts. These *non-contiguous* wildcards exist and you may see one in someone else's configuration. Recognize them and do not design around them. They are hard to read and prone to mistakes.
 
 ```recall
 front = "How do you get a wildcard mask from a subnet mask?"
