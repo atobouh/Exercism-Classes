@@ -18,7 +18,7 @@ body { font: 400 14px/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; }
   --cover-shadow: 0 1px 0 oklch(100% 0 0 / 0.08) inset, 0 2px 3px oklch(25% 0.02 60 / 0.12), 0 22px 30px -18px oklch(25% 0.03 60 / 0.45);
   --edge: oklch(25% 0.02 60 / 0.1); --drop: oklch(20% 0.03 60 / 0.4);
   --ok: oklch(55% 0.12 155); --dot: oklch(82% 0.006 70); --card-lift: 0 6px 16px -10px oklch(25% 0.02 60 / 0.32);
-  width: 100vw; height: 100vh; min-width: 1040px; min-height: 640px; display: grid; grid-template-columns: 224px minmax(0, 1fr); background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--f-ui); overflow: hidden; position: relative; outline: none;
+  width: 100vw; height: 100vh; min-width: 1040px; min-height: 640px; display: grid; grid-template-columns: 224px minmax(0, 1fr); grid-template-rows: 38px minmax(0, 1fr); background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--f-ui); overflow: hidden; position: relative; outline: none;
 }
 .lb[data-theme="dark"] {
   --bg: oklch(21% 0.005 70); --list: oklch(19.6% 0.005 70); --side: oklch(18% 0.005 70); --hover: oklch(24.5% 0.006 70); --sel: oklch(27% 0.007 70);
@@ -337,3 +337,37 @@ body { font: 400 14px/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; }
 
 .lab-title { min-width: 0; } .lab-title span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lab-bar .sp { min-width: 12px; }
+
+/* ---------- the window's own title bar ---------- */
+.titlebar { grid-column: 1 / -1; display: grid; grid-template-columns: 224px minmax(0, 1fr) auto; align-items: stretch; height: 38px; user-select: none; -webkit-user-select: none; position: relative; z-index: 60; }
+.tb-brand { display: flex; align-items: center; gap: 9px; padding: 0 20px; background: var(--side); border-right: 1px solid var(--line); }
+.tb-brand svg { width: 17px; height: 17px; pointer-events: none; }
+.tb-brand b { font: 500 17px/1 var(--f-book); letter-spacing: -0.01em; color: var(--ink); }
+.tb-where { display: flex; align-items: center; padding: 0 24px; font-size: 12.5px; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-bottom: 1px solid var(--line); min-width: 0; }
+.tb-where b { color: var(--ink2); font-weight: 500; pointer-events: none; }
+.tb-where span { pointer-events: none; }
+.tb-where .sep { margin: 0 8px; opacity: .6; }
+.tb-ctl { display: flex; border-bottom: 1px solid var(--line); }
+.tb-ctl button { width: 46px; height: 37px; display: grid; place-items: center; border: 0; background: transparent; color: var(--ink2); cursor: default; transition: background-color 90ms ease, color 90ms ease; }
+.tb-ctl button:hover { background: var(--hover); color: var(--ink); }
+.tb-ctl button:active { background: var(--sel); }
+.tb-ctl button.close:hover { background: oklch(55% 0.19 27); color: oklch(99% 0.003 85); }
+.tb-ctl button.close:active { background: oklch(49% 0.18 27); }
+.tb-ctl button:focus-visible { outline-offset: -3px; }
+.tb-ctl svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round; }
+.tb-ctl .i-restore { display: none; } .lb.maxed .tb-ctl .i-max { display: none; } .lb.maxed .tb-ctl .i-restore { display: block; }
+.lb.blurred .tb-brand, .lb.blurred .tb-where, .lb.blurred .tb-ctl button { color: var(--ink3); }
+.side { grid-row: 2; padding-top: 14px; grid-template-rows: minmax(0, 1fr) auto; }
+.main { grid-row: 2; }
+.labw { top: 38px; }
+/* chrome isn't text: only reading, notes and consoles can be selected */
+.side, .list, .ed-bar, .lab-bar, .cvtools, .lp-tabs, .lp-head, .shelf, .dcard, .ncard header, .grades, .opts, .lib-head, .continue { user-select: none; -webkit-user-select: none; }
+img, svg { -webkit-user-drag: none; }
+/* our own right-click menu */
+.ctx { position: fixed; z-index: 100; min-width: 200px; padding: 4px; border-radius: 10px; background: var(--bg); box-shadow: 0 0 0 1px var(--line2), var(--shadow); display: grid; user-select: none; }
+.ctx button { border: 0; background: transparent; text-align: left; padding: 7px 10px; border-radius: 7px; font: 400 13.5px var(--f-ui); color: var(--ink); display: flex; justify-content: space-between; gap: 18px; cursor: default; }
+.ctx button:hover { background: var(--hover); }
+.ctx button[disabled] { color: var(--ink3); } .ctx button[disabled]:hover { background: transparent; }
+.ctx button span { color: var(--ink3); font-size: 12px; }
+.ctx hr { border: 0; border-top: 1px solid var(--line); margin: 4px 6px; }
+.lb.lab-open .main, .lb.lab-open .side { visibility: hidden; }

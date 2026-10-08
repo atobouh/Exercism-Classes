@@ -10,8 +10,16 @@
 </head>
 <body>
 <div class="lb" id="lb" tabindex="0" data-theme="light">
+  <header class="titlebar" id="titlebar" data-tauri-drag-region>
+    <div class="tb-brand" data-tauri-drag-region><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3" width="4" height="14" rx="1" fill="var(--cloth-itn)"/><rect x="8" y="3" width="4" height="14" rx="1" fill="var(--cloth-srwe)"/><rect x="13.6" y="3.4" width="4" height="14" rx="1" transform="rotate(8 15.6 10.4)" fill="var(--cloth-ensa)"/></svg><b data-tauri-drag-region>Octet</b></div>
+    <div class="tb-where" id="tbWhere" data-tauri-drag-region></div>
+    <div class="tb-ctl" id="tbCtl" hidden>
+      <button type="button" data-win="min" aria-label="Minimize" title="Minimize"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 5.5h8"/></svg></button>
+      <button type="button" data-win="max" aria-label="Maximize" title="Maximize"><svg viewBox="0 0 10 10" aria-hidden="true" class="i-max"><rect x="1.5" y="1.5" width="7" height="7" rx="1"/></svg><svg viewBox="0 0 10 10" aria-hidden="true" class="i-restore"><rect x="1.5" y="3" width="5.5" height="5.5" rx="1"/><path d="M3.5 3V2.2c0-.4.3-.7.7-.7h3.6c.4 0 .7.3.7.7v3.6c0 .4-.3.7-.7.7H7"/></svg></button>
+      <button type="button" data-win="close" class="close" aria-label="Close" title="Close"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 1.5l7 7M8.5 1.5l-7 7"/></svg></button>
+    </div>
+  </header>
   <aside class="side">
-    <div class="brand"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3" width="4" height="14" rx="1" fill="var(--cloth-itn)"/><rect x="8" y="3" width="4" height="14" rx="1" fill="var(--cloth-srwe)"/><rect x="13.6" y="3.4" width="4" height="14" rx="1" transform="rotate(8 15.6 10.4)" fill="var(--cloth-ensa)"/></svg><b>Octet</b></div>
     <nav aria-label="Main" id="nav">
       <button class="si" type="button" data-go="library"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5v11M6 2.5v11M9.5 3.2l3.6 10.3"/></svg>Library</button>
       <button class="si" type="button" data-go="reading"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6.5 7.5h4M6.5 10h3"/></svg>Reading now</button>
@@ -34,7 +42,7 @@
       <div class="list"><div class="list-head"><h2 id="chTitle"></h2><span id="chSub"></span></div><div class="items" id="items"></div></div>
       <div class="ed">
         <div class="ed-bar">
-          <span class="crumbs" id="crumbs"></span>
+          <span class="crumbs" id="crumbs" hidden></span><span></span>
           <div class="ed-tools"><button class="tool" type="button" id="focusBtn" aria-pressed="false">Focus <span class="k">Ctrl .</span></button></div>
         </div>
         <div class="ed-scroll" id="edScroll"><article class="doc" id="doc"></article></div>

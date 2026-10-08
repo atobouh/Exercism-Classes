@@ -52,8 +52,11 @@
       on ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current');
     });
   };
+  const where = (...parts) => { $('#tbWhere').innerHTML = parts.filter(Boolean).map((p, i, a) => i === a.length - 1 ? `<b>${esc(p)}</b>` : `<span>${esc(p)}</span><span class="sep">/</span>`).join(''); };
   const show = (v, key) => {
     cur = v;
+    if (v === 'library') where('Library');
+    else if (v === 'review') where('Review');
     $$('.view').forEach(x => x.classList.toggle('on', x.dataset.view === v));
     markNav(key);
     hideSel();
@@ -97,6 +100,7 @@
     const b = LIB.books.find(x => x.id === id); if (!b) return;
     $('#bookIn').innerHTML = `<div class="lib-head"><h1>${esc(b.title)}</h1><p>${esc(b.short)}. ${b.pages ? `${b.read} of ${b.pages} pages read.` : 'Its pages are being written. The chapters below follow the official course.'}</p></div><div class="ch-list">${b.chapters.map(c => `<button class="ch" type="button" ${c.pages.length ? `data-open="${esc(c.pages[0].id)}"` : 'disabled'}><span>${c.number}</span>${esc(c.title)}<span>${c.pages.length ? `${c.pages.filter(p => p.read).length} of ${c.pages.length} read` : ''}</span></button>`).join('')}</div>`;
     show('book', id);
+    where('Library', b.title);
   };
 
   /* ---------- reading ---------- */
@@ -115,9 +119,9 @@
     $('#chTitle').textContent = chapter.title;
     $('#chSub').textContent = `Chapter ${chapter.number} of ${book.title}`;
     $('#items').innerHTML = chapter.pages.map(p => `<button class="it${p.read || p.id === id ? '' : ' unread'}${p.lab ? ' lab-it' : ''}" type="button" ${p.lab ? `data-lab="${esc(p.lab)}"` : `data-open="${esc(p.id)}"`} aria-current="${p.id === id}"><b>${esc(p.title)}<i>${p.lab ? (p.passed ? 'passed' : 'open lab') : p.id === id ? 'reading' : p.read ? 'read' : 'not read'}</i></b><p>${esc(p.summary)}</p>${p.notes ? `<span class="yours">${p.notes} note${p.notes > 1 ? 's' : ''} of yours</span>` : ''}</button>`).join('');
-    $('#crumbs').innerHTML = `${esc(book.title)}<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3.5 2l3 3-3 3"/></svg>${esc(chapter.title)}`;
     renderDoc(index, chapter.pages.length);
     show('reading');
+    where(book.title, chapter.title, PAGE.page.meta.title);
     $('#edScroll').scrollTop = 0;
     if (block) { const el = $(`#course [data-b="${block}"]`); if (el) el.scrollIntoView({ block: 'center' }); }
     api('set_ribbon', { page: id, block: block || 0 }).catch(() => {});
@@ -230,6 +234,7 @@
     $('#colSub').textContent = c.pieces.length ? `${c.pieces.length} piece${c.pieces.length > 1 ? 's' : ''}, collected while reading and reviewing.` : 'Nothing here yet.';
     $('#colBlocks').innerHTML = c.pieces.length ? c.pieces.slice().reverse().map(piece).join('') : `<p style="margin:0;color:var(--ink3);grid-column:1/-1">${id === 'wrong' ? 'Questions you get wrong land here on their own, with the right answer.' : 'Select a sentence or a command while reading, then press Collect.'}</p>`;
     show('collection', id);
+    where('Collections', c.title);
   });
 
   /* ---------- review ---------- */
@@ -435,11 +440,12 @@
     curDev = (LAB.view.devices.find(d => d.kind === 'router') || LAB.view.devices[0]).name;
     pane = 'console';
     $('#labTitle').textContent = LAB.view.title; $('#labSub').textContent = LAB.summary;
-    labw.classList.add('on'); hideSel(); setTool('move');
+    labw.classList.add('on'); lb.classList.add('lab-open'); hideSel(); setTool('move');
+    where('Lab', LAB.view.title);
     renderBrief(); refreshMap(); renderPanel();
     setTimeout(() => $('#runChk').focus({ preventScroll: true }), 50);
   });
-  const closeLab = async () => { labOn = false; labw.classList.remove('on'); await refresh(); if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
+  const closeLab = async () => { labOn = false; labw.classList.remove('on'); lb.classList.remove('lab-open'); closeCtx(); await refresh(); if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
   $('#labBack').addEventListener('click', closeLab);
   labw.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); runChecks(); return; }
@@ -477,5 +483,73 @@
     }
   });
 
-  safe(async () => { await refresh(); renderLibrary(); })();
+  /* ---------- the window itself ---------- */
+  const tauriWin = window.__TAURI__ && window.__TAURI__.window ? window.__TAURI__.window.getCurrentWindow() : null;
+  if (tauriWin) {
+    $('#tbCtl').hidden = false;
+    const syncMax = async () => lb.classList.toggle('maxed', await tauriWin.isMaximized());
+    $('#tbCtl').addEventListener('click', e => {
+      const b = e.target.closest('[data-win]'); if (!b) return;
+      if (b.dataset.win === 'min') tauriWin.minimize();
+      else if (b.dataset.win === 'max') tauriWin.toggleMaximize().then(syncMax);
+      else tauriWin.close();
+    });
+    tauriWin.onResized(syncMax); syncMax();
+    tauriWin.onFocusChanged(({ payload }) => lb.classList.toggle('blurred', !payload));
+  }
+
+  // Our own right-click menu instead of the browser's.
+  let ctx = null;
+  const closeCtx = () => { if (ctx) { ctx.remove(); ctx = null; } };
+  const openCtx = (x, y, items) => {
+    closeCtx();
+    ctx = document.createElement('div'); ctx.className = 'ctx'; ctx.setAttribute('role', 'menu');
+    ctx.innerHTML = items.map((it, i) => it === '-' ? '<hr>' : `<button type="button" role="menuitem" data-i="${i}" ${it.off ? 'disabled' : ''}>${esc(it.label)}${it.key ? `<span>${esc(it.key)}</span>` : ''}</button>`).join('');
+    lb.appendChild(ctx);
+    const r = ctx.getBoundingClientRect();
+    ctx.style.left = Math.min(x, innerWidth - r.width - 8) + 'px'; ctx.style.top = Math.min(y, innerHeight - r.height - 8) + 'px';
+    ctx.addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (!b || b.disabled) return; const it = items[+b.dataset.i]; closeCtx(); it.run(); });
+  };
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    const field = e.target.closest('input, textarea');
+    const sel = window.getSelection(), text = sel && !sel.isCollapsed ? sel.toString() : '';
+    const items = [];
+    if (field) {
+      items.push({ label: 'Cut', key: 'Ctrl X', off: field.selectionStart === field.selectionEnd, run: () => document.execCommand('cut') });
+      items.push({ label: 'Copy', key: 'Ctrl C', off: field.selectionStart === field.selectionEnd, run: () => document.execCommand('copy') });
+      items.push({ label: 'Paste', key: 'Ctrl V', run: async () => { try { const t = await navigator.clipboard.readText(); field.setRangeText(t, field.selectionStart, field.selectionEnd, 'end'); } catch { toast('Use Ctrl V to paste here.'); } } });
+      items.push('-', { label: 'Select all', key: 'Ctrl A', run: () => field.select() });
+    } else if (text && cur === 'reading' && e.target.closest('#course p[data-b]')) {
+      items.push({ label: 'Highlight', run: () => selbar.querySelector('[data-act="mark"]').click() });
+      items.push({ label: 'Add a note', run: () => selbar.querySelector('[data-act="note"]').click() });
+      items.push({ label: 'Collect', run: () => selbar.querySelector('[data-act="collect"]').click() });
+      items.push('-', { label: 'Copy', key: 'Ctrl C', run: () => navigator.clipboard.writeText(text).catch(() => document.execCommand('copy')) });
+    } else if (text) {
+      items.push({ label: 'Copy', key: 'Ctrl C', run: () => navigator.clipboard.writeText(text).catch(() => document.execCommand('copy')) });
+    } else {
+      items.push({ label: 'Library', run: () => lb.querySelector('[data-go="library"]').click() });
+      items.push({ label: 'Reading now', run: () => lb.querySelector('[data-go="reading"]').click() });
+      items.push({ label: 'Review', run: () => lb.querySelector('[data-go="review"]').click() });
+      items.push('-', { label: lb.dataset.theme === 'dark' ? 'Light theme' : 'Dark theme', run: () => setTheme(lb.dataset.theme === 'dark' ? 'light' : 'dark') });
+    }
+    openCtx(e.clientX, e.clientY, items);
+  });
+  document.addEventListener('pointerdown', e => { if (ctx && !e.target.closest('.ctx')) closeCtx(); }, true);
+  window.addEventListener('blur', closeCtx);
+
+  // This is an app, not a web page: no reload, print, find bar or view source.
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeCtx();
+    const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
+    if (e.key === 'F5' || e.key === 'F3' || e.key === 'F7' || (mod && ['r', 'p', 'u', 'f', 'g', 'j', 's', 'o', 'n', 'h'].includes(k)) || (mod && e.shiftKey && ['i', 'c'].includes(k)) || (e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight'))) e.preventDefault();
+  }, true);
+  document.addEventListener('dragstart', e => { if (!e.target.closest || !e.target.closest('#course')) e.preventDefault(); });
+  window.addEventListener('wheel', e => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+
+  safe(async () => {
+    await refresh(); renderLibrary();
+    // The window stays hidden until the first screen is drawn, so it never flashes white.
+    if (tauriWin) requestAnimationFrame(() => tauriWin.show());
+  })();
 })();

@@ -30,6 +30,16 @@ fn main() {
             let data = app.path().app_data_dir()?.join("octet.json");
             let state = octet_api::App::open(&content, &data)?;
             app.manage(State(Mutex::new(state)));
+            // The interface shows the window once it has drawn. If that never
+            // happens, show it anyway so Octet can't start invisible.
+            if let Some(win) = app.get_webview_window("main") {
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_secs(3));
+                    if !win.is_visible().unwrap_or(true) {
+                        let _ = win.show();
+                    }
+                });
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![api])
