@@ -1,0 +1,1934 @@
+book = "srwe"
+
+# ---------------------------------------------------------------------------
+# Chapter 1. SRWE module 1: Basic device configuration
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 1
+title = "Basic device configuration"
+
+[[chapter.page]]
+name = "01-from-power-on-to-prompt"
+title = "From power on to prompt"
+summary = "What a Cisco switch does between the moment you plug it in and the moment it shows you a prompt."
+teaches = [
+  "Scene: a new switch arrives for a small office with two LANs and one router; this chapter takes both boxes from factory state to managed, secure and verified",
+  "The switch boot sequence in order: POST, boot loader, low-level CPU initialization, flash file system initialization, then loading the IOS image into RAM",
+  "The BOOT environment variable and `boot system flash:/...bin` in global configuration; with no BOOT variable the switch loads the first executable image it finds in flash",
+  "Front-panel LEDs on a Catalyst 2960: SYST, RPS, STAT, DUPLX, SPEED and PoE, and how the Mode button cycles the port LEDs between modes",
+  "Recovering from a crash or a missing image: hold the Mode button while powering on to reach the `switch:` boot loader prompt, then `flash_init`, `dir flash:`, `set BOOT flash:...` and `boot`",
+  "Misconception: the boot loader is not ROMMON-style IOS; it understands only a small set of commands, so you fix the image path and boot, then configure in IOS",
+  "Show the start of `show version` on a switch: IOS version, uptime, image file name, and the configuration register line",
+  "Recall cards: boot order, how to reach the boot loader, what the BOOT variable controls",
+]
+
+[[chapter.page]]
+name = "02-the-switch-management-interface"
+title = "The switch management interface"
+summary = "A Layer 2 switch gets an IP address on a virtual interface so you can reach it over the network."
+teaches = [
+  "Why a Layer 2 switch needs an IP address at all: only for management (SSH, SNMP, ping), never for forwarding frames",
+  "The switch virtual interface (SVI): `interface vlan 99`, `ip address 172.17.99.11 255.255.255.0`, optional `ipv6 address 2001:db8:acad:99::11/64`, `no shutdown`",
+  "VLAN 1 is the default management SVI; best practice is a dedicated management VLAN such as 99 (VLANs themselves are taught in chapter 3)",
+  "`ip default-gateway 172.17.99.1` so the switch can answer management hosts on other subnets; a switch with no gateway can only be managed from its own subnet",
+  "An SVI comes up/up only when its VLAN exists and at least one port in that VLAN is up; show `show ip interface brief` with Vlan99 up/down and explain why",
+  "Verify with `show ip interface brief`, `show ipv6 interface brief` and `show running-config interface vlan 99`",
+  "Save with `copy running-config startup-config` and explain running versus startup configuration in one paragraph",
+  "A `command` block for `ip default-gateway` and a `question` on why a remote ping to the switch fails without it",
+]
+
+[[chapter.page]]
+name = "03-duplex-speed-and-auto-mdix"
+title = "Duplex, speed and auto-MDIX"
+summary = "Each switch port agrees speed and duplex with the device on the other end, and can fix a wrong cable type by itself."
+teaches = [
+  "Half duplex versus full duplex: half duplex shares the medium and uses CSMA/CD, full duplex sends and receives at once with no collisions",
+  "Autonegotiation of speed and duplex is the default; manual settings with `duplex full` and `speed 100` at `S1(config-if)#`",
+  "Gigabit and faster copper ports run only full duplex; 10/100 ports can run half",
+  "A duplex mismatch: one side full, the other half; the link comes up but performs badly, with late collisions on the half-duplex side and CRC errors or runts on the full-duplex side",
+  "Misconception: setting one side manually and leaving the other on auto often produces a mismatch, because the auto side falls back to half duplex when it cannot negotiate at 10 or 100 Mbps",
+  "Auto-MDIX: the port detects a straight-through versus crossover cable and adjusts; `mdix auto` on the interface; enabled by default on current Catalyst switches",
+  "Verify with `show interfaces fa0/1` (the `Full-duplex, 100Mb/s` line) and `show controllers ethernet-controller fa0/1 phy | include MDIX`",
+  "A `table` comparing half and full duplex, and recall cards on mismatch symptoms",
+]
+
+[[chapter.page]]
+name = "04-reading-interface-errors"
+title = "Reading interface errors"
+summary = "The counters in show interfaces tell you whether a link problem is the cable, the duplex or the far end."
+teaches = [
+  "`show interfaces fa0/18` output, walking through the status line (`is up, line protocol is up`), the duplex/speed line and the counters block",
+  "Input errors: the total of runts, giants, CRC, no buffer, frame, overrun and ignored counts",
+  "Runts are frames shorter than 64 bytes; giants are frames larger than the maximum (1518 bytes for untagged Ethernet); CRC errors mean the FCS did not match, usually noise or a bad cable",
+  "Output errors, collisions and late collisions; collisions are normal only on half duplex; late collisions (after the first 512 bits) point to a duplex mismatch or an over-long cable",
+  "The four status combinations: up/up, up/down (Layer 2 or encapsulation problem, keepalives), down/down (cable or far end), administratively down/down (`shutdown`)",
+  "A troubleshooting flow for an access port: check status, check duplex and speed, check counters, clear with `clear counters fa0/18`, watch if they grow, swap the cable",
+  "A `question` giving a counter block with rising late collisions and asking for the likely cause",
+  "Recall cards: what a runt is, what a giant is, what late collisions usually mean",
+]
+
+[[chapter.page]]
+name = "05-ssh-instead-of-telnet"
+title = "SSH instead of Telnet"
+summary = "Telnet sends your password in clear text. SSH encrypts the session, and setting it up takes six commands."
+teaches = [
+  "Why Telnet (TCP 23) is unsafe: everything, including the password, crosses the network in plain text; SSH (TCP 22) encrypts the whole session",
+  "Check the IOS supports SSH: a `k9` (crypto) image in `show version`, or the `show ip ssh` command being accepted",
+  "Configuration in order: `hostname`, `ip domain-name`, `crypto key generate rsa general-keys modulus 1024` (the key name comes from hostname plus domain), `username admin secret ...`, `line vty 0 15`, `transport input ssh`, `login local`",
+  "`ip ssh version 2` and why version 2 needs a key of at least 768 bits; the course uses 1024 or larger",
+  "Misconception: `password` plus `login` on the VTY lines does not use the local username database; SSH needs `login local` (or AAA)",
+  "Verify with `show ip ssh` (version, timeout, retries) and `show ssh` (active sessions); connect from a PC with an SSH client to the SVI address",
+  "Removing keys with `crypto key zeroize rsa` disables SSH",
+  "`command` blocks for `transport input ssh` and `login local`; recall cards for ports 22 and 23",
+]
+
+[[chapter.page]]
+name = "06-a-router-from-scratch"
+title = "A router from scratch"
+summary = "The basic settings every router gets, and how to address its interfaces for IPv4 and IPv6 at once."
+teaches = [
+  "Basic router security settings, reviewed from CCNA 1: `hostname R1`, `enable secret`, console and VTY passwords, `service password-encryption`, `banner motd #...#`",
+  "Interfaces on an ISR 4000 are named like G0/0/0 and G0/0/1, and are shut down by default, unlike switch ports",
+  "Dual stack on one interface: `description`, `ip address 192.168.10.1 255.255.255.0`, `ipv6 address 2001:db8:acad:10::1/64`, `ipv6 address fe80::1 link-local`, `no shutdown`",
+  "`ipv6 unicast-routing` in global configuration so the router forwards IPv6 and sends router advertisements",
+  "Loopback interfaces: `interface loopback 0`, an address with any mask, always up/up, used for testing and as a stable router ID later",
+  "Save with `copy running-config startup-config`; show the console messages `%LINK-3-UPDOWN` and `%LINEPROTO-5-UPDOWN` when an interface comes up",
+  "A `drill` of kind `ipv6` for writing interface addresses in their shortest form",
+  "A `command` block for `ipv6 unicast-routing` and a `question` on why hosts get no IPv6 gateway without it",
+]
+
+[[chapter.page]]
+name = "07-verifying-connected-networks"
+title = "Verifying connected networks"
+summary = "Before you route anything, prove that each interface is up, addressed correctly and in the routing table."
+teaches = [
+  "`show ip interface brief` and `show ipv6 interface brief` columns (Interface, IP-Address, OK?, Method, Status, Protocol) and what each status pair means",
+  "`show ip route` and `show ipv6 route` after configuration: one C (connected network) and one L (local /32 or /128 host route) entry per active interface",
+  "Misconception: an interface that is down puts nothing in the routing table, even if it is fully addressed",
+  "`show interfaces g0/0/0` for Layer 1 and 2 detail, `show ip interface g0/0/0` for Layer 3 detail, `show ipv6 interface g0/0/0` for all IPv6 addresses including link-local and joined multicast groups",
+  "Using `show running-config interface g0/0/0` to compare intended and actual configuration",
+  "Test end to end with `ping` and `traceroute` from the router and from a PC (`ping`, `tracert`) in each LAN",
+  "A `question` showing `show ip interface brief` with one interface up/down and asking where to look next",
+  "Recall cards: what C and L mean in the routing table",
+]
+
+[[chapter.page]]
+name = "08-filtering-output-and-history"
+title = "Filtering output and command history"
+summary = "Long show output can be cut down to the lines you need, and recent commands can be recalled instead of retyped."
+teaches = [
+  "The pipe filters after a show command: `| include`, `| exclude`, `| begin` and `| section`, each with a real example",
+  "`show running-config | section line vty`, `show ip interface brief | include up`, `show running-config | begin interface`",
+  "Filters are case sensitive and match a regular expression, so `include Up` and `include up` give different results",
+  "The `--More--` prompt: Space for a page, Enter for a line, any other key to quit; `terminal length 0` to turn paging off for the session",
+  "Command history: Up arrow or Ctrl+P, Down arrow or Ctrl+N, `show history`, and `terminal history size 200`; the default buffer holds 10 commands and the maximum is 256",
+  "`command` blocks for filtering the running configuration to the VTY section and for showing only interfaces that are up",
+  "Recall card on the default history size",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself"
+summary = "Mixed questions and a short build that pull together switch setup, port settings, SSH and router addressing."
+teaches = [
+  "A worked scenario: one switch and one router connecting two LANs, with a step list from erased switch to SSH-managed, dual-stack router with verified routes",
+  "A `diagram` of the scenario topology with interface labels and subnets",
+  "Mixed `question` blocks: boot loader recovery, SVI not coming up, duplex mismatch counters, missing `login local`, missing `ipv6 unicast-routing`",
+  "`command` blocks for at least three key commands typed in context (`ip default-gateway`, `crypto key generate rsa`, `no shutdown` on a router interface)",
+  "A `question` that shows `show ip route` with one LAN missing and asks why",
+  "Four or more recall cards covering the chapter's numbers: TCP 22 and 23, 64 and 1518 byte limits, history size",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 2. SRWE module 2: Switching concepts
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 2
+title = "Switching concepts"
+
+[[chapter.page]]
+name = "01-what-a-switch-decides"
+title = "What a switch decides"
+summary = "Every frame that enters a switch port raises one question: which port, or ports, should it leave by?"
+teaches = [
+  "Scene: a frame arrives on port 1 of a 24-port switch; the switch must decide in microseconds where it goes, using only Layer 2 information",
+  "Ingress and egress ports, and the idea of a forwarding decision based on the destination MAC address",
+  "A switch versus a hub: a hub repeats every bit out of every port; a switch forwards selectively",
+  "The two jobs: learn (from the source MAC) and forward (using the destination MAC); forwarding happens in hardware (ASICs)",
+  "Why switches replaced shared Ethernet: dedicated bandwidth per port, full duplex, microsegmentation",
+  "A `diagram` of one switch with four PCs used through the chapter",
+  "A `question` on which address the switch reads to learn and which it reads to forward",
+]
+
+[[chapter.page]]
+name = "02-learning-and-aging"
+title = "Learning and aging MAC addresses"
+summary = "A switch builds its MAC address table by reading the source address of every frame, and forgets entries it has not seen for a while."
+teaches = [
+  "Learning: for every incoming frame the switch records the source MAC, the ingress port and the VLAN; an existing entry is refreshed, a moved MAC is updated to the new port",
+  "The MAC address table is also called the CAM table; show `show mac address-table` output with the Vlan, Mac Address, Type and Ports columns",
+  "Dynamic entries age out after 300 seconds of silence by default; `mac address-table aging-time` changes it",
+  "Static entries with `mac address-table static 0050.7966.6800 vlan 1 interface fa0/1` never age out",
+  "`show mac address-table dynamic`, `show mac address-table address 0050.7966.6800`, `show mac address-table count`, and `clear mac address-table dynamic`",
+  "Misconception: a switch never learns from the destination address; a silent host is never learned until it sends something",
+  "A `drill` of kind `hex`, since MAC addresses are written in hexadecimal",
+  "Recall cards: the default aging time, what triggers learning",
+]
+
+[[chapter.page]]
+name = "03-forward-flood-or-filter"
+title = "Forward, flood or filter"
+summary = "A known destination is forwarded out one port, an unknown one is flooded, and a frame for the port it came in on is dropped."
+teaches = [
+  "Known unicast: the destination MAC is in the table, so the frame leaves by that port only",
+  "Unknown unicast: the destination MAC is not in the table, so the frame is flooded out every port in the VLAN except the ingress port",
+  "Broadcast (ffff.ffff.ffff) and most multicast frames are always flooded within the VLAN",
+  "Filtering: if the destination is on the same port the frame arrived on, the switch drops it",
+  "A step-by-step walk-through: PC1 pings PC3 on an empty table, showing the ARP broadcast, the flood, the reply and the table after each step",
+  "Two connected switches: a MAC learned on the inter-switch port stands for every host behind the other switch",
+  "A `question` with a partial MAC table asking which ports a given frame leaves by",
+]
+
+[[chapter.page]]
+name = "04-store-and-forward-and-cut-through"
+title = "Store-and-forward and cut-through"
+summary = "A switch can wait for the whole frame and check it, or start sending as soon as it knows where the frame goes."
+teaches = [
+  "Store-and-forward: receive the whole frame, check the FCS (CRC), drop it if bad, then forward; the default on Catalyst access switches",
+  "Why store-and-forward is needed for ports of different speeds (buffering) and for QoS decisions that read deeper into the frame",
+  "Cut-through: start forwarding once the destination MAC (the first 6 bytes after the preamble) has been read; lowest latency, but bad frames are passed on",
+  "Fast-forward is the purest cut-through; fragment-free waits for the first 64 bytes, where most collision damage would show, then forwards",
+  "Port-based and shared-memory buffering in one short paragraph",
+  "A `table` comparing store-and-forward, fast-forward and fragment-free on latency, error checking and when each fits",
+  "A `question` on which method never forwards a frame with a bad FCS",
+  "Recall cards: what fragment-free checks, why buffering matters",
+]
+
+[[chapter.page]]
+name = "05-collision-and-broadcast-domains"
+title = "Collision and broadcast domains"
+summary = "Switches end collisions; only routers and VLANs stop broadcasts."
+teaches = [
+  "A collision domain: the set of devices whose frames can collide; on a hub, every port shares one",
+  "Every switch port is its own collision domain, and full duplex removes collisions entirely",
+  "A broadcast domain: every device that receives a given broadcast; a switch forwards broadcasts out all ports, so all its ports (in one VLAN) form one broadcast domain",
+  "Routers bound broadcast domains; VLANs split a switch into several (forward pointer to chapter 3)",
+  "Counting domains on a `diagram` with a hub, two switches and a router",
+  "How switches relieve congestion: high port density, large frame buffers, fast ports, fast internal switching and low per-port cost",
+  "A `question` asking how many collision and broadcast domains a given topology has, with tempting wrong answers that count a switch as one collision domain",
+  "Recall cards: what bounds a collision domain, what bounds a broadcast domain",
+]
+
+[[chapter.page]]
+name = "06-check-yourself"
+title = "Check yourself"
+summary = "Trace frames through a two-switch network and count its domains."
+teaches = [
+  "A worked trace: two switches, five PCs, a sequence of four frames, with the MAC tables of both switches written out after each frame",
+  "A `diagram` of the topology used for the trace",
+  "Mixed `question` blocks on learning, flooding, filtering, aging and forwarding methods",
+  "A domain-counting question on a mixed hub, switch and router topology",
+  "A question on what happens after a host moves to another port before its entry ages out",
+  "Recall cards covering the 300-second aging default, 64-byte fragment-free check and the meaning of unknown unicast",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 3. SRWE module 3: VLANs
+# Existing page names 01 to 05 are kept. The lab stays the last page.
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 3
+title = "VLANs"
+
+[[chapter.page]]
+name = "01-what-a-vlan-is"
+title = "What a VLAN is"
+summary = "A VLAN splits one switch into separate broadcast domains."
+teaches = [
+  "Scene: one floor, one switch, three departments that should not share broadcasts or see each other's traffic",
+  "A VLAN is a logical broadcast domain; each VLAN is its own IP subnet, and hosts in different VLANs need a router to talk",
+  "Benefits: smaller broadcast domains, better security, lower cost than separate switches, grouping by function rather than location, simpler management",
+  "VLAN types: default VLAN (VLAN 1: all ports start there and it cannot be deleted or renamed), data VLANs, native VLAN, management VLAN, voice VLAN",
+  "Misconception: VLAN 1 is not special because it is safer; best practice moves users, management and the native VLAN off VLAN 1",
+  "A `diagram` of one switch with PCs in VLAN 10, 20 and 30",
+  "A `question` on whether two PCs on the same switch but different VLANs can ping each other without a router",
+  "Recall cards: what a VLAN creates, which VLAN ports start in",
+]
+
+[[chapter.page]]
+name = "02-assigning-ports"
+title = "Assigning ports"
+summary = "An access port belongs to exactly one VLAN, plus an optional voice VLAN for a phone."
+teaches = [
+  "VLAN ranges: normal range 1 to 1005 (1002 to 1005 reserved for legacy Token Ring and FDDI, and with VLAN 1 cannot be deleted), stored in `vlan.dat` in flash; extended range 1006 to 4094, saved in the running configuration",
+  "Creating a VLAN: `vlan 10`, then `name SALES` at `S1(config-vlan)#`",
+  "Assigning an access port: `interface fa0/6`, `switchport mode access`, `switchport access vlan 10`; `interface range fa0/1 - 12` for many ports; IOS creates a missing VLAN when you assign it",
+  "A voice VLAN on the same port: `mls qos trust cos` and `switchport voice vlan 150`; the phone tags voice frames and the PC behind it sends untagged data",
+  "Verification: `show vlan brief`, `show vlan id 10`, `show vlan name SALES`, `show vlan summary`, `show interfaces fa0/18 switchport` (Administrative Mode, Access Mode VLAN, Voice VLAN lines)",
+  "Changing membership: `no switchport access vlan` returns the port to VLAN 1",
+  "Deleting: `no vlan 20`; ports left in a deleted VLAN become inactive until reassigned; `delete flash:vlan.dat` removes all VLANs, and with `erase startup-config` and `reload` restores factory state",
+  "`command` blocks for creating a VLAN and assigning a port, and a `question` on what happens to ports when their VLAN is deleted",
+]
+
+[[chapter.page]]
+name = "03-vlan-trunks"
+title = "VLAN trunks"
+summary = "An access port carries one VLAN. A trunk carries all of them on the same cable."
+teaches = [
+  "Keep the existing `figure` block with id `trunk-tagging` near the top of the page",
+  "Why a trunk: without one, every VLAN would need its own cable between switches",
+  "The 802.1Q tag is 4 bytes inserted between the source MAC and the Type field: TPID 0x8100 (16 bits), priority PCP (3 bits), DEI (1 bit) and VLAN ID (12 bits); the FCS is recalculated",
+  "A `fields` block of the 802.1Q tag; the 12-bit VLAN ID explains the 4094 usable VLANs",
+  "Configuring a trunk: `switchport mode trunk`, `switchport trunk native vlan 99`, `switchport trunk allowed vlan 10,20,30,99`, and `allowed vlan add` and `remove`; some older multilayer switches need `switchport trunk encapsulation dot1q` first",
+  "Resetting: `no switchport trunk allowed vlan` and `no switchport trunk native vlan`, and `switchport mode access` to make it an access port again",
+  "`show interfaces trunk` output: the four sections (mode and native VLAN, VLANs allowed, allowed and active, forwarding and not pruned)",
+  "Misconception: a trunk does not create VLANs on the far switch; each switch must have the VLAN defined",
+  "A `command` block for making a port a trunk and a `question` on how a VLAN 10 frame crosses the trunk",
+]
+
+[[chapter.page]]
+name = "04-native-vlan"
+title = "Native VLAN"
+summary = "One VLAN crosses a trunk untagged. Both ends have to agree on which one."
+teaches = [
+  "Frames in the native VLAN cross an 802.1Q trunk untagged; untagged frames arriving on a trunk are placed in the native VLAN",
+  "Why it exists: compatibility with devices and hubs that do not understand tags",
+  "The default native VLAN is VLAN 1; set it with `switchport trunk native vlan 99` on both ends",
+  "A native VLAN mismatch: traffic leaks between the two VLANs and CDP reports `%CDP-4-NATIVE_VLAN_MISMATCH` on the console",
+  "Best practice: a dedicated, unused native VLAN that carries no user traffic (links forward to chapter 11 on VLAN attacks)",
+  "Voice VLAN tagging recap: the phone tags voice frames, PC data passes untagged, like a small trunk",
+  "A `question` on what happens when S1 uses native VLAN 99 and S2 uses native VLAN 1",
+  "Recall cards: default native VLAN, how native frames cross the trunk",
+]
+
+[[chapter.page]]
+name = "05-troubleshooting-vlans"
+title = "Troubleshooting VLANs"
+summary = "Most problems are a port in the wrong VLAN, a VLAN that doesn't exist, or a VLAN missing from the trunk."
+teaches = [
+  "Work from the edge inward: host IP and subnet, access port VLAN, VLAN existence on every switch, trunk status, allowed VLAN list",
+  "Wrong subnet: a PC in the right VLAN with an address from another VLAN's subnet cannot reach its neighbors",
+  "Missing VLAN: a switch drops frames for a VLAN it does not have, even on a trunk; ports in a deleted VLAN are inactive and show nowhere in `show vlan brief`",
+  "Trunk problems: native VLAN mismatch, a trunk mode mismatch (one side access, one side trunk), VLAN missing from `switchport trunk allowed vlan`",
+  "The key commands and what each answers: `show vlan brief`, `show interfaces fa0/1 switchport`, `show interfaces trunk`, `show mac address-table`",
+  "A worked fault: VLAN 20 fails between two switches while VLAN 10 works, solved by reading `show interfaces trunk`",
+  "A `question` on the classic cause when one VLAN fails across a working trunk",
+  "Recall cards: the command that shows allowed VLANs on a trunk, what happens to ports of a deleted VLAN",
+]
+
+[[chapter.page]]
+name = "06-dynamic-trunking-protocol"
+title = "Dynamic Trunking Protocol"
+summary = "Cisco switches can negotiate whether a link becomes a trunk, which is convenient and best turned off."
+teaches = [
+  "DTP is Cisco proprietary, on by default, and negotiates trunking between two Cisco switches; it requires matching VTP domain names",
+  "The modes: `switchport mode access`, `switchport mode dynamic auto`, `switchport mode dynamic desirable`, `switchport mode trunk`, and `switchport nonegotiate` to stop DTP frames",
+  "Catalyst 2960 and 9200 ports default to dynamic auto, so two default switches connected together form an access link, not a trunk",
+  "A `table` of DTP outcomes: auto with auto gives access; auto with desirable, desirable with desirable, and trunk with auto or desirable give trunk; access with trunk gives limited or no connectivity",
+  "`show dtp interface fa0/1` and the Administrative Mode and Operational Mode lines of `show interfaces fa0/1 switchport`",
+  "Best practice: set `switchport mode trunk` and `switchport nonegotiate` on trunks, and `switchport mode access` on every edge port",
+  "A `question` on two new switches connected with default settings",
+  "Recall cards: default DTP mode, the command that stops DTP negotiation",
+]
+
+[[chapter.page]]
+name = "07-check-yourself"
+title = "Check yourself"
+summary = "Mixed questions and a two-switch build that pull together VLANs, access ports, trunks and DTP."
+teaches = [
+  "A worked scenario: two switches, VLANs 10, 20 and 99, voice VLAN 150, one trunk with native VLAN 99, with the full configuration and expected `show vlan brief` and `show interfaces trunk`",
+  "A `diagram` of the two-switch scenario with port labels and the trunk link styled as trunk",
+  "Mixed `question` blocks: VLAN ranges, deleted VLAN behavior, 802.1Q tag size, native VLAN mismatch, DTP auto with auto",
+  "`command` blocks for `switchport voice vlan 150`, `switchport trunk allowed vlan add 30` and `switchport nonegotiate`",
+  "A `question` reading a `show interfaces trunk` output where one VLAN is allowed but not active",
+  "Recall cards on the 12-bit VLAN ID, VLAN 1 restrictions and where normal-range VLANs are stored",
+]
+
+[[chapter.page]]
+name = "08-lab-router-on-a-stick"
+title = "Lab: Router-on-a-stick"
+summary = "Give VLAN 10 and 20 a gateway on one router port."
+lab = "srwe-03-router-on-a-stick"
+teaches = [
+  "Page header carries `lab = \"srwe-03-router-on-a-stick\"` and the body holds a `lab` block with id `srwe-03-router-on-a-stick`; this stays the last page of the chapter",
+  "Short framing before the lab: VLANs isolate hosts, so traffic between VLAN 10 and VLAN 20 needs a router; one trunk to a router port can carry both",
+  "What the lab practices: a trunk from the switch to the router, subinterfaces with `encapsulation dot1Q 10` and `encapsulation dot1Q 20`, one gateway address per subinterface, `no shutdown` on the physical interface",
+  "What success looks like: PCs in both VLANs ping their gateways and each other; `show ip interface brief` lists the subinterfaces up/up",
+  "Point forward to chapter 4, which explains router-on-a-stick fully, and back to the trunk page",
+  "Two recall cards after the lab: what `encapsulation dot1Q 10` does, and why the physical interface needs `no shutdown`",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 4. SRWE module 4: Inter-VLAN routing
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 4
+title = "Inter-VLAN routing"
+
+[[chapter.page]]
+name = "01-why-vlans-need-a-router"
+title = "Why VLANs need a router"
+summary = "VLANs keep hosts apart at Layer 2. Something at Layer 3 has to carry traffic between them."
+teaches = [
+  "Scene: Sales in VLAN 10 needs the printer in VLAN 20; the switch alone cannot deliver it because each VLAN is a separate subnet and broadcast domain",
+  "Hosts send traffic for other subnets to their default gateway; each VLAN needs a gateway address on a Layer 3 device",
+  "Legacy inter-VLAN routing: one physical router interface and one switch access port per VLAN, and why it does not scale",
+  "Router-on-a-stick: one router interface, one trunk, one subinterface per VLAN",
+  "Layer 3 switch with SVIs: routing inside the switch hardware, the method used in most campus networks",
+  "A `table` comparing the three methods on ports used, scalability, speed and cost",
+  "A `diagram` of the legacy method with two cables to the router",
+  "A `question` on why legacy inter-VLAN routing runs out of router ports",
+]
+
+[[chapter.page]]
+name = "02-how-router-on-a-stick-works"
+title = "How router-on-a-stick works"
+summary = "One physical router port becomes several logical ones, each in its own VLAN and subnet."
+teaches = [
+  "Subinterfaces: logical interfaces such as G0/0/1.10, each with its own IP address and VLAN tag",
+  "The subinterface number need not match the VLAN, but matching them is the convention; the `encapsulation dot1Q 10` command sets the VLAN",
+  "The path of a packet from PC1 in VLAN 10 to PC2 in VLAN 20: tagged 10 up the trunk, routed, tagged 20 back down the same trunk",
+  "The switch port toward the router must be a trunk; the router does not run DTP, so set `switchport mode trunk` statically",
+  "Native VLAN on a subinterface: `encapsulation dot1Q 99 native`",
+  "Limits: all inter-VLAN traffic shares one link's bandwidth, and the router is a single point of failure",
+  "A `diagram` of router-on-a-stick with the trunk link styled as trunk",
+  "Recall cards: what a subinterface is, the main bandwidth limit",
+]
+
+[[chapter.page]]
+name = "03-configuring-router-on-a-stick"
+title = "Configuring router-on-a-stick"
+summary = "Configure the switches for VLANs and a trunk, then give the router one subinterface per VLAN."
+teaches = [
+  "Scenario: S1 and S2 with VLANs 10 and 20 plus management VLAN 99, S1 trunked to R1 G0/0/1",
+  "Switch side: create VLANs, assign access ports, configure trunks between switches and to the router, management SVI and default gateway on the switches",
+  "Router side for each VLAN: `interface g0/0/1.10`, `description`, `encapsulation dot1Q 10`, `ip address 192.168.10.1 255.255.255.0`",
+  "Then `interface g0/0/1` and `no shutdown`; subinterfaces follow the state of the physical interface",
+  "Misconception: `ip address` is rejected on a subinterface until `encapsulation dot1Q` has been set",
+  "IPv6 on subinterfaces works the same way with `ipv6 address`",
+  "A `drill` of kind `subnet`, since each VLAN needs its own subnet",
+  "`command` blocks for `encapsulation dot1Q 20` and for the physical `no shutdown`",
+]
+
+[[chapter.page]]
+name = "04-verifying-router-on-a-stick"
+title = "Verifying router-on-a-stick"
+summary = "Ping from the hosts, then read the router and switch output to confirm each VLAN is routed."
+teaches = [
+  "Test from PCs: ping the gateway, then a host in the other VLAN; `tracert` shows one hop through the router's subinterface address",
+  "`show ip interface brief | include up` on R1 lists G0/0/1.10 and G0/0/1.20 with their addresses",
+  "`show ip route` shows C and L entries for each subinterface subnet",
+  "`show interfaces g0/0/1.10` shows `Encapsulation 802.1Q Virtual LAN, Vlan ID 10`",
+  "`show interfaces trunk` on S1 confirms the router port is trunking and the VLANs are allowed and active",
+  "A `question` showing `show ip route` missing one VLAN's subnet and asking for the likely cause",
+  "Recall cards: which command shows a subinterface's VLAN ID",
+]
+
+[[chapter.page]]
+name = "05-layer-3-switch-svis"
+title = "Routing on a Layer 3 switch"
+summary = "A Layer 3 switch routes between VLANs in hardware, using one SVI per VLAN as the gateway."
+teaches = [
+  "An SVI per VLAN is the gateway: `interface vlan 10`, `ip address 192.168.10.1 255.255.255.0`, `no shutdown`",
+  "`ip routing` in global configuration; without it a Layer 3 switch does not route between its SVIs",
+  "Advantages over router-on-a-stick: wire-speed routing, no external link to saturate, no extra device",
+  "When an SVI is up/up: the VLAN exists, at least one port in the VLAN is up and forwarding, and the SVI is not shut down",
+  "The Catalyst 2960 is a Layer 2 switch; this page uses a multilayer switch such as a Catalyst 9300 or 3650",
+  "Verify with `show ip interface brief`, `show ip route` (C entries for Vlan10 and Vlan20), and pings between VLANs",
+  "A `command` block for `ip routing` and a `question` on why an SVI stays down",
+  "Recall cards: the three conditions for an SVI to come up",
+]
+
+[[chapter.page]]
+name = "06-routed-ports"
+title = "Routed ports on a Layer 3 switch"
+summary = "A switch port can stop being a switch port and become a router interface, which is how a Layer 3 switch reaches the rest of the network."
+teaches = [
+  "A routed port: `no switchport` on a physical port, then `ip address`; it belongs to no VLAN and runs no spanning tree",
+  "Typical use: the uplink from a Layer 3 switch to an edge router, on its own point-to-point subnet",
+  "Routing beyond the switch: a static default route on the switch toward the router, or a routing protocol such as OSPF (taught in CCNA 3)",
+  "A `table` comparing access port, trunk port, SVI and routed port: what each carries and what each is used for",
+  "`show ip interface brief` showing the routed port with an IP address, and `show interfaces g1/0/1 switchport` reporting `Switchport: Disabled`",
+  "Misconception: a routed port is not an access port in a hidden VLAN; it is a Layer 3 interface",
+  "A `command` block for `no switchport` and recall cards on when to use a routed port",
+]
+
+[[chapter.page]]
+name = "07-troubleshooting-inter-vlan-routing"
+title = "Troubleshooting inter-VLAN routing"
+summary = "When one VLAN can't reach another, the fault is usually a VLAN, a trunk, a port or a router setting, and each has a command that shows it."
+teaches = [
+  "A `table` of common issues, the symptom and the command that reveals each: missing VLAN (`show vlan brief`), trunk not formed or VLAN not allowed (`show interfaces trunk`), access port in the wrong VLAN (`show interfaces fa0/6 switchport`), wrong subinterface VLAN or address (`show interfaces g0/0/1.10`, `show ip interface brief`), wrong host gateway (`ipconfig`)",
+  "Also on Layer 3 switches: `ip routing` missing, SVI down, SVI address wrong",
+  "A method: start at the failing host, check its IP, mask and gateway, then the access port, trunk, router or SVI",
+  "A worked fault: VLAN 10 hosts reach their gateway but not VLAN 20, traced to `encapsulation dot1Q 30` typed on the .20 subinterface",
+  "A second worked fault: the router port connected to an access port instead of a trunk",
+  "A `question` with the PC showing a gateway from the wrong subnet",
+  "Recall cards: the first three things to check on the host",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself"
+summary = "Mixed questions comparing the three inter-VLAN routing methods and finding faults in each."
+teaches = [
+  "Mixed `question` blocks on choosing a method, subinterface syntax, SVI conditions, `ip routing` and routed ports",
+  "A question reading `show interfaces trunk` on the router-facing port with a VLAN missing from the allowed list",
+  "`command` blocks: `encapsulation dot1Q 10`, `interface vlan 20`, `ip routing`, `no switchport`",
+  "A short design scenario: a growing office moving from router-on-a-stick to a Layer 3 switch, and what changes in the configuration",
+  "Recall cards on the comparison table and native VLAN subinterface syntax",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 5. SRWE module 5: STP concepts
+# Rapid PVST+ details and the guards belong in the Field Guide.
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 5
+title = "STP concepts"
+
+[[chapter.page]]
+name = "01-why-redundant-switches-loop"
+title = "Why redundant switches loop"
+summary = "A second cable between switches protects you from a failure, and without help it also melts the network."
+teaches = [
+  "Scene: three switches connected in a triangle for redundancy; a single broadcast circles forever",
+  "Ethernet frames have no TTL, so a Layer 2 loop never dies out on its own, unlike an IP packet",
+  "Broadcast storm: broadcasts multiply around the loop until links and switch CPUs are saturated",
+  "MAC address table instability: the same source MAC appears on different ports as copies arrive from both directions",
+  "Duplicate unicast frames: a host receives the same frame more than once",
+  "Redundancy is still needed: STP keeps the extra links but blocks them until they are needed",
+  "A `diagram` of the three-switch triangle",
+  "A `question` on why the loop does not fade out by itself",
+]
+
+[[chapter.page]]
+name = "02-how-stp-breaks-the-loop"
+title = "How STP breaks the loop"
+summary = "Spanning tree turns a looped network into a tree by blocking just enough ports, and unblocks one when a link fails."
+teaches = [
+  "The Spanning Tree Algorithm (originally by Radia Perlman, standardized as IEEE 802.1D) builds a loop-free logical tree over a physical topology with loops",
+  "BPDUs (bridge protocol data units) are sent by switches to share their view; by default every 2 seconds (hello time)",
+  "The four steps: elect the root bridge, elect root ports, elect designated ports, and block the rest as alternate ports",
+  "Recalculation: when a link fails, a blocked port can move to forwarding to restore connectivity",
+  "Misconception: a blocked port is not shut down; it still receives BPDUs and can move to forwarding",
+  "A `diagram` of the triangle with one port marked as blocked",
+  "Recall cards: the four steps in order, the default hello time",
+]
+
+[[chapter.page]]
+name = "03-electing-the-root-bridge"
+title = "Electing the root bridge"
+summary = "The switch with the lowest bridge ID becomes the root, and every other switch measures its distance from it."
+teaches = [
+  "The bridge ID (BID): 4-bit bridge priority, 12-bit extended system ID (the VLAN number) and the 48-bit MAC address",
+  "Default priority 32768, so the priority shown for VLAN 1 is 32769; priority changes only in multiples of 4096 (0 to 61440)",
+  "Lowest BID wins; with all priorities at default, the lowest MAC wins, often the oldest switch, which is a poor choice",
+  "Every switch first claims to be root; superior BPDUs replace that claim until all agree",
+  "Influencing the election: `spanning-tree vlan 1 priority 24576`; the `root primary` and `root secondary` shortcuts are covered in the Field Guide",
+  "`show spanning-tree vlan 1` output: the Root ID and Bridge ID blocks, `This bridge is the root`, and `(priority 32768 sys-id-ext 1)`",
+  "A `question` giving three BIDs and asking which switch becomes root",
+  "Recall cards: BID parts, default priority, priority increments",
+]
+
+[[chapter.page]]
+name = "04-root-path-cost"
+title = "Root path cost"
+summary = "Each switch adds up port costs on the way to the root, and the cheapest path wins."
+teaches = [
+  "Root path cost is the sum of the port costs along the path to the root bridge, counted on the receiving ports",
+  "A `table` of default port costs: 802.1D short method 10 Mbps 100, 100 Mbps 19, 1 Gbps 4, 10 Gbps 2; long method (used with RSTP) 10 Mbps 2,000,000, 100 Mbps 200,000, 1 Gbps 20,000, 10 Gbps 2,000",
+  "The root bridge advertises a cost of 0; each switch adds its receiving port's cost",
+  "Changing a port cost with `spanning-tree cost 25` at the interface, and returning to default with `no spanning-tree cost`",
+  "The Cost column of `show spanning-tree` and the Root ID `Cost` line",
+  "A worked calculation across a three-switch topology with mixed 100 Mbps and 1 Gbps links",
+  "A `question` asking for a switch's root path cost from a diagram",
+]
+
+[[chapter.page]]
+name = "05-root-designated-and-alternate-ports"
+title = "Root, designated and alternate ports"
+summary = "Every non-root switch picks one root port, every link gets one designated port, and anything left over blocks."
+teaches = [
+  "Root port: on each non-root switch, the port with the lowest root path cost; the root bridge has none",
+  "Designated port: one per link segment, on the switch with the lowest root path cost to the root; every port on the root bridge is designated",
+  "Alternate (blocked) port: any port that is neither root nor designated",
+  "Tie-breakers in order: lowest root path cost, then lowest sender BID, then lowest sender port ID",
+  "Port ID: port priority (default 128) plus port number, shown as `128.1`; changing it with `spanning-tree port-priority`",
+  "A worked election on a three-switch topology with equal-cost paths, step by step",
+  "The Role and Sts columns of `show spanning-tree`: `Root FWD`, `Desg FWD`, `Altn BLK`",
+  "A `question` on which port blocks when two paths tie on cost",
+]
+
+[[chapter.page]]
+name = "06-port-states-and-timers"
+title = "Port states and timers"
+summary = "Classic STP moves a port through listening and learning before it forwards, which keeps the network safe and makes it slow."
+teaches = [
+  "The 802.1D port states: blocking, listening, learning, forwarding and disabled",
+  "A `table` of what each state does with BPDUs, MAC learning and data frames",
+  "Timers: hello 2 seconds, forward delay 15 seconds, max age 20 seconds",
+  "Convergence after a failure takes 30 to 50 seconds: max age plus two forward delays",
+  "Why the delay exists: to let every switch hear the new topology before any port forwards",
+  "A host plugged into a classic STP port waits about 30 seconds before it can send, which can make DHCP fail at boot",
+  "A `question` on which state learns MACs but does not forward frames",
+  "Recall cards: the three timers and their defaults",
+]
+
+[[chapter.page]]
+name = "07-the-stp-family"
+title = "The STP family"
+summary = "802.1D was only the start. Per-VLAN and rapid versions fix its slowness and its one-tree limit."
+teaches = [
+  "A `table` of STP versions: 802.1D (STP, one tree, slow), PVST+ (Cisco, one tree per VLAN), 802.1w (RSTP, fast), Rapid PVST+ (Cisco, rapid and per VLAN), 802.1s (MSTP, several VLANs per instance), with standard or proprietary, resource use and convergence",
+  "Per-VLAN trees allow load sharing: one switch is root for some VLANs and another for others",
+  "PVST+ is the default on Catalyst 2960; Catalyst 9200 and 9300 default to Rapid PVST+; `spanning-tree mode rapid-pvst` changes the mode (Rapid PVST+ in depth is in the Field Guide)",
+  "`show spanning-tree` reports `protocol ieee` for PVST+ and `protocol rstp` for Rapid PVST+",
+  "Alternatives that reduce reliance on STP: EtherChannel, Layer 3 routing at the access layer, and switch stacking",
+  "A `question` on which version gives per-VLAN trees with fast convergence",
+  "Recall cards: the IEEE numbers for STP, RSTP and MSTP",
+]
+
+[[chapter.page]]
+name = "08-rstp-portfast-and-bpdu-guard"
+title = "RSTP, PortFast and BPDU guard"
+summary = "Rapid spanning tree converges in seconds, and edge ports can skip the wait entirely."
+teaches = [
+  "RSTP port states: discarding (replacing blocking and listening), learning, forwarding",
+  "RSTP port roles: root, designated, alternate (a backup path to the root) and backup (a redundant link to the same segment)",
+  "Faster convergence: switches negotiate directly with neighbors instead of waiting for timers; a neighbor is considered lost after three missed hellos (6 seconds)",
+  "Edge ports and link types: point-to-point (full duplex between switches) and shared (half duplex)",
+  "PortFast: an access port goes straight to forwarding; `spanning-tree portfast` on the interface or `spanning-tree portfast default` globally; never on a link to another switch",
+  "BPDU guard: an edge port that receives a BPDU is error-disabled; `spanning-tree bpduguard enable` (configuration in chapter 11; root guard, loop guard and BPDU filter are in the Field Guide)",
+  "A `question` on what happens when someone plugs a switch into a PortFast port with BPDU guard",
+  "Recall cards: the three RSTP states, the four RSTP roles",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself"
+summary = "Run a full spanning tree election by hand, then answer mixed questions on loops, states and versions."
+teaches = [
+  "A worked election on a four-switch topology: BIDs, root bridge, root path costs, root ports, designated ports and the alternate port, laid out in a table",
+  "A `diagram` of the four-switch topology with link speeds",
+  "The matching `show spanning-tree` output for one non-root switch, with the reader asked to identify each role",
+  "Mixed `question` blocks on loop symptoms, BID math (priority plus VLAN), tie-breakers, timers and RSTP roles",
+  "A question on what changes when the root bridge's priority is raised to 61440",
+  "Recall cards on port costs, the 30 to 50 second convergence and PortFast placement",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 6. SRWE module 6: EtherChannel
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 6
+title = "EtherChannel"
+
+[[chapter.page]]
+name = "01-why-bundle-links"
+title = "Why bundle links"
+summary = "Two uplinks should give you twice the bandwidth, but spanning tree blocks one. EtherChannel makes them one link."
+teaches = [
+  "Scene: an access switch with two gigabit uplinks to distribution, and STP blocking one of them",
+  "EtherChannel groups up to 8 active physical ports into one logical port-channel interface",
+  "STP sees the port-channel as a single link, so nothing is blocked inside the bundle",
+  "Load balancing spreads flows across member links; one flow stays on one link, so a single transfer does not get the combined bandwidth",
+  "Redundancy: losing one member link reduces bandwidth but does not trigger an STP recalculation",
+  "Configuration is applied once to the port-channel interface",
+  "A `diagram` with two uplinks drawn as a bundle",
+  "A `question` on why one large file copy does not go faster over a two-link EtherChannel",
+]
+
+[[chapter.page]]
+name = "02-rules-for-a-bundle"
+title = "Rules for a bundle"
+summary = "Member ports must match in every way that matters, or the bundle won't form."
+teaches = [
+  "All members must share the same speed and duplex",
+  "All members must be in the same mode: all access ports in the same VLAN, or all trunks with the same allowed VLANs and native VLAN",
+  "Members cannot mix interface types (for example FastEthernet with GigabitEthernet)",
+  "Settings applied to the port-channel are copied to the members; settings applied to a member are not copied to the others",
+  "EtherChannel can be Layer 2 (switchport) or Layer 3 (routed), and both ends must match",
+  "A `table` of what must match and what happens when it does not (port suspended, bundle not formed)",
+  "A `question` with one member configured with a different native VLAN",
+]
+
+[[chapter.page]]
+name = "03-pagp-and-lacp"
+title = "PAgP and LACP"
+summary = "Two protocols can negotiate a bundle, one Cisco's and one an open standard, and each has its own modes."
+teaches = [
+  "PAgP: Cisco proprietary; modes `desirable` (actively negotiates) and `auto` (only responds); plus `on` (no protocol)",
+  "LACP: IEEE 802.3ad (now 802.1AX), works across vendors; modes `active` and `passive`; plus `on`",
+  "A `table` of PAgP mode combinations: desirable with desirable or auto forms a channel; auto with auto does not",
+  "A `table` of LACP combinations: active with active or passive forms a channel; passive with passive does not",
+  "Mode `on` forms a channel only with `on` on the other side, with no checks, which can cause loops if the far side is not bundled",
+  "LACP can hold up to 16 ports in a group, 8 active and up to 8 in hot standby",
+  "PAgP and LACP cannot negotiate with each other",
+  "A `question` on two switches set to passive and passive, and recall cards on the mode pairs",
+]
+
+[[chapter.page]]
+name = "04-configuring-etherchannel"
+title = "Configuring EtherChannel"
+summary = "Select the member ports, give them a channel group and a mode, then configure the port-channel interface."
+teaches = [
+  "Step by step on S1: `interface range fa0/1 - 2`, `channel-group 1 mode active` (which creates `Port-channel1`)",
+  "Then `interface port-channel 1`, `switchport mode trunk`, `switchport trunk allowed vlan 1,2,20`",
+  "Shut the member ports before bundling and bring them up afterward, so a half-configured bundle does not loop",
+  "Matching configuration on S2, and why both ends need compatible modes",
+  "Layer 3 EtherChannel on multilayer switches: `no switchport` on the members and on `interface port-channel 1`, then `ip address` on the port-channel",
+  "Load-balancing method: `port-channel load-balance src-dst-ip` in global configuration, checked with `show etherchannel load-balance`",
+  "`command` blocks for `channel-group 1 mode active` and `interface port-channel 1`",
+]
+
+[[chapter.page]]
+name = "05-verifying-etherchannel"
+title = "Verifying EtherChannel"
+summary = "Four show commands tell you whether the bundle formed, which protocol it uses and which ports are in it."
+teaches = [
+  "`show etherchannel summary` with its flag legend: P bundled in port-channel, I stand-alone, s suspended, D down, S Layer 2, R Layer 3, U in use",
+  "Reading a summary line: `1      Po1(SU)         LACP      Fa0/1(P)    Fa0/2(P)`",
+  "`show interfaces port-channel 1` for status and combined bandwidth (BW)",
+  "`show etherchannel port-channel` for the protocol and member ports",
+  "`show interfaces fa0/1 etherchannel` for one member's role and its partner's details",
+  "`show spanning-tree` lists Po1 instead of the member ports",
+  "A `question` reading a summary where one port shows `(s)`",
+  "Recall cards on SU and P flags",
+]
+
+[[chapter.page]]
+name = "06-troubleshooting-etherchannel"
+title = "Troubleshooting EtherChannel"
+summary = "A bundle that won't come up almost always has a mode mismatch or a member that differs from the rest."
+teaches = [
+  "Common causes: incompatible modes (auto with auto, passive with passive), PAgP on one end and LACP on the other, mismatched speed or duplex, mismatched trunk settings or allowed VLANs, ports in different access VLANs",
+  "Symptoms: no port-channel, ports stand-alone (I), ports suspended (s), or Po1 down (SD)",
+  "A worked fault: S1 and S2 both set to PAgP auto; `show etherchannel summary` shows `Po1(SD)`, fixed by changing one side to desirable",
+  "The safe fix procedure: shut the port-channel, correct the members, bring it back up",
+  "`show run interface port-channel 1` and `show run | section interface FastEthernet0/1` to compare member configurations",
+  "A second worked fault: a member left as an access port while the others are trunks",
+  "A `question` with mixed LACP and PAgP modes",
+]
+
+[[chapter.page]]
+name = "07-check-yourself"
+title = "Check yourself"
+summary = "Mixed questions on bundle rules, negotiation modes, configuration and output."
+teaches = [
+  "Mixed `question` blocks: maximum active links, STP behavior with EtherChannel, mode combination outcomes, member matching rules, Layer 3 EtherChannel",
+  "A question reading `show etherchannel summary` and naming the fault",
+  "`command` blocks for `channel-group 2 mode desirable`, `interface port-channel 2` and `port-channel load-balance src-dst-mac`",
+  "A short scenario: bundle two links between a switch and a multilayer switch with LACP and a trunk, written out end to end",
+  "Recall cards on PAgP and LACP mode names and the 8 active, 8 standby LACP limit",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 7. SRWE module 7: DHCPv4
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 7
+title = "DHCPv4"
+
+[[chapter.page]]
+name = "01-why-hosts-ask-for-addresses"
+title = "Why hosts ask for addresses"
+summary = "Typing an address into every laptop doesn't scale. DHCP leases one out, along with everything else the host needs."
+teaches = [
+  "Scene: 200 laptops, phones and printers arriving on a network each day; static addressing breaks down",
+  "DHCPv4 server and client roles; what a lease contains: IP address, mask, default gateway, DNS servers, domain name and lease time",
+  "A lease is temporary; the client must renew it, and addresses return to the pool when it expires",
+  "Where the server lives: a dedicated server in large networks, a Cisco router or the home router in small ones",
+  "Static addresses still matter for routers, servers and printers, and must be excluded from the pool",
+  "A `question` on which settings DHCP can hand out",
+  "Recall cards: what a lease is",
+]
+
+[[chapter.page]]
+name = "02-dora-step-by-step"
+title = "DORA step by step"
+summary = "Discover, Offer, Request, Acknowledge: four messages turn a host with no address into a working one."
+teaches = [
+  "DHCPDISCOVER: broadcast from 0.0.0.0 to 255.255.255.255, UDP source port 68 to destination port 67",
+  "DHCPOFFER: the server proposes an address after checking it is not in use (an IOS server pings it first)",
+  "DHCPREQUEST: still broadcast, so other servers that made offers learn they were not chosen",
+  "DHCPACK: the server confirms, and the client checks the address with ARP before using it",
+  "Renewal: at 50 percent of the lease (T1) the client unicasts a DHCPREQUEST to its server; at 87.5 percent (T2) it broadcasts to any server",
+  "DHCPNAK, DHCPDECLINE and DHCPRELEASE in one line each",
+  "A `table` of the four messages with source address, destination address and purpose",
+  "A `question` on why the Request is broadcast, and recall cards on UDP 67 and 68",
+]
+
+[[chapter.page]]
+name = "03-configuring-an-ios-dhcp-server"
+title = "Configuring an IOS DHCP server"
+summary = "Exclude the static addresses, define a pool, and tell it what to hand out."
+teaches = [
+  "Step 1: `ip dhcp excluded-address 192.168.10.1 192.168.10.9` for the gateway, servers and printers",
+  "Step 2: `ip dhcp pool LAN-POOL-1`, which enters `R1(dhcp-config)#`",
+  "Step 3 inside the pool: `network 192.168.10.0 255.255.255.0`, `default-router 192.168.10.1`, `dns-server 192.168.11.5`, `domain-name example.com`, `lease 7` (days, hours, minutes; default 1 day)",
+  "The router must have an interface in the pool's subnet, or no client there can reach it without a relay",
+  "The DHCP service is on by default; `no service dhcp` turns it off and `service dhcp` back on",
+  "A `drill` of kind `hosts` for counting how many addresses a pool really has after exclusions",
+  "`command` blocks for `ip dhcp excluded-address` and `default-router`",
+  "Misconception: excluded addresses are configured globally, not inside the pool",
+]
+
+[[chapter.page]]
+name = "04-verifying-the-dhcp-server"
+title = "Verifying the DHCP server"
+summary = "Check the configuration, see which addresses are leased, and confirm from the client."
+teaches = [
+  "`show running-config | section dhcp` to see exclusions and pools together",
+  "`show ip dhcp binding` output: IP address, client ID or hardware address, lease expiration, type",
+  "`show ip dhcp server statistics` and `show ip dhcp pool` for counts and utilization",
+  "`show ip dhcp conflict` for addresses found in use when the server checked",
+  "On a Windows client: `ipconfig /all` (DHCP Enabled, DHCP Server, Lease Obtained), `ipconfig /release` and `ipconfig /renew`",
+  "A `question` on what a client with 169.254.x.x (APIPA) is telling you",
+  "Recall cards on the binding command",
+]
+
+[[chapter.page]]
+name = "05-dhcp-relay"
+title = "DHCP relay"
+summary = "DHCP Discover is a broadcast, and routers don't forward broadcasts. A relay turns it into a unicast to the server."
+teaches = [
+  "The problem: clients on 192.168.10.0/24, server on 192.168.11.6, and R1 drops the broadcast Discover",
+  "`ip helper-address 192.168.11.6` on the interface facing the clients (their gateway interface), not the interface facing the server",
+  "The relay forwards the request as a unicast and fills in the gateway address (giaddr) so the server picks the right pool",
+  "`show ip interface g0/0/0` shows `Helper address is 192.168.11.6`",
+  "ip helper-address also relays other UDP broadcasts by default, including DNS, TFTP, the time service, TACACS and NetBIOS name and datagram services",
+  "A `diagram` with the client LAN, R1 and the server LAN",
+  "A `command` block for `ip helper-address` and a `question` on which interface it goes on",
+]
+
+[[chapter.page]]
+name = "06-router-as-a-dhcp-client"
+title = "A router as a DHCP client"
+summary = "A router's internet-facing interface can get its own address from the ISP, the same way a laptop does."
+teaches = [
+  "Small offices and homes often get their public address from the ISP by DHCP",
+  "`ip address dhcp` on the interface, then `no shutdown`",
+  "The console message `%DHCP-6-ADDRESS_ASSIGN` when the address is received",
+  "Verify with `show ip interface brief` (Method column shows DHCP) and `show dhcp lease`",
+  "Home wireless routers do the same on their WAN or internet port, set in the GUI",
+  "The router can also learn a default route from DHCP, so it reaches the internet without a static route",
+  "A `command` block for `ip address dhcp`",
+]
+
+[[chapter.page]]
+name = "07-troubleshooting-dhcp"
+title = "Troubleshooting DHCP"
+summary = "When a host gets no address, work through conflicts, connectivity, the switch port, the relay and the server."
+teaches = [
+  "Symptom: the client has a 169.254.x.x address or none at all",
+  "Check 1: address conflicts with `show ip dhcp conflict`",
+  "Check 2: physical connectivity and the switch port; a port still in STP listening and learning can delay DHCP past the client's timeout, which PortFast solves",
+  "Check 3: test with a static address to separate addressing problems from connectivity problems",
+  "Check 4: relay and server: `ip helper-address` present and correct, pool network matches the subnet, pool not exhausted, excluded range not covering the whole pool",
+  "`debug ip dhcp server events` and `debug ip packet` with care in a lab",
+  "A worked fault: a new VLAN gets no addresses because the router subinterface lacks `ip helper-address`",
+  "Mixed `question` blocks and recall cards covering DORA ports, T1 and T2, and relay placement",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 8. SRWE module 8: SLAAC and DHCPv6
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 8
+title = "SLAAC and DHCPv6"
+
+[[chapter.page]]
+name = "01-how-an-ipv6-host-gets-an-address"
+title = "How an IPv6 host gets an address"
+summary = "An IPv6 host always makes its own link-local address, then asks the router how to get a global one."
+teaches = [
+  "Scene: a laptop joins an IPv6 LAN with nothing configured and is on the internet a few seconds later",
+  "The link-local address (fe80::/10) is created first, with an interface ID from EUI-64 or a random value; Windows uses random by default",
+  "Ways to get a GUA: static, SLAAC, SLAAC with stateless DHCPv6, and stateful DHCPv6",
+  "The router's advertisement tells the host which method to use",
+  "The default gateway always comes from the router advertisement, as the router's link-local address; DHCPv6 never supplies it",
+  "Misconception: there is no DHCPv6 option for a default gateway",
+  "A `drill` of kind `ipv6` on compressing addresses",
+  "Recall cards: where the default gateway comes from",
+]
+
+[[chapter.page]]
+name = "02-router-advertisements-and-flags"
+title = "Router advertisements and their flags"
+summary = "Three bits in the router advertisement decide whether hosts use SLAAC, DHCPv6 or both."
+teaches = [
+  "`ipv6 unicast-routing` makes the router join ff02::2 (all-routers) and send RAs; without it, no RAs are sent",
+  "Router solicitation (RS) from host to ff02::2; router advertisement (RA) to ff02::1 periodically (Cisco default every 200 seconds) or in reply to an RS",
+  "The flags: A (autonomous address configuration, use SLAAC), O (other configuration, get DNS and more from DHCPv6), M (managed, get the address from DHCPv6)",
+  "A `table` of the three methods and their flags: SLAAC only A=1 O=0 M=0; stateless DHCPv6 A=1 O=1 M=0; stateful DHCPv6 A=0 M=1",
+  "Default RA from an IOS router with a GUA configured: SLAAC only",
+  "`show ipv6 interface g0/0/1` lines showing RA interval and `Hosts use stateless autoconfig for addresses`",
+  "A `question` giving flag values and asking how the host gets its DNS server",
+]
+
+[[chapter.page]]
+name = "03-slaac"
+title = "SLAAC"
+summary = "The host takes the prefix from the router advertisement and builds the rest of its address itself."
+teaches = [
+  "The prefix (usually /64) comes from the RA; the 64-bit interface ID is made by the host",
+  "EUI-64: split the MAC in half, insert fffe, and flip the seventh bit; worked example 0050.7966.6800 becomes interface ID 0250:79ff:fe66:6800",
+  "Random interface IDs and temporary addresses for privacy, as shown in Windows `ipconfig`",
+  "Duplicate address detection: the host sends a neighbor solicitation to its own solicited-node multicast address and uses the address only if no one answers",
+  "Router side for SLAAC only: an interface GUA, `ipv6 unicast-routing`, nothing else",
+  "DNS with SLAAC only: hosts can learn DNS from the RA (RDNSS) where supported, otherwise they need stateless DHCPv6",
+  "A `drill` of kind `ipv6`",
+  "A `question` on the EUI-64 bit flip and recall cards on DAD",
+]
+
+[[chapter.page]]
+name = "04-dhcpv6-message-flow"
+title = "DHCPv6 message flow"
+summary = "DHCPv6 has its own four messages, sent from link-local addresses to a well-known multicast group."
+teaches = [
+  "SOLICIT from the client's link-local address to ff02::1:2 (all DHCPv6 servers and relays)",
+  "ADVERTISE from a server, then REQUEST (stateful) or INFORMATION-REQUEST (stateless), then REPLY",
+  "UDP ports: client 546, server 547",
+  "A `table` comparing DHCPv4 DORA and DHCPv6 messages side by side",
+  "The host starts DHCPv6 only when the RA's M or O flag tells it to",
+  "Misconception: a DHCPv6 server does not need to be the router; it can be anywhere reachable through a relay",
+  "Recall cards: the DHCPv6 multicast address, the ports",
+]
+
+[[chapter.page]]
+name = "05-stateless-dhcpv6"
+title = "Stateless DHCPv6"
+summary = "Hosts build their own address with SLAAC and ask a DHCPv6 server only for extras such as DNS."
+teaches = [
+  "Server: `ipv6 dhcp pool IPV6-STATELESS`, `dns-server 2001:db8:acad:1::254`, `domain-name example.com`",
+  "Interface: `ipv6 nd other-config-flag` and `ipv6 dhcp server IPV6-STATELESS`",
+  "The server keeps no record of addresses, which is why it is called stateless",
+  "A router as a stateless client: `ipv6 enable` and `ipv6 address autoconfig` on the interface",
+  "Verify: `show ipv6 dhcp pool`, `show ipv6 interface` (`Hosts use stateless autoconfig for addresses` and `Hosts use DHCP to obtain other configuration`), `ipconfig /all` on a PC",
+  "`command` blocks for `ipv6 nd other-config-flag`",
+  "A `question` on what the O flag changes",
+]
+
+[[chapter.page]]
+name = "06-stateful-dhcpv6"
+title = "Stateful DHCPv6"
+summary = "The DHCPv6 server hands out the address itself and remembers who has which one."
+teaches = [
+  "Server pool: `ipv6 dhcp pool IPV6-STATEFUL`, `address prefix 2001:db8:acad:1::/64`, `dns-server`, `domain-name`",
+  "Interface: `ipv6 nd managed-config-flag`, `ipv6 nd prefix default no-autoconfig` (clears the A flag so hosts do not also use SLAAC), `ipv6 dhcp server IPV6-STATEFUL`",
+  "A router as a stateful client: `ipv6 address dhcp`",
+  "Verify with `show ipv6 dhcp binding` and `show ipv6 dhcp interface`",
+  "Clients still get their default gateway from the RA",
+  "Misconception: setting M=1 alone does not stop SLAAC; a host may form both addresses unless A is cleared",
+  "`command` blocks for `ipv6 nd managed-config-flag` and `ipv6 address dhcp`",
+]
+
+[[chapter.page]]
+name = "07-dhcpv6-relay"
+title = "DHCPv6 relay"
+summary = "When the DHCPv6 server sits on another network, the router relays client messages to it."
+teaches = [
+  "The client's SOLICIT goes to a link-local multicast group, which no router forwards",
+  "`ipv6 dhcp relay destination 2001:db8:acad:2::9 g0/0/0` on the interface facing the clients",
+  "`show ipv6 dhcp interface` reports the interface `is in relay mode` and the relay destination",
+  "On the server, `show ipv6 dhcp binding` shows the leased addresses",
+  "Compare with IPv4 `ip helper-address`: same job, different command, same placement on the client-facing interface",
+  "A `diagram` of client LAN, relay router and server",
+  "A `command` block for the relay command",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself"
+summary = "Pick the right method from the flags, decode router output, and fix a DHCPv6 setup."
+teaches = [
+  "A worked scenario: the same LAN set up three ways (SLAAC, stateless, stateful), showing the router commands and the flag values for each",
+  "Mixed `question` blocks on flags, where the gateway comes from, ff02::1:2, ports 546 and 547, DAD and EUI-64",
+  "A question reading `show ipv6 interface` output and naming the method in use",
+  "A worked fault: hosts get addresses but no DNS because `ipv6 nd other-config-flag` is missing",
+  "Recall cards on the A, O and M meanings and the stateful no-autoconfig command",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 9. SRWE module 9: FHRP concepts
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 9
+title = "FHRP concepts"
+
+[[chapter.page]]
+name = "01-one-gateway-one-point-of-failure"
+title = "One gateway, one point of failure"
+summary = "A host knows one default gateway. If that router dies, the host is cut off even when a second router is right there."
+teaches = [
+  "Scene: a LAN with two routers to the internet; R1 fails and every PC loses access although R2 is fine",
+  "Hosts have a single static or DHCP-learned default gateway, and an ARP entry for its MAC",
+  "Changing every host's gateway by hand is not a recovery plan",
+  "The idea of a first hop redundancy protocol (FHRP): several routers share one virtual gateway",
+  "A `diagram` of two routers, a switch and PCs",
+  "A `question` on why adding a second router alone does not help the hosts",
+]
+
+[[chapter.page]]
+name = "02-how-a-virtual-router-works"
+title = "How a virtual router works"
+summary = "Two routers answer for one virtual IP and MAC address, so hosts never notice which one is really forwarding."
+teaches = [
+  "The virtual router has a virtual IP address (the hosts' gateway) and a virtual MAC address",
+  "One router forwards for the virtual router (active or master), another waits (standby or backup)",
+  "Failover steps: the standby stops hearing hellos, takes over the virtual IP and MAC, and forwarding continues",
+  "Hosts keep the same gateway and ARP entry, so nothing changes on the hosts",
+  "Each router still has its own real interface address in the same subnet",
+  "A `diagram` labeling real and virtual addresses",
+  "Recall cards: what the virtual MAC is for",
+]
+
+[[chapter.page]]
+name = "03-fhrp-options"
+title = "FHRP options"
+summary = "HSRP, VRRP and GLBP solve the same problem in slightly different ways."
+teaches = [
+  "HSRP: Cisco proprietary, active and standby routers; HSRP for IPv6 also exists",
+  "VRRP: open standard (VRRPv2 for IPv4, VRRPv3 for IPv4 and IPv6), master and backup routers",
+  "GLBP: Cisco proprietary, load balances across several routers while also providing failover",
+  "IRDP: a legacy method in one sentence",
+  "A `table` comparing HSRP, VRRP and GLBP: standard, role names, load balancing, preemption default",
+  "Detailed comparison of versions and virtual MAC formats is in the Field Guide",
+  "A `question` on which FHRP to choose in a multivendor network",
+]
+
+[[chapter.page]]
+name = "04-hsrp-priority-and-preemption"
+title = "HSRP priority and preemption"
+summary = "The router with the highest priority becomes active, but only takes the role back after a failure if preemption is on."
+teaches = [
+  "Default priority 100, range 0 to 255; highest wins, tie broken by highest interface IP address",
+  "Preemption is off by default: a recovered router with higher priority stays standby unless `standby 1 preempt` is set",
+  "Configuration for recognition: `standby version 2`, `standby 1 ip 192.168.1.254`, `standby 1 priority 150`, `standby 1 preempt`",
+  "Hosts use the virtual address 192.168.1.254 as their default gateway",
+  "`show standby brief` output columns: Interface, Grp, Pri, P, State, Active, Standby, Virtual IP",
+  "A `question` on what happens when the higher-priority router returns without preemption",
+  "Recall cards: default priority, preemption default",
+]
+
+[[chapter.page]]
+name = "05-hsrp-states-and-timers"
+title = "HSRP states and timers"
+summary = "An HSRP router moves through a short list of states, driven by hello messages every few seconds."
+teaches = [
+  "The HSRP states in order: initial, learn, listen, speak, standby, active",
+  "A `table` of what each state means",
+  "Hello every 3 seconds and hold time 10 seconds by default",
+  "The standby takes over when the hold time expires without a hello from the active router",
+  "HSRP hellos are multicast: 224.0.0.2 for version 1 and 224.0.0.102 for version 2, UDP port 1985",
+  "A `question` on which state only the active router and standby router reach",
+  "Recall cards: hello and hold timers",
+]
+
+[[chapter.page]]
+name = "06-check-yourself"
+title = "Check yourself"
+summary = "Follow a gateway failure from start to finish, then answer mixed questions on FHRPs."
+teaches = [
+  "A worked failover timeline: R1 active with priority 150 and preempt, R2 standby; R1 fails, R2 takes over after the hold time, R1 returns and preempts",
+  "The `show standby brief` output on R2 before and after the failure",
+  "Mixed `question` blocks on virtual addresses, HSRP versus VRRP, priority, preemption and timers",
+  "A question on which address the hosts must use as their gateway",
+  "Recall cards on the three FHRPs and their role names",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 10. SRWE module 10: LAN security concepts
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 10
+title = "LAN security concepts"
+
+[[chapter.page]]
+name = "01-why-the-lan-needs-defending"
+title = "Why the LAN needs defending"
+summary = "Firewalls guard the edge, but many attacks start from a laptop plugged into a wall jack inside the building."
+teaches = [
+  "Scene: a visitor plugs a laptop into a meeting-room port; what can they reach and see",
+  "Common attacks today: DoS and DDoS, data breaches, malware and ransomware",
+  "Layer 2 is often the weakest link: if Layer 2 is compromised, every layer above it is too",
+  "Defense in depth: edge security, endpoint security and switch security together",
+  "A preview of the chapter: endpoints, access control, then each family of Layer 2 attack",
+  "A `question` on why securing Layer 3 and above is not enough",
+]
+
+[[chapter.page]]
+name = "02-security-devices-and-endpoints"
+title = "Security devices and endpoint protection"
+summary = "Dedicated appliances and software on each host each block a different part of the threat."
+teaches = [
+  "Network security devices: VPN-enabled router, next-generation firewall (NGFW), network access control (NAC)",
+  "Endpoints (laptops, phones, servers, printers, IP phones) are a main target",
+  "Host-based protection: antivirus and antimalware, host-based firewall, host-based IPS",
+  "Cisco Email Security Appliance (ESA) for spam and phishing, and Web Security Appliance (WSA) for web threats",
+  "A `table` mapping each device to the threat it addresses",
+  "A `question` on which device checks whether a host is compliant before allowing it on the network",
+]
+
+[[chapter.page]]
+name = "03-aaa-and-authentication"
+title = "AAA and authentication"
+summary = "Authentication says who you are, authorization says what you may do, and accounting records what you did."
+teaches = [
+  "Local password authentication on VTY lines and its limits: `password` with `login` versus `username` with `login local`",
+  "AAA: authentication, authorization and accounting, explained with a concrete login example",
+  "Local AAA versus server-based AAA (a central RADIUS or TACACS+ server)",
+  "Authorization: what commands or services a user may use after logging in",
+  "Accounting: a record of logins, commands and duration, used for auditing and billing",
+  "A `table` comparing RADIUS (open standard, UDP 1812 and 1813, encrypts only the password, combines authentication and authorization) and TACACS+ (Cisco, TCP 49, encrypts the whole body, separates the three functions)",
+  "A `question` on which protocol suits per-command authorization of admins",
+  "Recall cards: the three As, the RADIUS and TACACS+ ports",
+]
+
+[[chapter.page]]
+name = "04-802-1x-port-based-access"
+title = "802.1X port-based access"
+summary = "A switch port can refuse all traffic until the device on it proves who it is."
+teaches = [
+  "The three roles: supplicant (the client), authenticator (the switch), authentication server (RADIUS)",
+  "Until authenticated the port passes only EAPOL (EAP over LAN) traffic; after success it forwards normally",
+  "The exchange in order: EAPOL start, identity request and response, the authenticator relaying to the server, accept or reject",
+  "802.1X also secures enterprise Wi-Fi, where the AP or WLC is the authenticator (forward link to chapter 12)",
+  "A `diagram` with PC, switch and RADIUS server",
+  "A `question` on which device is the authenticator",
+  "Recall cards: the three roles",
+]
+
+[[chapter.page]]
+name = "05-layer-2-attack-families"
+title = "Layer 2 attack families"
+summary = "Most switch attacks fall into six families, and each has a switch feature that stops it."
+teaches = [
+  "A `table` of attack families and mitigations: MAC table attacks (port security), VLAN attacks (DTP and native VLAN hardening), DHCP attacks (DHCP snooping), ARP attacks (dynamic ARP inspection), address spoofing (IP Source Guard and DAI), STP attacks (BPDU guard and root guard)",
+  "Secure management traffic too: SSH instead of Telnet, SCP or SFTP instead of FTP, SNMPv3, HTTPS, and an out-of-band or dedicated management VLAN",
+  "Shut down and isolate unused ports",
+  "These features are configured in chapter 11",
+  "A `question` matching an attack to its mitigation",
+  "Recall cards on the six families",
+]
+
+[[chapter.page]]
+name = "06-mac-address-table-flooding"
+title = "MAC address table flooding"
+summary = "Fill a switch's MAC table with fake addresses and it starts flooding every frame, like a hub."
+teaches = [
+  "Review: a switch floods frames for unknown destinations",
+  "The MAC table has a fixed size that depends on the platform",
+  "The attack: a tool such as macof sends frames with random source MACs until the table is full",
+  "Result: legitimate destinations cannot be learned, so their frames are flooded and the attacker can capture them",
+  "The flood also spills to neighboring switches in the same VLAN",
+  "Mitigation: port security limits how many MACs a port may learn",
+  "A `question` on why the attack lets the attacker see unicast traffic",
+]
+
+[[chapter.page]]
+name = "07-vlan-hopping-and-double-tagging"
+title = "VLAN hopping and double tagging"
+summary = "An attacker can reach other VLANs by pretending to be a switch, or by hiding one VLAN tag inside another."
+teaches = [
+  "Switch spoofing: the attacker sends DTP frames to a port in dynamic auto or desirable and forms a trunk, gaining access to every allowed VLAN",
+  "Double tagging: the attacker in the native VLAN sends a frame with two tags; the first switch strips the outer (native) tag and forwards it on a trunk, where the next switch reads the inner tag",
+  "Double tagging works in one direction only and requires the attacker's access VLAN to match the trunk's native VLAN",
+  "A `fields` block showing the double-tagged frame",
+  "Mitigations: `switchport mode access` on edge ports, `switchport nonegotiate` on trunks, unused native VLAN, unused ports shut down and in an unused VLAN",
+  "A `question` on which condition makes double tagging possible",
+  "Recall cards: the two VLAN hopping methods",
+]
+
+[[chapter.page]]
+name = "08-dhcp-and-arp-attacks"
+title = "DHCP and ARP attacks"
+summary = "Exhaust the DHCP pool or answer ARP requests with lies, and an attacker can stop or redirect traffic."
+teaches = [
+  "DHCP starvation: a tool such as Gobbler requests leases with fake MACs until the pool is empty, a DoS",
+  "DHCP spoofing: a rogue DHCP server hands out a false gateway or DNS server, enabling man-in-the-middle attacks",
+  "ARP review: hosts accept ARP replies, including unsolicited gratuitous ARP",
+  "ARP spoofing or poisoning: the attacker claims the gateway's IP with its own MAC and sits in the middle",
+  "Mitigation: DHCP snooping (trusted and untrusted ports) and dynamic ARP inspection, which uses the snooping binding table",
+  "A `diagram` of the attacker between a PC and its gateway",
+  "A `question` on which attack is stopped by DHCP snooping trusted ports",
+]
+
+[[chapter.page]]
+name = "09-spoofing-stp-and-cdp-attacks"
+title = "Spoofing, STP and CDP attacks"
+summary = "Forged addresses, fake root bridges and chatty discovery protocols each give an attacker a way in."
+teaches = [
+  "Address spoofing: forging a MAC or IP address to bypass filters or impersonate a host",
+  "STP manipulation: an attacker's device sends BPDUs with a lower priority, becomes root and attracts traffic; mitigated by BPDU guard and root guard",
+  "CDP reconnaissance: CDP is on by default, sent unencrypted every 60 seconds with a 180-second holdtime, and reveals IOS version, IP addresses and native VLAN",
+  "Disable CDP with `no cdp run` globally or `no cdp enable` per interface; LLDP with `no lldp run`, `no lldp transmit` and `no lldp receive`",
+  "Keep CDP or LLDP on links to other network devices and IP phones where it is needed",
+  "A `question` on what an attacker learns from CDP",
+  "Recall cards: CDP timers, the command that disables CDP everywhere",
+]
+
+[[chapter.page]]
+name = "10-check-yourself"
+title = "Check yourself"
+summary = "Match attacks to their mitigations and review AAA and 802.1X."
+teaches = [
+  "Mixed `question` blocks covering each attack family, AAA functions, RADIUS versus TACACS+, and 802.1X roles",
+  "A scenario: a list of symptoms on a LAN (pool exhausted, wrong gateway, flooded traffic) and the reader names each attack",
+  "A question on which mitigation depends on another (DAI on DHCP snooping)",
+  "Recall cards on ports 1812, 1813 and 49, and the switch spoofing mitigation",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 11. SRWE module 11: Switch security configuration
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 11
+title = "Switch security configuration"
+
+[[chapter.page]]
+name = "01-locking-down-the-access-layer"
+title = "Locking down the access layer"
+summary = "Start with what's easy: shut what isn't used and fix every port's role."
+teaches = [
+  "Scene: an access switch where every port is live and in VLAN 1; this chapter hardens it one feature at a time",
+  "Shut down unused ports: `interface range fa0/8 - 24` then `shutdown`; verify with `show interfaces status`",
+  "Set every edge port to `switchport mode access`, so it never negotiates a trunk",
+  "The order of the chapter: port security, VLAN attack mitigation, DHCP snooping, DAI, PortFast and BPDU guard",
+  "A `command` block for `interface range`",
+  "A `question` on why unused ports should be shut down rather than left in VLAN 1",
+]
+
+[[chapter.page]]
+name = "02-enabling-port-security"
+title = "Enabling port security"
+summary = "Port security limits which MAC addresses a port accepts, and how many."
+teaches = [
+  "Port security needs a static mode: on a dynamic port `switchport port-security` is rejected with `Command rejected: FastEthernet0/1 is a dynamic port.`",
+  "`switchport mode access` then `switchport port-security`; the default maximum is 1 MAC address",
+  "`switchport port-security maximum 2` to allow a phone and a PC",
+  "Three ways to learn: static (`switchport port-security mac-address 0050.7966.6800`), dynamic (learned, lost on reload) and sticky (`switchport port-security mac-address sticky`, written to the running configuration)",
+  "`show port-security interface fa0/1` output fields: Port Security, Port Status, Violation Mode, Aging Time, Aging Type, Maximum MAC Addresses, Total MAC Addresses, Sticky MAC Addresses, Last Source Address:Vlan, Security Violation Count",
+  "`show port-security address` to list secure addresses",
+  "Misconception: sticky addresses survive a reload only if the running configuration is saved",
+  "`command` blocks for `switchport port-security` and `mac-address sticky`",
+]
+
+[[chapter.page]]
+name = "03-aging-and-violation-modes"
+title = "Aging and violation modes"
+summary = "Decide how long a learned address stays secure, and what the switch does when a stranger shows up."
+teaches = [
+  "Port security aging: `switchport port-security aging time 10` (minutes) and `aging type absolute` or `inactivity`; aging is off by default",
+  "Absolute removes the address after the time regardless; inactivity removes it only if it has been silent",
+  "Violation modes with `switchport port-security violation {protect | restrict | shutdown}`; shutdown is the default",
+  "A `table` of violation modes: protect drops and stays silent; restrict drops, logs and counts; shutdown error-disables the port, logs and counts",
+  "Misconception: protect and restrict do not shut the port, so the legitimate host keeps working",
+  "A `question` on which mode increments the violation counter without disabling the port",
+  "Recall cards: default violation mode, the two aging types",
+]
+
+[[chapter.page]]
+name = "04-recovering-err-disabled-ports"
+title = "Recovering error-disabled ports"
+summary = "A port shut by a violation stays down until you bring it back, or until the switch is told to recover it by itself."
+teaches = [
+  "Console messages on a violation: `%PORT_SECURITY-2-PSECURE_VIOLATION` and `%PM-4-ERR_DISABLE`",
+  "`show interfaces fa0/1 status` and `show interfaces status err-disabled` showing `err-disabled`",
+  "`show port-security interface` showing Port Status `Secure-shutdown` and the violation count",
+  "Manual recovery: remove the offending device, then `shutdown` and `no shutdown` on the port",
+  "Automatic recovery: `errdisable recovery cause psecure-violation` and `errdisable recovery interval 300` (seconds, the default interval)",
+  "A worked example from violation to recovery",
+  "A `command` block for the recovery cause",
+]
+
+[[chapter.page]]
+name = "05-stopping-vlan-attacks"
+title = "Stopping VLAN attacks"
+summary = "Turn off trunk negotiation and move the native VLAN somewhere unused, and VLAN hopping stops working."
+teaches = [
+  "Edge ports: `switchport mode access` disables DTP-based switch spoofing",
+  "Trunks: `switchport mode trunk` plus `switchport nonegotiate`",
+  "Native VLAN: `switchport trunk native vlan 999`, a VLAN that carries no hosts, on both ends of every trunk",
+  "Unused ports: `switchport access vlan 999` (an unused black-hole VLAN) and `shutdown`",
+  "Verify with `show interfaces fa0/1 switchport` (Negotiation of Trunking: Off) and `show interfaces trunk`",
+  "A `question` on which setting defeats double tagging",
+  "Recall cards: the two commands that stop switch spoofing",
+]
+
+[[chapter.page]]
+name = "06-dhcp-snooping"
+title = "DHCP snooping"
+summary = "The switch learns which ports may answer DHCP and records which host got which address."
+teaches = [
+  "Trusted ports (toward legitimate DHCP servers and uplinks) and untrusted ports (everything else); server messages such as DHCPOFFER and DHCPACK arriving on untrusted ports are dropped",
+  "The DHCP snooping binding table: MAC, IP, lease, VLAN and interface",
+  "Configuration: `ip dhcp snooping`, `ip dhcp snooping vlan 5,10,50-52`, `ip dhcp snooping trust` on the uplink, `ip dhcp snooping limit rate 6` (packets per second) on access ports",
+  "All ports are untrusted by default once snooping is on, so forgetting the trust command on the uplink breaks DHCP for everyone",
+  "Verify with `show ip dhcp snooping` and `show ip dhcp snooping binding`",
+  "Starvation is limited by the rate limit; spoofing is stopped by trust",
+  "`command` blocks for `ip dhcp snooping trust` and the VLAN command",
+  "A `question` on why clients stop getting addresses right after enabling snooping",
+]
+
+[[chapter.page]]
+name = "07-dynamic-arp-inspection"
+title = "Dynamic ARP inspection"
+summary = "The switch checks every ARP message against the DHCP snooping table and drops the lies."
+teaches = [
+  "DAI inspects ARP on untrusted ports and drops replies whose IP-to-MAC mapping is not in the DHCP snooping binding table",
+  "DAI depends on DHCP snooping being enabled for the same VLANs",
+  "Configuration: `ip arp inspection vlan 10`, `ip arp inspection trust` on the uplink",
+  "`ip arp inspection validate src-mac dst-mac ip`: list all checks in one command, because each new validate command replaces the previous one",
+  "Untrusted ports are rate limited (15 ARP packets per second by default) and are error-disabled if they exceed it",
+  "Hosts with static addresses need ARP ACLs or trusted ports, or DAI will drop their ARP",
+  "A `question` on what DAI needs before it can work",
+  "Recall cards on the validate command behavior",
+]
+
+[[chapter.page]]
+name = "08-portfast-and-bpdu-guard"
+title = "PortFast and BPDU guard"
+summary = "Edge ports should forward at once and should shut themselves if a switch ever appears on them."
+teaches = [
+  "PortFast on an access port: `spanning-tree portfast`; IOS warns that PortFast should be used only on ports to a single host",
+  "PortFast on all access ports at once: `spanning-tree portfast default` in global configuration",
+  "BPDU guard on a port: `spanning-tree bpduguard enable`; globally on all PortFast ports: `spanning-tree portfast bpduguard default`",
+  "When a BPDU arrives the port is error-disabled with `%SPANTREE-2-BLOCK_BPDUGUARD`",
+  "Verify with `show spanning-tree summary` (PortFast Default and BPDU Guard Default lines) and `show running-config interface fa0/1`",
+  "Misconception: PortFast does not disable spanning tree on the port; it skips listening and learning",
+  "`command` blocks for both interface commands",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself"
+summary = "Harden an access switch from scratch, then answer mixed questions on each feature."
+teaches = [
+  "A worked scenario: a 24-port access switch with users in VLAN 10, phones in VLAN 150, uplink on G0/1, and the full hardening configuration in order",
+  "The expected `show port-security interface`, `show ip dhcp snooping` and `show spanning-tree summary` excerpts",
+  "Mixed `question` blocks on violation modes, sticky learning, snooping trust, DAI dependence and BPDU guard",
+  "`command` blocks for `switchport port-security violation restrict` and `errdisable recovery cause bpduguard`",
+  "Recall cards on default maximum MACs, default violation mode and the DAI rate limit",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 12. SRWE module 12: WLAN concepts
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 12
+title = "WLAN concepts"
+
+[[chapter.page]]
+name = "01-why-wireless"
+title = "Why wireless"
+summary = "Wireless trades a cable for radio, which brings freedom to move and a new set of problems."
+teaches = [
+  "Scene: an office where staff move between desks and meeting rooms with laptops and phones",
+  "Benefits: mobility, lower cabling cost, easy growth",
+  "Types of wireless network by range: WPAN (Bluetooth), WLAN (802.11 Wi-Fi), WMAN, WWAN",
+  "Wireless technologies: Bluetooth (Low Energy and BR/EDR), WiMAX, cellular broadband, satellite broadband",
+  "WLANs share the medium and are half duplex, unlike switched Ethernet",
+  "A `question` on which network type Bluetooth headphones use",
+]
+
+[[chapter.page]]
+name = "02-802-11-standards-and-frequencies"
+title = "802.11 standards and frequencies"
+summary = "Each 802.11 amendment raised the speed and chose a band, 2.4 GHz or 5 GHz."
+teaches = [
+  "A `table` of standards: 802.11 (2.4 GHz, 2 Mbps), 802.11a (5 GHz, 54 Mbps), 802.11b (2.4 GHz, 11 Mbps), 802.11g (2.4 GHz, 54 Mbps), 802.11n (2.4 and 5 GHz, up to 600 Mbps, MIMO), 802.11ac (5 GHz, gigabit rates), 802.11ax (2.4 and 5 GHz, and 6 GHz with Wi-Fi 6E)",
+  "Wi-Fi Alliance generation names: Wi-Fi 4 (n), Wi-Fi 5 (ac), Wi-Fi 6 (ax)",
+  "2.4 GHz reaches further and penetrates walls better; 5 GHz has more channels and less interference but shorter range",
+  "Backward compatibility and how one slow client affects a cell",
+  "Standards organizations: ITU-R (spectrum), IEEE (802.11 standards), Wi-Fi Alliance (interoperability certification)",
+  "A `question` on which standard first used both bands",
+  "Recall cards on band trade-offs and the three organizations",
+]
+
+[[chapter.page]]
+name = "03-wlan-components"
+title = "WLAN components"
+summary = "A WLAN is built from wireless NICs, access points, antennas and, in larger networks, a controller."
+teaches = [
+  "Wireless NICs in clients, built in or added by USB",
+  "The home wireless router: access point, switch, router and often a DHCP server in one box",
+  "Access points: autonomous (configured one by one) versus controller-based or lightweight (managed by a WLC)",
+  "Many APs draw power over Ethernet (PoE) from the switch",
+  "Antennas: omnidirectional (all around), directional such as Yagi and parabolic dish (point to point), and MIMO (several antennas for more throughput)",
+  "A `table` comparing autonomous and controller-based APs",
+  "A `question` on the AP type suited to a large campus",
+]
+
+[[chapter.page]]
+name = "04-topologies-bss-and-ess"
+title = "Topologies, BSS and ESS"
+summary = "Clients can talk directly, through one access point, or roam across many that share a name."
+teaches = [
+  "Ad hoc mode (IBSS): clients connect directly without an AP",
+  "Infrastructure mode: clients connect through an AP; tethering (a phone as a personal hotspot) as a special case",
+  "Basic service set (BSS): one AP and its clients; basic service area (BSA) is its coverage; the BSSID is the AP radio's MAC",
+  "Extended service set (ESS): several BSSs joined by a wired distribution system, sharing one SSID so clients roam",
+  "A `diagram` with two APs on a switch forming an ESS",
+  "A `question` on what identifies one BSS",
+  "Recall cards on BSS, BSSID and ESS",
+]
+
+[[chapter.page]]
+name = "05-the-802-11-frame-and-csma-ca"
+title = "The 802.11 frame and CSMA/CA"
+summary = "Wireless frames carry up to four addresses, and stations avoid collisions because they cannot detect them."
+teaches = [
+  "A `fields` block of the 802.11 frame: Frame Control, Duration, Address 1, Address 2, Address 3, Sequence Control, Address 4, Payload, FCS",
+  "Why more addresses than Ethernet: the frame names the receiver, transmitter and source or destination as it crosses the AP",
+  "Frame Control identifies management, control and data frames",
+  "CSMA/CA: listen before sending, wait a random backoff, send, and wait for an acknowledgment; no ACK means retransmit",
+  "Optional RTS and CTS to reserve the medium",
+  "Misconception: Wi-Fi does not use CSMA/CD; a radio cannot listen while it transmits",
+  "A `question` on what a missing ACK tells the sender",
+]
+
+[[chapter.page]]
+name = "06-joining-a-wlan"
+title = "Joining a WLAN"
+summary = "A client discovers access points, authenticates and associates before it can send any data."
+teaches = [
+  "Settings that must match between client and AP: SSID, password, network mode (802.11 standard), security mode, channel",
+  "Passive discovery: the AP sends beacons with the SSID and supported features",
+  "Active discovery: the client sends probe requests, with or without an SSID, and APs reply with probe responses",
+  "The three stages: discovery, authentication (802.11 open system authentication), association (the AP gives an association ID)",
+  "With WPA2 or WPA3, the real security exchange happens after association",
+  "A `question` on how a client finds a network that does not broadcast its SSID",
+  "Recall cards on beacons and probes",
+]
+
+[[chapter.page]]
+name = "07-capwap-and-the-wlc"
+title = "CAPWAP and the WLC"
+summary = "Lightweight APs hand the thinking to a wireless LAN controller and stay in touch with it through CAPWAP tunnels."
+teaches = [
+  "CAPWAP is an IETF standard protocol between lightweight APs and a WLC, using UDP port 5246 for control and 5247 for data, over IPv4 or IPv6",
+  "Split MAC: the AP handles real-time work (beacons, probe responses, acknowledgments and retransmissions, frame queuing, 802.11 encryption); the WLC handles management (authentication, association and roaming, translation to wired frames, termination of 802.11 traffic)",
+  "DTLS encrypts the CAPWAP control channel by default; data channel encryption is optional",
+  "FlexConnect APs at branch sites: connected mode and standalone mode when the WLC link is lost, switching client traffic locally",
+  "Other AP modes are covered in the Field Guide",
+  "A `table` of the split MAC duties",
+  "A `question` on which device handles association in split MAC",
+]
+
+[[chapter.page]]
+name = "08-channels-and-planning"
+title = "Channels and planning"
+summary = "Neighboring access points must use channels that don't overlap, and a WLAN is planned around coverage and users."
+teaches = [
+  "Channel saturation: too many devices or APs on the same channel slow everyone down",
+  "Ways to share a band: DSSS, FHSS and OFDM in one line each; OFDMA in 802.11ax",
+  "2.4 GHz: channels 5 MHz apart, each about 22 MHz wide, so only 1, 6 and 11 do not overlap in North America",
+  "5 GHz offers many more non-overlapping 20 MHz channels; bonding channels to 40 or 80 MHz raises speed but leaves fewer channels",
+  "A `diagram` or `table` showing a 1-6-11 layout across adjacent cells",
+  "Planning: estimate users and applications, coverage area, AP placement and a site survey; neighboring cells should overlap a little so clients can roam",
+  "A `question` on which channels to assign to three neighboring 2.4 GHz APs",
+  "Recall cards on the three non-overlapping 2.4 GHz channels",
+]
+
+[[chapter.page]]
+name = "09-wlan-threats"
+title = "WLAN threats"
+summary = "Radio leaves the building, so wireless brings interception, rogue access points and fake ones."
+teaches = [
+  "Interception of data and wireless intruders",
+  "DoS: improper configuration, malicious jamming, and accidental interference from microwaves and cordless phones",
+  "Rogue APs: unauthorized APs plugged into the wired network, by a careless employee or an attacker",
+  "Man-in-the-middle with an evil twin AP that copies the real SSID and lures clients",
+  "Mitigations: WLC rogue AP detection, wireless IPS, strong authentication",
+  "Weak controls: SSID cloaking and MAC address filtering only deter casual users",
+  "A `question` on which threat the evil twin represents",
+]
+
+[[chapter.page]]
+name = "10-wpa-wpa2-and-wpa3"
+title = "WPA, WPA2 and WPA3"
+summary = "Wireless security moved from broken WEP to WPA3, and from one shared key to per-user logins."
+teaches = [
+  "Original 802.11 authentication: open system and shared key; WEP is broken and must not be used",
+  "WPA (TKIP), WPA2 (AES with CCMP) and WPA3; AES is the encryption to use",
+  "Personal mode with a pre-shared key (PSK) for homes and small offices",
+  "Enterprise mode with 802.1X, EAP and a RADIUS server (UDP 1812 authentication, 1813 accounting), so each user has their own credentials",
+  "WPA3 Personal uses SAE (simultaneous authentication of equals), which resists offline dictionary attacks; WPA3 Enterprise offers a 192-bit mode; Enhanced Open (OWE) encrypts open networks; DPP onboards IoT devices",
+  "A `table` comparing WEP, WPA, WPA2 and WPA3 on encryption and status",
+  "A `question` on what WPA2 Enterprise adds over WPA2 Personal",
+  "Recall cards: WPA2 encryption, what SAE replaces",
+]
+
+[[chapter.page]]
+name = "11-check-yourself"
+title = "Check yourself"
+summary = "Mixed questions on standards, components, CAPWAP, channels and security."
+teaches = [
+  "Mixed `question` blocks on 802.11 standards and bands, BSS and ESS, CSMA/CA, discovery, CAPWAP ports and split MAC, FlexConnect, channels and WPA versions",
+  "A scenario: plan a small two-floor office WLAN, choosing band, channels, AP type and security, with the reasoning written out",
+  "A question on which split MAC task the AP keeps",
+  "Recall cards on UDP 5246 and 5247, channels 1, 6 and 11, and WPA3 SAE",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 13. SRWE module 13: WLAN configuration
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 13
+title = "WLAN configuration"
+
+[[chapter.page]]
+name = "01-two-ways-to-build-a-wlan"
+title = "Two ways to build a WLAN"
+summary = "A small site uses one wireless router; a campus uses a controller and many lightweight access points."
+teaches = [
+  "Scene: a branch office with five staff and a head office with 300; each gets a different WLAN design",
+  "The remote site: a wireless router configured through a web GUI",
+  "The enterprise: a WLC (the course uses a Cisco 3504 running AireOS) managing lightweight APs through CAPWAP",
+  "Wireless configuration is mostly done in a GUI, so these pages describe screens and fields rather than CLI",
+  "A `diagram` of each topology",
+  "A `question` on which design scales to many APs",
+]
+
+[[chapter.page]]
+name = "02-setting-up-a-wireless-router"
+title = "Setting up a wireless router"
+summary = "Change the default login, set up the LAN, then name and secure the wireless network."
+teaches = [
+  "Log in with the default address and credentials printed on the device, then change the admin password straight away",
+  "Basic network setup: the router's LAN IP address, the DHCP range for clients, and the time zone",
+  "Basic wireless setup: network mode (mixed or a single standard), SSID, channel (auto or fixed), SSID broadcast",
+  "Security: WPA2 Personal or WPA3 Personal with AES and a strong passphrase; never WEP or open",
+  "A guest network kept separate from the private LAN",
+  "Verify by connecting a client and checking `ipconfig`",
+  "A `question` on the first thing to change on a new wireless router",
+]
+
+[[chapter.page]]
+name = "03-mesh-nat-and-qos-at-home"
+title = "Mesh, NAT and QoS on a wireless router"
+summary = "A small-site router can extend coverage with mesh nodes, share one public address, and give priority to calls."
+teaches = [
+  "Wireless mesh: extra nodes or extenders that relay to the main router, sharing one SSID; each hop can cost throughput",
+  "NAT on a wireless router: private addresses inside, one public address from the ISP outside, using port address translation",
+  "Port forwarding to reach an inside server from the internet",
+  "QoS settings that prioritize voice, video or gaming traffic over bulk downloads",
+  "NAT in depth is in CCNA 3",
+  "A `question` on why every inside host can share one public address",
+]
+
+[[chapter.page]]
+name = "04-the-wlc-dashboard"
+title = "The WLC dashboard"
+summary = "Log in to the controller, find your access points, and learn what its ports and interfaces are for."
+teaches = [
+  "Logging in to the WLC GUI over HTTPS; the Monitor summary page shows APs, clients and rogues",
+  "Viewing an AP: name, model, IP address, CAPWAP state and radio settings",
+  "Ports versus interfaces: physical ports (often bundled as a LAG to the switch), the management interface, the virtual interface (a non-routed address such as 192.0.2.1 used for web authentication and DHCP relay), the service port, and dynamic interfaces mapped to VLANs",
+  "The switch port to the WLC is a trunk, because the WLC carries several VLANs; a local-mode AP plugs into an access port",
+  "Advanced settings such as RF management, in a sentence",
+  "Newer Catalyst 9800 controllers run IOS XE with a different GUI layout but the same concepts",
+  "A `table` of WLC interfaces and their purpose",
+]
+
+[[chapter.page]]
+name = "05-a-wpa2-psk-wlan-on-the-wlc"
+title = "A WPA2 PSK WLAN on the WLC"
+summary = "Create a WLAN, tie it to an interface, and secure it with WPA2 and a pre-shared key."
+teaches = [
+  "WLANs tab, Create New: type WLAN, profile name, SSID and WLAN ID",
+  "General tab: Status Enabled, the interface (management for this example) and broadcast SSID",
+  "Security tab, Layer 2: WPA+WPA2, WPA2 policy with AES encryption, authentication key management PSK, then the passphrase",
+  "QoS tab: the profiles Platinum (voice), Gold (video), Silver (best effort, the default) and Bronze (background)",
+  "Advanced tab: options such as session timeout, AAA override and client exclusion, in brief",
+  "Apply, then confirm the WLAN shows as enabled in the WLAN list and that a client associates",
+  "A `question` on which QoS profile suits a voice WLAN",
+  "Recall cards on the four QoS profiles",
+]
+
+[[chapter.page]]
+name = "06-radius-snmp-and-dynamic-interfaces"
+title = "RADIUS, SNMP and dynamic interfaces"
+summary = "Before an enterprise WLAN, the controller needs a RADIUS server, a management station, and an interface in the WLAN's own VLAN."
+teaches = [
+  "SNMP: add the network management station as a trap receiver under Management so the WLC can report events",
+  "RADIUS: under Security, AAA, RADIUS, Authentication, add the server IP, shared secret and port 1812",
+  "A dynamic interface: Controller, Interfaces, New, with name, VLAN ID (for example VLAN 5), port, IP address, mask, gateway and DHCP server",
+  "The switch trunk to the WLC must allow the new VLAN",
+  "An internal DHCP scope on the WLC: pool start and end, network, mask, lease time, default router and DNS server",
+  "Misconception: the shared secret must match exactly on the WLC and the RADIUS server",
+  "A `question` on what the dynamic interface does for the WLAN",
+]
+
+[[chapter.page]]
+name = "07-a-wpa2-enterprise-wlan"
+title = "A WPA2 Enterprise WLAN"
+summary = "Tie a WLAN to its own VLAN and send every login to the RADIUS server."
+teaches = [
+  "Create the WLAN with its SSID and select the dynamic interface for its VLAN",
+  "Security, Layer 2: WPA2 with AES, authentication key management 802.1X",
+  "AAA Servers tab: select the RADIUS server configured earlier",
+  "What happens when a user joins: 802.1X with the AP and WLC as authenticator and RADIUS as the server",
+  "Verify that clients get addresses in the WLAN's VLAN and appear in the client list",
+  "A `table` comparing the PSK WLAN and the Enterprise WLAN settings",
+  "A `question` on which tab selects the RADIUS server",
+]
+
+[[chapter.page]]
+name = "08-troubleshooting-wireless"
+title = "Troubleshooting wireless"
+summary = "Most wireless problems are a client that won't connect or a network that feels slow, and each has a short checklist."
+teaches = [
+  "Troubleshooting approaches: bottom-up, top-down and divide-and-conquer, applied to Wi-Fi",
+  "Client cannot connect: check `ipconfig`, test a wired connection, confirm the SSID and security settings, check the client supports the standard and band, check range and AP power",
+  "Interference: microwaves, cordless phones, neighboring networks on the same channel; check with a site survey or WLC RF views",
+  "Network is slow: move capable clients to 5 GHz, for example with separate SSIDs per band; check channel overlap and client load",
+  "Keep firmware current on wireless routers, APs and the WLC",
+  "A worked troubleshooting walk-through: a laptop that sees the SSID but cannot connect, traced to a WPA2 versus WPA3 security mismatch",
+  "Mixed `question` blocks from the whole chapter, and recall cards on the checklists",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 14. SRWE module 14: Routing concepts
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 14
+title = "Routing concepts"
+
+[[chapter.page]]
+name = "01-what-a-router-decides"
+title = "What a router decides"
+summary = "A router does two things: it picks the best path for each packet, and it sends the packet on its way."
+teaches = [
+  "Scene: a packet from a PC in one branch crosses three routers to a server in another; each router decides only the next hop",
+  "The two functions: path determination (using the routing table) and packet forwarding (switching the packet to an exit interface)",
+  "The routing table lists networks, not hosts, with how to reach each",
+  "Where routes come from: directly connected, static, dynamic",
+  "If no route matches and there is no default route, the packet is dropped",
+  "A `diagram` of three routers and two LANs used through the chapter",
+  "A `question` on what a router does with a packet for a network it has no route to",
+]
+
+[[chapter.page]]
+name = "02-longest-prefix-match"
+title = "Longest prefix match"
+summary = "When several routes match a destination, the router uses the most specific one."
+teaches = [
+  "The rule: of all matching routes, the one with the longest prefix (most leftmost matching bits) wins",
+  "IPv4 example: destination 172.16.0.10 matches 172.16.0.0/12, 172.16.0.0/18 and 172.16.0.0/26; the /26 wins",
+  "Work in binary to show how many bits match",
+  "IPv6 example with 2001:db8:c000::99 against /18, /48 and /64 entries",
+  "A default route (/0) matches everything and so is the least specific",
+  "Misconception: longest prefix is checked before administrative distance; AD only decides between routes to the same prefix",
+  "A `drill` of kind `mask` and a `drill` of kind `binary`",
+  "A `question` with three candidate routes",
+]
+
+[[chapter.page]]
+name = "03-forwarding-a-packet"
+title = "Forwarding a packet"
+summary = "The router strips the frame, looks up the destination, and builds a new frame for the next link."
+teaches = [
+  "The decision process: de-encapsulate, check the destination IP, decrement TTL, look up the route",
+  "Three outcomes: directly connected (ARP or ND for the host and deliver), remote (forward to the next hop, ARP for its MAC), no route (drop and send ICMP destination unreachable)",
+  "End to end: IP addresses stay the same across the path while MAC addresses change at every hop",
+  "A `table` showing source and destination MAC and IP at each hop from PC1 to PC2",
+  "Forwarding mechanisms: process switching (CPU per packet), fast switching (cache of the first lookup), Cisco Express Forwarding (FIB and adjacency table, the default)",
+  "A `question` on which addresses change at each hop",
+  "Recall cards: what CEF uses, what happens to TTL",
+]
+
+[[chapter.page]]
+name = "04-router-setup-review"
+title = "Router setup review"
+summary = "A quick review of the commands that configure and check a dual-stack router, before reading its routing table."
+teaches = [
+  "The topology for the rest of the chapter: R1 and R2 with LANs and a link between them, IPv4 and IPv6 on every interface",
+  "Configuration recap: hostname, secrets, banner, `ipv6 unicast-routing`, interface addresses, `no shutdown`, save",
+  "Verification commands: `show ip interface brief`, `show ipv6 interface brief`, `show ip route`, `show ipv6 route`, `show interfaces`, `show ip interface`, `show ipv6 interface`",
+  "Filtering with `| include`, `| section`, `| begin`, `| exclude`",
+  "A `command` block for showing only connected routes with `show ip route connected`",
+  "A `question` on which command shows an interface's IPv6 link-local address",
+]
+
+[[chapter.page]]
+name = "05-reading-the-routing-table"
+title = "Reading the routing table"
+summary = "Every line in the routing table says where a route came from, how good it is, and where to send the packet."
+teaches = [
+  "Route source codes: L (local), C (connected), S (static), O (OSPF), D (EIGRP), R (RIP), and * (candidate default)",
+  "Reading a remote route line `O 10.0.4.0/24 [110/50] via 10.0.3.2, 00:13:29, GigabitEthernet0/0/1`: source, destination, administrative distance, metric, next hop, age, exit interface",
+  "Directly connected entries: one C and one L (/32) for each active interface",
+  "Gateway of last resort and the S* default route line",
+  "Parent and child lines in IOS output, such as `10.0.0.0/8 is variably subnetted, 4 subnets, 2 masks`, a leftover of classful display",
+  "The IPv6 routing table: the same codes plus ND, with /128 local routes and no parent lines",
+  "A `question` asking for the next hop and exit interface for a given destination from a table",
+  "Recall cards on the L and C codes and the bracketed numbers",
+]
+
+[[chapter.page]]
+name = "06-administrative-distance"
+title = "Administrative distance"
+summary = "When two sources offer a route to the same network, the router believes the more trustworthy one."
+teaches = [
+  "Administrative distance (AD) ranks route sources; lower is more trusted",
+  "A `table` of defaults: connected 0, static 1, EIGRP summary 5, external BGP 20, internal EIGRP 90, OSPF 110, IS-IS 115, RIP 120, external EIGRP 170, internal BGP 200",
+  "The selection order: longest prefix first, then lowest AD between routes to the same prefix, then lowest metric within one protocol",
+  "Metric compares routes from the same protocol: hop count for RIP, cost for OSPF, bandwidth and delay for EIGRP",
+  "A worked example: OSPF and a static route both offer 10.1.1.0/24; the static route (AD 1) is installed",
+  "Misconception: AD is local to the router and is never sent to neighbors",
+  "A `question` comparing an OSPF /24 and a RIP /25 route to the same destination",
+  "Recall cards on the AD of connected, static, OSPF and EIGRP",
+]
+
+[[chapter.page]]
+name = "07-static-versus-dynamic-routing"
+title = "Static versus dynamic routing"
+summary = "You can tell a router every route yourself, or let routers tell each other. Most networks do both."
+teaches = [
+  "A `table` comparing static and dynamic routing: configuration effort, resource use, adaptation to change, security, scalability",
+  "Where static routes fit: small networks, stub networks with one way out, a default route to the ISP, backup routes",
+  "Dynamic routing protocols named: RIP, EIGRP, OSPF, IS-IS and BGP; OSPF is taught in CCNA 3",
+  "How a dynamic protocol works in outline: discover neighbors, share routes, compute the best path, react to changes",
+  "Equal-cost load balancing: when two paths have the same metric, both are installed and traffic is shared",
+  "A `question` on the best choice for a branch with a single link to headquarters",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself"
+summary = "Read a full routing table and decide where each packet goes."
+teaches = [
+  "A worked exercise: a routing table with connected, static, OSPF and default routes, and six destination addresses to resolve step by step",
+  "Mixed `question` blocks on longest match, AD, metric, CEF and MAC versus IP changes per hop",
+  "A question where a more specific route with a higher AD beats a less specific one with a lower AD",
+  "A `drill` of kind `subnet`",
+  "Recall cards on the selection order and gateway of last resort",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 15. SRWE module 15: IP static routing
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 15
+title = "IP static routing"
+
+[[chapter.page]]
+name = "01-when-to-write-routes-by-hand"
+title = "When to write routes by hand"
+summary = "Static routes are simple, predictable and silent, which is exactly what small and stub networks need."
+teaches = [
+  "Scene: three routers in a row (R1, R2, R3), dual stack, each with a LAN, and none can reach the far LANs yet",
+  "Types of static route: standard network route, default route, floating static, host route, summary route (mentioned)",
+  "A `diagram` of the dual-stack three-router topology used throughout the chapter",
+  "The starting routing tables: only connected and local routes, so pings to remote LANs fail",
+  "Static routes do not adapt: if a path changes, someone must update them",
+  "A `question` on why R1 cannot reach R3's LAN before any static routes",
+]
+
+[[chapter.page]]
+name = "02-static-route-syntax"
+title = "Static route syntax"
+summary = "Two commands, ip route and ipv6 route, with three ways to say where the packet goes next."
+teaches = [
+  "`ip route network-address subnet-mask {ip-address | exit-intf [ip-address]} [distance]`",
+  "`ipv6 route ipv6-prefix/prefix-length {ipv6-address | exit-intf [ipv6-address]} [distance]`, which needs `ipv6 unicast-routing`",
+  "Next-hop route: give only the next-hop address",
+  "Directly connected route: give only the exit interface",
+  "Fully specified route: give both the exit interface and the next hop",
+  "A `table` comparing the three forms and when to use each",
+  "A `question` on which form a given command is",
+]
+
+[[chapter.page]]
+name = "03-next-hop-static-routes"
+title = "Next-hop static routes"
+summary = "Point the route at the neighbor's address, and the router works out the exit interface itself."
+teaches = [
+  "R1 config: `ip route 172.16.2.0 255.255.255.0 172.16.2.2` and the matching routes on R2 and R3",
+  "IPv6: `ipv6 route 2001:db8:acad:2::/64 2001:db8:acad:2::2`",
+  "Recursive lookup: the router looks up the next hop in the table to find the exit interface",
+  "The return path: every router along the way needs a route back, or pings fail",
+  "Verify with `show ip route static`, `show ipv6 route static` and a ping between LANs",
+  "A `drill` of kind `mask` for writing route masks",
+  "`command` blocks for an IPv4 and an IPv6 next-hop route",
+]
+
+[[chapter.page]]
+name = "04-directly-connected-and-fully-specified"
+title = "Directly connected and fully specified routes"
+summary = "Naming only the exit interface works on point-to-point links; on Ethernet, give the next hop too."
+teaches = [
+  "Directly connected static route: `ip route 192.168.2.0 255.255.255.0 s0/1/0`; no recursive lookup",
+  "It appears in the table as `is directly connected, Serial0/1/0`",
+  "On Ethernet, an exit-interface-only route makes the router ARP for every destination, relying on proxy ARP; avoid it",
+  "Fully specified route: `ip route 192.168.2.0 255.255.255.0 g0/0/1 172.16.2.2`",
+  "IPv6 with a link-local next hop must be fully specified, `ipv6 route 2001:db8:acad:2::/64 g0/0/1 fe80::2`, because a link-local address is only meaningful on one link; IOS rejects the route without the interface",
+  "A `question` on why a link-local next hop needs an exit interface",
+  "Recall cards on when to use each form",
+]
+
+[[chapter.page]]
+name = "05-default-static-routes"
+title = "Default static routes"
+summary = "One route that matches everything sends unknown traffic toward the internet or headquarters."
+teaches = [
+  "The IPv4 default route: `ip route 0.0.0.0 0.0.0.0 172.16.2.2` (quad zero)",
+  "The IPv6 default route: `ipv6 route ::/0 2001:db8:acad:2::2`",
+  "Used on stub routers and edge routers to the ISP",
+  "In the table: `S* 0.0.0.0/0 [1/0] via 172.16.2.2` and `Gateway of last resort is 172.16.2.2 to network 0.0.0.0`",
+  "A default route is used only when no more specific route matches",
+  "`command` blocks for both defaults",
+  "A `question` on which route is used for a destination that matches both a /24 and the default",
+]
+
+[[chapter.page]]
+name = "06-floating-static-routes"
+title = "Floating static routes"
+summary = "A backup route waits out of the table with a higher administrative distance, and appears only when the main path fails."
+teaches = [
+  "A floating static route has an AD higher than the primary route, so it is not installed while the primary exists",
+  "Example: primary `ip route 0.0.0.0 0.0.0.0 172.16.2.2` (AD 1) and backup `ip route 0.0.0.0 0.0.0.0 10.10.10.2 5`",
+  "To back up a dynamic route, the AD must be higher than the protocol's, for example 115 over OSPF's 110",
+  "IPv6: `ipv6 route ::/0 2001:db8:feed:10::2 5`",
+  "Test by shutting the primary interface and watching the backup appear in `show ip route static`",
+  "Misconception: the floating route does not appear in `show ip route` while the primary is up, but it is in the running configuration",
+  "A `question` on the AD needed to back up an EIGRP route",
+  "Recall cards: what makes a static route float",
+]
+
+[[chapter.page]]
+name = "07-host-routes"
+title = "Host routes"
+summary = "A /32 or /128 route points at a single address, and the router creates some of these by itself."
+teaches = [
+  "Automatic host routes: the L entries for each interface address (/32 for IPv4, /128 for IPv6)",
+  "A static host route to a single server: `ip route 209.165.200.238 255.255.255.255 198.51.100.2`",
+  "IPv6: `ipv6 route 2001:db8:acad:4::2/128 2001:db8:acad:2::2`",
+  "A host route beats any shorter route to the same address by longest prefix match",
+  "A fully specified IPv6 host route with a link-local next hop",
+  "A `question` on why a host route is chosen over a /24",
+  "Recall cards on /32 and /128",
+]
+
+[[chapter.page]]
+name = "08-worked-scenario"
+title = "Worked scenario"
+summary = "Route a dual-stack, three-router network end to end with every kind of static route."
+teaches = [
+  "Step by step: next-hop routes on R1 and R3, routes on R2 for both LANs, an IPv4 and IPv6 default route from R3 to an ISP, and a floating backup over a second link",
+  "The expected `show ip route static` and `show ipv6 route static` output on each router",
+  "Verification with ping and `traceroute` between LANs",
+  "Mixed `question` blocks on syntax, recursive lookup, AD values and host routes",
+  "`command` blocks for a fully specified IPv6 route and a floating default",
+  "A `drill` of kind `ipv6`",
+  "Recall cards on the three next-hop forms",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 16. SRWE module 16: Troubleshoot static and default routes
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 16
+title = "Troubleshoot static and default routes"
+
+[[chapter.page]]
+name = "01-following-a-packet-through-static-routes"
+title = "Following a packet through static routes"
+summary = "Walk one packet hop by hop through routers that know the way only because someone told them."
+teaches = [
+  "Scene: PC1 on R1's LAN pings PC3 on R3's LAN across R2, with static and default routes configured",
+  "At each router: look up the destination, use the static route, resolve the next hop by recursive lookup, ARP for the next hop's MAC, forward",
+  "The reply needs its own path back: a route on every router toward PC1's network",
+  "What happens if one router has no matching route and no default: the packet is dropped and an ICMP unreachable is returned",
+  "A `diagram` of the three-router path",
+  "A `question` on what happens when R2 has a route to PC3's LAN but not to PC1's",
+]
+
+[[chapter.page]]
+name = "02-what-breaks-static-routes"
+title = "What breaks static routes"
+summary = "Static routes don't notice change, so links, typos and missing return paths all break them."
+teaches = [
+  "Network changes that break static routes: an interface or link going down, a new ISP next hop, a renumbered subnet",
+  "A static route with an exit interface is removed when that interface goes down; a next-hop route is removed when the next hop no longer resolves",
+  "Misconception: a static route can stay in the table while the far router is dead, for example across a switch where the local interface stays up, which black-holes traffic",
+  "Common typos: wrong network address, wrong mask, wrong next hop, wrong AD on a floating route",
+  "Missing return routes, which make one-way traffic look like a total failure",
+  "A `table` of faults and the symptom each produces",
+  "A `question` on why pings fail even though R1's route to R3's LAN looks right",
+]
+
+[[chapter.page]]
+name = "03-the-troubleshooting-toolkit"
+title = "The troubleshooting toolkit"
+summary = "Five commands find almost every static routing fault."
+teaches = [
+  "`ping`, including extended ping from a chosen source interface (`ping 192.168.3.10 source g0/0/0`)",
+  "`traceroute` and reading where it stops: the last answering hop and `* * *` lines",
+  "`show ip route` and `show ip route 192.168.3.10` to see which route a destination uses",
+  "`show ip interface brief` to check interface status",
+  "`show cdp neighbors detail` to confirm the neighbor's real IP address on the link",
+  "`show running-config | include ip route` to read the configured routes, including floating ones not in the table",
+  "The IPv6 equivalents: `show ipv6 route`, `show ipv6 interface brief`, `ping` and `traceroute` with IPv6 addresses",
+  "`command` blocks for an extended ping with a source and for filtering the running configuration",
+]
+
+[[chapter.page]]
+name = "04-solving-a-connectivity-problem"
+title = "Solving a connectivity problem"
+summary = "A full walk-through: a ping fails, and five commands later the bad route is fixed."
+teaches = [
+  "The symptom: PC1 cannot reach PC3; PC1 can reach its gateway",
+  "Ping and traceroute from R1 show the packet dies after R1",
+  "`show ip route` on R1 shows the static route to 192.168.3.0/24 pointing at the wrong next hop",
+  "`show cdp neighbors detail` confirms R2's real address",
+  "The fix: `no ip route` for the bad entry, then the correct `ip route`",
+  "Verify with ping and traceroute from PC1 and from R1",
+  "A second short fault: the route is right but R3 lacks a route back to PC1's LAN",
+  "A `question` asking which command reveals the wrong next hop",
+]
+
+[[chapter.page]]
+name = "05-default-route-problems"
+title = "Default route problems"
+summary = "Default and floating routes fail in their own ways: a loop between two routers, or a backup that never takes over."
+teaches = [
+  "Two routers whose default routes point at each other: packets for unknown networks bounce until TTL expires, seen as repeating hops in traceroute and `TTL expired in transit` from Windows ping",
+  "A missing default route on a stub router: internet traffic is dropped while internal traffic works",
+  "A floating route with an AD lower than or equal to the primary, so it is installed too early or shares traffic",
+  "A floating route that never appears because the primary route stays up while the far side is unreachable",
+  "IPv6 default routes with a link-local next hop entered without an exit interface",
+  "A `question` with a traceroute that alternates between two addresses",
+  "Recall cards on the floating AD rule",
+]
+
+[[chapter.page]]
+name = "06-check-yourself"
+title = "Check yourself"
+summary = "Find the fault in a set of routing tables, configurations and traceroutes."
+teaches = [
+  "Four short fault scenarios, each with a topology, an output excerpt and a question: wrong mask, wrong next hop, missing return route, floating route with the wrong AD",
+  "Mixed `question` blocks on recursive lookup, route removal when interfaces go down and default route loops",
+  "`command` blocks for removing a static route and for showing the route used for one destination",
+  "A `drill` of kind `subnet` for checking whether a destination falls inside a route's prefix",
+  "Recall cards summarizing the troubleshooting order: interface, route, next hop, return path",
+]
