@@ -13,7 +13,7 @@ This chapter explains what that layer does, how the packet is built, and how hos
 Think of the journey as a relay. The transport layer hands your data to the network layer. The network layer wraps it in a *packet* and sends it to the first router. That router reads the packet, picks the next router, and hands it on. This repeats until a router finds the destination on a network it is directly attached to and delivers the packet to the final host.
 
 ```diagram
-caption = "A packet crosses three routers and three kinds of link. The addresses inside it do not change."
+caption = "A packet crosses three routers and four kinds of link. The addresses inside it do not change."
 nodes = [
   { id = "PC1", kind = "laptop", x = 0, y = 0.5, label = "Sender" },
   { id = "R1", kind = "router", x = 1, y = 0.5 },

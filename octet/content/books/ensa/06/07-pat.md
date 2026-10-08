@@ -73,6 +73,7 @@ why = "The inside global entry 203.0.113.1:1445 maps to 192.168.10.20:1444. R2 r
 ```console R2
 R2# show ip nat statistics
 Total active translations: 2 (0 static, 2 dynamic; 2 extended)
+Peak translations: 2, occurred 00:02:30 ago
 Outside interfaces:
   GigabitEthernet0/0/1
 Inside interfaces:

@@ -103,6 +103,7 @@ The `timeout` figures are in milliseconds. The mapping lasts 86,400,000 ms, whic
 ```console R2
 R2# show ip nat statistics
 Total active translations: 2 (0 static, 2 dynamic; 1 extended)
+Peak translations: 2, occurred 00:00:09 ago
 Outside interfaces:
   GigabitEthernet0/0/1
 Inside interfaces:

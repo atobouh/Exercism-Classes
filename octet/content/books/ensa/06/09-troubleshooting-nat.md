@@ -41,6 +41,7 @@ The table is empty. While PC1 was pinging, R2 should have built an `icmp` entry.
 ```console R2
 R2# show ip nat statistics
 Total active translations: 0 (0 static, 0 dynamic; 0 extended)
+Peak translations: 0
 Outside interfaces:
 Inside interfaces:
   GigabitEthernet0/0/0

@@ -53,7 +53,7 @@ S*    0.0.0.0/0 [1/0] via 10.1.1.2
       10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
 C        10.1.1.0/30 is directly connected, GigabitEthernet0/0/0
 L        10.1.1.1/32 is directly connected, GigabitEthernet0/0/0
-      172.16.0.0/16 is variably subnetted, 3 subnets, 2 masks
+      172.16.0.0/16 is variably subnetted, 3 subnets, 3 masks
 C        172.16.4.0/24 is directly connected, GigabitEthernet0/0/1
 L        172.16.4.1/32 is directly connected, GigabitEthernet0/0/1
 S        172.16.0.0/16 [1/0] via 10.1.1.2

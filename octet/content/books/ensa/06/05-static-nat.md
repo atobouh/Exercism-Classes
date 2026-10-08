@@ -104,6 +104,7 @@ The statistics show the totals and, more usefully, which interfaces R2 thinks ar
 R2# clear ip nat statistics
 R2# show ip nat statistics
 Total active translations: 2 (1 static, 1 dynamic; 1 extended)
+Peak translations: 2, occurred 00:00:41 ago
 Outside interfaces:
   GigabitEthernet0/0/1
 Inside interfaces:
@@ -115,7 +116,7 @@ Expired translations: 0
 
 - `Total active translations` counts the entries: one static (the mapping) and one dynamic, which is the conversation entry. `extended` means an entry that includes ports.
 - The interface lists confirm your `ip nat inside` and `ip nat outside` commands landed on the right ports.
-- `Hits` counts packets that matched an existing entry. `Misses` counts packets that found no entry, so R2 had to create one. Here the first packet of the session was the miss.
+- `Hits` counts packets that matched an existing entry. `Misses` counts packets that found no existing translation, so R2 had to try to create one. The exact counts depend on the traffic and the IOS version.
 
 ## What R2 cannot do for you
 
@@ -133,5 +134,5 @@ back = "ip nat inside on the LAN-facing interface and ip nat outside on the ISP-
 
 ```recall
 front = "In show ip nat statistics, what does a miss mean?"
-back = "A packet that found no existing translation, so the router had to create a new entry."
+back = "A packet that found no existing translation, so the router had to try to create a new one."
 ```

@@ -21,7 +21,7 @@ S     192.168.20.0/24 [1/0] via 10.1.1.2
 
 The command is `ip route`, followed by the destination network, its mask and the next-hop address. R1 now sends anything for 192.168.20.0/24 to 10.1.1.2.
 
-A static route has no protocol running behind it. It costs the routers no bandwidth and no processing, and it behaves in a way that is easy to predict. The price is that it never adapts. If the next hop fails, the route stays in the table until a human changes it, or until the router notices that the exit interface went down. Static routes suit small networks, and they suit *stub* networks that have only one way out.
+A static route has no protocol running behind it. It costs the routers no bandwidth and no processing, and it behaves predictably. The price is that it never adapts. If the next hop fails, the route stays in the table until a human changes it, or until the router notices that the exit interface went down. Static routes suit small networks, and they suit *stub* networks that have only one way out.
 
 ## The default static route
 
@@ -52,7 +52,7 @@ The cost is overhead. Routing protocols use CPU, memory and some bandwidth, and 
 | Configuration | Typed by hand, grows with the network | Enabled once per router, scales well |
 | Resources | Almost none | Uses CPU, memory and bandwidth |
 | Adapts to failure | No, needs manual change | Yes, finds a new path |
-| Predictability | Fixed and easy to follow | Depends on the protocol's choices |
+| Predictability | Fixed and clear to follow | Depends on the protocol's choices |
 | Security | Nothing to attack on the wire | Routing updates can be spoofed unless authenticated |
 
 ```question
@@ -85,10 +85,10 @@ Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
 ...
 S   ::/0 [1/0]
      via 2001:DB8:ACAD:12::2
-C   2001:DB8:ACAD:1::/64 [0/0]
-     via GigabitEthernet0/0/1, directly connected
-L   2001:DB8:ACAD:1::1/128 [0/0]
-     via GigabitEthernet0/0/1, receive
+C   2001:DB8:ACAD:12::/64 [0/0]
+     via GigabitEthernet0/0/0, directly connected
+L   2001:DB8:ACAD:12::1/128 [0/0]
+     via GigabitEthernet0/0/0, receive
 L   FF00::/8 [0/0]
      via Null0, receive
 ```
