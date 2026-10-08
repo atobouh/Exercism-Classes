@@ -85,7 +85,7 @@ Do not "fix" a 2WAY/DROTHER neighbor. Two DROTHERs on the same multiaccess segme
 
 The state where routers stop points you to the cause:
 
-- **No neighbor at all, or stuck in Init**: Hellos are not arriving, or not arriving in both directions, or a Hello value does not match. See [Inside the Hello packet](ensa/01/07-hello-packet).
+- **No neighbor at all, or stuck in Init**: with no entry at all, Hellos are not arriving or a value in them does not match (area, timers, subnet, authentication). Stuck in Init means Hellos arrive in only one direction, for example because an access list or a one-way link drops the other router's Hellos. See [Inside the Hello packet](ensa/01/07-hello-packet).
 - **Stuck in ExStart or Exchange**: the routers met but cannot trade DBDs. The usual cause is an *MTU mismatch* on the link: one router's DBDs are larger than the other will accept.
 - **Stuck in Loading**: requested LSAs are not arriving intact, which is uncommon. It points to LSAs being corrupted, or large update packets being dropped on the way, for example by an MTU problem or a filter on the link.
 
