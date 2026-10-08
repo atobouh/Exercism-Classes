@@ -16,22 +16,16 @@ Take the MAC address `0050.7966.6800` of a PC.
 
 The result, written as four hextets, is `0250:79ff:fe66:6800`, or `250:79ff:fe66:6800` once the leading zero is dropped. Put the LAN prefix `2001:db8:acad:1::/64` in front and you have the full address: `2001:db8:acad:1:250:79ff:fe66:6800`. The matching link-local is `fe80::250:79ff:fe66:6800`.
 
-```diagram
-caption = "A 48-bit MAC becomes a 64-bit interface ID: split, insert fffe, flip one bit."
-nodes = [
-  { id = "MAC", kind = "pc", x = 0, y = 0, label = "0050.7966.6800" },
-  { id = "SW", kind = "switch", x = 1, y = 0, label = "00 50 79 | ff fe | 66 68 00" },
-  { id = "ID", kind = "router", x = 2, y = 0, label = "0250:79ff:fe66:6800" },
-]
-links = [
-  { a = "MAC", b = "SW", label = "split, insert" },
-  { a = "SW", b = "ID", label = "flip bit 7" },
-]
-```
+| Stage | Value |
+| --- | --- |
+| MAC address | `00 50 79 66 68 00` |
+| After splitting and inserting | `00 50 79 ff fe 66 68 00` |
+| After flipping the U/L bit | `02 50 79 ff fe 66 68 00` |
+
 
 ## Why flip a bit
 
-The first byte of a MAC address carries two flags in its last two bits. The lowest bit says unicast or multicast. The next one, the U/L bit, says whether the address is universally assigned by the manufacturer (0) or locally chosen (1). IPv6 reversed the meaning: in an interface ID, 1 means "universal". So a vendor-assigned MAC, with a 0 there, has to be flipped to a 1 to say so honestly. Flipping is the same as adding 2 to the first byte if its value is below the flip, or subtracting 2 if the bit was already set: `00` becomes `02`, `02` becomes `00`, `0c` becomes `0e`, `0e` becomes `0c`.
+The first byte of a MAC address carries two flags in its last two bits. The lowest bit says unicast or multicast. The next one, the U/L bit, says whether the address is universally assigned by the manufacturer (0) or locally chosen (1). IPv6 reversed the meaning: in an interface ID, 1 means universal. So a vendor-assigned MAC, with a 0 there, has to be flipped to a 1. In hex, the flip adds 2 to the first byte when the bit was 0 and subtracts 2 when it was 1: `00` becomes `02`, `02` becomes `00`, `0c` becomes `0e` and `0e` becomes `0c`.
 
 ```question
 prompt = "What is the modified EUI-64 interface ID for MAC address 0cd9.9612.3a01?"
