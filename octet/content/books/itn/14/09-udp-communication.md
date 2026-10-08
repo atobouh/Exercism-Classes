@@ -14,7 +14,7 @@ The sender also does not know whether the datagram arrived. No acknowledgment ex
 
 ## Ports in UDP
 
-UDP uses [port numbers](itn/14/05-port-numbers) just as TCP does. A server listens on its well-known port, for example UDP 53 for DNS. The client picks a random source port from the dynamic range, puts the server's port in the destination field and sends. The server's reply swaps them, so the answer returns to the program that asked.
+UDP uses [port numbers](itn/14/05-port-numbers) in the same way as TCP. A server listens on its well-known port, for example UDP 53 for DNS. The client picks a random source port from the dynamic range, puts the server's port in the destination field and sends. The server's reply swaps them, so the answer returns to the program that asked.
 
 ```console PC1
 C:\>netstat -an | find "UDP"

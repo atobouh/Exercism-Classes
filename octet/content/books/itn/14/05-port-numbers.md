@@ -84,7 +84,7 @@ Active Connections
   TCP    192.168.1.20:51301     198.51.100.25:993      TIME_WAIT
 ```
 
-Each line is one session. *Local Address* is this host's socket and *Foreign Address* is the other end's. *State* shows where the TCP session stands: ESTABLISHED is an open session, TIME_WAIT is one that just closed, and LISTENING (seen with `-a`) is a server process waiting for clients. The top two lines are the two browser tabs from the table above.
+Each line is one session. *Local Address* is this host's socket and *Foreign Address* is the other end's. *State* shows where the TCP session stands: ESTABLISHED is an open session, TIME_WAIT is one that closed a moment ago, and LISTENING (seen with `-a`) is a server process waiting for clients. The top two lines are the two browser tabs from the table above.
 
 ```exam
 Exams like the CCNA often show netstat output and ask which line is the client and which is the server. The client's local port is a high number. The well-known number belongs to the server.
