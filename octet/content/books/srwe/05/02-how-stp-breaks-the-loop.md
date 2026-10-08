@@ -1,6 +1,6 @@
 +++
 title = "How STP breaks the loop"
-summary = "Spanning tree turns a looped network into a tree by blocking just enough ports, and unblocks one when a link fails."
+summary = "Spanning tree turns a looped network into a tree by blocking only enough ports, and unblocks one when a link fails."
 links = ["srwe/05/01-why-redundant-switches-loop", "srwe/05/03-electing-the-root-bridge", "field/03/01-why-rapid-spanning-tree"]
 +++
 
