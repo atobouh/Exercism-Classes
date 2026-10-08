@@ -25,6 +25,11 @@ body { margin: 0; background: var(--pg); color: var(--pg-ink); font: 400 16px/1.
 .intro p { margin: 0; color: var(--pg-ink2); font-size: 1.06rem; text-wrap: pretty; }
 .keys { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: .92rem; color: var(--pg-ink2); }
 kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-radius: 5px; padding: 3px 6px; color: var(--pg-ink); }
+.jump { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.jump-btn { font: 600 .95rem var(--f-ui); border: 0; border-radius: 9px; padding: 9px 16px; background: var(--pg-ink); color: var(--pg); cursor: pointer; white-space: nowrap; transition: transform 160ms var(--ease-out); }
+.jump-btn:active { transform: scale(0.97); }
+.jump-btn.quiet { background: transparent; color: var(--pg-ink); box-shadow: inset 0 0 0 1px var(--pg-line); }
+.jump-btn.quiet:hover { box-shadow: inset 0 0 0 1px var(--pg-ink2); }
 .small-note { display: none; margin: 0; color: var(--pg-ink2); }
 @media (max-width: 760px) { .small-note { display: block; } }
 .stage { width: 100%; overflow: hidden; border-radius: 14px; }
@@ -345,8 +350,9 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
 <div class="page">
   <header class="intro">
     <h1>Octet, as a library</h1>
-    <p>The CCNA arrives as three books on your own shelf. You read each page in a quiet editor, mark what matters, write your own notes into the margin, and collect the pieces you want to keep. Built from your picks: iA Writer, Obsidian, Bear, Are.na and Stripe Press. Everything works; the progress shown is sample data.</p>
+    <p>The CCNA arrives as three books on your own shelf. You read each page in a quiet editor, mark what matters, write your own notes into the margin, and collect the pieces you want to keep. Labs open on a live map of the network. Built from your picks: iA Writer, Obsidian, Bear, Are.na and Stripe Press. Everything works; the progress shown is sample data.</p>
     <p class="small-note">This is a desktop app, scaled down here. Open the page on a computer to try it.</p>
+    <div class="jump"><button class="jump-btn" type="button" id="jumpLab">Open the lab</button><button class="jump-btn quiet" type="button" id="jumpRead">Open the reading</button></div>
     <div class="keys"><span>Select any sentence to highlight, note or collect it</span><span><kbd>Ctrl</kbd> <kbd>.</kbd> focus mode</span><span><kbd>Space</kbd> show answer</span></div>
   </header>
 
@@ -358,6 +364,7 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
         <button class="si" type="button" data-go="library" aria-current="page"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5v11M6 2.5v11M9.5 3.2l3.6 10.3"/></svg>Library</button>
         <button class="si" type="button" data-go="notes"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6.5 7.5h4M6.5 10h3"/></svg>Reading now</button>
         <button class="si" type="button" data-go="review"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.8v2.4h2.4"/></svg>Review<span class="n" id="dueN">14</span></button>
+        <button class="si" type="button" data-lab><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="5" height="3.5" rx="1"/><rect x="9" y="10" width="5" height="3.5" rx="1"/><rect x="2" y="10" width="5" height="3.5" rx="1"/><path d="M4.5 6v4M7 11.8h2"/></svg>Labs<span class="n">1 open</span></button>
         <span class="grp">Books</span>
         <button class="si" type="button" data-book="itn"><span class="spn itn"></span><span>Networks</span></button>
         <button class="si" type="button" data-go="notes"><span class="spn srwe"></span><span>Switching</span></button>
@@ -380,6 +387,7 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
           <div class="lib-head"><h1>Your library</h1><p>Three books, read in order. The ribbon marks where you stopped.</p></div>
           <div class="shelf" id="shelf"></div>
           <div class="continue"><div><b>VLAN trunks</b><span>Switching, Routing and Wireless, chapter 3. You stopped here yesterday, halfway down the page.</span></div><button class="btn pri" type="button" data-go="notes">Continue reading <span class="k">Enter</span></button></div>
+          <div class="continue"><div><b>Lab: Router-on-a-stick</b><span>The lab at the end of VLANs. 2 of 3 checks pass. Build, configure and fix it on a live map.</span></div><button class="btn line" type="button" data-lab>Open the lab</button></div>
           <div class="lib-sec"><h2>Lately collected<button type="button" data-col="cmd">See all</button></h2><div class="blocks" id="recent"></div></div>
         </div>
       </section>
@@ -848,6 +856,10 @@ Gi0/0/1.20             192.168.20.1    YES manual up        up`;
   const openLab = () => { labOn = true; labw.classList.add('on'); hideSel(); refreshLab(); renderPanel(); setTimeout(() => $('#runChk').focus({ preventScroll: true }), 50); };
   const closeLab = () => { labOn = false; labw.classList.remove('on'); show('notes'); };
   $('#labBack').addEventListener('click', closeLab);
+  const toStage = () => document.getElementById('stage').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+  document.getElementById('jumpLab').addEventListener('click', () => { show('notes'); openLab(); toStage(); });
+  document.getElementById('jumpRead').addEventListener('click', () => { if (labOn) { labOn = false; labw.classList.remove('on'); } show('notes'); toStage(); });
+  if (location.hash === '#lab') { show('notes'); openLab(); }
   lb.addEventListener('click', e => { if (e.target.closest('[data-lab]')) openLab(); });
   labw.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); runChecks(); return; }
