@@ -13,15 +13,15 @@ On the Cisco 3504 you manage the WLC from a browser over HTTPS, using the addres
 The summary is a dashboard of what is attached to the controller:
 
 - the number of access points it manages, and how many are up
-- the clients currently associated, split by band
+- the number of clients currently associated
 - *rogue* devices it has detected, meaning access points or clients that are not part of your network
-- the most recent alerts and traffic figures
+- recent alerts from the controller
 
 Think of it as the first screen of every troubleshooting session. If the AP count is lower than you expect, nothing you configure on a WLAN will reach the missing APs.
 
 ## Looking at an access point
 
-From the monitor menus you can open the list of access points and then one entry. The details show the AP's name, model, IP address, and its state toward the controller, meaning whether it has joined over CAPWAP. You can also see each radio: band, channel and transmit power. Clicking into the radio settings is how you later change a channel by hand or switch a radio off.
+From the menus, open the list of access points, then one entry in it. The details show the AP's name, model, IP address, and its state toward the controller, meaning whether it has joined over CAPWAP. You can also see each radio: band, channel and transmit power. Clicking into the radio settings is how you later change a channel by hand or switch a radio off.
 
 ```question
 prompt = "The Monitor summary shows 38 access points, but you installed 40. Which is the sensible first step?"

@@ -19,7 +19,7 @@ Open the **WLANs** tab and choose to create a new one. Fill in four things:
 
 The profile name and SSID can differ, and often do not need to. The ID is a slot number, and each WLAN needs its own.
 
-After you apply, the WLAN edit pages open, arranged as tabs.
+Once the WLAN exists, open it from the WLAN list to edit it. Its settings are grouped in tabs.
 
 ## General tab
 

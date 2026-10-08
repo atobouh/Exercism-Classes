@@ -51,7 +51,7 @@ Raising transmit power on one AP does not fix a crowded room. Clients can hear i
 
 ## Keep firmware current
 
-Wireless routers, access points and the WLC all run software. Updates fix bugs and security holes, and sometimes add support for newer standards. Check the vendor's release notes, back up the configuration, and upgrade in a maintenance window. On a WLC, upgrading the controller also upgrades the APs that join it.
+Wireless routers, access points and the WLC all run software. Updates fix bugs and security holes, and sometimes add support for newer standards. Check the vendor's release notes, back up the configuration, and upgrade in a maintenance window. On a WLC, APs that join the controller download its AP software image if their own differs, so they are updated as they rejoin after the controller upgrade.
 
 ## On the controller
 
@@ -71,6 +71,18 @@ why = "DHCP and the gateway only matter after association succeeds. A client tha
 ```recall
 front = "A Windows client that associated shows an address starting 169.254. What does that suggest?"
 back = "It got no reply from a DHCP server and assigned itself an address, so look at DHCP."
+```
+
+```question
+prompt = "Your neighbor's network uses channel 6 on 2.4 GHz. Which channel should your AP use?"
+options = ["Channel 6, to match the neighbor", "Channel 4", "Channel 11", "Channel 8"]
+answer = 2
+why = "Channels 4 and 8 overlap with 6, and matching channel 6 makes both networks share airtime. Channel 11 is one of the three non-overlapping US choices, along with 1 and 6."
+```
+
+```recall
+front = "In what order do you check a client that cannot connect?"
+back = "Addressing with ipconfig, then a wired test, then SSID and security, then standard and band, then range and AP power, then MAC filtering and the DHCP pool."
 ```
 
 ```recall

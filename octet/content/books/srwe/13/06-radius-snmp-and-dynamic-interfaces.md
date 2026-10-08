@@ -57,6 +57,7 @@ The trunk from the switch to the WLC must also allow VLAN 5, or frames for that 
 
 If you do not have a separate DHCP server, the WLC can serve addresses itself. Under **Controller**, find the internal DHCP server and create a new scope. Fill in:
 
+- a scope name
 - the pool start and end addresses (10.5.0.100 to 10.5.0.200)
 - the network and mask (10.5.0.0, 255.255.255.0)
 - the lease time
@@ -64,7 +65,7 @@ If you do not have a separate DHCP server, the WLC can serve addresses itself. U
 - the DNS server (for example 10.10.1.53)
 - status enabled
 
-To use it, the dynamic interface's DHCP server field then points at the WLC's own management or virtual address, depending on your design. A dedicated DHCP server is more common at scale. The ideas in [configuring an IOS DHCP server](srwe/07/03-configuring-an-ios-dhcp-server) apply equally here.
+To use it, set the dynamic interface's primary DHCP server to the WLC's own management interface address, in place of the external server shown in the table above. A dedicated DHCP server is more common at scale, and some newer AireOS releases have dropped the internal DHCP server, so check that your release still offers it. The ideas in [configuring an IOS DHCP server](srwe/07/03-configuring-an-ios-dhcp-server) apply equally here.
 
 ```recall
 front = "Which UDP ports do RADIUS authentication and accounting use?"

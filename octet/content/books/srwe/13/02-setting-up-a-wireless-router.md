@@ -65,6 +65,7 @@ C:\> ipconfig
 Wireless LAN adapter Wi-Fi:
 
    Connection-specific DNS Suffix  . :
+   ...
    IPv4 Address. . . . . . . . . . . : 192.168.1.101
    Subnet Mask . . . . . . . . . . . : 255.255.255.0
    Default Gateway . . . . . . . . . : 192.168.1.1
