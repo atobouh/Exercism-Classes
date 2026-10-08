@@ -22,8 +22,8 @@ nodes = [
 ]
 links = [
   { a = "PC1", b = "S1", b_label = "F0/3" },
-  { a = "S1", b = "S2", a_label = "Fa0/1", b_label = "Fa0/1", style = "trunk" },
-  { a = "S1", b = "S2", a_label = "Fa0/2", b_label = "Fa0/2", style = "trunk" },
+  { a = "S1", b = "S2", a_label = "Gi0/1", b_label = "Gi0/1", style = "trunk" },
+  { a = "S1", b = "S2", a_label = "Gi0/2", b_label = "Gi0/2", style = "trunk" },
   { a = "S2", b = "S3" },
 ]
 ```

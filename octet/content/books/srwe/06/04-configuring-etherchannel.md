@@ -80,11 +80,11 @@ S3(config-if)# no switchport
 S3(config-if)# ip address 10.1.1.1 255.255.255.252
 ```
 
-This needs a switch with routing, such as a Catalyst 3560, 3650 or 9300, and `ip routing` for the switch to route between networks.
+This needs a multilayer switch, such as a Catalyst 3650 or 9300 (the 2960 is Layer 2 only). Those switches also need `ip routing` before they route between networks.
 
 ## Load balancing
 
-The hash uses source and destination values. The default method varies by platform, so check before changing it. Set it globally:
+The hash uses source and destination values. The default method varies by platform. On a Catalyst 2960 it is `src-mac`, so check the current method before changing it. Set it globally:
 
 ```console S1
 S1(config)# port-channel load-balance src-dst-ip
@@ -95,7 +95,7 @@ EtherChannel Load-Balancing Configuration:
 ...
 ```
 
-The `src-dst-ip` method suits traffic between many different IP pairs. If most traffic goes between one router and many hosts, a method that includes the host address spreads it better. The method applies to the whole switch, not one bundle. After this you can confirm the bundle, which is the subject of [verifying EtherChannel](srwe/06/05-verifying-etherchannel).
+The `src-dst-ip` method suits traffic between many different IP pairs. Choose the method by the traffic you carry: a method that hashes only a field that stays the same across most flows, such as one server's address, spreads them poorly. The method applies to the whole switch, not one bundle. After this you can confirm the bundle, which is the subject of [verifying EtherChannel](srwe/06/05-verifying-etherchannel).
 
 ```recall
 front = "What do you type to put Fa0/1 and Fa0/2 into an LACP bundle that actively negotiates?"
