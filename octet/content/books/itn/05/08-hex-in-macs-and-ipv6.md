@@ -16,12 +16,13 @@ A MAC address is 48 bits, which is 12 hex digits. The same address is written in
 | Colons, pairs of digits | `00:50:79:66:68:00` | Linux and macOS |
 | Dots, groups of four digits | `0050.7966.6800` | Cisco IOS |
 
-Strip the punctuation and each is `005079666800`. Cisco IOS groups by four digits (16 bits) because it prints three groups, and pairs of digits (8 bits) match the bytes used by the other two. When you compare addresses from different devices, ignore the punctuation and compare the digits.
+Strip the punctuation and each is `005079666800`. Cisco IOS groups by four digits (16 bits), and pairs of digits (8 bits) match the bytes used by the other two. When you compare addresses from different devices, ignore the punctuation and compare the digits.
 
 ```console S1
 S1# show mac address-table dynamic
           Mac Address Table
 -------------------------------------------
+
 Vlan    Mac Address       Type        Ports
 ----    -----------       --------    -----
    1    0050.7966.6800    DYNAMIC     Fa0/1
@@ -30,7 +31,7 @@ Total Mac Addresses for this criterion: 1
 
 ## The vendor half
 
-The 48 bits split into two equal parts. The first 24 bits, the first six hex digits, are the *OUI* (organizationally unique identifier), assigned by the IEEE to the manufacturer. The last 24 bits are assigned by that manufacturer to each card, so no two cards from the same vendor share an address. In `0050.7966.6800` the OUI is `0050.79` and the vendor-assigned part is `66.6800`. Looking up an OUI tells you who made the network card, which is often a useful clue when you find an unknown device on a switch port.
+The 48 bits split into two equal parts. The first 24 bits, the first six hex digits, are the *OUI* (organizationally unique identifier), assigned by the IEEE to the manufacturer. The last 24 bits are assigned by that manufacturer to each card, so no two cards from the same vendor share an address. In `0050.7966.6800` the OUI is `0050.79` and the vendor-assigned part is `66.6800`. Looking up an OUI in the IEEE registry usually tells you which organization the card came from, which is often a useful clue when you find an unknown device on a switch port.
 
 ## An IPv6 address, hextet by hextet
 

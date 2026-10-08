@@ -56,7 +56,7 @@ An IPv4 address is converted one octet at a time. Take `10.1.16.254`.
 | 16 | 16 | `00010000` |
 | 254 | 255 - 1 | `11111110` |
 
-Joined with dots, the address is `00001010.00000001.00010000.11111110`. Notice that 10, 1 and 16 each have just one or two ones. Small numbers are mostly zeros, and large ones are mostly ones.
+Joined with dots, the address is `00001010.00000001.00010000.11111110`. Notice that 10, 1 and 16 each have only one or two ones. Small numbers are mostly zeros, and large ones are mostly ones.
 
 ```question
 prompt = "Which is the 32-bit form of 192.168.1.1?"

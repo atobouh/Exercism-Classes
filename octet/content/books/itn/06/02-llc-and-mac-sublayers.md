@@ -54,7 +54,7 @@ A MAC is useless without a published definition, or a card from one vendor could
 
 All of these share the 802.2 LLC on top, which is why a laptop's IP stack behaves the same on a cable and on Wi-Fi.
 
-Other organizations write data link standards too, mostly for wide area links. The ITU-T, the telecommunications arm of the United Nations' ITU, and ANSI, the American national standards body, both publish standards for WAN data link technologies. You will see their numbers in the specifications of leased lines and carrier services more than on a LAN.
+Other organizations write data link standards too, mostly for wide area links. The ITU-T (the standards sector of the International Telecommunication Union) and ANSI (the American national standards body) both publish standards for WAN data link technologies, such as Frame Relay and ISDN. You will see their numbers in the specifications of leased lines and carrier services more than on a LAN.
 
 ```question
 prompt = "A technician wants to know which IEEE standard defines the way a laptop joins a Wi-Fi network. Which one is it?"

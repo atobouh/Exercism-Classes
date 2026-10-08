@@ -66,9 +66,9 @@ why = "A hub is a shared half-duplex wire, where collisions can be detected. Wi-
 
 ```question
 prompt = "A PC is connected to its own switch port at full duplex. Why are collisions not a concern?"
-options = ["The switch runs CSMA/CD faster than a hub", "The port is its own collision domain and each direction has its own path", "Full duplex makes frames shorter", "The FCS prevents collisions"]
+options = ["The switch runs CSMA/CD faster than a hub", "The port is its own collision domain and both directions are carried at once", "Full duplex makes frames shorter", "The FCS prevents collisions"]
 answer = 1
-why = "With only one device per port and separate send and receive paths, nothing can collide, so CSMA/CD is not used."
+why = "With only one device per port and both directions carried at once, nothing can collide, so CSMA/CD is not used."
 ```
 
 ## Frames

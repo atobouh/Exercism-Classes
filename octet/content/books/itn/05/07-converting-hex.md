@@ -64,9 +64,9 @@ Three values come up again and again, and each is worth converting once.
 | --- | --- | --- |
 | `0x0800` | `0000 1000 0000 0000` | The EtherType field value that says an Ethernet frame carries IPv4. In decimal it is 2,048. |
 | `FF` | `1111 1111` | A byte with every bit set, 255. A broadcast MAC address is twelve F digits. |
-| `FE80` | `1111 1110 1000 0000` | The start of an IPv6 link-local address, which begins `fe80::`. |
+| `FE80` | `1111 1110 1000 0000` | The start of an IPv6 link-local address. The link-local range is `fe80::/10`, and in practice the addresses begin `fe80::`. |
 
-The broadcast MAC address `FF-FF-FF-FF-FF-FF` is simply 48 ones. Spotting that makes a capture easier to read. Likewise, seeing `0800` after the MAC addresses in a frame tells you that an IPv4 packet follows.
+The broadcast MAC address `FF-FF-FF-FF-FF-FF` is 48 ones. Spotting that makes a capture easier to read. Likewise, seeing `0800` after the MAC addresses in an Ethernet II frame tells you that an IPv4 packet follows.
 
 ```question
 prompt = "What is the hex byte 3F in decimal?"

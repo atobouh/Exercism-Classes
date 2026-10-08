@@ -41,7 +41,7 @@ Ethernet does not ask for a damaged frame to be sent again. The check only prote
 prompt = "A switch receives a frame whose recalculated CRC does not match the FCS. What does it do?"
 options = ["Fixes the damaged bits and forwards the frame", "Forwards the frame and flags it as suspect", "Discards the frame without asking for a resend", "Asks the sender to retransmit the frame"]
 answer = 2
-why = "Ethernet only detects errors. The switch drops the frame, and recovery, if any, is left to an upper layer such as TCP."
+why = "Ethernet only detects errors. The switch drops the frame, and recovery, if any, is left to an upper layer such as TCP. (A cut-through switch may have started forwarding before the check finishes; the next chapter covers that.)"
 ```
 
 ## Local addresses
@@ -53,11 +53,11 @@ The addressing field names devices on this link only. When a router forwards the
 | Technology | Frame | Notes |
 | --- | --- | --- |
 | Ethernet | Ethernet II, IEEE 802.3 | Destination and source MAC address, a type field, data, FCS |
-| Wi-Fi | 802.11 | Many more control fields, and up to four addresses |
+| Wi-Fi | 802.11 | Many more control fields, and room for up to four addresses |
 | PPP | PPP | Flag, address, control and protocol fields, data, FCS |
 | HDLC | HDLC (Cisco's version adds a protocol field) | Serial links |
 
-Wireless frames can hold four addresses because there is an access point in the middle. A frame may need the final receiver, the original sender, and the AP's own address as the transmitter and receiver on the radio hop. Wired Ethernet needs only two.
+Wireless frames have room for four addresses because there is an access point in the middle. A frame may need the original sender, the final receiver, and the radio hop's own transmitter and receiver, which is the AP on one side. Most frames between a client and its AP use three of the four slots; the fourth is needed only when an AP relays a frame to another AP over the air. Wired Ethernet needs only two.
 
 On a point-to-point WAN link there is only one other device, so addresses add nothing. PPP fills its address field with a fixed value meaning "all stations", and the link works without the host needing a real address. That is one reason serial protocols are lighter than Ethernet.
 
@@ -69,7 +69,7 @@ Every frame is a header, the packet and a trailer. The FCS in the trailer lets t
 prompt = "Why does an 802.11 frame have room for up to four addresses while an Ethernet frame has two?"
 options = ["Wi-Fi frames are always larger than Ethernet frames", "An access point sits in the path, so more devices may be named", "Wi-Fi does not use IP addresses", "Ethernet addresses are four times longer"]
 answer = 1
-why = "The AP relays the frame, so the frame may need to name the original sender, the final receiver and the AP as well."
+why = "The AP relays the frame, so it may need to name the original sender, the final receiver and the radio hop's transmitter and receiver, not just two devices."
 ```
 
 ```recall
@@ -84,5 +84,5 @@ back = "No. The frame is discarded, and an upper layer such as TCP recovers the 
 
 ```recall
 front = "Why can an 802.11 frame carry four addresses?"
-back = "Because of the access point: the frame can name the original sender, final receiver and the AP on the wireless hop."
+back = "Because of the access point: the frame can name the original sender, the final receiver and the transmitter and receiver on the wireless hop."
 ```

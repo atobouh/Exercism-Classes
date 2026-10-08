@@ -19,7 +19,7 @@ A *logical topology* shows how frames travel between nodes, whatever the cables 
 A WAN joins sites far apart, usually over links leased from a provider. Three shapes cover almost everything.
 
 ```diagram
-caption = "Point-to-point, hub and spoke, and full mesh, drawn with the same four sites."
+caption = "Hub and spoke (solid links), with two dashed links added to start a mesh. Each single line is a point-to-point link."
 nodes = [
   { id = "HQ", kind = "router", x = 1, y = 0, label = "Hub" },
   { id = "A", kind = "router", x = 0, y = 1, label = "Site A" },
@@ -56,7 +56,7 @@ Inside a building, the shape has changed over time.
 | Bus | All devices on one shared cable | Legacy |
 | Ring | Each device linked to the next, closing a loop | Legacy |
 
-A star is easy to build and easy to fix: if one cable fails, only that device is affected. An extended star scales the same idea by connecting switches to a core switch. Bus and ring networks were used with early Ethernet coax and with Token Ring and FDDI; you will meet them as history, and in exam questions.
+A star is simple to build and quick to troubleshoot: if one cable fails, only that device is affected. An extended star scales the same idea by connecting switches to a core switch. Bus and ring networks were used with early Ethernet coax and with Token Ring and FDDI; you will meet them as history, and in exam questions.
 
 ```question
 prompt = "Branch offices each have one link to the head office. They can reach each other only through the head office. Which topology is this?"

@@ -46,7 +46,7 @@ The point of hex is compression without calculation. Because every digit is a ni
 | MAC address | 48 | 12 |
 | IPv6 address | 128 | 32 |
 
-Compare writing a 48-bit MAC address as 48 ones and zeros against `0050.7966.6800` in 12 hex digits. The hex form is easy to read aloud and compare, and you can still recover the exact bits when you need them. Decimal cannot do this, because 10 is not a power of 2, so decimal digits do not line up with bit boundaries.
+Compare writing a 48-bit MAC address as 48 ones and zeros against `0050.7966.6800` in 12 hex digits. The hex form is far quicker to read aloud and compare, and you can still recover the exact bits when you need them. Decimal cannot do this, because 10 is not a power of 2, so decimal digits do not line up with bit boundaries.
 
 ## Notation
 
@@ -54,7 +54,7 @@ Different tools write hex differently, and none of it changes the value.
 
 - A leading `0x`, as in `0x0800`, is common in programming and in protocol documentation.
 - A trailing `h`, as in `0800h`, appears in some older documents.
-- Case does not matter: `fe80` and `FE80` are the same number. IPv6 addresses printed by devices are usually lowercase, and many books use uppercase.
+- Case does not matter: `fe80` and `FE80` are the same number. Printing varies by system: Windows and Linux show IPv6 addresses in lowercase, while Cisco IOS shows them in uppercase.
 
 Without a marker, you have to know from context that `10` is hex (value sixteen) and not decimal (value ten). In MAC and IPv6 addresses the context is always hex.
 
