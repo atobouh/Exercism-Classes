@@ -43,7 +43,6 @@ why = "A standard entry names the source and its wildcard. The wildcard for a /2
 To block the guest LAN and let everything else through, you need two entries in the right order: the specific deny, then a permit for the rest.
 
 ```console R2
-R2(config)# access-list 10 remark Keep the guest LAN out of the server LAN
 R2(config)# access-list 10 deny 192.168.20.0 0.0.0.255
 R2(config)# access-list 10 permit any
 ```
@@ -86,11 +85,10 @@ Standard IP access list 10
     20 permit any
 ```
 
-Three details are worth noticing. IOS gave each entry a *sequence number*, 10 and 20, even though you never typed one. The remark doesn't appear here; you see remarks only in the running configuration. And there is no line for the implicit deny, because it was never configured. It is there all the same.
+Three details are worth noticing. IOS gave each entry a *sequence number*, 10 and 20, even though you never typed one. Remarks you add are not listed here; you see them in the running configuration. And there is no line for the implicit deny, because it was never configured. It is there all the same.
 
 ```console R2
 R2# show running-config | include access-list
-access-list 10 remark Keep the guest LAN out of the server LAN
 access-list 10 deny   192.168.20.0 0.0.0.255
 access-list 10 permit any
 ```

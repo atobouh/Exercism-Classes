@@ -77,7 +77,7 @@ If your management PC sits in the same network, the SVI is enough. If it sits so
 S1(config)# ip default-gateway 192.168.1.1
 ```
 
-This is for traffic the switch itself sends, such as the replies to your SSH session, a ping the switch starts, or an update it fetches. It does not affect the PCs' frames in any way. The switch forwards them by MAC address and never consults the gateway. So a switch with a wrong or missing gateway still switches perfectly. You just cannot manage it from another network.
+This is for traffic the switch itself sends, such as the replies to your SSH session, a ping the switch starts, or an update it fetches. It does not affect the PCs' frames in any way. The switch forwards them by MAC address and never consults the gateway. So a switch with a wrong or missing gateway still switches perfectly. The only loss is that you cannot manage it from another network.
 
 ```command
 prompt = "Tell the Layer 2 switch to use 192.168.1.1 as its default gateway."

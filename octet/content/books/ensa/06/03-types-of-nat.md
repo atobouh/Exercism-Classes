@@ -70,9 +70,9 @@ Plain NAT, static or dynamic, translates addresses only, so it needs one public 
 
 ```question
 prompt = "A branch has a web server that internet users must reach, and 200 users who browse the web. The ISP has given the branch a few public addresses. Which two choices fit?"
-options = ["Static NAT for the web server", "Dynamic NAT for the 200 users", "PAT for the 200 users", "PAT for the web server", "Dynamic NAT for the web server"]
+options = ["Static NAT for the web server", "Dynamic NAT for the 200 users", "PAT for the 200 users", "Overload PAT with no static mapping for the web server", "Dynamic NAT for the web server"]
 answer = [0, 2]
-why = "The server needs a fixed mapping that outside users can start a connection to, which is static NAT. The users only start connections outward and are far too many for a few addresses one to one, so they share an address with PAT."
+why = "The server needs a mapping that exists in advance, so outside users can start a connection to it, which is static NAT. Overload PAT alone creates entries only when an inside host sends first, and dynamic NAT does the same. The users only start connections outward and are far too many for a few addresses one to one, so they share an address with PAT."
 ```
 
 ```recall

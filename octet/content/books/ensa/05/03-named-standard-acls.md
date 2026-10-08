@@ -18,9 +18,7 @@ The prompt changes to `(config-std-nacl)`, short for standard named access list.
 
 ```console R2
 R2(config)# ip access-list standard GUEST-FILTER
-R2(config-std-nacl)# remark Sign-in PC saves visitor records on the file server
 R2(config-std-nacl)# permit host 192.168.20.5
-R2(config-std-nacl)# remark The rest of the guest LAN stays out
 R2(config-std-nacl)# deny 192.168.20.0 0.0.0.255
 R2(config-std-nacl)# permit any
 R2(config-std-nacl)# exit
@@ -76,14 +74,12 @@ Standard IP access list GUEST-FILTER
 
 The `host` keyword you typed is gone: a standard ACL prints a host as a bare address. Add the name to see one list on a router that has many: `show access-lists GUEST-FILTER`.
 
-The running configuration keeps the remarks. The `section` filter prints a line that matches and every indented line under it, which suits a named ACL well.
+The running configuration keeps any remarks you add. The `section` filter prints a line that matches and every indented line under it, which suits a named ACL well.
 
 ```console R2
 R2# show running-config | section access-list
 ip access-list standard GUEST-FILTER
- remark Sign-in PC saves visitor records on the file server
  permit 192.168.20.5
- remark The rest of the guest LAN stays out
  deny   192.168.20.0 0.0.0.255
  permit any
 ```

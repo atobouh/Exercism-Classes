@@ -39,12 +39,12 @@ why = "The inside local addresses stay the same. Only the public side changes: t
 
 NAT rewrites the IP header and, with PAT, the TCP or UDP port. Anything that depends on those values staying put, or that hides its own copy of an address inside the payload, can break.
 
-- **IPsec VPNs.** The AH protocol signs the IP header, addresses included, so a rewritten address makes every packet fail its check. ESP has no port numbers for PAT to track. The fix is *NAT traversal* (NAT-T): during setup the two ends detect that NAT sits between them and wrap ESP inside UDP port 4500, which PAT can handle. You meet IPsec properly in [the IPsec framework](ensa/08/05-the-ipsec-framework).
+- **IPsec VPNs.** The *Authentication Header* (AH) protocol signs the IP header, addresses included, so a rewritten address makes every packet fail its check. The *Encapsulating Security Payload* (ESP) protocol has no port numbers for PAT to track. The fix is *NAT traversal* (NAT-T): during setup the two ends detect that NAT sits between them and wrap ESP inside UDP port 4500, which PAT can handle. You meet IPsec properly in [the IPsec framework](ensa/08/05-the-ipsec-framework).
 - **Protocols that carry addresses in their payload**, such as active-mode FTP and some voice signaling. The address inside the message is the private one, which is useless to the far end. Routers include *application layer gateways* (ALGs) that rewrite the payload for common cases.
 
 ## Getting in from outside
 
-Dynamic NAT and PAT create an entry only when an inside host sends first. A packet arriving from the internet for 203.0.113.1 with no matching entry has nowhere to go, and R2 drops it. To host a service you need a mapping that exists in advance: static NAT, or *port forwarding* (static PAT), which maps one public address and port to one inside address and port.
+Dynamic NAT and PAT create an entry only when an inside host sends first. A packet arriving from the internet for 203.0.113.1 with no matching entry is not forwarded to any inside host. R2 either handles it itself, as it would a ping to its own address, or drops it. To host a service you need a mapping that exists in advance: static NAT, or *port forwarding* (static PAT), which maps one public address and port to one inside address and port.
 
 ```console R2
 R2(config)# ip nat inside source static tcp 192.168.10.254 80 203.0.113.1 80

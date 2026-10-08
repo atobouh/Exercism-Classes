@@ -12,7 +12,7 @@ This is the first configuration in the chapter that uses an ACL, and it is a use
 
 The branch keeps its inside network 192.168.10.0/24, and the ISP has now routed 203.0.113.224/27 to R2 for translation. Addresses 203.0.113.226 to 203.0.113.240 will form the pool: fifteen addresses. The interfaces are the same as before: G0/0/0 faces the LAN and G0/0/1 faces the ISP.
 
-There are five steps, and the order of the first three does not matter as long as all of them exist at the end.
+There are five steps. Step 3 refers to the pool and the ACL, so create those two first. The two interface commands can go in any order.
 
 1. Define the pool of inside global addresses.
 2. Write a standard ACL that permits the inside local addresses to be translated.
@@ -90,10 +90,10 @@ The `---` row is the dynamic mapping itself: PC1 now owns 203.0.113.226. The `ic
 R2# show ip nat translations verbose
 Pro  Inside global         Inside local          Outside local         Outside global
 icmp 203.0.113.226:1       192.168.10.10:1       198.51.100.10:1       198.51.100.10:1
-    create 00:00:04, use 00:00:04 timeout:60000, left 00:00:55,
+    create 00:00:04, use 00:00:04 timeout:60000, left 00:00:56,
 ...
 ---  203.0.113.226         192.168.10.10         ---                   ---
-    create 00:00:04, use 00:00:04 timeout:86400000, left 23:59:55,
+    create 00:00:04, use 00:00:04 timeout:86400000, left 23:59:56,
 ...
 Total number of translations: 2
 ```
@@ -121,7 +121,7 @@ The last line is the one to watch. `allocated` is how many of the 15 addresses a
 
 ## When the pool runs out
 
-Dynamic NAT gives one address to one host. When all fifteen are taken, the sixteenth host cannot get out. R2 drops its packets, usually answering with an ICMP host unreachable, and the pool's `misses` count climbs. The host is not broken, and neither is R2: there are simply no addresses left until an old entry expires. If hosts keep losing out, make the pool larger, shorten the timeout, or move to [PAT](ensa/06/07-pat).
+Dynamic NAT gives one address to one host. When all fifteen are taken, the sixteenth host cannot get out. R2 drops its packets, usually answering with an ICMP host unreachable, and the pool's `misses` count climbs. The host is not broken, and neither is R2: there are no addresses left until an old entry expires. If hosts keep losing out, make the pool larger, shorten the timeout, or move to [PAT](ensa/06/07-pat).
 
 To free addresses by hand, use `clear ip nat translation *`. It removes every dynamic entry, including conversations in progress, but leaves static entries alone.
 

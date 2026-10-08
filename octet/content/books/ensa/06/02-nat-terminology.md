@@ -93,7 +93,7 @@ Total number of translations: 1
 Read it left to right as a sentence: PC1, known outside as 203.0.113.1 and inside as 192.168.10.10, is talking to a server known as 198.51.100.10 on both sides.
 
 ```trap
-It is easy to think "local" means private and "global" means public. Usually they line up, but the words describe where an address is seen from, not what kind of address it is. Keep asking the two questions: whose address, and seen from which side.
+It is tempting to think "local" means private and "global" means public. Usually they line up, but the words describe where an address is seen from, not what kind of address it is. Keep asking the two questions: whose address, and seen from which side.
 ```
 
 ```recall

@@ -6,7 +6,7 @@ links = ["ensa/06/03-types-of-nat", "ensa/06/06-dynamic-nat", "ensa/06/09-troubl
 
 The branch has a web server at 192.168.10.254. Staff on the LAN reach it fine, but customers on the internet cannot: its address is private, so no internet router knows where it is. The ISP has given the branch the block 203.0.113.0/24 and routes all of it to R2. You will give the server a permanent public identity, 203.0.113.5, with static NAT.
 
-Static NAT is the simplest configuration in this chapter: one command for the mapping, and one command on each interface. It is also the best place to learn the two verification commands you will use for every kind of NAT.
+Static NAT is the shortest configuration in this chapter: one command for the mapping, and one command on each interface. It is also the best place to learn the two verification commands you will use for every kind of NAT.
 
 ```diagram
 caption = "The web server is published to the internet as 203.0.113.5. A customer at 198.51.100.20 browses to it."
@@ -63,7 +63,7 @@ why = "The ISP-facing interface is the outside. The LAN interface gets ip nat in
 ```
 
 ```trap
-Forget either interface command and nothing is translated. The mapping still shows in the NAT table, which makes the fault easy to miss: the server's packets leave with their private source address and the replies never come back. Swapping the two commands breaks it just as badly.
+Forget either interface command and nothing is translated. The mapping still shows in the NAT table, which hides the fault: the server's packets leave with their private source address and the replies never come back. Swapping the two commands breaks it just as badly.
 ```
 
 ## Verify with show ip nat translations

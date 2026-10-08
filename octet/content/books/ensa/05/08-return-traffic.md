@@ -8,7 +8,7 @@ Policy rule 5 says that from the internet, only replies to conversations someone
 
 ## The problem
 
-Put an ACL inbound on R2's internet-facing interface, G0/0/1. With nothing but the implicit deny, it drops the web server's reply, because the reply is just another packet from outside.
+Put an ACL inbound on R2's internet-facing interface, G0/0/1. With nothing but the implicit deny, it drops the web server's reply, because the reply is another packet from outside.
 
 ```diagram
 caption = "A staff PC's request leaves R2 freely, but the reply arrives on the interface the inbound ACL guards."

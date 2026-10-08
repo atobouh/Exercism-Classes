@@ -41,6 +41,7 @@ The table is empty. While PC1 was pinging, R2 should have built an `icmp` entry.
 ```console R2
 R2# show ip nat statistics
 Total active translations: 0 (0 static, 0 dynamic; 0 extended)
+Outside interfaces:
 Inside interfaces:
   GigabitEthernet0/0/0
 Hits: 0  Misses: 0
@@ -50,7 +51,7 @@ Dynamic mappings:
 [Id: 1] access-list 1 interface GigabitEthernet0/0/1 refcount 0
 ```
 
-Two things stand out. There is no list of outside interfaces: G0/0/1 was never marked `ip nat outside`. And the mapping references access list 1 and the interface, so those parts exist. NAT translates only packets that move between an inside and an outside interface, so with no outside interface, nothing qualifies. Fix it.
+Two things stand out. The list under `Outside interfaces` is empty: G0/0/1 was never marked `ip nat outside`. And the mapping references access list 1 and the interface, so those parts exist. NAT translates only packets that move between an inside and an outside interface, so with no outside interface, nothing qualifies. Fix it.
 
 ```command
 prompt = "R2's ISP-facing interface, GigabitEthernet0/0/1, has no NAT role. Mark it as the outside interface."
@@ -109,13 +110,18 @@ Before the final test, wipe the old state so that the numbers describe only the 
 ```console R2
 R2# clear ip nat translation *
 R2# clear ip nat statistics
+```
+
+Now ping 198.51.100.10 from PC1 again. The replies arrive, and the table shows the new entry.
+
+```console R2
 R2# show ip nat translations
 Pro  Inside global         Inside local          Outside local         Outside global
 icmp 203.0.113.1:3         192.168.10.10:3       198.51.100.10:3       198.51.100.10:3
 Total number of translations: 1
 ```
 
-The ping from PC1 now succeeds, and the table has its entry.
+The NAT part is fixed. If the table fills but PC1 still gets no replies, the fault is no longer NAT. R2 needs a route toward the ISP, such as a default route to the next hop (`ip route 0.0.0.0 0.0.0.0 203.0.113.2` in global configuration), and the ISP needs a route back to 203.0.113.0/24. Check both with `show ip route`.
 
 ## The fault list
 

@@ -4,7 +4,7 @@ summary = "A walk-through of a policy that should work but does not, fixed one s
 links = ["ensa/05/09-verifying-acls", "ensa/05/04-editing-acls", "ensa/04/02-packet-filtering", "ensa/12/09-troubleshooting-ip-connectivity", "itn/15/05-dns"]
 +++
 
-An ACL fault doesn't announce itself. The router doesn't complain, the interfaces are up, and the routing table is fine. Users just can't do something, and the person who wrote the ACL is certain that it permits exactly that. The way through is to stop trusting what the list is meant to do and check three things in order: where it is attached, which line is matching, and what the traffic really looks like.
+An ACL fault doesn't announce itself. The router doesn't complain, the interfaces are up, and the routing table is fine. Users can't do something, and the person who wrote the ACL is certain that it permits exactly that. The way through is to stop trusting what the list is meant to do and check three things in order: where it is attached, which line is matching, and what the traffic really looks like.
 
 ## The scenario
 
@@ -43,7 +43,7 @@ Extended IP access list STAFF-WEB
     20 permit tcp 192.168.10.0 0.0.0.255 any eq 443
 ```
 
-No matches on either line, despite repeated attempts. That is the key evidence. If the ACL were in the right place, these lines would be counting. They count nothing because the packets reaching the interface in this direction are replies, with a source of "any" and a source port of 80, which neither entry describes.
+No matches on either line, despite repeated attempts. That is the key evidence. If the ACL were in the right place, these lines would be counting. They count nothing because the packets reaching the interface in this direction are replies, with the web server as the source and 80 as the source port, which neither entry describes.
 
 ## Step 3: fix and retest
 

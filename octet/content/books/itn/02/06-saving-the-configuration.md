@@ -119,7 +119,7 @@ Press Enter at each prompt. Skip this step on a switch that has never had VLANs 
 
 ## Capturing and pasting a configuration
 
-A configuration is just text, so you can keep a copy off the device. Run `show running-config`, and save what the terminal shows. Most terminal emulators can log a session to a file, and you can also select the output and copy it. That file is your backup. Larger networks collect these automatically, as [configuration files](ensa/10/07-config-files) explains.
+A configuration is plain text, so you can keep a copy off the device. Run `show running-config`, and save what the terminal shows. Most terminal emulators can log a session to a file, and you can also select the output and copy it. That file is your backup. Larger networks collect these automatically, as [configuration files](ensa/10/07-config-files) explains.
 
 To restore it, open `configure terminal`, then paste the text into the terminal. IOS reads each line as if you had typed it. Two cautions:
 
