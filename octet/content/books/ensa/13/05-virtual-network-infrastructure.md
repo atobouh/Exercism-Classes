@@ -41,7 +41,7 @@ Data centers describe traffic by direction on a diagram, with the outside world 
 - **North-south traffic** enters or leaves the data center: a user's request coming in, the response going out.
 - **East-west traffic** moves sideways between servers inside: a web server calling an application server, which calls a database, or a VM being copied to another host.
 
-In older data centers most traffic was north-south. With virtualization and modern applications split into many cooperating parts, east-west traffic often dominates. That shapes network design: the fabric inside must offer plenty of bandwidth between any two servers, which is why [spine-leaf topologies](ensa/13/08-controllers) are popular.
+In older data centers most traffic was north-south. With virtualization and modern applications split into many cooperating parts, east-west traffic often dominates. That shapes network design: the fabric inside must offer plenty of bandwidth between any two servers, which is why spine-leaf topologies are popular.
 
 | | North-south | East-west |
 | --- | --- | --- |
@@ -49,9 +49,16 @@ In older data centers most traffic was north-south. With virtualization and mode
 | Example | A customer loads a web page | The web server queries the database |
 | Crosses the data center edge | Yes | No |
 
+```question
+prompt = "A web server calls an application server, which then queries a database. All three sit in the same data center. What kind of traffic is this?"
+options = ["North-south traffic", "Out-of-band management traffic", "East-west traffic", "Multicast control traffic"]
+answer = 2
+why = "Every exchange stays inside the data center and moves sideways between servers, which is east-west. North-south traffic would cross the edge to or from a user."
+```
+
 ## Machines that move
 
-A physical server stays put, so its VLAN and security rules stay put with it. A VM can be live-migrated from one host to another in seconds, and it keeps its address. The new host's switch port must already carry the right VLAN, with the right policy, or the VM loses connectivity. Multiply that by hundreds of VMs and many migrations per day and the network team can no longer configure ports by hand ahead of time.
+A physical server stays put, so its VLAN and security rules stay put with it. A VM can be live-migrated from one host to another while it keeps running, and it keeps its address. The new host's switch port must already carry the right VLAN, with the right policy, or the VM loses connectivity. Multiply that by hundreds of VMs and many migrations per day and the network team can no longer configure ports by hand ahead of time.
 
 ## Networking functions as software
 

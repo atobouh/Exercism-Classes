@@ -32,6 +32,7 @@ Prefix               Next Hop             Interface
 10.1.1.0/24          192.168.12.2         GigabitEthernet0/0/1
 192.168.12.0/24      attached             GigabitEthernet0/0/1
 192.168.12.1/32      receive              GigabitEthernet0/0/1
+...
 ```
 
 ```question

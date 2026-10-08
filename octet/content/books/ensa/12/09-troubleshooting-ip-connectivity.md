@@ -36,7 +36,7 @@ Ethernet adapter Ethernet0:
    Default Gateway . . . . . . . . . : 192.168.10.1
 ```
 
-On Linux, use `ip address`. Look for a wrong mask, an address from the wrong subnet, or an address like 169.254.x.x, which means DHCP failed. On the router, `show ip interface brief` lists addresses and status.
+On Linux, use `ip address`. Look for a wrong mask, an address from the wrong subnet, or an address like 169.254.x.x. That is an APIPA address: the host asked for one from DHCP, got no answer, and picked its own address, so the DHCP server or its path is the next thing to check. On the router, `show ip interface brief` lists addresses and status.
 
 Then confirm the neighbors are seen on the local segment. `arp -a` on the host lists IPv4 to MAC mappings. On the router, `show ip arp`, and on the switch, `show mac address-table` shows which port learned each MAC address. If the gateway's MAC isn't in the ARP cache, the host can't reach it at Layer 2, which sends you back to the VLAN. Check that the port belongs to the right VLAN with `show vlan brief`.
 
@@ -55,7 +55,7 @@ answer = ["show ip route"]
 why = "show ip route lists every route the router knows, with its source code and next hop, and the gateway of last resort."
 ```
 
-Use `tracert 203.0.113.50` on Windows (or `traceroute` on a router) to find where the path stops, as in [traceroute](itn/13/05-traceroute). The last hop that replies is just before the fault.
+Use `tracert 203.0.113.50` on Windows (or `traceroute` on a router) to find where the path stops, as in [traceroute](itn/13/05-traceroute). The last hop that replies is the one before the fault.
 
 ## Step 6: transport layer
 

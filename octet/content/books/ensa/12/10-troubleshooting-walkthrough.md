@@ -101,6 +101,15 @@ R2(config-ext-nacl)# no 10
 
 ## Test and document
 
+You could also have confirmed the second fault with a protocol analyzer on PC1, which would have shown the TCP connection attempts to port 80 and no reply to them. A routing table or a CPU report can't show individual packets like that.
+
+```question
+prompt = "The ping works but the web page never loads. Which tool shows the individual TCP connection attempts to port 80 and whether anything answers them?"
+options = ["show ip route", "A protocol analyzer such as Wireshark", "A digital multimeter", "show processes cpu"]
+answer = 1
+why = "A protocol analyzer decodes captured frames, so you can see each TCP SYN and whether a reply came back. The other three summarize the routing table, the CPU, or electrical signals, not individual packets."
+```
+
 PC1 opens the site. You run the original test again and check the counters on R2: line 10 is gone and line 20 is counting. You ask the user to confirm. Then step 7 of the process: write the note. Symptom, causes (a wrong mask on PC1 and an obsolete ACL line on R2), the changes made, who approved them, and the time.
 
 ```question

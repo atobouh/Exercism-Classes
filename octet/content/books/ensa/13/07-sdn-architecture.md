@@ -17,8 +17,8 @@ An SDN design is usually drawn as a stack:
 ```diagram
 caption = "The northbound API faces applications. The southbound API faces the network devices."
 nodes = [
-  { id = "APP", kind = "server", x = 1, y = 0, label = "Applications" },
-  { id = "CTL", kind = "wlc", x = 1, y = 1, label = "SDN controller" },
+  { id = "APP", kind = "cloud", x = 1, y = 0, label = "Applications" },
+  { id = "CTL", kind = "server", x = 1, y = 1, label = "SDN controller" },
   { id = "S1", kind = "switch", x = 0, y = 2, label = "Switch 1" },
   { id = "S2", kind = "switch", x = 1, y = 2, label = "Switch 2" },
   { id = "R1", kind = "router", x = 2, y = 2, label = "Router 1" },
@@ -43,8 +43,8 @@ The *southbound API* is how the controller talks downward to the devices, to rea
 | --- | --- |
 | OpenFlow | Lets a controller add forwarding rules (flow entries) directly to a switch's data plane |
 | NETCONF | Configures devices with structured data, encoded as XML, over SSH |
-| RESTCONF | Provides similar structured access using REST-style HTTP and JSON or XML |
-| OpFlex | Cisco-led protocol in ACI that passes policy to devices, which then apply it themselves |
+| RESTCONF | Provides similar structured access as REST over HTTPS, with the data encoded as JSON or XML |
+| OpFlex | Cisco-developed policy protocol used in ACI, where devices render the policy themselves |
 | SNMP and CLI | Older methods: polling and reading, or sending configuration commands as text |
 
 A given controller uses whichever its devices support. A multi-vendor controller might speak several at once.
@@ -80,7 +80,7 @@ Northbound and southbound are named from the controller's position. If the traff
 
 ```recall
 front = "What type of API do applications usually use on a controller's northbound side?"
-back = "A REST API, usually over HTTPS with JSON."
+back = "A REST API: requests sent over HTTP or HTTPS, with answers usually in JSON."
 ```
 
 ```recall

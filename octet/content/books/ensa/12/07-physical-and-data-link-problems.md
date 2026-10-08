@@ -72,9 +72,9 @@ why = "CRC errors and runts mean frames arrive damaged or truncated. Cabling, EM
 
 ## Duplex mismatch
 
-One end of a link runs full duplex and the other runs half duplex. It happens when one side is set by hand and the other is left to negotiate: a port set to a fixed speed and duplex stops auto-negotiating, and on many devices the neighbor then falls back to half duplex. The link comes up and pings work, but performance is poor, particularly under load.
+One end of a link runs full duplex and the other runs half duplex. It happens when one side is set by hand and the other is left to negotiate: a port set to a fixed speed and duplex stops auto-negotiating. The other end, left on auto, can still detect the speed, but on 10 and 100 Mb/s links it falls back to half duplex. The link comes up and pings work, but performance is poor, particularly under load.
 
-The two ends show different symptoms. The half-duplex side waits its turn and sees **collisions and late collisions**, because the full-duplex side transmits whenever it likes. The full-duplex side receives frames cut short, so it sees **runts and CRC errors**. If you find collisions on one end and CRC errors on the other, suspect the duplex setting. Set both ends the same, or let both negotiate. Gigabit copper requires auto-negotiation to work properly.
+The two ends show different symptoms. The half-duplex side waits its turn and sees **collisions and late collisions**, because the full-duplex side transmits whenever it likes. The full-duplex side receives frames cut short, so it sees **runts and CRC errors**. If you find collisions on one end and CRC errors on the other, suspect the duplex setting. Set both ends the same, or let both negotiate. 1000BASE-T (gigabit copper) requires auto-negotiation, so leave both ends on auto.
 
 ```question
 prompt = "S1 port Fa0/5 shows late collisions. S2's port at the other end shows CRC errors and runts. What is the likely problem?"

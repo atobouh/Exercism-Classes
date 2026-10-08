@@ -33,7 +33,7 @@ why = "Migrating VMs to another host lets you empty the first host and patch it.
 
 Virtualization is one example of *abstraction*: hiding the details of a lower layer behind a simpler interface. From the bottom up:
 
-1. **Hardware:** the real processor, memory, disk and network ports.
+1. **Hardware:** the real processor, memory, disk and network ports, along with the firmware (BIOS or UEFI) that starts the machine.
 2. **Hypervisor:** shares the hardware and presents virtual versions of it.
 3. **Operating system:** one per VM, running on virtual hardware and unaware of the sharing.
 4. **Services and applications:** run on the operating system as usual.
@@ -46,7 +46,7 @@ The difference is what sits under the hypervisor.
 
 A **Type 1** hypervisor (*bare metal*) is installed directly on the hardware, in place of a general operating system. Examples are VMware ESXi, Microsoft Hyper-V and KVM. It has direct control of the hardware, so it is efficient and is the choice for data centers.
 
-A **Type 2** hypervisor (*hosted*) is an ordinary application running on a normal operating system, such as Windows, macOS or Linux, which adds a layer between the hypervisor and the hardware. Examples are VMware Workstation and Oracle VirtualBox. The host operating system sits between the hypervisor and the hardware, which adds overhead, so Type 2 suits a laptop used for study, testing or running a second operating system.
+A **Type 2** hypervisor (*hosted*) is an ordinary application that runs on a normal operating system, such as Windows, macOS or Linux. Examples are VMware Workstation and Oracle VirtualBox. The host operating system sits between the hypervisor and the hardware, which adds overhead, so Type 2 suits a laptop used for study, testing or running a second operating system.
 
 | | Type 1 (bare metal) | Type 2 (hosted) |
 | --- | --- | --- |
