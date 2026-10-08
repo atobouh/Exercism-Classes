@@ -64,7 +64,7 @@ Once you have picked the router, pick the interface and direction by standing in
 Get the direction backward and the ACL may never see the traffic. A deny for LAN A sources applied inbound on R3's G0/0/0 checks only packets coming from the servers, so LAN A passes freely.
 
 ```question
-prompt = "To enforce policy 1 (LAN A may not Telnet to 192.168.30.10) with an extended ACL, where should it go?"
+prompt = "To enforce policy 1 (LAN A may not Telnet to 192.168.30.10) with an extended ACL, where should it go so the unwanted packets are dropped as early as possible?"
 options = ["R3 G0/0/0, outbound", "R2 G0/0/1, outbound", "R1 G0/0/0, inbound", "R1 G0/0/1, inbound"]
 answer = 2
 why = "An extended ACL belongs near the source, and LAN A's packets enter R1 on G0/0/0. R1 G0/0/1 inbound would only see traffic coming back from R2."

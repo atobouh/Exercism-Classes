@@ -55,7 +55,7 @@ The oldest way to create an ACL is to give it a number. The number tells IOS whi
 - **Standard:** 1 to 99, and the expanded range 1300 to 1999.
 - **Extended:** 100 to 199, and the expanded range 2000 to 2699.
 
-So `access-list 10 ...` builds a standard ACL and `access-list 110 ...` builds an extended one. The expanded ranges were added when networks ran out of numbers in the original ones. The number says nothing about what the list is for, which is why many of them get a `remark`.
+So `access-list 10 ...` builds a standard ACL and `access-list 110 ...` builds an extended one. The expanded ranges were added later to make room for more lists than the original ranges allow. The number says nothing about what the list is for, which is why many of them get a `remark`.
 
 ## Named ACLs
 
@@ -64,7 +64,7 @@ A *named ACL* has a name instead of a number, and you choose its kind with a key
 - The name can describe the purpose, such as `PAYROLL` or `GUEST-FILTER`.
 - You configure it in its own mode, one entry per line, and can remove or insert single lines by sequence number.
 
-Names are case-sensitive, so `Payroll` and `PAYROLL` are two different lists. Use letters, digits, hyphens or underscores, with no spaces. Writing them in capital letters is a common convention that makes them stand out in a configuration. On current IOS you can also edit numbered ACLs line by line, but a name still documents itself. The commands for both styles come in [numbered standard ACLs](ensa/05/02-numbered-standard-acls) and [named standard ACLs](ensa/05/03-named-standard-acls).
+Names are case-sensitive, so `Payroll` and `PAYROLL` are two different lists. Start a name with a letter, so it cannot be mistaken for a number, and use letters, digits, hyphens or underscores, with no spaces. Writing them in capital letters is a common convention that makes them stand out in a configuration. On current IOS you can also edit numbered ACLs line by line, but a name still documents itself. The commands for both styles come in [numbered standard ACLs](ensa/05/02-numbered-standard-acls) and [named standard ACLs](ensa/05/03-named-standard-acls).
 
 ## Side by side
 

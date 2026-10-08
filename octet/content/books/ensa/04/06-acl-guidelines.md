@@ -42,7 +42,7 @@ That has two consequences. First, write the specific entries before the general 
 
 An ACL with at least one entry ends in the implicit deny. An ACL with no entries is different. If you apply an ACL name or number to an interface before creating any entries for it, the router treats it as permitting everything. The moment you add the first entry, the implicit deny arrives with it.
 
-This catches people configuring over a remote session. Apply the list first, type one `permit` for the HR subnet, and every packet from anywhere else, including your own SSH session, now hits the implicit deny. Write the full list first, then apply it.
+This catches people configuring over a remote session. Apply the list inbound on the interface your session arrives on, type one `permit` for the HR subnet, and every packet from anywhere else, including your own SSH session to the router, now hits the implicit deny. Write the full list first, then apply it.
 
 ```trap
 Adding the first entry to an applied ACL switches on the implicit deny for all other traffic at that instant. If your management session is not permitted by that first line, you lose it.

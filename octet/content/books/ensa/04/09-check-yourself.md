@@ -31,32 +31,32 @@ links = [
 
 The policy has two sentences:
 
-1. Guests may browse the web on HTTP and HTTPS, and nothing else.
+1. Guests may browse the web, which needs HTTP, HTTPS and DNS, and nothing else.
 2. Only the staff LAN may reach the headquarters servers.
 
-Start with sentence 1. It talks about applications (web on TCP 80 and 443), so it depends on the protocol and the destination port.
+Start with sentence 1. It talks about applications (web on TCP 80 and 443, name lookups on UDP 53), so it depends on the protocol and the destination port.
 
 ```question
-prompt = "Policy: guests may browse the web on HTTP and HTTPS, and nothing else. Which kind of ACL, and which number range, fits?"
+prompt = "Policy: guests may use only HTTP, HTTPS and DNS. Which kind of ACL, and which number range, fits?"
 options = ["Standard, numbered 1 to 99", "Extended, numbered 100 to 199 or 2000 to 2699", "Standard, numbered 1300 to 1999", "Extended, numbered 1 to 99"]
 answer = 1
 why = "The rule depends on the destination port, which only an extended ACL can match. Extended numbers are 100 to 199 and 2000 to 2699, or you can use a name."
 ```
 
 ```question
-prompt = "In the branch scenario, guests (192.168.40.0/24, on R1 G0/0/1) may only browse the web. Where should the extended ACL go?"
+prompt = "In the branch scenario, guests (192.168.40.0/24, on R1 G0/0/1) may only use web and DNS. Where should the extended ACL go?"
 options = ["R2 G0/0/0, outbound", "R1 G0/1/0, outbound", "R1 G0/0/1, inbound", "R1 G0/0/1, outbound"]
 answer = 2
-why = "Extended ACLs go close to the source. Guest packets enter R1 on G0/0/1, so inbound there drops everything but web before routing. Outbound on G0/0/1 would only see traffic going to the guests."
+why = "Extended ACLs go close to the source. Guest packets enter R1 on G0/0/1, so inbound there drops everything but web and DNS before routing. Outbound on G0/0/1 would only see traffic going to the guests."
 ```
 
 Sentence 2 is about sources only: staff in, everyone else out. A standard ACL can express it. Where it goes follows from what a standard ACL cannot see.
 
 ```question
 prompt = "Policy: only the staff LAN 192.168.10.0/24 may reach the HQ server LAN, which sits behind R2 G0/0/0. Using a standard ACL, where should it go?"
-options = ["R1 G0/0/0, inbound", "R2 G0/0/0, outbound", "R1 S0/1/1, outbound", "R2 S0/1/0, outbound"]
+options = ["R1 G0/0/0, inbound", "R2 G0/0/0, outbound", "R1 G0/0/1, inbound", "R2 S0/1/0, outbound"]
 answer = 1
-why = "A standard ACL belongs close to the destination. Outbound on R2 G0/0/0 checks only server-bound traffic. Near the source it could not tell server traffic from internet traffic."
+why = "A standard ACL belongs close to the destination. Outbound on R2 G0/0/0 checks only server-bound traffic. On R1's LAN interfaces it could not tell server traffic from internet traffic."
 ```
 
 ## Processing
@@ -96,10 +96,10 @@ why = "A /21 mask has 248 in the third octet. 255 minus 248 is 7, and the whole 
 ```
 
 ```question
-prompt = "Which two pairs are written by IOS as the keywords host and any?"
-options = ["192.168.1.1 255.255.255.255", "192.168.1.1 0.0.0.0", "0.0.0.0 0.0.0.0", "0.0.0.0 255.255.255.255"]
-answer = [1, 3]
-why = "A wildcard of 0.0.0.0 checks every bit, which is one host. A wildcard of 255.255.255.255 checks nothing, which is any address."
+prompt = "Which two statements about the keywords host and any are correct?"
+options = ["host 192.168.1.1 is the same as 192.168.1.1 0.0.0.0", "host 192.168.1.1 is the same as 192.168.1.1 255.255.255.255", "any is the same as 0.0.0.0 255.255.255.255", "any is the same as 0.0.0.0 0.0.0.0"]
+answer = [0, 2]
+why = "A wildcard of 0.0.0.0 checks every bit, so the pair matches one host. A wildcard of 255.255.255.255 checks nothing, so it matches any address, whatever the address part says."
 ```
 
 ```question

@@ -25,7 +25,7 @@ fields = [
 ]
 ```
 
-An ACL does not read the data inside the packet. It cannot tell a harmless web page from a malicious one if both use TCP port 443 to the same server.
+Extended ACLs can read a few more fields, such as ICMP message types and TCP flags, but the five above carry most policies. An ACL does not read the data inside the packet. It cannot tell a harmless web page from a malicious one if both use TCP port 443 to the same server.
 
 ## Inbound and outbound
 
@@ -67,7 +67,7 @@ why = "The packet matches neither entry, so it reaches the end of the list and t
 
 ## A worked trace
 
-Here is an ACL applied outbound on R1's G0/1/0, toward the server LAN. Each row is one ACE, written in plain words. The syntax comes later in the chapter.
+Here is an ACL applied outbound on R1's G0/1/0, toward the server LAN. Each row is one ACE, written in plain words. The syntax comes in the next chapter.
 
 | Line | Action | Source | Destination | Traffic |
 | --- | --- | --- | --- | --- |

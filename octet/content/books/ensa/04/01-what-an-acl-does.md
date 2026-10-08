@@ -88,7 +88,7 @@ So if the PAYROLL list is applied outbound on R1's G0/1/0, it checks packets hea
 
 An ACL checks each packet by itself, against fields in its headers. It does not remember that HR opened a session a moment ago, and it does not look inside the data to see what an application is doing. That makes it a *stateless* filter.
 
-A stateful firewall works differently. It tracks each conversation and lets replies back in because it saw the request go out. An ACL cannot do that, so it needs rules for both directions. Routers can run firewall features, and networks use dedicated firewalls for this job (see [defense in depth](ensa/03/08-defending-the-network)). The ACL is the simpler, faster, older tool that sits underneath many of them.
+A stateful firewall works differently. It tracks each conversation and lets replies back in because it saw the request go out. An ACL cannot do that, so it needs rules for both directions. Routers can run firewall features, and networks use dedicated firewalls for this job (see [defense in depth](ensa/03/08-defending-the-network)). The ACL is the simpler, older tool that sits underneath many of them.
 
 ```key
 An ACL is an ordered list of permit and deny entries. It does nothing until you apply it, and on an interface it checks only one direction of traffic.
