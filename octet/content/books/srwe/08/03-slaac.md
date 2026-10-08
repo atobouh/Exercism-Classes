@@ -19,7 +19,7 @@ SLAAC works with a /64 prefix, because the host fills exactly 64 bits. The RA's 
 
 The host has two ways to produce 64 bits. The first is *EUI-64*, which stretches the 48-bit MAC address:
 
-1. Split the MAC in the middle: `0050.7966` and `6800`.
+1. Split the 48-bit MAC in the middle into two 24-bit halves: `005079` and `666800`.
 2. Insert `fffe` between the halves: `0050:79ff:fe66:6800`.
 3. Flip the seventh bit of the first byte. `00` is `0000 0000`, and flipping that bit gives `0000 0010`, which is `02`.
 
@@ -49,7 +49,7 @@ The first two share a prefix but have unrelated interface IDs. The `%11` after t
 
 SLAAC addresses are random enough that a clash is rare, but the host still checks. This is *duplicate address detection* (DAD). The host sends a neighbor solicitation (NS) for its own new address. The source is the unspecified address `::`, because it does not own the address yet. The destination is the *solicited-node multicast address* for it: `ff02::1:ff` followed by the last 24 bits of the address, here `ff02::1:ff66:6800`.
 
-If another device owns that address, it answers and the host drops the candidate. If nothing answers, the host keeps the address. The whole check takes about a second.
+If another device owns that address, it answers and the host drops the candidate. If nothing answers, the host keeps the address.
 
 ```trap
 The NS for DAD does not go to the address being checked. It goes to the solicited-node multicast group built from that address, and it comes from `::`.
@@ -67,7 +67,7 @@ R1(config-if)# ipv6 address fe80::1 link-local
 R1(config-if)# no shutdown
 ```
 
-The default RA already has A = 1, O = 0 and M = 0. Setting the link-local address by hand is optional, but a short address such as `fe80::1` makes the hosts' default gateway easy to read.
+The default RA already has A = 1, O = 0 and M = 0. Setting the link-local address by hand is optional, but a short address such as `fe80::1` makes the gateway that each host shows easier to read.
 
 ```command
 prompt = "Give the LAN interface the link-local address fe80::1."
@@ -78,7 +78,7 @@ why = "The link-local keyword tells IOS this is a link-local address, so it repl
 
 ## What about DNS?
 
-A plain SLAAC host learns its address and its gateway. DNS is a separate matter. Some hosts can read a DNS server from the RA itself, through an extension called RDNSS, but support differs between operating systems and a Cisco ISR may not send it. The dependable fix is the next step up: stateless DHCPv6, covered later in this chapter.
+A plain SLAAC host learns its address and its gateway. DNS is a separate matter. Some hosts can read a DNS server from the RA itself, through an extension called RDNSS, but support differs between operating systems, and the router side depends on the IOS release. The dependable fix is the next step up: stateless DHCPv6, covered later in this chapter.
 
 For practice, convert and compress a few more addresses.
 

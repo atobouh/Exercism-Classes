@@ -8,7 +8,7 @@ Everything a host does about its address starts with one message: the router adv
 
 ## The router must be allowed to send RAs
 
-A router does not send router advertisements just because an interface has an IPv6 address. It also needs this global command:
+A router does not send router advertisements only because an interface has an IPv6 address. It also needs this global command:
 
 ```command
 prompt = "Let the router act as an IPv6 router so it sends RAs."
@@ -23,7 +23,7 @@ With the command on, the router joins `ff02::2` and starts advertising on every 
 
 Two messages from ICMPv6 do the work:
 
-- A *router solicitation* (RS, ICMPv6 type 133) is sent by a host that has just come up. It goes to `ff02::2`, the all-routers group, and asks "is any router here?"
+- A *router solicitation* (RS, ICMPv6 type 133) is sent by a host that has recently come up. It goes to `ff02::2`, the all-routers group, and asks "is any router here?"
 - A *router advertisement* (RA, ICMPv6 type 134) goes to `ff02::1`, the all-nodes group. Routers send one when answering an RS, and also on a timer. A Cisco router sends an unsolicited RA every 200 seconds by default.
 
 The timer means a host that missed the first RA still hears the next one. The RS means a freshly connected host does not have to wait for it. Neighbor discovery as a whole is covered in [IPv6 neighbor discovery](itn/09/06-ipv6-neighbor-discovery).

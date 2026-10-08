@@ -55,7 +55,7 @@ answer = ["ipv6 nd other-config-flag"]
 why = "It sets the O bit in the RA. Hosts get a new RA at the next interval or after sending a new RS, then send an INFORMATION-REQUEST."
 ```
 
-Running `ipconfig /renew6` on a Windows host, or reconnecting the cable, makes it ask at once instead of waiting for the next RA.
+Hosts only see the change when they hear an RA with O = 1. The router sends one every 200 seconds by default, so the fix takes effect within a few minutes.
 
 ## Mixed questions
 

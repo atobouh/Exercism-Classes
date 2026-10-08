@@ -4,7 +4,7 @@ summary = "Hosts build their own address with SLAAC and ask a DHCPv6 server only
 links = ["srwe/08/03-slaac", "srwe/08/04-dhcpv6-message-flow", "srwe/08/06-stateful-dhcpv6"]
 +++
 
-SLAAC gives a host an address and a gateway but leaves it without DNS. Stateless DHCPv6 fills that gap. The host still builds its own address, then asks a DHCPv6 server for the settings SLAAC cannot carry. The server never hands out an address, so it keeps no list of clients. That missing list is what "stateless" means.
+SLAAC gives a host an address and a gateway, but on its own it does not supply DNS. Stateless DHCPv6 fills that gap. The host still builds its own address, then asks a DHCPv6 server for the settings SLAAC cannot carry. The server never hands out an address, so it keeps no list of clients. That missing list is what "stateless" means.
 
 ## Configure the server
 
@@ -50,7 +50,7 @@ DHCPv6 pool: IPV6-STATELESS
   Active clients: 0
 ```
 
-There are no active clients because nothing is leased, even when hosts have already asked. `show ipv6 interface` now has a second line about hosts:
+The count stays at 0 on a stateless pool, because the server leases nothing, even after hosts have asked. `show ipv6 interface` now has a second line about hosts:
 
 ```console R1
 R1# show ipv6 interface g0/0/1
@@ -95,10 +95,10 @@ A router interface can also take its address this way, for example an uplink to 
 ```console R2
 R2(config)# interface g0/0/0
 R2(config-if)# ipv6 enable
-R2(config-if)# ipv6 address autoconfig
+R2(config-if)# ipv6 address autoconfig default
 ```
 
-`ipv6 enable` creates the link-local address. `ipv6 address autoconfig` builds a global address with SLAAC from the RA it hears. The default gateway is installed as well, learned from the same RA.
+`ipv6 enable` creates the link-local address. `ipv6 address autoconfig` builds a global address with SLAAC from the RA it hears. The `default` keyword also installs a default route through the router the RA came from. Without it, the router gets an address but no default gateway.
 
 ```recall
 front = "Which two interface commands make a router a stateless DHCPv6 server for a LAN?"

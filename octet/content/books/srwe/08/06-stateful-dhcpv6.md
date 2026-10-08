@@ -4,7 +4,7 @@ summary = "The DHCPv6 server hands out the address itself and remembers who has 
 links = ["srwe/08/02-router-advertisements-and-flags", "srwe/08/05-stateless-dhcpv6", "srwe/08/07-dhcpv6-relay"]
 +++
 
-Stateful DHCPv6 is the IPv6 version of what you built in chapter 7. A server owns a range of addresses, leases one to each client, and records the lease. Choose it when you need to know which host holds which address, or when policy says hosts must not invent their own. The cost is more configuration, and one setting that is easy to forget.
+Stateful DHCPv6 is the IPv6 version of what you built in chapter 7. A server owns a range of addresses, leases one to each client, and records the lease. Choose it when you need to know which host holds which address, or when policy says hosts must not invent their own. The cost is more configuration, and one setting that is often missed.
 
 ## Configure the server
 
@@ -39,7 +39,7 @@ why = "The M flag tells hosts to get their address from a DHCPv6 server."
 
 ## Why clear the A flag
 
-M = 1 does not turn SLAAC off. The A flag controls SLAAC, and by default it stays 1. A host that sees M = 1 and A = 1 is allowed to do both, and many do: it ends up with a leased address and a self-built one. Two global addresses per host defeats the point of tracking them. `ipv6 nd prefix default no-autoconfig` clears A so the leased address is the only one.
+M = 1 does not turn SLAAC off. The A flag controls SLAAC, and by default it stays 1. A host that sees M = 1 and A = 1 is allowed to do both, and some do: it ends up with a leased address and a self-built one. Two global addresses per host defeats the point of tracking them. `ipv6 nd prefix default no-autoconfig` clears A so the leased address is the only one.
 
 ```trap
 Setting only `ipv6 nd managed-config-flag` leaves A = 1. Hosts may still form a SLAAC address next to the leased one, so the server's records no longer show everything a host is using.
@@ -73,7 +73,6 @@ The `valid` and `preferred` numbers are lifetimes in seconds. The binding table 
 R1# show ipv6 dhcp binding
 Client: FE80::4C2E:91AB:7D30:5F12
   DUID: 00010001...
-  Username : unassigned
   IA NA: IA ID 0x00050001, T1 43200, T2 69120
     Address: 2001:DB8:ACAD:1:F0C3:8B21:5A44:9E07
             preferred lifetime 86400, valid lifetime 172800
@@ -102,7 +101,7 @@ answer = ["ipv6 address dhcp"]
 why = "ipv6 address dhcp starts a stateful DHCPv6 exchange. ipv6 address autoconfig would use SLAAC instead."
 ```
 
-Type `ipv6 enable` first on the same interface so the link-local address exists to send from.
+Also type `ipv6 enable` on the same interface so the link-local address exists to send from.
 
 ```recall
 front = "Which three interface commands set up stateful DHCPv6 on a router that is also the server?"
