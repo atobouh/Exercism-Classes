@@ -78,7 +78,7 @@ why = "The cycle starts at STAT, then DUPLX, then SPEED. Two presses from STAT l
 
 ## When the image is missing
 
-If flash is damaged, or the file named in `BOOT` is gone, IOS never loads and the console shows `switch:` instead of `S1>`. You can also reach this prompt on purpose: hold the Mode button while you plug in the power, and release when the console reports the boot loader.
+If flash is damaged, or the file named in `BOOT` is gone, IOS never loads and the console shows `switch:` instead of `S1>`. You can also reach this prompt on purpose: hold the Mode button while you plug in the power, and release it when the SYST light blinks amber and then turns solid green. The console then shows `switch:`.
 
 ```console S1
 switch: flash_init
@@ -99,7 +99,7 @@ switch: boot
 `flash_init` starts the file system, `dir flash:` shows what is stored, `set BOOT` names the image to use, and `boot` runs it. The boot loader is not IOS. It knows only a small set of commands and has no `show running-config`, so its job is to find the image and boot. Configure in IOS afterwards.
 
 ```trap
-Boot loader variable names are case sensitive. `set BOOT` works; `set boot` stores a variable the loader never reads.
+Boot loader variable names are case sensitive, and the documented name is `BOOT`. Type it in uppercase, as in `set BOOT flash:...`.
 ```
 
 ## Confirming what you booted
@@ -126,7 +126,7 @@ back = "POST, boot loader, low-level CPU initialization, flash file system initi
 
 ```recall
 front = "How do you reach the `switch:` boot loader prompt on a Catalyst 2960?"
-back = "Hold the Mode button while you apply power, then release it when the boot loader is reported."
+back = "Hold the Mode button while you apply power, then release it when the SYST light blinks amber and turns solid green."
 ```
 
 ```recall

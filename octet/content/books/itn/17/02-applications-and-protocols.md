@@ -67,7 +67,7 @@ Before rolling out IP phones, check three things.
 3. **Bandwidth.** Add up the calls and video streams that can run at once and compare with the uplink. The internet link is usually the narrowest part.
 
 ```trap
-Plugging a PoE phone into a switch that does not supply power gives you a dead phone. Check the switch model, and the PoE budget in watts, before ordering phones.
+A PoE phone plugged into a switch that does not supply power gets no power from the cable. It works only if it has its own power adapter, which is often not practical at every desk. Check the switch model, and the PoE budget in watts, before ordering phones.
 ```
 
 ```recall
@@ -76,6 +76,6 @@ back = "POP3 and IMAP retrieve; SMTP sends."
 ```
 
 ```recall
-front = "Which three qualities does real-time voice and video care about most?"
+front = "Which four things does real-time voice and video need from the network?"
 back = "Low delay, low jitter and little packet loss, plus enough bandwidth."
 ```

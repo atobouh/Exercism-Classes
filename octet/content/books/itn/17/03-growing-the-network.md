@@ -34,7 +34,7 @@ A single switch does not scale past its ports. As the network grows, the layout 
 
 - **Two-tier (collapsed core).** Access switches connect users. They uplink to a small number of switches that combine the distribution and core roles. This suits one building or a modest campus.
 - **Three-tier.** Access switches feed *distribution* switches, which feed the *core*. Each layer has one job: users plug into access, distribution applies policy and gathers floors, and the core moves traffic quickly between buildings. A large campus uses this.
-- **Spine-leaf.** Data centers use two layers. Every *leaf* switch connects to every *spine* switch, so any two servers are the same number of hops apart.
+- **Spine-leaf.** Data centers use two layers. Every *leaf* switch connects to every *spine* switch, so traffic between any two leaf switches crosses the same number of hops.
 - **WAN links.** Separate sites connect through a carrier or the internet, and the routers at each site hold the routes between them.
 
 ```diagram

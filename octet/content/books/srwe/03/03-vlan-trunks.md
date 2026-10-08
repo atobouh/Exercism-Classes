@@ -1,7 +1,7 @@
 +++
 title = "VLAN trunks"
 summary = "An access port carries one VLAN. A trunk carries all of them on the same cable."
-links = ["srwe/03/01-what-a-vlan-is", "srwe/03/04-native-vlan", "srwe/03/06-lab-router-on-a-stick"]
+links = ["srwe/03/01-what-a-vlan-is", "srwe/03/04-native-vlan", "srwe/03/08-lab-router-on-a-stick"]
 +++
 
 An access port carries one VLAN. A trunk carries all of them on the same cable, so every frame needs a label saying which VLAN it belongs to.

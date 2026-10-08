@@ -65,7 +65,7 @@ Linux shows the mask as a prefix length (`/24`). The gateway is not in `ip addre
 
 ## macOS
 
-macOS keeps `ifconfig`. For the gateway and DNS in a friendlier form, ask `networksetup` about a named service such as Wi-Fi.
+macOS keeps `ifconfig`. For the gateway and DNS servers, ask `networksetup` about a named network service such as Wi-Fi.
 
 ```console MAC1
 $ networksetup -getinfo Wi-Fi
