@@ -54,7 +54,7 @@ In *tunnel mode*, the entire original packet, header included, is protected and 
 
 ```fields
 title = "ESP in tunnel mode"
-caption = "Everything between the ESP header and the ESP trailer is encrypted. The authentication value covers the ESP header through the trailer."
+caption = "The original IP header, the data and the ESP trailer are encrypted. The authentication value covers the ESP header through the trailer."
 fields = [
   { name = "New IP header", span = 3 },
   { name = "ESP header", span = 2 },

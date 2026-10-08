@@ -15,7 +15,7 @@ IPsec encrypts bulk data with a *symmetric* cipher: the same secret key locks an
 - **AES** (Advanced Encryption Standard): 128, 192 or 256-bit keys. This is the recommended choice, fast in hardware and software.
 - **SEAL** (Software-Optimized Encryption Algorithm): a stream cipher with a 160-bit key, designed to be quick on processors without special hardware.
 
-A longer key means more possible keys. Every extra bit doubles the number a brute-force attacker has to try, so a 128-bit key is not a bit more than twice as hard as a 64-bit one: it is vastly harder. That is why AES replaced DES, whose 56-bit key became too small as computers got faster, and 3DES, which is slow and has a small block size.
+A longer key means more possible keys. Every extra bit doubles the number a brute-force attacker has to try, so a 128-bit key is not merely twice as hard to break as a 64-bit one. It is vastly harder. That is why AES replaced DES, whose 56-bit key became too small as computers got faster, and 3DES, which is slow.
 
 ```question
 prompt = "Which choice gives the strongest IPsec encryption?"
@@ -43,7 +43,9 @@ An attacker who changes the packet cannot compute a new correct value without th
 
 ```console Linux
 $ printf "transfer 100" | sha256sum
+f19cb87894332cc489b4b83c53c5ad6b9b80943f66d4035a9675025a948fe993  -
 $ printf "transfer 900" | sha256sum
+32820cf2e21c645430ae1517c80ad9e25773d977b0ae0f090f9a78457697e7d4  -
 ```
 
 Those two commands print two completely different digests, even though a single character differs. The receiver's comparison depends on that.
