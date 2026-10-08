@@ -35,6 +35,13 @@ S1(config)# spanning-tree vlan 10,20 root primary
 S2(config)# spanning-tree vlan 10,20 root secondary
 ```
 
+```command
+prompt = "Make this switch the primary root for VLAN 10."
+mode = "S1(config)#"
+answer = ["spanning-tree vlan 10 root primary"]
+why = "The macro writes a plain priority value for the VLAN. It does not react if a switch with a lower priority joins later."
+```
+
 To show load sharing instead, use `root primary` for VLAN 10 on S1 and VLAN 20 on S2, and the secondaries the other way around. Explicit `priority` values, as in [the election page](field/03/02-bridge-id-and-root-election), make the intent visible in the configuration.
 
 If a port is half duplex but really connects to exactly one neighbor, force its link type so it does not fall back to timers. It is much better to correct the duplex, but this is how you override the inference:

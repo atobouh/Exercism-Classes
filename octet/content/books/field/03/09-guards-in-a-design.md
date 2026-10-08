@@ -70,9 +70,9 @@ Someone connects a lab switch with priority 0 to a port on D1. The campus root s
 ```console D1
 D1# show spanning-tree inconsistentports
 
-Name                 Interface              Inconsistency
--------------------- ---------------------- ------------------
-VLAN0010             GigabitEthernet0/7     Root Inconsistent
+Name                 Interface                Inconsistency
+-------------------- ------------------------ ------------------
+VLAN0010             GigabitEthernet0/7       Root Inconsistent
 
 Number of inconsistent ports (segments) in the system : 1
 ```
@@ -84,6 +84,20 @@ Fix the lab switch's priority or disconnect it. The port recovers by itself once
 One strand of the fiber from D2 to A1 fails, in the direction D2 to A1. A1's alternate port stops hearing BPDUs. With loop guard it logs `%SPANTREE-2-LOOPGUARD_BLOCK` and the port stays discarding, marked `*LOOP_Inc`. Without it, the port would have become designated, forwarded, and created a loop. Repair the strand and the port recovers when BPDUs return.
 
 ## Check yourself
+
+```question
+prompt = "S1 has priority 24576 for VLAN 10, S2 has 28672 and S3 is at the default. Which switch is root for VLAN 10?"
+options = ["S3, because it has the lowest MAC address", "S2, because it is the configured secondary", "S1, because its bridge ID 24586 is the lowest"]
+answer = 2
+why = "Priority is compared before the MAC address. S1's bridge ID is 24586, below S2's 28682 and S3's 32778, so the MAC addresses never decide."
+```
+
+```question
+prompt = "In a stable RSTP network, which state does an alternate port hold?"
+options = ["Forwarding", "Discarding", "Learning", "Listening"]
+answer = 1
+why = "An alternate port discards, so it neither learns MAC addresses nor forwards frames. It waits as a ready replacement for the root port."
+```
 
 ```question
 prompt = "On which port do you put root guard?"

@@ -25,9 +25,9 @@ If a superior BPDU arrives on that port, one that claims a root with a lower bri
 ```console D1
 D1# show spanning-tree inconsistentports
 
-Name                 Interface              Inconsistency
--------------------- ---------------------- ------------------
-VLAN0010             GigabitEthernet0/3     Root Inconsistent
+Name                 Interface                Inconsistency
+-------------------- ------------------------ ------------------
+VLAN0010             GigabitEthernet0/3       Root Inconsistent
 
 Number of inconsistent ports (segments) in the system : 1
 ```
@@ -63,6 +63,7 @@ S3(config)# spanning-tree loopguard default
 In `show spanning-tree vlan 10` the port is flagged:
 
 ```console S3
+...
 Interface           Role Sts Cost      Prio.Nbr Type
 ------------------- ---- --- --------- -------- --------------------------------
 Gi0/1               Root FWD 4         128.25   P2p
@@ -87,7 +88,7 @@ Root guard and loop guard cannot be combined on one port. They answer opposite q
 
 ## Going deeper: UDLD
 
-Loop guard reacts after the loop risk is real. *UDLD* (UniDirectional Link Detection) checks the link itself. Neighbors exchange UDLD frames and confirm each other's echo, so a link where one direction fails is found and, in aggressive mode, shut down. It is enabled with `udld enable` globally for fiber ports, and `show udld` reports the state. The two features overlap and are often used together.
+Loop guard reacts after the loop risk is real. *UDLD* (UniDirectional Link Detection) checks the link itself. Neighbors exchange UDLD frames and confirm each other's echo, so a link where one direction fails is found. It is enabled with `udld enable` globally, which covers fiber ports, and `show udld` reports the state. `udld aggressive` goes further and err-disables the port when a one-way link is detected. The two features overlap and are often used together.
 
 ```recall
 front = "What triggers root guard, and what state does the port enter?"

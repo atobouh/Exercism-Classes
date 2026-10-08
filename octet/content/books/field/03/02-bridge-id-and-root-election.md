@@ -44,7 +44,7 @@ S1(config)# spanning-tree vlan 10 priority 4096
 
 `root primary` is a macro. It looks at the current root and picks a priority for you: 24576 if the current root's priority is higher than that, or 4096 less than the current root's if it is already 24576 or lower. It runs once, when you type it. The switch stores the number it chose as a plain `priority` line in the configuration, and does not defend it. If a switch with a lower priority joins later, it takes the root.
 
-`root secondary` sets 28672, a fixed value just under the default, so the backup wins if the primary fails. `priority 4096` sets exactly what you ask for, which is the better choice when you want the result to be predictable and written down.
+`root secondary` sets 28672, a fixed value a little under the default, so the backup wins if the primary fails. `priority 4096` sets exactly what you ask for, which is the better choice when you want the result to be predictable and written down.
 
 ```command
 prompt = "Make S2 the backup root for VLAN 10."

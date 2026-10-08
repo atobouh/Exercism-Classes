@@ -32,7 +32,7 @@ Link type usually comes from duplex, so a duplex mismatch or an accidental half 
 
 ## The handshake
 
-Take a new link between S1, the root, and S2, which has just booted. Both ports start discarding.
+Take a new link between S1, the root, and S2, which has recently booted. Both ports start discarding.
 
 1. S1's port is designated, so it sends a BPDU with the *proposal* flag: "I would like to forward on this link."
 2. S2 sees a better BPDU than its own, so this port becomes its root port.

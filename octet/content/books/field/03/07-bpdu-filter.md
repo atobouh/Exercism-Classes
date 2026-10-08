@@ -73,7 +73,7 @@ Portfast BPDU Filter Default is enabled
 ...
 ```
 
-The Portfast BPDU Filter Default line shows the global setting. For one port, `show spanning-tree interface fastethernet 0/5 detail` lists the per-port settings, and the BPDU counters at the bottom are the evidence: on a filtered port the sent count stays at zero (or at the link-up burst), and the received count stays at zero.
+The Portfast BPDU Filter Default line shows the global setting. For one port, `show spanning-tree interface fastethernet 0/5 detail` lists the per-port settings, and the BPDU counters at the bottom are the evidence: on an interface-filtered port both counters stay at zero, and with the global form the sent count stops at the short link-up burst and the received count stays at zero.
 
 ```console S1
 S1# show spanning-tree interface fastethernet 0/5 detail
