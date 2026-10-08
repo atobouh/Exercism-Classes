@@ -86,7 +86,7 @@ why = "PUT replaces a resource and PATCH changes part of it. GET only reads, POS
 Codes beginning 2 mean success, 4 means the client made a mistake, and 5 means the server did.
 
 ```trap
-401 and 403 are easy to swap. A 401 means the server does not know who you are, so fix your credentials. A 403 means it knows exactly who you are and refuses anyway, so you need different permissions.
+401 and 403 get swapped often. A 401 means the server does not know who you are, so fix your credentials. A 403 means it knows exactly who you are and refuses anyway, so you need different permissions.
 ```
 
 ## Authentication in brief

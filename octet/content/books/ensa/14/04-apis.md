@@ -47,7 +47,7 @@ Many APIs run over the web, using HTTP to carry requests. A *web service* API fo
 REST dominates for network devices and controllers for practical reasons:
 
 - It runs over HTTP, so any language, tool or browser that speaks HTTP can use it.
-- Its messages are usually JSON, which is compact and easy to turn into data structures in nearly every language.
+- Its messages are usually JSON, which is compact and maps naturally onto data structures in nearly every language.
 - The pattern is uniform. Once you know how to read, create, change and delete one resource, you know the shape of all of them.
 - The server does not hold session state between requests, which suits scripts that make many independent calls.
 
