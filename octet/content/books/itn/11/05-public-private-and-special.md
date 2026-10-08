@@ -24,7 +24,7 @@ The middle block catches people out. It is `172.16.0.0/12`, so the second octet 
 prompt = "Which of these is a public address?"
 options = ["172.31.200.9", "172.32.0.1", "10.255.255.254", "192.168.254.1"]
 answer = 1
-why = "The 172 private block ends at 172.31.255.255. 172.32.0.1 is just past it, so it is public. The other three fall inside RFC 1918 ranges."
+why = "The 172 private block ends at 172.31.255.255. 172.32.0.1 is the first address after it, so it is public. The other three fall inside RFC 1918 ranges."
 ```
 
 ## Special-use addresses
@@ -35,7 +35,7 @@ Some ranges have a fixed meaning and are never assigned as ordinary public hosts
 - **Link-local, 169.254.0.0/16.** A device configured for DHCP that gets no answer gives itself an address here, a process called APIPA. It can talk to others on the same link and nothing more. Seeing one in `ipconfig` almost always means DHCP failed.
 - **0.0.0.0.** Means "this network" or "unspecified", for example a host that does not yet know its address. In a routing table, `0.0.0.0/0` is the default route.
 - **Documentation, TEST-NET.** `192.0.2.0/24`, `198.51.100.0/24` and `203.0.113.0/24` are set aside for examples in books and manuals. They never belong to a real network.
-- **Shared address space, 100.64.0.0/10.** Reserved for internet service providers that translate customer traffic. It is neither RFC 1918 nor ordinary public space.
+- **Shared address space, 100.64.0.0/10.** Set aside by RFC 6598 for carrier-grade NAT, where an ISP translates many customers' addresses on its own network. It is neither RFC 1918 nor ordinary public space.
 
 ```question
 prompt = "A laptop shows the address 169.254.77.12 after connecting to the office network. What most likely happened?"
@@ -50,11 +50,11 @@ Everything else is *public* and routed across the internet. The top of the chain
 
 ## Classful addressing, for history
 
-Before 1993, address blocks came in three fixed sizes decided by the first octet. This *classful* scheme still shows up in old documents and in exam questions.
+Before *CIDR* (classless addressing, introduced in 1993), address blocks came in fixed sizes decided by the first octet. This *classful* scheme still shows up in old documents and in exam questions.
 
 | Class | First octet | Default mask | Notes |
 | --- | --- | --- | --- |
-| A | 1 to 126 | /8 | 127 reserved for loopback |
+| A | 1 to 126 | /8 | 0 and 127 are reserved; 127 is loopback |
 | B | 128 to 191 | /16 | |
 | C | 192 to 223 | /24 | |
 | D | 224 to 239 | none | Multicast |

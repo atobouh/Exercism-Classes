@@ -4,7 +4,7 @@ summary = "Voice, video and file transfers compete for the same congested link, 
 links = ["ensa/09/02-delay-jitter-and-loss", "ensa/09/04-queuing-algorithms", "ensa/07/04-wan-operations"]
 +++
 
-It is 10 a.m. at a branch office. Someone starts a large backup to head office, and at the same moment a manager is on a voice call. The call turns choppy: words clip, there are gaps, and the other person says "you're breaking up." Nothing is broken. The WAN link is simply full, and the phone call is losing a fight with a file copy that does not care how long it takes.
+It is 10 a.m. at a branch office. Someone starts a large backup to head office, and at the same moment a manager is on a voice call. The call turns choppy: words clip, there are gaps, and the other person says "you're breaking up." Nothing is broken. The WAN link is full, and the phone call is losing a fight with a file copy that does not care how long it takes.
 
 This chapter is about *quality of service* (QoS): the tools that decide which traffic gets served first when there is not enough link for everyone. This page shows where the trouble starts and why it happens.
 

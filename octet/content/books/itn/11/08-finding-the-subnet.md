@@ -41,7 +41,7 @@ why = "Block size is 8. The largest multiple of 8 not above 33 is 32, so the sub
 
 ## Check it in binary
 
-Take the first example again. The last octet 77 is `01001101`. The mask octet 224 is `11100000`. ANDing them gives `01000000`, which is 64, matching the network found with block arithmetic. Setting all five host bits to 1 gives `01011111`, which is 95, the broadcast. The two methods always agree; the block size one is simply faster.
+Take the first example again. The last octet 77 is `01001101`. The mask octet 224 is `11100000`. ANDing them gives `01000000`, which is 64, matching the network found with block arithmetic. Setting all five host bits to 1 gives `01011111`, which is 95, the broadcast. The two methods always agree; the block size method is faster.
 
 ## Are these two hosts in the same subnet?
 

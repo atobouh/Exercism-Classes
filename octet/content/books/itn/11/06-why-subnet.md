@@ -51,7 +51,7 @@ There is no single right way. Networks are usually split along one of these line
 prompt = "A school has teachers, students and a visitor Wi-Fi. It wants visitors to reach only the internet. What segmentation fits best?"
 options = ["One subnet for everyone, with passwords on each PC", "One subnet per classroom", "One subnet each for teachers, students and visitors, with filtering at the router", "One subnet for visitors only, with teachers and students sharing the same subnet as the servers"]
 answer = 2
-why = "Grouping by role gives each group its own subnet, and the router between them is the place to enforce what visitors may reach. Splitting by classroom does not follow the access rule, and a shared subnet cannot be filtered internally."
+why = "Grouping by role gives each group its own subnet, and the router between them is the place to enforce what visitors may reach. Splitting by classroom does not follow the access rule, and hosts on one shared subnet reach each other without passing the router."
 ```
 
 ## What you gain

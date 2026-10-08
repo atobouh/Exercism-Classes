@@ -13,7 +13,7 @@ links = ["ensa/09/01-why-qos", "ensa/09/03-traffic-characteristics", "itn/04/02-
 - **Jitter** is the variation in delay from one packet to the next. If packets take 40, 40, 90 and 40 ms, the average hides the spike.
 - **Loss** is the share of packets that never arrive.
 
-Bandwidth is not the only fix. A 1 Gbps link between continents still has a delay set by distance and by the devices in the path. Adding capacity helps a lot with congestion, but it does not remove delay caused by distance, and it is often slower and more expensive than managing the traffic you have.
+Bandwidth is not the only fix. A 1 Gbps link between continents still has a delay set by distance and by the devices in the path. Adding capacity helps a lot with congestion, but it does not remove delay caused by distance, and it can cost more than managing the traffic you already have.
 
 ## Where delay comes from
 
@@ -33,7 +33,7 @@ Check the serialization example yourself: 1,500 bytes is 12,000 bits, and 12,000
 prompt = "Which delay grows when the network becomes congested?"
 options = ["Propagation delay", "Code delay", "Queuing delay", "Packetization delay"]
 answer = 2
-why = "Queuing delay depends on how long a packet waits behind others. The other three are set by the distance, the codec and the link speed, and stay the same whether the link is busy or idle."
+why = "Queuing delay depends on how long a packet waits behind others. The other three are set by the codec, the packet size, the link speed and the distance, and stay the same whether the link is busy or idle."
 ```
 
 Queuing delay is the one QoS can change. A packet that is served first has almost no queuing delay. A packet at the back of a long queue may wait a long time.
@@ -50,7 +50,7 @@ Jitter and delay are not the same thing. A path with a steady 100 ms delay has n
 
 ## Loss
 
-Loss mostly comes from full queues, as the last page showed. TCP handles it by noticing the missing data and sending it again. Real-time voice and video cannot do that. By the time a retransmission arrived, the moment it belonged to would have passed, and replaying old audio helps nobody. The receiver just plays what it has, and a lost packet becomes a gap or a glitch. Because delay and loss are both bounded by what the listener will accept, each kind of traffic has its own limits, which [the next page](ensa/09/03-traffic-characteristics) lists.
+Loss mostly comes from full queues, as the last page showed. TCP handles it by noticing the missing data and sending it again. Real-time voice and video cannot do that. By the time a retransmission arrived, the moment it belonged to would have passed, and replaying old audio helps nobody. The receiver plays what it has, and a lost packet becomes a gap or a glitch. Because delay and loss are both bounded by what the listener will accept, each kind of traffic has its own limits, which [the next page](ensa/09/03-traffic-characteristics) lists.
 
 ```recall
 front = "Name the five contributions to delay and say which one is variable."
