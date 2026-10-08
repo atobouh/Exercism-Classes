@@ -40,7 +40,7 @@ R1(config)# end
 
 Go through them.
 
-- `ip domain-name example.com` supplies the domain.
+- `ip domain-name example.com` supplies the domain. Newer IOS XE releases write it as `ip domain name` and still accept the hyphenated form.
 - `crypto key generate rsa general-keys modulus 2048` creates the RSA key pair that SSH uses to prove the device's identity and protect the exchange. Generating the key is also what turns the SSH server on. A longer modulus is stronger but slower to generate. SSH version 2 needs at least 768 bits, and 2048 is the usual choice. If you type only `crypto key generate rsa`, IOS asks you for the modulus interactively.
 - `username admin secret ...` creates an account in the device's local database. Use `secret` so the password is hashed.
 - `line vty 0 4`, `transport input ssh` and `login local` configure the remote lines (below).
