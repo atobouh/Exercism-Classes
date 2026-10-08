@@ -65,7 +65,7 @@ why = "IP addresses are end to end. The MAC addresses are rewritten at each hop,
 
 ```question
 prompt = "What does Cisco Express Forwarding use to forward packets without searching the routing table each time?"
-options = ["A cache built from the first packet of each flow", "The FIB and the adjacency table", "The ARP cache and the MAC address table", "The CPU's route lookup for each packet"]
+options = ["A cache built from the first packet to each destination", "The FIB and the adjacency table", "The ARP cache and the MAC address table", "The CPU's route lookup for each packet"]
 answer = 1
 why = "The first option describes fast switching. CEF builds the FIB and adjacency table ahead of time from the routing table and neighbor data."
 ```

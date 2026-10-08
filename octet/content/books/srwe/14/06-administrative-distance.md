@@ -4,7 +4,7 @@ summary = "When two sources offer a route to the same network, the router believ
 links = ["srwe/14/02-longest-prefix-match", "srwe/14/07-static-versus-dynamic-routing", "srwe/15/06-floating-static-routes", "ensa/01/02-ospf-features"]
 +++
 
-A router can learn the same network from more than one place. An administrator types a static route, OSPF advertises it, and RIP advertises it as well. The three disagree about the path, and the router can only install one. The first tiebreaker is *administrative distance* (AD): a number from 0 to 255 that ranks how much the router trusts each source of routes. The lower the number, the more trusted the source.
+A router can learn the same network from more than one place. An administrator types a static route, OSPF advertises it, and RIP advertises it as well. The three disagree about the path, and the router can only install one. When two sources offer the same prefix, the tiebreaker is *administrative distance* (AD): a number from 0 to 255 that ranks how much the router trusts each source of routes. The lower the number, the more trusted the source.
 
 ## The default values
 
