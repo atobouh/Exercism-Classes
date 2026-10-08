@@ -9,10 +9,10 @@ In IPv4 you sent a packet to one host, to a group, or to everyone with a broadca
 ## Three ways to deliver
 
 - **Unicast** goes to one interface. Most traffic is unicast.
-- **Multicast** goes to a group of interfaces that have joined that group. Multicast addresses start with `ff`. Chapter pages ahead cover them in detail.
+- **Multicast** goes to a group of interfaces that have joined that group. Multicast addresses start with `ff`. A later page in this chapter covers them in detail.
 - **Anycast** is one unicast address that is configured on several devices. Routing delivers a packet to whichever device is nearest. It is often used for services such as DNS, where any copy of the server can answer.
 
-There is no broadcast. Wherever IPv4 broadcast, the all-nodes multicast `ff02::1` takes over, and many jobs use more targeted multicast so fewer hosts are interrupted.
+There is no broadcast. Where IPv4 used a broadcast to reach everyone, the all-nodes multicast `ff02::1` takes over, and many jobs use more targeted multicast so fewer hosts are interrupted.
 
 An anycast address looks like an ordinary unicast address. The difference is only in how several devices are set up to share it, not in the format.
 
