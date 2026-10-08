@@ -1,6 +1,6 @@
 +++
 title = "File sharing: FTP, TFTP and SMB"
-summary = "FTP moves files with two connections, TFTP moves them simply, and SMB shares them on a LAN."
+summary = "FTP moves files with two connections, TFTP moves them with no login at all, and SMB shares them on a LAN."
 links = ["itn/14/05-port-numbers", "itn/15/02-client-server-and-peer-to-peer", "itn/15/08-check-yourself"]
 +++
 

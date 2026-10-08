@@ -60,7 +60,7 @@ Address:  192.168.1.1
 Non-authoritative answer:
 Name:    www.example.com
 Addresses:  2001:db8::10
-          203.0.113.10
+            203.0.113.10
 ```
 
 `Server` and `Address` show which resolver answered. `Non-authoritative answer` means the reply came from the resolver's cache or from a server that does not own the domain. `Name` and `Addresses` hold the result.
@@ -69,6 +69,7 @@ Windows keeps its own cache too:
 
 ```console PC1
 C:\> ipconfig /displaydns
+...
 C:\> ipconfig /flushdns
 Successfully flushed the DNS Resolver Cache.
 ```

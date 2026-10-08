@@ -8,7 +8,7 @@ The application layer has many protocols, and the work is keeping them apart. Th
 
 ## Layers and models
 
-Start with the big picture. The OSI application, presentation and session layers collapse into one TCP/IP application layer, and the presentation layer is the one that formats, compresses and encrypts. A client starts a request and a server answers it, while a peer plays both roles at once. Keep those three ideas in mind for the first two questions.
+Start with the big picture. The OSI application, presentation and session layers collapse into one TCP/IP application layer, and the presentation layer is the one that formats, compresses and encrypts. The session layer opens, keeps and restarts the dialog between two applications. A client starts a request and a server answers it, while a peer plays both roles at once. Keep those three ideas in mind for the first two questions.
 
 ```question
 prompt = "A video file is converted to MPEG so it can be sent. Which OSI layer does this job?"
