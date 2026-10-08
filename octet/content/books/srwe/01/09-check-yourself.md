@@ -93,7 +93,7 @@ why = "An IPv6 router forwards packets only after `ipv6 unicast-routing`. Withou
 ```
 
 ```question
-prompt = "`show ip route` on R1 lists 192.168.10.0/24 as connected, but not 192.168.11.0/24. G0/0/1 is addressed correctly. What is the likely reason?"
+prompt = "`show ip route` on R1 lists 172.17.99.0/24 as connected, but not 192.168.11.0/24. G0/0/1 is addressed correctly. What is the likely reason?"
 options = ["G0/0/1 is shut down or has no link", "R1 needs a loopback", "The VTY lines are open", "The history buffer is full"]
 answer = 0
 why = "A down interface adds nothing to the routing table, even if it has an address."
