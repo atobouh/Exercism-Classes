@@ -27,7 +27,7 @@
 
   /* ---------- library data ---------- */
   let LIB = null, cur = 'library', PAGE = null;
-  const SHORT = { itn: 'Networks', srwe: 'Switching', ensa: 'Enterprise', exam: 'The exam' };
+  const SHORT = { itn: 'Networks', srwe: 'Switching', ensa: 'Enterprise', field: 'Field Guide' };
   const COL_ICON = {
     commands: '<path d="M3.5 5l3 3-3 3M8.5 11.5h4"/>',
     wrong: '<circle cx="8" cy="8" r="5.5"/><path d="M8 5.2v3.3M8 10.8v.1"/>',
@@ -42,7 +42,7 @@
   const refresh = async () => { LIB = await api('library'); renderNav(); };
   const renderNav = () => {
     $('#dueN').textContent = LIB.due || '';
-    $('#navBooks').innerHTML = LIB.books.map(b => `<button class="si" type="button" data-book="${b.id}"><span class="spn c-${esc(b.cloth)}"></span><span>${esc(SHORT[b.id] || b.short)}</span><span class="n">${b.pages ? `${b.read}/${b.pages}` : ''}</span></button>`).join('');
+    $('#navBooks').innerHTML = LIB.books.map(b => `<button class="si" type="button" data-book="${b.id}"><span class="spn c-${esc(b.cloth)}"></span><span>${esc(b.yours ? b.title : SHORT[b.id] || b.short)}</span><span class="n">${b.pages ? `${b.read}/${b.pages}` : ''}</span></button>`).join('');
     $('#navCols').innerHTML = LIB.collections.map(c => `<button class="si" type="button" data-col="${c.id}"><svg viewBox="0 0 16 16" aria-hidden="true">${COL_ICON[c.id] || COL_ICON.commands}</svg><span>${esc(c.title)}</span><span class="n">${c.count}</span></button>`).join('');
     markNav();
   };
@@ -70,7 +70,7 @@
     traces: Array.from({ length: 9 }, (_, i) => `<path d="M${-10 + i * 26} 0 V 70 L ${30 + i * 22} 150 V 300" fill="none" stroke="currentColor" stroke-opacity=".17"/>`).join(''),
     grid: Array.from({ length: 6 }, (_, i) => `<path d="M0 ${40 + i * 24} H 200" stroke="currentColor" stroke-opacity=".14"/><path d="M${30 + i * 30} 30 V 160" stroke="currentColor" stroke-opacity=".14"/>`).join('') + '<path d="M30 160 H 90 V 88 H 150 V 40 H 200" fill="none" stroke="currentColor" stroke-opacity=".38" stroke-width="1.6"/>',
     // Rows of bits, a few of them set.
-    bits: Array.from({ length: 8 }, (_, r) => Array.from({ length: 8 }, (_, c) => `<rect x="${44 + c * 16}" y="${34 + r * 16}" width="9" height="9" rx="1.5" fill="currentColor" fill-opacity="${(r * 7 + c * 3 + r * c) % 5 < 2 ? '.34' : '.1'}"/>`).join('')).join(''),
+    bits: Array.from({ length: 8 }, (_, r) => Array.from({ length: 8 }, (_, c) => `<rect x="${36 + c * 17}" y="${128 + r * 17}" width="9" height="9" rx="1.5" fill="currentColor" fill-opacity="${(r * 7 + c * 3 + r * c) % 5 < 2 ? '.34' : '.1'}"/>`).join('')).join(''),
     waves: Array.from({ length: 9 }, (_, i) => `<path d="M-10 ${30 + i * 18} C 40 ${10 + i * 18}, 80 ${50 + i * 18}, 130 ${30 + i * 18} S 200 ${10 + i * 18}, 230 ${30 + i * 18}" fill="none" stroke="currentColor" stroke-opacity=".15"/>`).join(''),
     stripes: Array.from({ length: 4 }, (_, i) => `<rect x="0" y="${26 + i * 14}" width="200" height="${i === 1 ? 6 : 2}" fill="currentColor" fill-opacity=".18"/>`).join(''),
     dots: Array.from({ length: 9 }, (_, r) => Array.from({ length: 11 }, (_, c) => `<circle cx="${14 + c * 18 + (r % 2) * 9}" cy="${20 + r * 18}" r="1.7" fill="currentColor" fill-opacity=".2"/>`).join('')).join(''),
@@ -89,7 +89,7 @@
       if (!b.pages) return ['Not written yet', 'Pages arrive as the roadmap grows'];
       if (b.read === b.pages) return ['Read', `${b.pages} pages`];
       if (ribbon && ribbon.book.id === b.id) return ['Reading', `Chapter ${ribbon.chapter.number} of ${b.chapters.length}`];
-      return ['Not opened yet', `${b.pages} pages so far`];
+      return ['Not opened yet', `${b.pages} page${b.pages === 1 ? '' : 's'} so far`];
     };
     const shelf = LIB.books.map(b => {
       const [m, s] = bookState(b);
@@ -100,7 +100,7 @@
       : firstPage ? `<div class="continue"><div><b>${esc(firstPage.title)}</b><span>${esc(firstPage.summary)}</span></div><button class="btn pri" type="button" data-open="${esc(firstPage.id)}">Start reading <span class="k">Enter</span></button></div>` : '';
     const lab = nextLab ? `<div class="continue"><div><b>${esc(nextLab.title)}</b><span>${esc(nextLab.summary)}</span></div><button class="btn line" type="button" data-lab="${esc(nextLab.lab)}">Open the lab</button></div>` : '';
     const recent = LIB.recent.length ? `<div class="lib-sec"><h2>Lately collected</h2><div class="blocks">${LIB.recent.map(piece).join('')}</div></div>` : `<div class="lib-sec"><h2>Lately collected</h2><p style="margin:0;color:var(--ink3)">Select any sentence while reading and press Collect. It lands here and in your collections.</p></div>`;
-    $('#libIn').innerHTML = `<div class="lib-head"><h1>Your library</h1><p>${LIB.books.length === 4 ? 'Four' : LIB.books.length} books. The three courses read in order; the exam book ties them to the test. The ribbon marks where you stopped.</p></div><div class="shelf">${shelf}</div>${cont}${lab}${recent}`;
+    $('#libIn').innerHTML = `<div class="lib-head"><h1>Your library</h1><p>${LIB.books.length === 4 ? 'Four' : LIB.books.length} books. The three courses read in order; the Field Guide fills in what they skip. The ribbon marks where you stopped.</p></div><div class="shelf">${shelf}</div>${cont}${lab}${recent}`;
     show('library');
   };
 

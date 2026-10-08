@@ -1,0 +1,66 @@
+id = "field"
+title = "The Field Guide"
+short = "Companion"
+cloth = "navy"
+pattern = "bits"
+about = "What the three courses skip or only touch on: wireless in depth, the spanning tree guards, AAA, IPv6 beyond the basics, automation and AI in operations, and how to troubleshoot anything."
+
+[[chapter]]
+number = 1
+title = "Learning networking well"
+
+[[chapter]]
+number = 2
+title = "Number fluency: binary, subnets and VLSM"
+
+[[chapter]]
+number = 3
+title = "Rapid PVST+ and the spanning tree guards"
+
+[[chapter]]
+number = 4
+title = "Wireless architectures and AP modes"
+
+[[chapter]]
+number = 5
+title = "Wireless LAN configuration and security"
+
+[[chapter]]
+number = 6
+title = "First hop redundancy in practice"
+
+[[chapter]]
+number = 7
+title = "Device access, AAA and passwords"
+
+[[chapter]]
+number = 8
+title = "IPv6 beyond the basics"
+
+[[chapter]]
+number = 9
+title = "Virtualization, containers, VRFs and cloud"
+
+[[chapter]]
+number = 10
+title = "Controllers and software-defined networks"
+
+[[chapter]]
+number = 11
+title = "APIs, REST and JSON"
+
+[[chapter]]
+number = 12
+title = "Ansible, Terraform and infrastructure as code"
+
+[[chapter]]
+number = 13
+title = "AI and machine learning in network operations"
+
+[[chapter]]
+number = 14
+title = "Troubleshooting any network"
+
+[[chapter]]
+number = 15
+title = "Exam topics, mapped"

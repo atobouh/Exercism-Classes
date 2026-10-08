@@ -611,7 +611,7 @@ pub fn load_book(dir: &Path) -> Result<Book, ContentError> {
 }
 
 /// The order of the shipped books on the shelf; anything else follows.
-pub const SHELF: &[&str] = &["itn", "srwe", "ensa", "exam"];
+pub const SHELF: &[&str] = &["itn", "srwe", "ensa", "field"];
 
 /// Loads every book directory under `books_dir`, in shelf order.
 pub fn load_library(books_dir: &Path) -> Result<Vec<Book>, ContentError> {

@@ -522,7 +522,7 @@ mod tests {
     fn library_and_page() {
         let (mut a, _d) = app();
         let lib = a.call("library", &Value::Null).unwrap();
-        assert_eq!(lib["books"].as_array().unwrap().len(), 3);
+        assert_eq!(lib["books"].as_array().unwrap().len(), 4);
         let p = a.call("page", &json!({ "id": "srwe/03/03-vlan-trunks" })).unwrap();
         assert_eq!(p["page"]["meta"]["title"], "VLAN trunks");
         assert_eq!(p["links"][0]["title"], "What a VLAN is");

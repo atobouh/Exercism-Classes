@@ -50,25 +50,43 @@ impl Bundle {
     }
 }
 
-/// Assistants often wrap their answer in a code fence; take it off. Returns
-/// the text and how many lines were taken off the top.
+/// Assistants often say a sentence first and wrap the book in a code
+/// block; keep only the book. Returns the text and how many lines were
+/// taken off the top, so line numbers still match what was pasted.
 fn unwrap_fence(text: &str) -> (String, usize) {
     let t = text.replace("\r\n", "\n");
-    let t = t.trim_end().trim_start_matches('\u{feff}');
-    let lead = t.lines().take_while(|l| l.trim().is_empty()).count();
-    let t = t.trim_start();
-    let mut lines: Vec<&str> = t.lines().collect();
-    let opens = lines.first().is_some_and(|l| l.trim_start().starts_with("```") || l.trim_start().starts_with("~~~"));
-    let closes = lines.len() > 1 && lines.last().is_some_and(|l| {
+    let t = t.trim_start_matches('\u{feff}');
+    let lines: Vec<&str> = t.lines().collect();
+    let Some(start) = lines.iter().position(|l| l.trim().starts_with("=== book")) else {
+        return (t.to_string(), 0);
+    };
+    let fence = |l: &str, c: char| {
         let l = l.trim();
-        l.len() >= 3 && (l.chars().all(|c| c == '`') || l.chars().all(|c| c == '~'))
+        l.len() >= 3 && l.starts_with(&c.to_string().repeat(3))
+    };
+    // Was the book opened with a fence on the line (or lines) before it?
+    let opener = lines[..start].iter().rev().find(|l| !l.trim().is_empty()).and_then(|l| {
+        if fence(l, '`') {
+            Some('`')
+        } else if fence(l, '~') {
+            Some('~')
+        } else {
+            None
+        }
     });
-    if opens && closes && lines.iter().any(|l| l.trim_start().starts_with("=== book")) {
-        lines.remove(0);
-        lines.pop();
-        return (lines.join("\n"), lead + 1);
+    let mut end = lines.len();
+    if let Some(c) = opener {
+        // The closing fence is the last bare fence line of that kind.
+        if let Some(i) = lines.iter().rposition(|l| {
+            let l = l.trim();
+            l.len() >= 3 && l.chars().all(|x| x == c)
+        }) {
+            if i > start {
+                end = i;
+            }
+        }
     }
-    (lines.join("\n"), lead)
+    (lines[start..end].join("\n"), start)
 }
 
 /// Reads a bundle. Every problem is reported in plain words with the line
@@ -329,5 +347,10 @@ mod tests {
         let p = parse_bundle(&TEXT.replace("=== page 2 01-second", "=== page 9 01-second")).err().unwrap();
         assert!(p[0].contains("chapter 9 isn't in"), "{}", p[0]);
         assert!(parse_bundle("hello").is_err());
+        // A sentence before the code block, and one after it.
+        let chatty = format!("Here is your book.\n\n{TEXT}\n\nTell me when you want chapter 3.");
+        assert_eq!(parse_bundle(&chatty).unwrap().book.page_count(), 2);
+        let p = parse_bundle(&chatty.replace("answer = 0", "answer = 7")).err().unwrap();
+        assert!(p[0].contains("line 26"), "{}", p[0]);
     }
 }
