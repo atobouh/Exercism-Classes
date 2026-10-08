@@ -24,7 +24,7 @@ The client first has to learn which APs are nearby. There are two ways.
 
 In *passive discovery*, the client listens. Each AP sends *beacon* frames, usually around ten times a second, announcing its SSID, supported rates and security features. The client hears them on each channel and builds its list.
 
-In *active discovery*, the client speaks first. It sends a *probe request* on a channel. The request can name a specific SSID, or leave it blank to ask "any network here?". APs that match reply with a *probe response*, which carries about the same information as a beacon. Active discovery is quicker, and it is the only way to find an AP that does not announce itself.
+In *active discovery*, the client speaks first. It sends a *probe request* on a channel. The request can name a specific SSID, or leave it blank to ask "any network here?". APs that match reply with a *probe response*, which carries about the same information as a beacon. Active discovery is quicker, and it lets a client ask for a network by name, which is how a client finds one whose SSID is hidden from beacons.
 
 ```question
 prompt = "A network does not broadcast its SSID in beacons. How does a client that already knows the name find it?"

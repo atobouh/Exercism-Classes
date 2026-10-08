@@ -59,7 +59,7 @@ Real-time tasks stay on the AP. Management tasks live on the WLC. CAPWAP control
 A branch office may be hundreds of kilometers from the WLC. Sending every client frame to headquarters and back would be slow, and a failed WAN link would cut off the whole branch. *FlexConnect* is a mode that fixes this. A FlexConnect AP has two states.
 
 - **Connected mode.** The AP can reach the WLC. It is managed centrally, and client traffic can be switched locally at the branch or sent to the controller, depending on the configuration.
-- **Standalone mode.** The WAN link is down. The AP keeps serving clients that are already known, switching their traffic locally, until the controller returns.
+- **Standalone mode.** The WAN link is down. The AP keeps running on the settings it last received and switches client traffic locally, until the controller returns.
 
 Branch staff then keep working on the local servers while the link is repaired. The Field Guide covers FlexConnect and the other AP modes in detail.
 
