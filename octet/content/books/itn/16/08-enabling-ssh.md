@@ -40,7 +40,7 @@ R1(config)# end
 
 Go through them.
 
-- `ip domain-name example.com` supplies the domain. (Some releases accept `ip domain name` as well.)
+- `ip domain-name example.com` supplies the domain.
 - `crypto key generate rsa general-keys modulus 2048` creates the RSA key pair that SSH uses to prove the device's identity and protect the exchange. Generating the key is also what turns the SSH server on. A longer modulus is stronger but slower to generate. SSH version 2 needs at least 768 bits, and 2048 is the usual choice. If you type only `crypto key generate rsa`, IOS asks you for the modulus interactively.
 - `username admin secret ...` creates an account in the device's local database. Use `secret` so the password is hashed.
 - `line vty 0 4`, `transport input ssh` and `login local` configure the remote lines (below).
@@ -59,13 +59,13 @@ On the earlier pages you used `password` with `login` on the VTY lines. That has
 
 ## Restricting the lines to SSH
 
-`transport input ssh` lists which protocols a VTY line accepts. The default, `transport input all`, allows both Telnet and SSH, so a device with SSH enabled still answers Telnet until you change it. Setting `ssh` alone makes the line refuse Telnet.
+`transport input ssh` lists which protocols a VTY line accepts. On many releases the VTY lines default to `transport input all`, which allows both Telnet and SSH, so a device with SSH enabled can still answer Telnet until you change the setting. Setting `ssh` alone makes the line refuse Telnet.
 
 ```command
 prompt = "Make the VTY lines accept only SSH."
 mode = "R1(config-line)#"
 answer = ["transport input ssh"]
-why = "Without it, `transport input all` is in effect and the line still accepts Telnet."
+why = "Without it, the line may still accept Telnet."
 ```
 
 ```trap
@@ -86,6 +86,7 @@ Authentication timeout: 120 secs; Authentication retries: 3
 R1# show ssh
 Connection Version Mode Encryption  Hmac         State                 Username
 0          2.0     IN   aes128-cbc  hmac-sha1    Session started       admin
+0          2.0     OUT  aes128-cbc  hmac-sha1    Session started       admin
 %No SSHv1 server connections running.
 ```
 
@@ -93,7 +94,7 @@ Connection Version Mode Encryption  Hmac         State                 Username
 
 ## Connecting
 
-From a PC, use any SSH client; on Windows 10 and later or on Linux and macOS, that is the `ssh` command:
+From a PC, use any SSH client; on Linux, macOS and recent Windows versions, that is the `ssh` command:
 
 ```console PC1
 C:\> ssh -l admin 192.168.10.1
@@ -112,7 +113,7 @@ The first connection shows the device's key fingerprint and asks you to trust it
 prompt = "SSH is working on R1, but a technician can still log in by Telnet. What is the most likely cause?"
 options = ["The RSA key is too short", "The VTY lines still have transport input all", "login local is configured", "ip ssh version 2 is missing"]
 answer = 1
-why = "`transport input all` is the default and allows Telnet next to SSH. Setting `transport input ssh` removes Telnet."
+why = "`transport input all` allows Telnet next to SSH, and many VTY lines are set that way by default. Setting `transport input ssh` removes Telnet."
 ```
 
 ```recall
@@ -127,5 +128,5 @@ back = "It checks the local username database, so each admin has an account and 
 
 ```recall
 front = "What does `transport input ssh` do?"
-back = "It lets the VTY lines accept only SSH. The default `transport input all` also allows Telnet."
+back = "It lets the VTY lines accept only SSH. `transport input all`, which many VTY lines use by default, also allows Telnet."
 ```

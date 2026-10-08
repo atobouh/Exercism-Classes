@@ -4,7 +4,7 @@ summary = "Strong passwords, hashed secrets and login limits make device access 
 links = ["itn/02/05-naming-and-securing-the-switch", "itn/16/08-enabling-ssh", "itn/16/04-reconnaissance-and-access-attacks", "field/07/03-local-passwords-done-right"]
 +++
 
-A password is the cheapest lock you will ever install, and the one most often left weak. A password attack, as the [earlier page](itn/16/04-reconnaissance-and-access-attacks) showed, is just a machine guessing quickly. Your job is to make guessing slow and unrewarding: choose passwords that are hard to guess, store them so a stolen configuration reveals as little as possible, and make a device refuse a client that keeps getting it wrong. The basic hostname and line passwords are in [naming and securing the switch](itn/02/05-naming-and-securing-the-switch). This page tightens them.
+A password is the cheapest lock you will ever install, and the one most often left weak. A password attack, as the [earlier page](itn/16/04-reconnaissance-and-access-attacks) showed, is a machine guessing quickly. Your job is to make guessing slow and unrewarding: choose passwords that are hard to guess, store them so a stolen configuration reveals as little as possible, and make a device refuse a client that keeps getting it wrong. The basic hostname and line passwords are in [naming and securing the switch](itn/02/05-naming-and-securing-the-switch). This page tightens them.
 
 ## What makes a password strong
 
@@ -16,7 +16,7 @@ Length matters more than cleverness. Each extra character multiplies the number 
 - Never reuse a password across devices or services. One leak then opens everything.
 - Change it when you suspect it is compromised, and when someone who knew it leaves.
 
-A *passphrase* is a string of several unrelated words, such as `copper-ladder-orbit-tulip`. It is easy to remember, long, and hard to guess. Many people find it better than a short jumble of symbols.
+A *passphrase* is a string of several unrelated words, such as `copper-ladder-orbit-tulip`. It is memorable, long and hard to guess. Many people find it better than a short jumble of symbols.
 
 A *password policy* turns these habits into rules: a minimum length and complexity, a history so old passwords cannot be reused at once, a lockout after repeated failures, and a plan for shared credentials, such as a device password that several administrators know. Shared passwords should be rare, stored in a vault and changed whenever a holder leaves.
 
@@ -38,7 +38,7 @@ An administrator who can read the configuration can read the passwords in it, un
 | Command | Result | Strength |
 | --- | --- | --- |
 | `enable secret` | One-way hash | Good. Type 5 (MD5) by default on older software. Newer IOS XE can use type 8 or 9 |
-| `service password-encryption` | Reversible type 7 encoding of plain passwords | Weak. Reversible in seconds with free tools |
+| `service password-encryption` | Reversible type 7 encoding of plain passwords | Weak. Reversible with free tools |
 
 A hash cannot be turned back into the password. An attacker must guess and compare. Type 5 is a salted MD5 hash and is the older choice. Newer releases let you pick stronger algorithms, with `algorithm-type scrypt` giving type 9:
 
@@ -49,7 +49,7 @@ answer = ["enable algorithm-type scrypt secret Str0ng-Passphrase"]
 why = "The algorithm-type keyword picks the hash. scrypt produces a type 9 secret. Support depends on your IOS XE release."
 ```
 
-`service password-encryption` is still worth running, because it hides the `password` lines on your lines and users from a casual glance, but remember it is only an obfuscation.
+`service password-encryption` is still worth running, because it hides line passwords and local account passwords from a casual glance. It is obfuscation, not protection.
 
 ## Rules and limits on the device
 

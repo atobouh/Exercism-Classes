@@ -8,7 +8,7 @@ A building with twenty doors is harder to guard than one with three, even if you
 
 ## Find what is listening
 
-Before turning things off, find out what is on. On IOS XE devices, this command lists the TCP and UDP ports the device itself is listening on:
+Before turning things off, find out what is on. On many IOS and IOS XE releases, this command lists the TCP and UDP ports the device itself is listening on:
 
 ```command
 prompt = "List the ports the router's control plane is listening on."
@@ -17,11 +17,11 @@ answer = ["show control-plane host open-ports"]
 why = "It shows services listening on the device itself, such as SSH, Telnet or the HTTP server, so you can see what to close."
 ```
 
-Some IOS releases use `show ip ports all` for a similar view. Which command exists depends on the platform and release, so try the one for your software. In the list, look for anything you did not enable on purpose: Telnet on port 23, an HTTP server on port 80, services you have never heard of.
+Other releases name the view differently, and the keyword depends on the platform and release. If the command is not recognized, type `show control-plane host ?` or `show ?` to see what your software offers. In the list, look for anything you did not enable on purpose: Telnet on port 23, an HTTP server on port 80, services you have never heard of.
 
 ## Services worth turning off
 
-Cisco devices have a built-in web interface. The HTTP server is often enabled by default or by a setup tool, and the secure variant uses HTTPS. If you manage by command line and do not use the GUI, disable both.
+Cisco devices have a built-in web interface. The HTTP server may be enabled by default or by a setup tool, and the secure variant uses HTTPS. If you manage by command line and do not use the GUI, disable both.
 
 ```console R1
 R1(config)# no ip http server

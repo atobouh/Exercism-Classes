@@ -17,7 +17,7 @@ The first kind is a matter of volume. The second is a matter of a vulnerability,
 
 ## Distributed denial of service
 
-A single attacking machine is easy to spot and block: filter its address and the attack ends. So attackers use many machines. In a *distributed denial of service* (DDoS) attack, a large set of compromised hosts attack together. That set is a *botnet*, and each infected machine is a *zombie* (or bot). The attacker controls the botnet through a *command and control* server, which sends the instruction to start, the target and the type of traffic.
+A single attacking machine can be spotted and blocked: filter its address and the attack ends. So attackers use many machines. In a *distributed denial of service* (DDoS) attack, a large set of compromised hosts attack together. That set is a *botnet*, and each infected machine is a *zombie* (or bot). The attacker controls the botnet through a *command and control* server, which sends the instruction to start, the target and the type of traffic.
 
 ```diagram
 caption = "A DDoS attack: the attacker commands zombies, and every zombie hits the same target."

@@ -69,7 +69,7 @@ why = "Phishing aimed at a specific person with believable personal details is s
 | Phishing | Obtain credentials | A fake bank login page |
 
 ```trap
-A port scan or ping sweep is not an intrusion by itself, and treating it as harmless is the mistake. It is the preparation. Many detection systems alarm on scans because an attack often follows within hours.
+A port scan or ping sweep is not an intrusion by itself, and treating it as harmless is the mistake. It is the preparation. Many detection systems alarm on scans, because scans often come before an attack.
 ```
 
 The security chapter of the next book digs into each of these: see [reconnaissance and access attacks](ensa/03/04-reconnaissance-and-access-attacks) and [social engineering](ensa/03/05-social-engineering-and-dos).

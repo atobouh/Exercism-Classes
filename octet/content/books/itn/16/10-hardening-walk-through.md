@@ -109,7 +109,6 @@ C:\> ssh -l admin 192.168.10.1
 Password:
 
 C:\> telnet 192.168.10.1
-Connecting To 192.168.10.1...Could not open connection to the host, on port 23: Connect failed
 ```
 
 The SSH login works and the Telnet attempt is refused. That second result is the proof that `transport input ssh` took effect. Wording of the refusal depends on the client.

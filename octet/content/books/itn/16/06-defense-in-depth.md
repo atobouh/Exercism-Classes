@@ -25,7 +25,7 @@ None of these replaces the others. A firewall that is perfectly configured still
 prompt = "A firewall allows web traffic on port 443, and a user downloads a malicious file over it. Which layer is best placed to catch it?"
 options = ["The firewall, with a tighter rule on port 443", "Endpoint security or a web security appliance", "A VPN", "A UPS"]
 answer = 1
-why = "The traffic is allowed and encrypted web traffic, so the port rule is not the issue. Inspection of the content, on a web filter or on the computer itself, is what finds the file."
+why = "The port rule is not the problem, because the traffic is allowed web traffic. A firewall sees only the encrypted stream on port 443, so the file is caught by inspection on the computer itself or by a web security appliance."
 ```
 
 ## Backups, updates and patches
