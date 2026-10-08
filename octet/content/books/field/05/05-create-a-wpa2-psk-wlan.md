@@ -56,7 +56,7 @@ The same WLAN profile in IOS XE CLI looks like this:
 9800(config-wlan)# no shutdown
 ```
 
-A new 9800 WLAN starts with WPA2 and 802.1X key management, so you remove the 802.1X method before you add PSK. As on AireOS, `no shutdown` enables the WLAN. The policy profile and tag steps are separate commands, and the WLAN still reaches no AP until a policy tag carries it.
+A new 9800 WLAN uses 802.1X key management by default, so you remove the 802.1X method before you add PSK. The `no shutdown` line enables the WLAN, and `show wlan summary` shows whether it is up. The policy profile and tag steps are separate commands, and the WLAN still reaches no AP until a policy tag carries it.
 
 ## Verify with a real client
 

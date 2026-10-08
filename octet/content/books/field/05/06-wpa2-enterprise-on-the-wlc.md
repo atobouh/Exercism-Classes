@@ -42,7 +42,7 @@ The WLC's address in the VLAN is its foothold there, the gateway is the router t
 
 The WLC can run a small DHCP scope of its own, under the controller's internal DHCP server settings, giving a pool, a mask, a lease time, a default router and DNS. Setting the interface's DHCP server to the WLC's own management address makes clients use it.
 
-In larger networks an external server is more usual. It already holds the address plan, is backed up, and serves every VLAN. The internal server suits a lab or a tiny site. Some newer AireOS releases have removed it, so check before you plan around it.
+In larger networks an external server is more usual. It already holds the address plan, is backed up, and serves every VLAN. The internal server suits a lab or a tiny site.
 
 ## Step 4: the 802.1X WLAN
 
@@ -95,5 +95,5 @@ back = "Assign a VLAN, ACL or QoS value to a user, replacing the WLAN's defaults
 
 ```recall
 front = "Why is an external DHCP server more common than the WLC's internal one?"
-back = "It already holds the address plan for every VLAN, is managed centrally, and some newer AireOS releases drop the internal server."
+back = "It already holds the address plan for every VLAN, is backed up, and is managed apart from the controller."
 ```

@@ -32,7 +32,7 @@ The PTK differs for every client and every session, which is why one client cann
 
 ## Why a captured handshake is dangerous
 
-Messages 1 and 2 hold both nonces and a MIC, and the MAC addresses are visible in the frames. An attacker who records those has all the inputs except the PMK. So they guess a passphrase, compute the PMK, derive a PTK, compute the MIC, and compare it with the recorded one. A match means the guess is right. This runs entirely offline, with no further contact with the network, at whatever speed the attacker's hardware allows. A weak passphrase falls in minutes. A long random one is safe. A recorded handshake is not hard to get: wait for any client to join, or force one to reconnect with a deauthentication frame.
+Messages 1 and 2 hold both nonces and a MIC, and the MAC addresses are visible in the frames. An attacker who records those has all the inputs except the PMK. So they guess a passphrase, compute the PMK, derive a PTK, compute the MIC, and compare it with the recorded one. A match means the guess is right. This runs entirely offline, with no further contact with the network, at whatever speed the attacker's hardware allows. A weak passphrase can be found quickly. A long random one is far harder to guess. A recorded handshake is not hard to get: wait for any client to join, or force one to reconnect with a deauthentication frame.
 
 ```question
 prompt = "An attacker records a WPA2-Personal handshake in the car park and goes home. What can they do with it?"

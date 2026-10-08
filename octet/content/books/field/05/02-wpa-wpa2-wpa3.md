@@ -26,7 +26,7 @@ WPA3 keeps AES but changes four things.
 
 **Forward secrecy.** SAE gives every session fresh, independent keys. If someone learns the passphrase next year, traffic they recorded today stays unreadable. Under WPA2-Personal, the passphrase unlocks every recorded session.
 
-**Protected Management Frames are mandatory.** PMF (802.11w) signs the management frames that clients and APs send after keys exist, including deauthentication. A forged "disconnect" from an attacker fails its check and is ignored. In WPA2 it is optional, so most WPA2 networks do not enforce it.
+**Protected Management Frames are mandatory.** PMF (802.11w) signs the management frames that clients and APs send after keys exist, including deauthentication. A forged "disconnect" from an attacker fails its check and is ignored. In WPA2 it is optional, so a WPA2 network can leave it off.
 
 **A 192-bit mode for Enterprise.** WPA3-Enterprise is still 802.1X. An optional 192-bit mode locks the network to stronger cryptography: AES in GCMP-256 mode, plus matching key exchange and signing strengths (384-bit elliptic curves and SHA-384). It targets government and high-assurance sites, and it needs clients and RADIUS servers that support it.
 

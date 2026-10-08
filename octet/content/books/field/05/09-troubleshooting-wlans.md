@@ -57,7 +57,7 @@ On AireOS, from the CLI:
 ```console WLC
 (Cisco Controller) > show wlan summary
 (Cisco Controller) > show ap summary
-(Cisco Controller) > show client detail 0050.7966.6800
+(Cisco Controller) > show client detail 00:50:79:66:68:00
 ```
 
 `show wlan summary` lists each WLAN with its ID, profile name, SSID, and whether it is enabled. `show ap summary` lists the APs that have joined. `show client detail` gives one client's state, WLAN, VLAN, address and policy.
@@ -88,6 +88,31 @@ prompt = "After a new client VLAN is added to a WLAN, clients associate but neve
 options = ["The switch trunk to the controller does not allow that VLAN", "The AP is on the wrong channel", "The passphrase is wrong", "PMF is set to Optional"]
 answer = 0
 why = "If frames in the new VLAN cannot cross the trunk, DHCP requests never arrive. The passphrase and channel only matter before association."
+```
+
+## Mixed questions
+
+The skills in this chapter meet again here. Answer each one before you check.
+
+```question
+prompt = "A small shop wants one passphrase for its staff phones and has no RADIUS server. Which setup fits?"
+options = ["WPA2 Enterprise with PEAP", "WPA2 Personal with AES and a PSK", "WEP with a 64-bit key", "Open network with peer-to-peer blocking"]
+answer = 1
+why = "Personal mode needs only a passphrase. Enterprise needs a RADIUS server, WEP is broken, and peer-to-peer blocking does not protect an open network from being read."
+```
+
+```question
+prompt = "Which QoS profile belongs on an SSID that carries voice handsets?"
+options = ["Platinum", "Gold", "Silver", "Bronze"]
+answer = 0
+why = "Platinum maps to the voice category. Gold is for video, and Silver and Bronze give voice no special priority."
+```
+
+```question
+prompt = "Which mechanism gives a WPA3-Personal network forward secrecy and resistance to offline guessing?"
+options = ["WEP", "WPA with TKIP", "PMF set to Optional", "SAE"]
+answer = 3
+why = "SAE replaces the PSK handshake. PMF protects management frames, and it does not change how the passphrase is exchanged."
 ```
 
 ```recall

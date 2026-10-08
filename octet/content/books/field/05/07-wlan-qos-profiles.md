@@ -41,7 +41,7 @@ A profile is a ceiling for the whole WLAN. It sets the highest priority any traf
 | Silver | Best effort, the default | Best effort |
 | Bronze | Background | Background |
 
-The profile acts in two places. In the air, it limits the WMM category that traffic for the WLAN may use. In the wired side, it caps the DSCP value the controller uses on the CAPWAP tunnel between the AP and the WLC, so the same priority carries across the wired network. The tunnel's outer header holds that DSCP marking, so switches along the way can honor it if they are configured to trust it.
+The profile acts in two places. In the air, it limits the WMM category that traffic for the WLAN may use. On the wired side, it caps the outer DSCP value the controller uses on the CAPWAP tunnel between the AP and the WLC. The tunnel's outer header holds that marking, so switches along the way can give the traffic priority if they are configured to trust it.
 
 The profile is a ceiling, not a floor. A client that marks a frame as background on a Platinum WLAN is still treated as background. A client that marks voice on a Bronze WLAN has its priority cut down to the Bronze limit.
 

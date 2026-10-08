@@ -4,7 +4,7 @@ summary = "Finding your way around the AireOS and Catalyst 9800 controller web i
 links = ["srwe/13/04-the-wlc-dashboard", "srwe/13/05-a-wpa2-psk-wlan-on-the-wlc", "field/05/05-create-a-wpa2-psk-wlan", "field/05/06-wpa2-enterprise-on-the-wlc"]
 +++
 
-Nearly all controller work happens in a browser, and most wasted minutes are spent hunting for a setting that is in a different menu from where you looked. A tour pays for itself. This page covers two interfaces: the AireOS one on the Cisco 3504 that the course uses, and the one on the Catalyst 9800 that you will meet at work. Menu names move a little between software releases, so treat the layouts below as a map and not a promise.
+Nearly all controller work happens in a browser, and most wasted minutes are spent hunting for a setting that is in a different menu from where you looked. A tour pays for itself. This page covers two interfaces: the AireOS one on older controllers such as the 3504, and the one on the Catalyst 9800 that you will meet at work. Menu names move a little between software releases, so treat the layouts below as a map and not a promise.
 
 ## Getting in
 
@@ -25,7 +25,7 @@ After login, the AireOS interface shows a row of menus across the top.
 | COMMANDS | Upgrades, reboot, save configuration |
 | HELP and FEEDBACK | Documentation and vendor feedback |
 
-The Monitor page opens as a summary with counts of APs, clients and rogues. A link at the top right switches to the *Advanced* view, which holds the detailed tables. Use the summary to see whether something is wrong, and the Advanced view to find out what.
+Recent AireOS releases open on a summary dashboard with counts of APs, clients and rogues. An *Advanced* button switches to the classic view, which has the top menu bar and the detailed tables. Use the summary to see whether something is wrong, and the Advanced view to find out what.
 
 A quick way to remember where tasks live:
 
@@ -43,7 +43,7 @@ why = "RADIUS servers are AAA settings, which sit under SECURITY. WLANs holds th
 
 ## Catalyst 9800: the left menu
 
-The 9800 runs IOS XE, and its web interface has a navigation menu down the left side: **Dashboard**, **Monitoring**, **Configuration**, **Administration**, **Licensing** and **Troubleshooting**. Monitoring shows state: wireless clients, access points, and logs. Configuration is where you build things. Administration holds management and software tasks.
+The 9800 runs IOS XE, and its web interface has a navigation menu down the left side: **Dashboard**, **Monitoring**, **Configuration**, **Administration**, **Licensing** and **Troubleshooting**. Monitoring shows state, such as wireless clients and access points. Configuration is where you build things. Administration holds management and software tasks.
 
 The 9800 splits a WLAN into pieces, and understanding those pieces is the most important part of this tour.
 
@@ -59,7 +59,7 @@ On AireOS, a single WLAN entry holds the SSID, security, VLAN and QoS together. 
 | Site tag | Settings for a group of APs, such as local or FlexConnect operation | Where does this AP's site behave how? |
 | RF tag | Radio settings for the 2.4 and 5 GHz bands | How should this AP's radios behave? |
 
-An AP receives a policy tag, a site tag and an RF tag. Until it has a policy tag that includes your WLAN, it does not broadcast that SSID, however well the WLAN profile is built. If no tags are set, the AP gets default ones.
+An AP receives a policy tag, a site tag and an RF tag. Until it has a policy tag that includes your WLAN, it does not broadcast that SSID, however well the WLAN profile is built. If no tags are set, the AP gets the default tags. The default policy tag links only WLAN IDs 1 to 16 to the default policy profile.
 
 ```diagram
 caption = "On the 9800, tags join the pieces and are applied to an AP. AireOS keeps one entry per WLAN."
