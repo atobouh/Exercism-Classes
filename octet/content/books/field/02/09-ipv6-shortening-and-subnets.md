@@ -61,7 +61,7 @@ Take `2001:db8:acad:1::10`. Written hextets: `2001`, `db8`, `acad`, `1`, `10`. T
 
 A typical site gets a **/48** from its provider. The first 48 bits are the three hextets `2001:db8:acad`. The next 16 bits, the fourth hextet, are the *subnet ID*. The last 64 bits are the interface ID.
 
-Sixteen bits of subnet ID give 2^16 = 65,536 subnets of /64. They run from `2001:db8:acad:0::/64` through `2001:db8:acad:ffff::/64`, with only the fourth hextet changing. The first few are:
+Sixteen bits of subnet ID give 2^16 = 65,536 subnets of /64. They run from `2001:db8:acad::/64` through `2001:db8:acad:ffff::/64`, with only the fourth hextet changing. The first few are:
 
 | Subnet | Prefix |
 | --- | --- |

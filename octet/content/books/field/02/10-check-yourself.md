@@ -32,7 +32,7 @@ Most errors come from a few habits. Knowing them lets you catch yours.
 Run these on every answer. They take a second.
 
 - The network address, in the interesting octet, is a multiple of the block size.
-- The broadcast is one less than a multiple of the block size, so it is odd.
+- In any subnet of two or more addresses, the broadcast is one less than a multiple of the block size, so it is odd.
 - Host counts are two less than a power of two: 2, 6, 14, 30, 62, 126, 254.
 - A wildcard in the interesting octet is the block size minus one.
 
@@ -75,7 +75,7 @@ why = "A /19 mask is 255.255.224.0. Its wildcard is 0.0.31.255 (the block size o
 prompt = "What is the preferred short form of 2001:0db8:0000:0042:0000:0000:0000:00ff?"
 options = ["2001:db8::42::ff", "2001:db8:0:42::ff", "2001:db8::42:0:0:0:ff", "2001:db8:0:42:0:0:0:ff"]
 answer = 1
-why = "Drop leading zeros, then use :: on the longest zero run, which is the three hextets before ff. The single zero hextet after db8 stays as 0."
+why = "Drop leading zeros, then use :: on the longest zero run, which is the three hextets before ff. The single zero hextet after db8 stays as 0, because RFC 5952 never uses :: for one zero hextet. The option that writes :: there is the same address in a form that is not preferred."
 ```
 
 ```question
