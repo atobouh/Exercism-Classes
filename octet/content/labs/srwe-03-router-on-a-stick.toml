@@ -1,15 +1,16 @@
+# A bench lab: devices from the bench catalog, cables between them, and
+# tasks with checks. See app/ui/bench/README.md for the format.
+format = 1
 id = "srwe-03-router-on-a-stick"
 title = "Router-on-a-stick"
-course = "srwe"
-chapter = 3
-summary = "Give VLAN 10 and VLAN 20 a gateway on one router port, so Sales and Engineering can reach each other."
+summary = "Sales and Engineering share one switch and one router port. Engineering can't reach Sales. Find out why and fix it."
+booted = true
 
 [[device]]
-name = "R1"
-kind = "router"
+id = "R1"
 model = "ISR4321"
-x = 486
-y = 96
+x = -280
+y = -230
 config = """
 interface g0/0/1
  no shutdown
@@ -22,11 +23,10 @@ interface g0/0/1.20
 """
 
 [[device]]
-name = "S1"
-kind = "switch"
-model = "2960"
-x = 486
-y = 330
+id = "S1"
+model = "WS-C2960+24TC-L"
+x = -360
+y = -20
 config = """
 vlan 10
  name SALES
@@ -35,51 +35,64 @@ vlan 20
 interface fa0/5
  switchport mode access
  switchport access vlan 10
+ spanning-tree portfast
 interface fa0/6
  switchport mode access
  switchport access vlan 20
+ spanning-tree portfast
 interface g0/1
  switchport mode trunk
 """
 
 [[device]]
-name = "PC-SALES"
-kind = "pc"
-x = 336
-y = 560
-ip = "192.168.10.10/24"
+id = "PC-SALES"
+model = "PC"
+x = -330
+y = 200
+ip = "192.168.10.10"
+mask = "255.255.255.0"
 gateway = "192.168.10.1"
 
 [[device]]
-name = "PC-ENG"
-kind = "pc"
-x = 640
-y = 560
-ip = "192.168.20.10/24"
+id = "PC-ENG"
+model = "PC"
+x = 140
+y = 200
+ip = "192.168.20.10"
+mask = "255.255.255.0"
 gateway = "192.168.20.1"
 
-[[link]]
-a = "R1 g0/0/1"
-b = "S1 g0/1"
+[[device]]
+id = "LAPTOP"
+model = "PC"
+x = 420
+y = -230
 
-[[link]]
-a = "PC-SALES eth0"
-b = "S1 fa0/5"
+[[cable]]
+type = "straight"
+a = "R1 G0/0/1"
+b = "S1 G0/1"
 
-[[link]]
-a = "PC-ENG eth0"
-b = "S1 fa0/6"
+[[cable]]
+type = "straight"
+a = "PC-SALES NIC"
+b = "S1 F0/5"
+
+[[cable]]
+type = "straight"
+a = "PC-ENG NIC"
+b = "S1 F0/6"
 
 [[task]]
-text = "Create VLANs 10 and 20 on S1"
-check = { kind = "vlan_exists", device = "S1", vlans = [10, 20] }
+text = "From PC-ENG, `ping 192.168.10.10`. It fails. That's the problem you're here to fix."
+hint = "Double-click PC-ENG to open its command prompt."
+check = { tried = { from = "PC-ENG", to = "192.168.10.10" } }
 
 [[task]]
-text = "Trunk Gi0/1 between S1 and R1"
-check = { kind = "trunk", device = "S1", iface = "g0/1" }
+text = "Plug a console cable from the LAPTOP's COM1 into R1's CONSOLE port, and open R1."
+check = { console = "R1" }
 
 [[task]]
-text = "Give VLAN 20 a gateway on R1"
-detail = "Engineering can't reach Sales. The map shows where traffic stops."
-hint = "Open R1 and compare the VLAN on G0/0/1.20 with VLAN 20 on S1. show running-config interface g0/0/1.20 shows it."
-check = { kind = "ping", from = "PC-ENG", to = "192.168.10.10" }
+text = "Find the subinterface whose VLAN tag doesn't match the switch, and fix it."
+hint = "`show running-config` on R1, then compare each `encapsulation dot1Q` with the VLANs on S1 (`show vlan brief`)."
+check = { reach = { from = "PC-ENG", to = "192.168.10.10" } }

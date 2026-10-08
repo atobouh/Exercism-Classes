@@ -66,6 +66,9 @@ pub struct LabRecord {
     pub passed: bool,
     #[serde(default)]
     pub notes: String,
+    /// The bench as you left it: devices, cables and configs.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub state: Option<serde_json::Value>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -227,13 +230,21 @@ impl Store {
         Ok(Some(c))
     }
 
+    pub fn lab_save(&mut self, lab: &str, state: serde_json::Value) -> Result<(), StoreError> {
+        match self.data.labs.iter_mut().find(|l| l.lab == lab) {
+            Some(l) => l.state = Some(state),
+            None => self.data.labs.push(LabRecord { lab: lab.into(), passed: false, notes: String::new(), state: Some(state) }),
+        }
+        self.save()
+    }
+
     pub fn lab_passed(&mut self, lab: &str, notes: &str) -> Result<(), StoreError> {
         match self.data.labs.iter_mut().find(|l| l.lab == lab) {
             Some(l) => {
                 l.passed = true;
                 l.notes = notes.into();
             }
-            None => self.data.labs.push(LabRecord { lab: lab.into(), passed: true, notes: notes.into() }),
+            None => self.data.labs.push(LabRecord { lab: lab.into(), passed: true, notes: notes.into(), state: None }),
         }
         self.save()
     }

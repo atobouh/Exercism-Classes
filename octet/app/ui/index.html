@@ -58,35 +58,12 @@
   </div>
 
   <div class="labw" id="labw" role="region" aria-label="Lab">
-    <div class="lab-bar">
-      <button class="iconbtn" type="button" id="labBack" aria-label="Back to reading"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg></button>
-      <div class="lab-title"><b id="labTitle"></b><span id="labSub"></span></div>
-      <span class="sp"></span>
-      <div class="checks"><span class="dots" id="chkDots"></span><span id="chkText"></span></div>
-      <button class="btn pri" type="button" id="runChk">Run checks <span class="k">Ctrl Enter</span></button>
-    </div>
-    <div class="cv" id="cv">
-      <svg id="cvLinks" aria-hidden="true"></svg>
-      <span class="cv-hint" id="cvHint">Drag anything. Click a device to open it.</span>
-      <section class="ncard" id="briefCard" style="left:24px;top:22px" aria-label="The brief"><header data-drag="briefCard">The brief</header><div class="nb" id="brief"></div></section>
-      <section class="ncard mine-card" id="mineCard" style="left:24px;top:auto;bottom:90px" aria-label="My notes"><header data-drag="mineCard">My notes</header><div class="nb"><textarea id="labNotes" aria-label="My notes" placeholder="Write what you tried and what you learned. It is saved with the lab when you pass."></textarea></div></section>
-      <div class="cvtools" role="toolbar" aria-label="Canvas tools">
-        <button type="button" data-tool="move" aria-pressed="true"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5l8 5.5-3.6.9 2 3.8-1.6.8-2-3.8L4 12z"/></svg>Move</button>
-        <button type="button" data-tool="add" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add device</button>
-        <button type="button" data-tool="connect" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.8" cy="11.5" r="1.8"/><circle cx="12.2" cy="4.5" r="1.8"/><path d="M5.3 10.2l5.4-4.4"/></svg>Connect</button>
-        <button type="button" data-tool="note" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h9v7l-3 4h-6z"/><path d="M9.5 13.5v-4h3"/></svg>Note</button>
-      </div>
-      <div class="addmenu" id="addMenu" hidden><button type="button" data-add="pc">PC</button><button type="button" data-add="switch">Switch</button><button type="button" data-add="router">Router</button></div>
-    </div>
-    <aside class="lp">
-      <div class="lp-tabs" role="tablist" id="lpTabs"></div>
-      <div class="lp-head"><div><b id="lpName"></b><span id="lpSub"></span></div><div class="seg" role="tablist" id="lpSeg"><button type="button" data-pane="console" aria-selected="true">Console</button><button type="button" data-pane="ports" aria-selected="false">Ports</button><button type="button" data-pane="changes" aria-selected="false">Changes</button></div></div>
-      <div class="lp-body" id="lpBody"></div>
-    </aside>
+    <octet-bench id="bench" back="Back to reading"></octet-bench>
   </div>
 </div>
 <script src="figures.js"></script>
 <script src="blocks.js"></script>
+<script type="module" src="bench/index.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

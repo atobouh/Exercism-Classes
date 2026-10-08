@@ -215,7 +215,7 @@ body { font: 400 14px/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; }
 .toast.hide { opacity: 0; transform: translate(-50%, 10px); pointer-events: none; }
 
 /* LAB: a canvas you can build on, a panel per device */
-.labw { position: absolute; inset: 0; z-index: 40; background: var(--bg); display: grid; grid-template-columns: minmax(0, 1fr) 440px; grid-template-rows: 54px minmax(0, 1fr); opacity: 0; pointer-events: none; transform: scale(0.985); transition: opacity 200ms ease, transform 240ms var(--ease-out); }
+.labw { position: absolute; inset: 0; z-index: 40; background: oklch(17.5% 0.006 250); display: grid; opacity: 0; pointer-events: none; transform: scale(0.985); transition: opacity 200ms ease, transform 240ms var(--ease-out); }
 .labw.on { opacity: 1; pointer-events: auto; transform: none; }
 .lab-bar { grid-column: 1 / 3; display: flex; align-items: center; gap: 12px; padding: 0 16px 0 10px; border-bottom: 1px solid var(--line); }
 .iconbtn { width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--ink2); transition: background-color 100ms ease; }
@@ -553,3 +553,7 @@ img, svg { -webkit-user-drag: none; }
 .course .chip { font: 400 13px/1.4 var(--f-ui); }
 .cmdline input:focus-visible { outline: none; }
 .ex-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* the lab is the bench */
+#bench { width: 100%; height: 100%; }
+#bench:focus { outline: none; }

@@ -6,7 +6,6 @@ use octet_core::bundle;
 use octet_core::content::{load_book, load_library, sort_shelf, Blueprint, Block, Book, Command, Question, Recall};
 use octet_core::review::{describe, Grade};
 use octet_core::store::{Highlight, Piece, PieceKind, Store};
-use octet_sim::{Kind, Lab};
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
@@ -22,7 +21,6 @@ pub struct App {
     pub broken: Vec<String>,
     blueprints: Vec<Blueprint>,
     labs_dir: PathBuf,
-    lab: Option<Lab>,
     clock: Option<i64>,
 }
 
@@ -87,7 +85,7 @@ impl App {
         let store = Store::open(data).map_err(|e| e.to_string())?;
         let user_books = data.parent().map(|d| d.join("books")).unwrap_or_else(|| PathBuf::from("books"));
         let blueprints = Blueprint::load_dir(&content.join("exam")).map_err(|e| e.to_string())?;
-        let mut app = Self { books: vec![], store, content: content.to_path_buf(), user_books, broken: vec![], blueprints, labs_dir: content.join("labs"), lab: None, clock: None };
+        let mut app = Self { books: vec![], store, content: content.to_path_buf(), user_books, broken: vec![], blueprints, labs_dir: content.join("labs"), clock: None };
         app.reload()?;
         Ok(app)
     }
@@ -164,10 +162,6 @@ impl App {
             _ => return None,
         };
         Some((p.meta.title.clone(), ask))
-    }
-
-    fn lab(&mut self) -> Result<&mut Lab, String> {
-        self.lab.as_mut().ok_or_else(|| "no lab is open".to_string())
     }
 
     /// Where your copy of a book lives: the whole book if you added it, or
@@ -441,65 +435,26 @@ impl App {
                 Ok(Value::Null)
             }
             "about" => Ok(json!({ "data": self.store.path().display().to_string(), "books": self.user_books.display().to_string(), "version": env!("CARGO_PKG_VERSION") })),
-            "lab_open" => {
+            // A bench lab, as JSON for <octet-bench>, with your saved bench if any.
+            "lab_def" => {
                 let id: String = arg(args, "id")?;
-                if id.contains(['/', '\\', '.']) {
+                if !octet_core::content::valid_id(&id) {
                     return Err("bad lab id".into());
                 }
-                let src = std::fs::read_to_string(self.labs_dir.join(format!("{id}.toml"))).map_err(|e| format!("can't open lab {id}: {e}"))?;
-                let lab = Lab::from_toml(&src).map_err(|e| e.to_string())?;
-                self.lab = Some(lab);
-                self.call("lab_state", &Value::Null)
+                let lab = octet_core::content::read_lab(&self.labs_dir.join(format!("{id}.toml")))?;
+                let rec = self.store.data.labs.iter().find(|l| l.lab == id);
+                Ok(json!({ "lab": lab, "state": rec.and_then(|r| r.state.clone()), "passed": rec.is_some_and(|r| r.passed), "notes": rec.map(|r| r.notes.clone()).unwrap_or_default() }))
             }
-            "lab_state" => {
-                let lab = self.lab()?;
-                let prompts: serde_json::Map<String, Value> = lab.device_names().into_iter().map(|n| (n.clone(), json!(lab.prompt(&n)))).collect();
-                Ok(json!({ "view": lab.view(), "tasks": lab.run_checks(), "prompts": prompts, "summary": lab.def.summary }))
-            }
-            "lab_exec" => {
-                let dev: String = arg(args, "device")?;
-                let line: String = arg(args, "line")?;
-                let r = self.lab()?.exec(&dev, &line).ok_or_else(|| format!("no device {dev}"))?;
-                let lab = self.lab()?;
-                Ok(json!({ "result": r, "view": lab.view() }))
-            }
-            "lab_checks" => {
-                let lab = self.lab()?;
-                let tasks = lab.run_checks();
-                let all = tasks.iter().all(|t| t.pass);
-                let id = lab.def.id.clone();
-                let view = lab.view();
-                if all {
-                    let notes: String = arg(args, "notes").unwrap_or_default();
-                    self.store.lab_passed(&id, &notes).map_err(s)?;
-                }
-                Ok(json!({ "tasks": tasks, "passed": all, "view": view }))
-            }
-            "lab_ports" => {
-                let dev: String = arg(args, "device")?;
-                Ok(json!(self.lab()?.ports(&dev)))
-            }
-            "lab_changes" => {
-                let dev: String = arg(args, "device")?;
-                Ok(json!(octet_sim::diff::hunks(&self.lab()?.changes(&dev))))
-            }
-            "lab_move" => {
-                let (d, x, y): (String, f32, f32) = (arg(args, "device")?, arg(args, "x")?, arg(args, "y")?);
-                self.lab()?.move_device(&d, x, y);
+            "lab_save" => {
+                let id: String = arg(args, "id")?;
+                let state: Value = arg(args, "state")?;
+                self.store.lab_save(&id, state).map_err(s)?;
                 Ok(Value::Null)
             }
-            "lab_add" => {
-                let kind: Kind = arg(args, "kind")?;
-                let (x, y): (f32, f32) = (arg(args, "x")?, arg(args, "y")?);
-                let lab = self.lab()?;
-                let name = lab.add_device(kind, x, y);
-                Ok(json!({ "name": name, "view": lab.view(), "prompt": lab.prompt(&name) }))
-            }
-            "lab_connect" => {
-                let (a, b): (String, String) = (arg(args, "a")?, arg(args, "b")?);
-                let lab = self.lab()?;
-                let link = lab.connect(&a, &b)?;
-                Ok(json!({ "link": link, "view": lab.view() }))
+            "lab_pass" => {
+                let id: String = arg(args, "id")?;
+                self.store.lab_passed(&id, &arg::<String>(args, "notes").unwrap_or_default()).map_err(s)?;
+                Ok(Value::Null)
             }
             other => Err(format!("unknown command {other}")),
         }
@@ -532,15 +487,18 @@ mod tests {
     fn answering_makes_a_card_and_a_mistake() {
         let (mut a, _d) = app();
         let page = a.call("page", &json!({ "id": "srwe/03/03-vlan-trunks" })).unwrap();
-        let qi = page["page"]["blocks"].as_array().unwrap().iter().position(|b| b["type"] == "question").unwrap();
-        let r = a.call("answer", &json!({ "page": "srwe/03/03-vlan-trunks", "block": qi, "choice": 0 })).unwrap();
+        let blocks = page["page"]["blocks"].as_array().unwrap();
+        let qi = blocks.iter().position(|b| b["type"] == "question" && b["answer"].is_number()).unwrap();
+        let right = blocks[qi]["answer"].as_u64().unwrap() as usize;
+        let wrong = if right == 0 { 1 } else { 0 };
+        let r = a.call("answer", &json!({ "page": "srwe/03/03-vlan-trunks", "block": qi, "choice": wrong })).unwrap();
         assert_eq!(r["correct"], false);
         assert_eq!(r["next"], "In 10 minutes");
         let wrong = a.call("collection", &json!({ "id": "wrong" })).unwrap();
         assert_eq!(wrong["pieces"].as_array().unwrap().len(), 1);
         a.set_clock(1_000_000 + 601);
         let due = a.call("review_due", &Value::Null).unwrap();
-        assert_eq!(due[0]["answer"], "Tagged 10");
+        assert_eq!(due[0]["answer"], blocks[qi]["options"][right]);
         a.call("review_grade", &json!({ "id": due[0]["id"], "grade": "good" })).unwrap();
         assert!(a.call("review_due", &Value::Null).unwrap().as_array().unwrap().is_empty());
     }
@@ -581,7 +539,8 @@ mod tests {
     #[test]
     fn a_shipped_book_takes_your_changes_and_gives_them_back() {
         let (mut a, _d) = app();
-        let before = a.books.iter().find(|b| b.id == "srwe").unwrap().page_count();
+        let srwe = a.books.iter().find(|b| b.id == "srwe").unwrap();
+        let (before, ch1) = (srwe.page_count(), srwe.chapters[0].pages.len());
         let text = "=== book ===\nid = \"srwe\"\ntitle = \"Switching, Routing and Wireless\"\nshort = \"CCNA 2\"\ncloth = \"plum\"\npattern = \"traces\"\n[[chapter]]\nnumber = 1\ntitle = \"Basic device configuration\"\n=== page 1 01-mine ===\n+++\ntitle = \"My page\"\n+++\nMine.\n";
         let c = a.call("book_check", &json!({ "text": text })).unwrap();
         assert_eq!((c["ok"].as_bool(), c["shipped"].as_bool()), (Some(true), Some(true)));
@@ -589,7 +548,7 @@ mod tests {
         let b = a.books.iter().find(|b| b.id == "srwe").unwrap();
         assert!(b.changed && !b.yours);
         assert_eq!(b.cloth, "navy");
-        assert_eq!(b.page_count(), before + 1, "chapter 3 is still the shipped one");
+        assert_eq!(b.page_count(), before - ch1 + 1, "your chapter 1 replaces the shipped one; the rest stay");
         let all = a.call("book_export", &json!({ "id": "srwe" })).unwrap();
         let all = all.as_str().unwrap();
         assert!(all.contains("=== page 1 01-mine ===") && all.contains("=== page 3 03-vlan-trunks ==="));
@@ -600,18 +559,20 @@ mod tests {
     }
 
     #[test]
-    fn lab_round_trip() {
+    fn a_bench_lab_loads_saves_and_passes() {
         let (mut a, _d) = app();
-        let st = a.call("lab_open", &json!({ "id": "srwe-03-router-on-a-stick" })).unwrap();
-        assert_eq!(st["view"]["fault"]["device"], "R1");
-        for l in ["conf t", "int g0/0/1.20", "encap dot1q 20", "end"] {
-            a.call("lab_exec", &json!({ "device": "R1", "line": l })).unwrap();
-        }
-        let c = a.call("lab_checks", &json!({ "notes": "the tag was 30" })).unwrap();
-        assert_eq!(c["passed"], true);
+        let def = a.call("lab_def", &json!({ "id": "srwe-03-router-on-a-stick" })).unwrap();
+        assert_eq!(def["lab"]["title"], "Router-on-a-stick");
+        assert_eq!(def["lab"]["device"][0]["id"], "R1");
+        assert!(def["state"].is_null());
+        a.call("lab_save", &json!({ "id": "srwe-03-router-on-a-stick", "state": { "cables": [] } })).unwrap();
+        a.call("lab_pass", &json!({ "id": "srwe-03-router-on-a-stick", "notes": "the tag was 30" })).unwrap();
+        let def = a.call("lab_def", &json!({ "id": "srwe-03-router-on-a-stick" })).unwrap();
+        assert_eq!((def["passed"].as_bool(), def["notes"].as_str()), (Some(true), Some("the tag was 30")));
+        assert!(def["state"]["cables"].is_array());
         let lib = a.call("library", &Value::Null).unwrap();
         let ch = &lib["books"][1]["chapters"][2]["pages"];
         assert_eq!(ch.as_array().unwrap().last().unwrap()["passed"], true);
-        assert!(a.call("lab_open", &json!({ "id": "../secrets" })).is_err());
+        assert!(a.call("lab_def", &json!({ "id": "../secrets" })).is_err());
     }
 }
