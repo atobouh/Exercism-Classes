@@ -22,7 +22,7 @@ WPA2 is the product of the 802.11i standard. Its mandatory cipher is AES, used i
 
 WPA3 keeps AES but changes four things.
 
-**SAE replaces the PSK handshake.** In WPA3-Personal, the client and AP run *SAE* (Simultaneous Authentication of Equals), a password-based key exchange from the Dragonfly family. An observer who records the exchange gains nothing to test guesses against. Each guess requires talking to the AP live, so an attacker cannot run billions of guesses on a graphics card at home. The AP can also rate-limit failures.
+**SAE replaces the PSK handshake.** In WPA3-Personal, the client and AP run *SAE* (Simultaneous Authentication of Equals), a password-based key exchange from the Dragonfly family. An observer who records the exchange gains nothing to test guesses against. Each guess requires talking to the AP live, so an attacker cannot run billions of guesses on a graphics card at home.
 
 **Forward secrecy.** SAE gives every session fresh, independent keys. If someone learns the passphrase next year, traffic they recorded today stays unreadable. Under WPA2-Personal, the passphrase unlocks every recorded session.
 

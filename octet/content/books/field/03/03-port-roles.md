@@ -27,7 +27,7 @@ A port's cost comes from its speed. Switches add the costs along the way and com
 | 1 Gb/s | 4 | 20,000 |
 | 10 Gb/s | 2 | 2,000 |
 
-The short method dates from when 1 Gb/s was the fastest link anyone expected, and it gives 10 Gb/s and 100 Gb/s links nearly the same cost. The long method keeps them apart. Switch to it with `spanning-tree pathcost method long` in global configuration. Which method is the default depends on platform and release, so check rather than assume: `show spanning-tree summary` shows the method in use. Every switch in the domain should use the same one, or the totals will not be comparable.
+The short method is the older scheme. It squeezes faster links into small numbers, so a 10 Gb/s link costs 2 and a 1 Gb/s link costs 4. The long method spreads them further apart. Switch to it with `spanning-tree pathcost method long` in global configuration. Which method is the default depends on platform and release, so check rather than assume: `show spanning-tree summary` shows the method in use. Every switch in the domain should use the same one, or the totals will not be comparable.
 
 ## The tie-breakers
 
