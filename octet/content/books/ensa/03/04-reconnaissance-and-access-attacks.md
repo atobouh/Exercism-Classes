@@ -107,7 +107,7 @@ On a router or switch, you can make online password guessing much slower. This c
 prompt = "Block logins for 120 seconds after 3 failed attempts within 60 seconds."
 mode = "R1(config)#"
 answer = ["login block-for 120 attempts 3 within 60"]
-why = "A guessing tool that is stopped for two minutes after every three tries can test only a handful of passwords an hour."
+why = "A guessing tool that is stopped for two minutes after every three tries can test at most about 90 passwords an hour (three tries every two minutes)."
 ```
 
 ```recall

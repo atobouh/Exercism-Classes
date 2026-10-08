@@ -80,10 +80,13 @@ C:\> ipconfig /all
 Ethernet adapter Ethernet0:
 
    DHCP Enabled. . . . . . . . . . . : Yes
+   ...
    IPv4 Address. . . . . . . . . . . : 192.168.10.20(Preferred)
    Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   ...
    Default Gateway . . . . . . . . . : 192.168.10.66
    DHCP Server . . . . . . . . . . . : 192.168.10.66
+   ...
    DNS Servers . . . . . . . . . . . : 192.168.10.66
 ```
 

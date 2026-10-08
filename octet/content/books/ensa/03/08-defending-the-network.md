@@ -105,7 +105,7 @@ Passwords need a policy. Length is the largest factor, so set a sensible minimum
 prompt = "Require every new password on this router to be at least 10 characters long."
 mode = "R1(config)#"
 answer = ["security passwords min-length 10"]
-why = "This enforces a minimum length for passwords entered on the router. It does not apply retroactively to passwords already configured."
+why = "This enforces a minimum length for passwords entered on the router. It does not apply retroactively to passwords already configured. Some switch releases lack this command; newer IOS XE offers `aaa common-criteria policy` instead."
 ```
 
 ```recall

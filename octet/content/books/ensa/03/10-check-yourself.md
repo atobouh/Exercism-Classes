@@ -63,7 +63,14 @@ answer = [1, 2]
 why = "Worms spread on their own, using a flaw, and every worm attack has the three parts. Needing a user to open a file describes a virus, and a payload can be anything."
 ```
 
-## Reconnaissance, access, social engineering
+## Reconnaissance, access, denial of service, social engineering
+
+```question
+prompt = "An attacker sends one malformed packet that makes a vulnerable service crash for everyone, and gains no access to the host. Which category of attack is this?"
+options = ["Reconnaissance", "Access attack", "Social engineering", "Denial of service"]
+answer = 3
+why = "The aim and the result are that legitimate users lose the service, which is denial of service. Nothing was learned about the network and no access was gained."
+```
 
 ```question
 prompt = "Which pairing of attack and stage is correct?"
@@ -73,7 +80,7 @@ why = "Port scans collect information, which is reconnaissance. Password guessin
 ```
 
 ```question
-prompt = "A caller says she is from the bank's fraud department and asks the user to read out a code that was just sent to the user's phone. Which technique is this?"
+prompt = "A caller says she is from the bank's fraud department and asks the user to read out a code that the bank sent to the user's phone a minute ago. Which technique is this?"
 options = ["Tailgating", "Pretexting", "Baiting", "Shoulder surfing"]
 answer = 1
 why = "The caller invented a believable story to get information, which is pretexting. Tailgating and shoulder surfing are physical, and baiting leaves a tempting item behind."
@@ -103,6 +110,11 @@ why = "Only Bob's private key can open what Bob's public key locked. Encrypting 
 ```
 
 ## Cards to keep
+
+```recall
+front = "What are the three parts of the CIA triad, and which attack mainly threatens each?"
+back = "Confidentiality (eavesdropping, data theft), integrity (data modification) and availability (denial of service)."
+```
 
 ```recall
 front = "What does a stateful firewall check that a packet filter does not?"

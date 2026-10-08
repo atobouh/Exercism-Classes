@@ -13,7 +13,7 @@ This page goes through the weak spots one layer at a time: the IP header, ICMP, 
 Every IP packet carries a source address, and the destination host (and every router on the way) has to take it on trust. Nothing in the header authenticates it.
 
 ```fields
-title = "IPv4 header (the fields the attacks below touch)"
+title = "IPv4 header (without options)"
 caption = "No field proves who really sent the packet. The checksum only protects the header from accidental damage."
 unit = "bits"
 row = 32
@@ -83,7 +83,7 @@ When a SYN arrives, the server allocates memory for a new connection, replies wi
 prompt = "Why does a SYN flood leave the server with half-open connections?"
 options = ["The attacker sends FIN packets that never finish closing", "The server's SYN-ACK goes to a spoofed address that never replies with the final ACK", "The attacker sends the ACK before the SYN", "The server runs out of ports on the client side"]
 answer = 1
-why = "The attacker's source addresses are forged, or the attacker simply never answers. The server waits for an ACK that does not come, and each wait costs a table entry."
+why = "The attacker's source addresses are forged, or the attacker never answers. The server waits for an ACK that does not come, and each wait costs a table entry."
 ```
 
 ### Reset attack
