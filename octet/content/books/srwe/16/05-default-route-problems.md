@@ -8,7 +8,7 @@ A default route is a bet that "everything else lives that way". When the bet is 
 
 ## Two defaults pointing at each other
 
-R3 should send unknown traffic to an ISP at 198.51.100.2. Someone entered `ip route 0.0.0.0 0.0.0.0 172.16.23.1` instead, which is R2. R2 already has a default route toward R3, 172.16.23.2.
+R3 should send unknown traffic to the ISP at 198.51.100.1. Someone entered `ip route 0.0.0.0 0.0.0.0 172.16.23.1` instead, which is R2. R2 already has a default route toward R3, 172.16.23.2.
 
 A packet for an address neither router knows now bounces. R2 sends it to R3, R3 sends it back to R2, and each pass lowers the TTL by one until it reaches zero. From R1, a traceroute shows the loop.
 
@@ -33,6 +33,7 @@ C:\> ping 203.0.113.9
 Pinging 203.0.113.9 with 32 bytes of data:
 Reply from 172.16.23.1: TTL expired in transit.
 Reply from 172.16.23.1: TTL expired in transit.
+...
 ```
 
 Internal traffic still works, since the specific routes win, so the fault looks like "the internet is down". Fix it by pointing R3's default at the ISP.
@@ -60,7 +61,7 @@ Traffic to R3's LAN works because a specific route exists. Traffic to 203.0.113.
 
 A floating route is meant to sit out of the table until the primary route fails. That depends on its *administrative distance* (AD) being higher than the primary's.
 
-- **Equal AD.** A backup entered without a distance gets 1, the same as the primary. Both are installed and the router shares traffic over both. Half the packets use the backup path while the primary is perfectly healthy.
+- **Equal AD.** A backup entered without a distance gets 1, the same as the primary. Both are installed and the router shares traffic over both. Different destinations can leave by the backup path while the primary is perfectly healthy.
 - **Lower AD.** The backup beats the primary and takes over at once. The intended main path becomes the spare.
 - **Too low to back up a protocol.** Over a dynamic route, the AD must exceed the protocol's. A static backup with AD 5 would replace an OSPF route (AD 110), not wait behind it. Use 115 or more.
 
@@ -69,7 +70,7 @@ R1# show ip route 192.168.3.0
 Routing entry for 192.168.3.0/24
   Known via "static", distance 1, metric 0
   Routing Descriptor Blocks:
-  * 172.16.13.2
+  * 10.10.10.2
       Route metric is 0, traffic share count is 1
     172.16.12.2
       Route metric is 0, traffic share count is 1
@@ -83,7 +84,7 @@ The opposite complaint: the primary link fails and the backup does not take over
 
 ## IPv6 defaults with a link-local next hop
 
-An IPv6 default whose next hop is a link-local address, such as `FE80::E4A:1BFF:FE00:1`, is only meaningful on one link. The router needs an exit interface to know which link. Entered without one, IOS rejects the command with a message that an interface has to be specified. The fully specified form works:
+An IPv6 default whose next hop is a link-local address, such as `FE80::E4A:1BFF:FE00:1`, is only meaningful on one link. The router needs an exit interface to know which link. Entered without one, IOS rejects the command with `% Interface has to be specified for a link-local nexthop`. The form that names the exit interface works:
 
 ```command
 prompt = "Add an IPv6 default route toward the link-local next hop FE80::2 out of G0/0/1."

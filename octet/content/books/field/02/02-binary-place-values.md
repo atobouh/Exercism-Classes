@@ -30,7 +30,7 @@ Zeros cost nothing, so scan for the ones and ignore the rest. Both of those are 
 prompt = "What is the decimal value of the octet 00101101?"
 options = ["45", "52", "173", "181"]
 answer = 0
-why = "The ones sit under 32, 8, 4 and 1. 32 + 8 + 4 + 1 = 45. 173 and 181 come from reading the bits in the wrong direction or adding the wrong columns."
+why = "The ones sit under 32, 8, 4 and 1. 32 + 8 + 4 + 1 = 45. The other options do not match the columns that hold a 1."
 ```
 
 ## Decimal to binary: subtract the largest that fits
