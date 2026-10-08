@@ -48,12 +48,15 @@ The mask `255.255.255.255` means "every bit must match," which is a /32. In the 
 R1# show ip route static
 Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 ...
-Gateway of last resort is not set
+Gateway of last resort is 172.16.12.2 to network 0.0.0.0
 
+S*    0.0.0.0/0 [1/0] via 172.16.12.2
       192.168.3.0/24 is variably subnetted, 2 subnets, 2 masks
 S        192.168.3.0/24 [1/0] via 172.16.12.2
 S        192.168.3.10/32 [1/0] via 10.10.10.2
 ```
+
+The default route from earlier is still configured, so it leads the list. The header line groups the two routes for 192.168.3.0 under their classful network, and says it holds two subnets with two masks.
 
 The IPv6 version uses a /128 prefix.
 

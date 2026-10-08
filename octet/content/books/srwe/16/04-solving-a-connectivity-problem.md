@@ -45,7 +45,7 @@ Sending 5, 100-byte ICMP Echos to 192.168.3.10, timeout is 2 seconds:
 Success rate is 0 percent (0/5)
 ```
 
-R1 reaches R2, so the link is healthy. It cannot reach PC3, and a traceroute adds nothing: it prints only `* * *` lines, because the first hop never answers. The packet dies at R1, which narrows the search to one router's table.
+R1 reaches R2, so the link is healthy. It cannot reach PC3. A traceroute from R1 would not get past R1 either, because its probes have no route to follow. The packet dies at R1, which narrows the search to one router's table.
 
 ## Compare the table with the topology
 
@@ -113,7 +113,7 @@ Request timed out.
 Request timed out.
 ```
 
-Timeouts, not unreachable messages. The forward path works, since the earlier test passed, so suspect the return path. R1's own ping used the address 172.16.12.1 as its source, and R3 has a route to that link. PC1's packets use 192.168.1.10. An extended ping from the LAN interface repeats PC1's test from the router.
+Timeouts, not unreachable messages. The forward path works, since the earlier test passed, so suspect the return path. R1's plain ping used the address 172.16.12.1 as its source. It works, so R3 has a way back to that link. PC1's packets use 192.168.1.10 instead, and R3 may have no route to that LAN. An extended ping from the LAN interface repeats PC1's test from the router.
 
 ```console R1
 R1# ping 192.168.3.10 source g0/0/0
@@ -131,7 +131,29 @@ R3# show ip route 192.168.1.10
 % Network not in table
 ```
 
-R3 has no route to PC1's LAN. Add one with a next hop of 172.16.23.1, R2's address on that link, and repeat the extended ping from R1. This time it shows `!!!!!`, and PC1's ping gets replies. The same check should be done on R2, which needs the same route.
+R3 has no route to PC1's LAN. Add one with a next hop of 172.16.23.1, R2's address on that link.
+
+```command
+prompt = "On R3, add a route to PC1's LAN through R2 at 172.16.23.1."
+mode = "R3(config)#"
+answer = ["ip route 192.168.1.0 255.255.255.0 172.16.23.1"]
+why = "The return packet needs a route back to 192.168.1.0/24, and R2 is the next hop that reaches it."
+```
+
+Repeat the extended ping from R1. This time it shows `!!!!!`, and PC1's ping gets replies. Check R2 the same way, since the reply passes through it. Then PC1 traces the full path to PC3 and every hop is the one you expect.
+
+```console PC1
+C:\> tracert 192.168.3.10
+
+Tracing route to 192.168.3.10 over a maximum of 30 hops:
+
+  1    <1 ms    <1 ms    <1 ms  192.168.1.1
+  2     1 ms     1 ms     1 ms  172.16.12.2
+  3     1 ms     1 ms     1 ms  172.16.23.2
+  4     1 ms     1 ms     1 ms  192.168.3.10
+
+Trace complete.
+```
 
 ```question
 prompt = "PC1 can ping its gateway but not PC3, and the failure message comes from R1. Which command best shows whether R1 has a usable route to PC3?"

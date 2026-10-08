@@ -26,15 +26,16 @@ R1(config)# ipv6 route ::/0 2001:db8:feed:10::2 5
 
 ## Both are configured, only one is in the table
 
-The running configuration holds both lines.
+The running configuration holds both default routes. The route to 192.168.3.0/24 from the earlier pages is listed with them.
 
 ```console R1
 R1# show running-config | section ip route
 ip route 0.0.0.0 0.0.0.0 172.16.12.2
 ip route 0.0.0.0 0.0.0.0 10.10.10.2 5
+ip route 192.168.3.0 255.255.255.0 172.16.12.2
 ```
 
-The routing table shows only the winner.
+The routing table shows only the winner for each destination.
 
 ```console R1
 R1# show ip route static
@@ -43,6 +44,7 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 Gateway of last resort is 172.16.12.2 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 172.16.12.2
+S        192.168.3.0/24 [1/0] via 172.16.12.2
 ```
 
 If you look for the backup in `show ip route` and cannot find it, nothing is wrong. That is how a floating route is supposed to behave.
@@ -73,7 +75,7 @@ The route now reads `[5/0]`, and the gateway of last resort has moved to R3. Run
 
 ## Picking the number
 
-The backup's AD must be higher than the AD of the route it backs up, and no higher than 255 (a route at 255 is never used).
+The backup's AD must be higher than the AD of the route it backs up. Keep it below 255, because a route with AD 255 is never installed.
 
 | Route being backed up | AD | A usable floating AD |
 | --- | --- | --- |

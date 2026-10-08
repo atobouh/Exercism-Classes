@@ -20,6 +20,13 @@ Work out what each router must know before typing anything.
 | R2 | 192.168.1.0/24 via 172.16.12.1; 192.168.3.0/24 via 172.16.23.2 | 2001:db8:acad:1::/64 via 2001:db8:acad:12::1; 2001:db8:acad:3::/64 via 2001:db8:acad:23::2 |
 | R3 | default via 198.51.100.1; 192.168.1.0/24 via 172.16.23.1, floating via 10.10.10.1 at AD 5 | `::/0` via 2001:db8:feed:1::1; 2001:db8:acad:1::/64 via 2001:db8:acad:23::1, floating via R1's link-local on G0/1/0 |
 
+Most of these routes already exist from the earlier pages. What is new is R3's default toward the ISP, which points at the provider's `.1` address for each protocol:
+
+```console R3
+R3(config)# ip route 0.0.0.0 0.0.0.0 198.51.100.1
+R3(config)# ipv6 route ::/0 2001:db8:feed:1::1
+```
+
 ```command
 prompt = "On R1, add the floating IPv4 default route toward R3 at 10.10.10.2 with administrative distance 5."
 mode = "R1(config)#"
@@ -46,8 +53,8 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 ...
 Gateway of last resort is not set
 
-S     192.168.1.0/24 [1/0] via 172.16.12.1
-S     192.168.3.0/24 [1/0] via 172.16.23.2
+S        192.168.1.0/24 [1/0] via 172.16.12.1
+S        192.168.3.0/24 [1/0] via 172.16.23.2
 ```
 
 ```console R3
@@ -57,7 +64,7 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 Gateway of last resort is 198.51.100.1 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 198.51.100.1
-S     192.168.1.0/24 [1/0] via 172.16.23.1
+S        192.168.1.0/24 [1/0] via 172.16.23.1
 ```
 
 The floating routes are absent from both outputs, as they should be. R3's IPv6 table counts four connected networks, four local addresses and the multicast entry, plus its two static routes.
@@ -90,7 +97,7 @@ Tracing route to 192.168.3.10 over a maximum of 30 hops:
 Trace complete.
 ```
 
-Hop 1 is R1, hop 2 is R2's address toward R1, hop 3 is R3's address toward R2. Now take R2 out of service by shutting both of its interfaces. R1 and R3 each lose the connected route that their primary next hop depended on, so both primary routes leave the table and both floating routes appear. Run the trace again and it passes through 10.10.10.2 on its way to PC3. Shutting only one end of the failed path would leave the other router still sending traffic into R2, a gap that static routing never repairs on its own.
+Hop 1 is R1, hop 2 is R2's address toward R1, hop 3 is R3's address toward R2. Now take R2 out of service by shutting both of its interfaces. Both ends of the R2 links go down with the shutdown, so R1 and R3 each lose the connected route for the link that led to R2. The static routes that used those next hops leave the table, and the floating routes appear in their place. Run the trace again and it passes through 10.10.10.2 on its way to PC3. Shutting only R2's interface on the R1 side would be a different case. R3 would keep sending LAN 1 traffic into a link that is still up, and R2 could not deliver it. The static route stays in the table because the link never went down, so nothing fails over. Static routes do not detect that kind of failure.
 
 ```drill
 ipv6
