@@ -42,7 +42,7 @@ why = "A level below 15 sees only the part of the configuration it is allowed to
 
 ## Method lists
 
-A device does not hard-code one way of checking. It follows a *method list*: an ordered set of methods for one job. This is the line you will meet in the next page.
+A device does not hard-code one way of checking. It follows a *method list*: an ordered set of methods for one job. You will type lines like this one when you configure AAA later in this chapter.
 
 ```text
 aaa authentication login default group tacacs+ local
