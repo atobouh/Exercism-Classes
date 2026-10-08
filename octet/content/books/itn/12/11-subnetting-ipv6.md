@@ -51,7 +51,7 @@ nodes = [
 links = [
   { a = "A", b = "R1", b_label = "G0/0/0" },
   { a = "B", b = "R1", b_label = "G0/0/1" },
-  { a = "R1", b = "R2", a_label = "S0/1/0", b_label = "S0/1/0", label = "acad:5::/64", style = "serial" },
+  { a = "R1", b = "R2", a_label = "S0/1/0", b_label = "S0/1/0", label = "2001:db8:acad:5::/64", style = "serial" },
   { a = "R2", b = "C", a_label = "G0/0/0" },
   { a = "R2", b = "D", a_label = "G0/0/1" },
 ]

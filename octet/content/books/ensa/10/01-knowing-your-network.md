@@ -42,7 +42,7 @@ why = "The devices disagree about the time. NTP synchronizes their clocks. Syslo
 
 ## Why accurate time matters
 
-Time is easy to ignore until you need it. Three things depend on it.
+Most people ignore the clock until they need it. Three things depend on it.
 
 First, **logs**. When a problem crosses several devices, you rebuild the story by sorting all their messages by time. If each clock is wrong in its own way, the story cannot be rebuilt, and you cannot tell which device failed first.
 
@@ -50,7 +50,7 @@ Second, **certificates**. A digital certificate is valid between two dates. A de
 
 Third, **troubleshooting with other people**. A provider asks, "what time did the link drop?" You can only give an answer they can check if your clock is right.
 
-A device with no battery-backed clock may start with a default date after a power loss. Many routers do have one, but even those drift by seconds each week. That is why the answer is to ask a reference clock regularly, not to set the time once by hand.
+A device with no battery-backed clock may start with a default date after a power loss. Even a device with a clock battery drifts over time, so setting the time once by hand is not enough. The answer is to ask a reference clock regularly.
 
 ```trap
 Syslog does not fix timestamps. The sending device stamps each message, using its own clock. If that clock is wrong, the server stores a wrong time, faithfully.
