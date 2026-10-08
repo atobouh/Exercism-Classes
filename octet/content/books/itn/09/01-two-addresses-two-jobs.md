@@ -4,7 +4,7 @@ summary = "A host knows the IP address it wants. To build the frame, it also nee
 links = ["itn/03/08-addresses-at-each-layer", "itn/08/05-how-a-host-routes", "itn/09/02-arp-request-and-reply", "itn/09/06-ipv6-neighbor-discovery", "itn/07/03-mac-addresses"]
 +++
 
-You open a command prompt on PC1 and type `ping 192.168.1.20`. You know exactly who you want to reach, and so does PC1. The IP packet is easy to build: the source is 192.168.1.10 and the destination is 192.168.1.20. But a packet cannot travel on a wire by itself. It has to ride inside an Ethernet frame, and an Ethernet frame needs a destination MAC address. PC1 has only an IP address. This chapter is about how it closes that gap.
+You open a command prompt on PC1 and type `ping 192.168.1.20`. You know exactly who you want to reach, and so does PC1. The IP packet is straightforward to build: the source is 192.168.1.10 and the destination is 192.168.1.20. But a packet cannot travel on a wire by itself. It has to ride inside an Ethernet frame, and an Ethernet frame needs a destination MAC address. PC1 has only an IP address. This chapter is about how it closes that gap.
 
 ## Two addresses, two jobs
 
