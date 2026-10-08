@@ -24,7 +24,7 @@ One AP also runs the controller software for the others. On older APs this was c
 
 ## Cloud-managed
 
-With Cisco Meraki, APs are managed from a web dashboard on the internet. There is no local controller. The management plane (configuration, monitoring, firmware) is in the cloud. The data plane stays local: client traffic goes from the AP straight onto the local network and never travels to the cloud. If the internet link fails, existing APs keep serving clients using their last configuration. You just cannot change settings until contact returns.
+With Cisco Meraki, APs are managed from a web dashboard on the internet. There is no local controller. The management plane (configuration, monitoring, firmware) is in the cloud. The data plane stays local: client traffic goes from the AP straight onto the local network and never travels to the cloud. If the internet link fails, existing APs keep serving clients using their last configuration. You cannot change settings until contact returns.
 
 ```question
 prompt = "In a cloud-managed (Meraki) design, where does user traffic go?"
