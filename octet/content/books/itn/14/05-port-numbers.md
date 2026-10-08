@@ -42,7 +42,7 @@ The Internet Assigned Numbers Authority (IANA) manages port numbers and splits t
 | 1024 to 49151 | Registered | Applications that registered a number with IANA |
 | 49152 to 65535 | Dynamic or private | Client source ports, chosen on the fly |
 
-Some operating systems use a different range for client ports, for example 32768 and up on many Linux systems. The IANA range is the one to know.
+Some operating systems use a different range for client ports, for example 32768 to 60999 on many Linux systems. The IANA range is the one to know.
 
 ## Common ports
 

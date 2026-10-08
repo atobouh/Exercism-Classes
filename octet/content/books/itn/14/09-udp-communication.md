@@ -17,12 +17,16 @@ The sender also does not know whether the datagram arrived. No acknowledgment ex
 UDP uses [port numbers](itn/14/05-port-numbers) in the same way as TCP. A server listens on its well-known port, for example UDP 53 for DNS. The client picks a random source port from the dynamic range, puts the server's port in the destination field and sends. The server's reply swaps them, so the answer returns to the program that asked.
 
 ```console PC1
-C:\>netstat -an | find "UDP"
+C:\>netstat -an
+Active Connections
+
+  Proto  Local Address          Foreign Address        State
+  TCP    ...
   UDP    0.0.0.0:68             *:*
   UDP    192.168.1.20:52011     *:*
 ```
 
-UDP has no states, so `netstat` shows nothing under State and no foreign address. The first line is the DHCP client port 68, open and ready. The second is a high port held by some program that has a UDP socket open.
+UDP has no states, so `netstat` shows `*:*` in the Foreign Address column and nothing under State. The first UDP line is the DHCP client port 68, open and ready. The second is a high port held by some program that has a UDP socket open.
 
 ## Lost, late and out of order
 

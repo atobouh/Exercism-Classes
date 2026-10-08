@@ -55,6 +55,13 @@ why = "The client sends SYN, the server replies with SYN and ACK together, and t
 ```
 
 ```question
+prompt = "One host has no more data for a TCP session and wants to close its side. Which flag does it send?"
+options = ["SYN", "RST", "FIN", "PSH"]
+answer = 2
+why = "FIN says the sender is finished. The other side acknowledges it and later sends its own FIN. RST is for abrupt ends, not a polite close."
+```
+
+```question
 prompt = "A client sends a segment with sequence number 12,000 carrying 1,460 bytes of data. The server has received everything so far. What acknowledgment number does it send?"
 options = ["12,000", "12,001", "13,460", "13,461"]
 answer = 2
@@ -78,6 +85,13 @@ why = "Flow control protects the receiver. Loss in the network triggers congesti
 ```
 
 ```question
+prompt = "Which TCP header field gives the header's length, so the receiver knows where the data starts?"
+options = ["Window Size", "Header Length", "Urgent Pointer", "Checksum"]
+answer = 1
+why = "Header Length (also called Data Offset) counts 32-bit words. It is 5 when there are no options, which means 20 bytes."
+```
+
+```question
 prompt = "What are the minimum header sizes of TCP and UDP?"
 options = ["TCP 20 bytes, UDP 8 bytes", "TCP 8 bytes, UDP 20 bytes", "TCP 40 bytes, UDP 16 bytes", "Both are 20 bytes"]
 answer = 0
@@ -93,7 +107,7 @@ back = "SYN from the client, SYN and ACK from the server, then ACK from the clie
 
 ```recall
 front = "How do you work out the acknowledgment number for a segment?"
-back = "Its sequence number plus the number of data bytes it carried, as long as nothing is missing before it."
+back = "Its sequence number plus the number of data bytes it carried, plus one for a SYN or FIN, as long as nothing is missing before it."
 ```
 
 ```recall

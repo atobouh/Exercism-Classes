@@ -15,7 +15,7 @@ A server program starts by opening a port and waiting, for example a web server 
 Three segments open a session. The client is 192.168.1.20 using source port 51234. The server is 203.0.113.10 listening on 443. Each side picks a random starting sequence number, its *initial sequence number* (ISN). The numbers below are examples.
 
 1. **SYN.** The client sends a segment with SYN set and its ISN, 3,422,104,051. It says: I want a session, and I will number my bytes from here.
-2. **SYN-ACK.** The server replies with both SYN and ACK set. It carries its own ISN, 1,876,400,002, and acknowledges the client's with 3,422,104,052. The SYN takes up one number, so the next byte it expects is the ISN plus 1.
+2. **SYN-ACK.** The server replies with both SYN and ACK set. It carries its own ISN, 1,876,400,002, and acknowledges the client's with 3,422,104,052. The SYN takes up one number, so the server's first data byte will carry the sequence number ISN plus 1.
 3. **ACK.** The client sends a segment with ACK set and acknowledgment number 1,876,400,003. The session is open and data may flow.
 
 | Step | From | Flags | Sequence | Acknowledgment |

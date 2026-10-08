@@ -4,7 +4,7 @@ summary = "UDP adds ports and a checksum to IP and nothing more. That is exactly
 links = ["itn/14/02-tcp-features", "itn/14/03-the-tcp-header", "itn/14/09-udp-communication", "itn/14/05-port-numbers"]
 +++
 
-Some traffic does not want what TCP sells. A video call that stops for half a second to recover one lost frame is worse than one that skips a frame and moves on. A DNS question is a single small packet, and a three-segment handshake before it would triple the work. For these, the TCP/IP suite provides *UDP*, the User Datagram Protocol. It is deliberately small.
+Some traffic does not want what TCP sells. A video call that stops for half a second to recover one lost frame is worse than one that skips a frame and moves on. A DNS question is a single small packet, and a three-segment handshake before it would add three more packets to a two-packet exchange. For these, the TCP/IP suite provides *UDP*, the User Datagram Protocol. It is deliberately small.
 
 ## What UDP does and does not do
 
