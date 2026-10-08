@@ -110,9 +110,9 @@ why = "DAI depends on the DHCP snooping binding table. Without it, hosts have no
 
 ```question
 prompt = "Which two settings protect against BPDUs arriving from a switch an attacker plugged into a user port?"
-options = ["spanning-tree portfast", "spanning-tree bpduguard enable", "switchport port-security", "switchport nonegotiate"]
+options = ["spanning-tree portfast bpduguard default", "spanning-tree bpduguard enable", "switchport port-security", "switchport nonegotiate"]
 answer = [0, 1]
-why = "PortFast marks the port as an edge, and BPDU guard shuts it when a BPDU appears. Port security watches MAC addresses, and nonegotiate controls DTP."
+why = "BPDU guard shuts a port when a BPDU arrives. You can enable it on one port, or on every PortFast port at once. PortFast alone does not stop BPDUs. Port security watches MAC addresses, and nonegotiate controls DTP."
 ```
 
 ## Two more commands

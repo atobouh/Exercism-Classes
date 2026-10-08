@@ -13,7 +13,7 @@ Every frame and packet carries a source address, and nothing in the protocols ch
 - *MAC spoofing* sets the sender's MAC to another device's. The switch updates its table and starts sending that host's frames to the attacker's port. An attacker can also copy a trusted MAC to get past a filter that allows only listed machines.
 - *IP spoofing* forges the source IP, to impersonate a host, evade an address-based ACL, or hide the real origin of a flood.
 
-The defenses use what the switch already knows about each port. Port security can pin a port to specific MAC addresses. *IP Source Guard* (IPSG) drops traffic from a port whose source IP or MAC does not match the DHCP snooping binding table. DAI catches the matching forgery in ARP messages.
+The defenses use what the switch already knows about each port. Port security can pin a port to specific MAC addresses. *IP Source Guard* (IPSG) drops traffic from a port whose source IP or MAC does not match the DHCP snooping binding table. DAI checks ARP messages for forged IP-to-MAC pairs.
 
 ## STP manipulation
 
@@ -56,10 +56,17 @@ S1# show cdp neighbors detail
 Device ID: R1
 Entry address(es):
   IP address: 10.1.1.1
-Platform: Cisco ISR4331,  Capabilities: Router Switch IGMP
+Platform: cisco ISR4331/K9,  Capabilities: Router Switch IGMP
 Interface: GigabitEthernet0/1,  Port ID (outgoing port): GigabitEthernet0/0/1
 Holdtime : 156 sec
 ...
+```
+
+```question
+prompt = "An attacker captures CDP advertisements on a switch port. Which information from them helps plan a later attack?"
+options = ["The contents of the switch's MAC table", "The neighbor's IOS version, IP addresses and native VLAN", "Passwords typed by users on the segment", "The spanning tree priority of every VLAN"]
+answer = 1
+why = "CDP advertisements are in clear text and carry device details such as the IOS version, addresses and native VLAN. They do not carry user passwords or the MAC table."
 ```
 
 ## Turning discovery off

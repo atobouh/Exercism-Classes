@@ -41,7 +41,7 @@ why = "The firewall only sees traffic that crosses it. An attacker who plugs int
 
 The OSI layers sit on top of each other. Routing, encryption and application security all depend on the frame being delivered to the right place first. If an attacker controls how frames move at Layer 2, the layers above inherit the damage. Encryption can still protect the contents, but the attacker may now be the one who sees the traffic, redirects it or cuts it off.
 
-Layer 2 is easy to neglect for three reasons. Switches work out of the box with no configuration, so many networks never harden them. Ports are open by default. And the protocols that keep a LAN running, such as ARP, DHCP and STP, accept messages from anyone on the segment without checking who sent them.
+Layer 2 gets neglected for three reasons. Switches work out of the box with no configuration, so many networks never harden them. Ports are open by default. And the protocols that keep a LAN running, such as ARP, DHCP and STP, accept messages from anyone on the segment without checking who sent them.
 
 ## Defense in depth
 

@@ -58,7 +58,7 @@ Each `ip arp inspection validate` command replaces the one before it. Typing `va
 
 ## Limits and static hosts
 
-Untrusted ports are rate limited to 15 ARP packets per second by default. A port that exceeds the limit is put into the error-disabled state, just like a port security shutdown, and you recover it the same way.
+Untrusted ports are rate limited to 15 ARP packets per second by default. A port that exceeds the limit is put into the error-disabled state, in the same way as a port security shutdown, and you recover it the same way.
 
 A host with a static IP address never used DHCP, so it has no binding. Its ARP messages are dropped as forged. Handle such hosts in one of two ways: make the port they use trusted, or write an ARP access list (`arp access-list`) that names the allowed IP and MAC pair and apply it with `ip arp inspection filter`. Servers, printers and routers with fixed addresses are the usual cases.
 

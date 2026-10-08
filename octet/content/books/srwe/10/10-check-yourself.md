@@ -40,6 +40,13 @@ why = "TACACS+ is Cisco developed, uses TCP 49 and encrypts the whole body. RADI
 ```
 
 ```question
+prompt = "A network engineer wants a record of every login and every command an administrator types, kept for audits. Which AAA function provides that?"
+options = ["Authentication", "Authorization", "Accounting", "Encryption"]
+answer = 2
+why = "Accounting records what a user did. Authentication checks who the user is, and authorization decides what the user may do."
+```
+
+```question
 prompt = "In 802.1X, the switch is the:"
 options = ["Supplicant", "Authentication server", "Authenticator", "Accounting agent"]
 answer = 2
@@ -67,7 +74,7 @@ why = "The attack needs the attacker's access VLAN to equal the native VLAN. An 
 | CDP and LLDP recon | Disable on edge ports |
 
 ```recall
-front = "Which ports do RADIUS (authentication and accounting) and TACACS+ use?"
+front = "Which ports do RADIUS and TACACS+ use?"
 back = "RADIUS: UDP 1812 and 1813. TACACS+: TCP 49."
 ```
 
