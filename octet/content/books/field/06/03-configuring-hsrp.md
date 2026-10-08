@@ -4,7 +4,7 @@ summary = "Building an HSRP group on two routers or switches and reading `show s
 links = ["field/06/02-how-hsrp-works", "field/06/04-tracking-and-preemption", "field/06/05-hsrp-load-sharing", "field/03/02-bridge-id-and-root-election"]
 +++
 
-Two routers, one subnet, one virtual gateway. The configuration is short, but several of its lines must match on both routers, and that is where most problems start. This page builds group 10 for VLAN 10 on R1 and R2 (ISR 4000 routers), then reads the output.
+Two routers, one subnet, one virtual gateway. The configuration is short, but several of its lines must match on both routers, and that is where most problems start. This page builds group 10 for VLAN 10 on R1 and R2 (ISR 4331 routers), then reads the output.
 
 ## R1: the preferred router
 
@@ -20,7 +20,7 @@ R1(config-if)# standby 10 preempt
 R1(config-if)# no shutdown
 ```
 
-Version 2 comes first because changing the version later resets the groups on the interface. The group number (10) is local to the segment: it only has to match between the routers. Using the VLAN number makes the output easier to read, and in version 2 it gives a recognizable virtual MAC, 0000.0c9f.f00a.
+Set the version first, so every group line after it applies to the version you chose. The group number (10) is local to the segment: it only has to match between the routers. Using the VLAN number makes the output easier to read, and in version 2 it gives a recognizable virtual MAC, 0000.0c9f.f00a.
 
 ```command
 prompt = "Give this interface the HSRP virtual IP address 192.168.10.254 in group 10."
@@ -40,7 +40,7 @@ R2(config-if)# standby 10 preempt
 R2(config-if)# no shutdown
 ```
 
-R2 needs the same group number, the same version and the same virtual IP. Only the priority differs: R2 keeps the default of 100. Giving R2 `preempt` as well is deliberate, and the next page shows why.
+R2 needs the same group number, the same version and the same virtual IP. Its priority is what makes it the backup: it keeps the default of 100. It also gets `preempt`, for a reason the next page explains.
 
 Hosts use 192.168.10.254 as their default gateway, never 192.168.10.1 or .2. A host pointed at R1's real address would lose the internet when R1 fails, even with a perfectly healthy group.
 
@@ -95,7 +95,7 @@ why = "A standby router is learned from hellos. If none arrive, either the peer 
 
 ## Options worth knowing
 
-Faster failover. Version 2 accepts millisecond timers. The hold time must be longer than the hello time, and a common ratio is about three hellos.
+Faster failover. Version 2 accepts millisecond timers. The hold time must be longer than the hello time.
 
 ```console R1
 R1(config-if)# standby 10 timers msec 200 msec 750
@@ -109,7 +109,7 @@ Authentication keeps a stray router from joining your group. Both routers need t
 R1(config-if)# standby 10 authentication md5 key-string S3cretKey
 ```
 
-Without it HSRP accepts a plain-text default key. Anyone on the segment who can send a hello with a higher priority and preemption can take over your gateway.
+Without it, any router on the segment that sends hellos for group 10 can try to join the group. A stray router with a higher priority could then take over your gateway.
 
 IPv6 uses version 2 and one extra line, which derives a link-local virtual address from the virtual MAC.
 

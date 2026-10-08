@@ -30,7 +30,7 @@ why = "The object number follows `track`, and `decrement` sets how much to subtr
 
 R1 has priority 110. When the uplink fails, it drops to 90. R2 has the default 100. Now R2 outranks R1. For the roles to move, two things have to be true.
 
-1. The decrement must be large enough to put R1 **below** R2. A decrement of 5 gives 105, which is still above 100, and nothing happens. A decrement that lands exactly on 100 is a tie, decided by the higher IP, which is R2's 192.168.10.2, so it would work, but it is fragile.
+1. The decrement must be large enough to put R1 **below** R2. A decrement of 5 gives 105, which is still above 100, and nothing happens. A decrement of 10 lands exactly on 100, a tie with R2. The tie goes to the higher interface IP, which is R2's 192.168.10.2, so R2 would take over. That works, but it leaves the result to a tie-break rather than a clear priority gap.
 2. R2 must have `preempt`. Without it, R2 is only the standby and waits for R1 to fail outright.
 
 That is why R2 got `standby 10 preempt` on the previous page.
@@ -50,7 +50,7 @@ When the uplink returns, R1 climbs back to 110. With `preempt` on R1 it retakes 
 R1(config-if)# standby 10 preempt delay minimum 30
 ```
 
-R1 waits at least 30 seconds before preempting. Use a value longer than your routing protocol needs to learn its routes, and test it. On R2 the delay is usually not needed, because a takeover is urgent.
+R1 waits at least 30 seconds before preempting. Use a value longer than your routing protocol needs to learn its routes, and test it. Only the router that preempts needs the delay, so here it goes on R1.
 
 ```console R1
 R1# show standby brief
@@ -65,7 +65,6 @@ After the failure, R1's priority reads 90 and it is Standby. The log shows the m
 ```console R1
 %TRACK-6-STATE: 1 interface Gi0/0/2 line-protocol Up -> Down
 %HSRP-5-STATECHANGE: GigabitEthernet0/0/1 Grp 10 state Active -> Speak
-%HSRP-5-STATECHANGE: GigabitEthernet0/0/1 Grp 10 state Speak -> Standby
 ```
 
 ## Reading the tracking lines
@@ -81,7 +80,7 @@ R1# show standby
 R1# show track
 Track 1
   Interface GigabitEthernet0/0/2 line-protocol
-  Line protocol is Down
+  Line protocol is Down (hw down)
     2 changes, last change 00:00:41
   Tracked by:
     HSRP GigabitEthernet0/0/1 10

@@ -4,7 +4,7 @@ summary = "The open-standard FHRP: master and backup, an owner that always wins,
 links = ["srwe/09/03-fhrp-options", "field/06/02-how-hsrp-works", "field/06/03-configuring-hsrp", "field/06/07-glbp", "field/06/08-troubleshooting-fhrp"]
 +++
 
-HSRP belongs to Cisco. If your gateways are a mix of vendors, or you simply want a standard, you use the *Virtual Router Redundancy Protocol* (VRRP). The idea is the same as HSRP, with different names, a different timer, and one behavior that catches HSRP veterans: preemption is on by default.
+HSRP belongs to Cisco. If your gateways are a mix of vendors, or you want an open standard, you use the *Virtual Router Redundancy Protocol* (VRRP). The idea is the same as HSRP, with different names, a different timer, and one behavior that catches HSRP veterans: preemption is on by default.
 
 ## How it works
 
@@ -19,9 +19,9 @@ The group is a *virtual router* with an ID from 1 to 255. The working router is 
 | Advertisement interval | 1 second |
 | Default priority | 100 |
 
-Only the master sends advertisements, not every member, which is a small difference from HSRP. The backups wait; if they hear nothing for about three advertisement intervals, a backup takes over. As in HSRP, the highest priority wins, and a higher IP address breaks ties.
+Only the master sends advertisements, not every member, which is a small difference from HSRP. The backups wait. If they hear nothing for the master down interval, about three advertisement intervals plus a small skew based on priority, a backup takes over. As in HSRP, the highest priority wins, and a higher IP address breaks ties.
 
-A router can be the *owner* of the group when the virtual IP address is its own real interface address. The owner has priority 255 and is always the master. That works when only two routers share a subnet and you give the virtual address to one of them, but then that router's own address becomes the gateway, which you cannot move away from it. Most designs use a separate virtual address, as we did with HSRP.
+A router can be the *owner* of the group when the virtual IP address is its own real interface address. The owner has priority 255 and is always the master while it is up. Most designs use a separate virtual address, as we did with HSRP, so the gateway does not depend on one router's own address.
 
 ## Configuring VRRPv3
 
@@ -37,7 +37,7 @@ R1(config-if-vrrp)# priority 110
 R1(config-if-vrrp)# exit
 ```
 
-R2 gets the same lines with its own address, 192.168.10.2, and no `priority` line, so it keeps 100. There is no `preempt` command to type, because preemption is already on. If you do not want it, `no preempt` turns it off.
+R2 gets the same lines with its own address, 192.168.10.2, and no `priority` line, so it keeps 100. You do not need a `preempt` line, because preemption is already on. To turn it off, use `no preempt`.
 
 On older IOS versions you may see the VRRPv2 form on the interface, which has no address family.
 
@@ -61,7 +61,7 @@ Interface          Grp  A-F  Pri  Time  Own Pre State   Master addr/Group addr
 Gi0/0/1            10   IPv4 110  3570       Y  Master  192.168.10.1    192.168.10.254
 ```
 
-The `Pre` column shows `Y` without your having configured it. `Own` is blank here because the virtual address is not R1's own. `show vrrp` prints more detail, including the virtual MAC. The `Time` value is the master down timer in milliseconds, which depends on the priority.
+The `Pre` column shows `Y` without your having configured it. `Own` is blank here because the virtual address is not R1's own. `show vrrp` prints more detail, including the virtual MAC. The `Time` value is the master down interval in milliseconds: 3 seconds plus a skew that depends on the priority. At priority 110 that is 3.57 seconds.
 
 ## HSRP and VRRP side by side
 
@@ -84,7 +84,7 @@ why = "VRRP preempts by default, so the higher-priority router reclaims the mast
 ```
 
 ```trap
-Default preemption is helpful, but a returning router can take the master role before its routes are ready. Decide whether you want that behavior instead of assuming it, and use `no preempt` or a preempt delay if you do not.
+Preemption is on by default, so a returning router can take the master role before its routes have converged. Decide whether you want that, rather than assuming it. To turn it off, use `no preempt` under the group.
 ```
 
 ```recall

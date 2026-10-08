@@ -38,7 +38,7 @@ links = [
 
 ## Both switches, side by side
 
-The priorities are mirrored: whichever switch is preferred for a VLAN gets 110, and the other keeps the default 100. Spanning tree priorities are set the same way.
+The HSRP priorities are mirrored: whichever switch is preferred for a VLAN gets 110, and the other keeps the default 100. Spanning tree gets the same split, with `root primary` on the preferred switch and `root secondary` on the other.
 
 ```console D1
 D1(config)# spanning-tree vlan 10 root primary

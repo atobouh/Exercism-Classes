@@ -26,7 +26,7 @@ This is *split brain*. Each router believes the other is dead because their hell
 - An ACL on a switch or router blocks the hello multicast (224.0.0.102 UDP 1985 in version 2).
 - The two interfaces are in different subnets, or different VLANs.
 
-Test it with a ping between the real addresses: 192.168.10.1 to 192.168.10.2. If that fails, HSRP is not the problem, the Layer 2 path is. Hosts see symptoms too: two routers answer ARP for the gateway, and the switch's MAC table for the virtual MAC keeps moving between ports, producing MAC flapping messages.
+Test it with a ping between the real addresses: 192.168.10.1 to 192.168.10.2. If that fails, HSRP is not the problem, the Layer 2 path is. Hosts see symptoms too: both routers answer ARP for the gateway, and a switch may report the virtual MAC moving between ports.
 
 ## Mismatches that stop a group forming
 
@@ -34,14 +34,10 @@ The group number, the version, the virtual IP and the authentication must agree.
 
 | Mismatch | What you see |
 | --- | --- |
-| Group number | Two groups of one router each, both active, each with a different virtual MAC |
-| Version | Same: v1 and v2 hellos use different multicast addresses and are ignored |
-| Virtual IP | A log message that the active router's virtual IP differs from the local one |
-| Authentication | `%HSRP-4-BADAUTH` messages naming the neighbor |
-
-```console R1
-%HSRP-4-BADAUTH: Bad authentication from 192.168.10.2, group 10, remote state Active
-```
+| Group number | Each router is alone in its own group, so both are active, each with its own virtual MAC |
+| Version | Each version listens only on its own multicast address, so the peer's hellos are never seen |
+| Virtual IP | The routers do not form the group, and `show standby` shows the peer as unknown |
+| Authentication | A mismatched key produces `%HSRP-4-BADAUTH` syslog messages |
 
 The fix for each is to make the lines identical on both routers and compare with `show standby` on each.
 
@@ -79,6 +75,7 @@ Gi1/0/48    on           802.1q         trunking      1
 
 Port        Vlans allowed on trunk
 Gi1/0/48    20,30
+...
 ```
 
 VLAN 10 is missing from the allowed list. Someone pruned it by hand. The fix is one line, and the group settles in seconds.
@@ -110,6 +107,6 @@ back = "Below HSRP, in the Layer 2 path: a trunk allowed list, a missing VLAN or
 ```
 
 ```recall
-front = "Which three settings must match for an HSRP group to form?"
+front = "Which settings must match for an HSRP group to form?"
 back = "Group number, version and virtual IP, plus the authentication key if used."
 ```

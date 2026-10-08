@@ -8,7 +8,7 @@ The courses give you the roles and the timers. This page puts the details togeth
 
 ## Roles and election
 
-In one HSRP group, one router is *active*: it owns the virtual IP, answers ARP for it and forwards the frames sent to the virtual MAC. One router is *standby*: it takes over if the active router goes quiet. Any other members simply listen.
+In one HSRP group, one router is *active*: it owns the virtual IP, answers ARP for it and forwards the frames sent to the virtual MAC. One router is *standby*: it takes over if the active router goes quiet. Any other members listen.
 
 The election is deterministic. The highest *priority* wins, from 0 to 255, with 100 as the default. On a tie, the router with the higher interface IP address wins. With 192.168.10.1 and 192.168.10.2 both at 100, R2 becomes active. That surprises people who assumed that .1 would win.
 
@@ -22,7 +22,7 @@ A router moves through these states as it joins a group.
 
 | State | What the router is doing |
 | --- | --- |
-| Initial | HSRP is not running yet, for example the interface just came up |
+| Initial | HSRP is not running yet, for example right after the interface comes up |
 | Learn | It has not seen the virtual IP and waits to learn it from the active router |
 | Listen | It knows the virtual IP and listens for hellos but is neither active nor standby |
 | Speak | It sends hellos and takes part in the election |
@@ -51,13 +51,13 @@ answer = 1
 why = "Version 2 uses 0000.0c9f.fXXX with the group number in hex, and 20 is 0x14. 0000.0c07.ac14 is the version 1 form, and 0000.5e00.01XX belongs to VRRP."
 ```
 
-The versions do not talk to each other. A router on version 1 and one on version 2 build separate groups and each decides it is active. IPv6 HSRP needs version 2, and in IPv6 its virtual MAC is 0005.73a0.0XXX.
+The two versions are not compatible. Every router in a group must run the same version, so you cannot mix them in one group. IPv6 HSRP needs version 2, and in IPv6 its virtual MAC is 0005.73a0.0XXX.
 
 ## Preemption and the takeover
 
 By default a router with a better priority does not take the active role from a working one. That behavior, called *preemption* when enabled, is off. The next page turns it on.
 
-When a standby router becomes active it must tell the switches where the virtual MAC is now. It does so by sending HSRP hellos whose source MAC address is the virtual MAC and by sending a gratuitous ARP for the virtual IP. The switch sees the virtual MAC arrive on a new port and updates its MAC table. Without this step the switch would keep sending frames toward the failed router until the table entry aged out.
+When a standby router becomes active it must tell the switches where the virtual MAC is now. It sends a gratuitous ARP for the virtual IP, with the virtual MAC as the source. The switch sees the virtual MAC arrive on a new port and updates its MAC table. Without this step the switch would keep sending frames toward the failed router until the table entry aged out.
 
 ```recall
 front = "HSRP version 1 and 2: multicast addresses, port and virtual MAC formats?"

@@ -18,6 +18,8 @@ So the fix has to live in the network. The gateway address the hosts hold must s
 
 A *first hop redundancy protocol* (FHRP) gives a group of routers one *virtual IP address* and one *virtual MAC address*. Throughout this chapter the LAN is 192.168.10.0/24, R1 has the real address 192.168.10.1, R2 has 192.168.10.2, and the virtual gateway is 192.168.10.254. The PCs use .254 and never learn that two routers exist.
 
+R1 and R2 are ISR 4331 routers, which have three built-in Gigabit Ethernet ports, Gi0/0/0 to Gi0/0/2. This chapter puts the LAN on Gi0/0/1 and the uplink on Gi0/0/2.
+
 ```diagram
 caption = "R1 and R2 share the virtual gateway 192.168.10.254. Both reach the ISP."
 nodes = [

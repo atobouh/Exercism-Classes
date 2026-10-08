@@ -8,7 +8,7 @@ HSRP and VRRP keep one router working and one waiting, and the only way to use b
 
 ## Two roles
 
-One router in the group is the *active virtual gateway* (AVG). It is elected by priority, with the higher IP address breaking ties, and it is the only router that answers ARP requests for the virtual IP. The AVG also gives each other group member, and itself, a virtual MAC address. A router that forwards for one of those MACs is an *active virtual forwarder* (AVF). A group has at most four AVFs.
+One router in the group is the *active virtual gateway* (AVG). It is elected by priority (default 100), with the higher IP address breaking ties, and it is the only router that answers ARP requests for the virtual IP. The AVG also gives each other group member, and itself, a virtual MAC address. A router that forwards for one of those MACs is an *active virtual forwarder* (AVF). A group has at most four AVFs.
 
 The virtual MAC has the format 0007.b400.XXYY, where XX is the group number in hex and YY is the forwarder number. In group 10, forwarder 1 is 0007.b400.0a01 and forwarder 2 is 0007.b400.0a02. Hellos go to 224.0.0.102 over UDP 3222.
 
@@ -67,7 +67,7 @@ The first row is the group. The AVG state is Active, and the standby AVG is R2. 
 
 ## Preemption and platforms
 
-AVG preemption is off by default, so a returning higher-priority router does not take back the AVG role until you type `glbp 10 preempt`. AVF preemption is on by default, with a delay before a router takes back a forwarder role. GLBP is mainly a router feature, and many Catalyst switches do not support it, so check your platform before designing around it.
+AVG preemption is off by default, so a returning higher-priority router does not take back the AVG role until you type `glbp 10 preempt`. AVF preemption is on by default, with a 30 second delay before a router takes back a forwarder role. GLBP is mainly a router feature, and many Catalyst switches do not support it, so check your platform before designing around it.
 
 ## Choosing a protocol
 
