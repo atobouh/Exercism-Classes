@@ -65,7 +65,7 @@ why = "Snooping works per VLAN, so you name the VLANs to protect."
 
 The rate limit is what answers the exhaustion attack. A starvation tool sends requests in a flood, and a port that exceeds its limit is error-disabled. Real hosts send a handful of packets, well below 6 per second. Trust answers the rogue server problem, since a rogue behind an untrusted port is silenced.
 
-By default the switch also inserts a relay information field (option 82) into client requests. Some DHCP servers, including a router acting as the server behind the switch, reject requests that carry it. When DHCP fails for that reason, `no ip dhcp snooping information option` stops the switch from inserting it.
+By default the switch also inserts a relay information field (option 82) into client requests. Some DHCP servers and relay agents reject requests that carry it. When DHCP fails for that reason, `no ip dhcp snooping information option` stops the switch from inserting it.
 
 ```trap
 Turning snooping on makes every port untrusted, including the uplink. If you forget `ip dhcp snooping trust` on the port toward the server, the server's offers are dropped and no client on that VLAN gets an address.

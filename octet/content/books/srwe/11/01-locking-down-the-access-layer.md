@@ -19,7 +19,7 @@ S1(config-if-range)# shutdown
 S1(config-if-range)# end
 ```
 
-The space around the hyphen is part of the syntax. You can also list separate ranges with commas, such as `interface range fa0/1 - 4 , fa0/9 - 12`.
+You can also list separate ranges with commas, such as `interface range fa0/1 - 4 , fa0/9 - 12`.
 
 ```command
 prompt = "Select ports Fa0/8 through Fa0/24 for a single configuration."

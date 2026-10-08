@@ -8,7 +8,7 @@ Picture an office where nobody sits still. A designer carries a laptop to a meet
 
 ## What wireless gives you
 
-The benefits are easy to name and they drive almost every office design today.
+The benefits are quick to name and they drive almost every office design today.
 
 - **Mobility.** Users keep their session as they walk. The network follows the person, not the desk.
 - **Lower cabling cost.** Pulling copper through ceilings and walls is slow and expensive, and in old or protected buildings it may not be allowed. A few access points can cover a floor.
@@ -52,7 +52,7 @@ You can carry a laptop to all of these in one day: Bluetooth on the desk, Wi-Fi 
 
 Here is the biggest practical difference from the switched Ethernet you built earlier. On a switch port, one device has a private cable, and the link can send and receive at the same time. On a WLAN, every client of one access point shares the same radio channel. Only one device can transmit at a time, so a WLAN is *half duplex*, and clients must take turns.
 
-That sharing has a consequence you will meet again: more users on one access point means less airtime for each. It is why a design counts users and not just coverage, and why page 8 spends time on channels.
+That sharing has a consequence you will meet again: more users on one access point means less airtime for each. It is why a design counts users as well as coverage, and why page 8 spends time on channels.
 
 ```question
 prompt = "Why can 30 laptops on one access point feel slower than 30 PCs on separate switch ports?"

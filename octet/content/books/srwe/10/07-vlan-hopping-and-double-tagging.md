@@ -22,8 +22,8 @@ caption = "The outer tag carries the native VLAN, the inner tag carries the vict
 fields = [
   { name = "Destination MAC", span = 3, size = "6 bytes" },
   { name = "Source MAC", span = 3, size = "6 bytes" },
-  { name = "Outer 802.1Q tag", span = 2, size = "VLAN 1 (native)" },
-  { name = "Inner 802.1Q tag", span = 2, size = "VLAN 20 (victim)" },
+  { name = "Outer 802.1Q tag: VLAN 1 (native)", span = 2, size = "4 bytes" },
+  { name = "Inner 802.1Q tag: VLAN 20 (victim)", span = 2, size = "4 bytes" },
   { name = "Type and data", span = 5, size = "variable" },
   { name = "FCS", span = 2, size = "4 bytes" },
 ]

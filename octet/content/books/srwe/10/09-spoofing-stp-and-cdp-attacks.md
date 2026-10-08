@@ -19,20 +19,19 @@ The defenses use what the switch already knows about each port. Port security ca
 
 Spanning Tree Protocol picks one *root bridge*, the switch with the lowest bridge ID (priority first, then MAC address), and builds a loop-free tree around it. Switches send BPDUs to each other to agree. No one authenticates those BPDUs, so a device on an access port can take part.
 
-An attacker plugs in a device that sends BPDUs with a very low priority. If it is lower than the current root's, the topology recalculates and the attacker becomes the root. Paths now run through the attacker's port, so traffic that used to take a short route passes through them, where it can be captured. Each recalculation also briefly disrupts the network.
+An attacker plugs in a device that sends BPDUs with a very low priority. If it is lower than the current root's, the topology recalculates and the attacker becomes the root. Paths are rebuilt toward the new root, so traffic that used to take a short direct link now runs through the attacker's port, where it can be captured. Each recalculation also briefly disrupts the network.
 
 ```diagram
-caption = "A rogue device sends BPDUs with priority 0 and becomes the root. Traffic between S2 and S3 now crosses it."
+caption = "A rogue device sends BPDUs with priority 0 and becomes the root. Traffic between S1 and S3 now detours through it."
 nodes = [
-  { id = "S1", kind = "switch", x = 0, y = 0, label = "Old root" },
-  { id = "S2", kind = "switch", x = 1, y = 1 },
-  { id = "S3", kind = "switch", x = 2, y = 1 },
+  { id = "S1", kind = "switch", x = 0, y = 0.5, label = "Old root" },
   { id = "ATK", kind = "laptop", x = 1, y = 0, label = "Rogue root" },
+  { id = "S3", kind = "switch", x = 2, y = 0.5 },
 ]
 links = [
-  { a = "S1", b = "S2" },
-  { a = "S2", b = "S3" },
-  { a = "ATK", b = "S2" },
+  { a = "S1", b = "ATK" },
+  { a = "ATK", b = "S3" },
+  { a = "S1", b = "S3" },
 ]
 ```
 

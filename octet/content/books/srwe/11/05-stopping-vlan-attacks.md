@@ -73,7 +73,7 @@ S1(config-if-range)# shutdown
 If someone re-enables a port by accident, it leads into a VLAN that has no gateway and no hosts.
 
 ```trap
-Change the native VLAN on both ends of a trunk together. If only one end moves to 999, untagged frames land in different VLANs on each side, and traffic leaks without any error.
+Change the native VLAN on both ends of a trunk together. If only one end moves to 999, untagged frames land in different VLANs on each side. The switches may log a native VLAN mismatch warning, but the traffic keeps crossing the wrong VLAN.
 ```
 
 ## Verifying

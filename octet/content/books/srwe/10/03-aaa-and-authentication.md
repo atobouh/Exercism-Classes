@@ -56,7 +56,7 @@ With *server-based AAA*, the device forwards the login to a central server, and 
 | Encryption | Only the password in the packet | The whole body of the packet |
 | Strength | Widely supported, used for network access such as 802.1X | Fine-grained control, such as per-command authorization |
 
-Because TACACS+ separates the functions, one server can authenticate an admin and then approve or deny each command separately. RADIUS bundles authentication and authorization into one exchange, so it handles per-command control poorly, but it is the standard for user and device network access.
+Because TACACS+ separates the functions, one server can authenticate an admin and then approve or deny each command separately. RADIUS bundles authentication and authorization into one exchange and has no native per-command authorization, but it is the standard for user and device network access.
 
 ```question
 prompt = "A company wants to approve or deny each individual command that an administrator types on a router, and to encrypt the whole exchange. Which protocol fits?"
@@ -83,5 +83,5 @@ back = "Authentication: who are you? Authorization: what may you do? Accounting:
 
 ```recall
 front = "Which ports do RADIUS and TACACS+ use?"
-back = "RADIUS: UDP 1812 (authentication) and 1813 (accounting). TACACS+: TCP 49."
+back = "RADIUS: UDP 1812 (authentication and authorization) and 1813 (accounting). TACACS+: TCP 49."
 ```

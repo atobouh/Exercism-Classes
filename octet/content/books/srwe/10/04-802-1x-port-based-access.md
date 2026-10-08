@@ -62,7 +62,7 @@ The same model secures enterprise Wi-Fi. There, the access point or the wireless
 
 ## Why it helps against Layer 2 attacks
 
-A visitor's laptop has no credentials, so the port never opens and the later attacks in this chapter, which all need frames to flow, never start. Where 802.1X is not deployed, the other switch features covered next, such as port security and DHCP snooping, limit the damage from a connected device.
+A visitor's laptop has no valid credentials, so the port never opens for it. Most of the later attacks in this chapter need frames to flow through the port, so a port that has not authenticated stops them before they begin. Where 802.1X is not deployed, the other switch features covered next, such as port security and DHCP snooping, limit the damage from a connected device.
 
 ```recall
 front = "Name the three 802.1X roles and who plays each."

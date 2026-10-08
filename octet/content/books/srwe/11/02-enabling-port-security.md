@@ -61,7 +61,7 @@ S1(config-if)# switchport port-security mac-address sticky
 ```
 
 ```trap
-Sticky addresses appear in the running configuration, not the startup configuration. If you do not run `copy running-config startup-config`, a reload forgets them and the port starts learning again.
+Sticky addresses are written to the running configuration. They reach the startup configuration only when you run `copy running-config startup-config`. Without that save, a reload forgets them and the port starts learning again.
 ```
 
 ```command

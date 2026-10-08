@@ -10,7 +10,7 @@ ARP has no way to prove that a reply is true. A host that announces "10.0.10.1 i
 
 DAI looks at every ARP request and reply that arrives on an *untrusted* port. For each one it asks the DHCP snooping binding table: is this IP address really bound to this MAC address, on this port and VLAN? If yes, the ARP message goes through. If not, the switch drops it and logs it. The forged gateway claim never reaches the other hosts.
 
-This makes DAI wholly dependent on [DHCP snooping](srwe/11/06-dhcp-snooping). Without the binding table, DAI has no truth to compare against, and every legitimate ARP message on the VLAN would be dropped. So DHCP snooping must be enabled for the same VLANs first.
+This makes DAI wholly dependent on [DHCP snooping](srwe/11/06-dhcp-snooping). Without the binding table, DAI has no truth to compare against, and every legitimate ARP message arriving on an untrusted port would be dropped. So DHCP snooping must be enabled for the same VLANs first.
 
 ```question
 prompt = "What must be in place before DAI can protect a VLAN?"
@@ -50,7 +50,7 @@ S1(config)# ip arp inspection validate src-mac dst-mac ip
 | --- | --- |
 | `src-mac` | The Ethernet source MAC against the sender MAC inside the ARP message |
 | `dst-mac` | The Ethernet destination MAC against the target MAC inside the ARP reply |
-| `ip` | The ARP addresses for invalid values such as 0.0.0.0 and multicast, and the sender IP in every message |
+| `ip` | The sender IP in every ARP message, and the target IP in replies, for invalid values such as 0.0.0.0, 255.255.255.255 and multicast addresses |
 
 ```trap
 Each `ip arp inspection validate` command replaces the one before it. Typing `validate src-mac` and then `validate ip` leaves only the IP check on. List every check you want in a single command.

@@ -14,7 +14,7 @@ The table has a fixed size, which depends on the platform and model. Entries als
 
 ## The attack
 
-The attacker needs only one port. A tool such as `macof` sends a stream of frames, each with a random, never-before-seen source MAC. The switch dutifully learns each one. Such a tool can generate thousands of fake addresses per minute, so a table with room for a few thousand entries fills quickly.
+The attacker needs only one port. A tool such as `macof` sends a stream of frames, each with a random, never-before-seen source MAC. The switch dutifully learns each one. The rate depends on the sender's hardware and link, but a table with room for a few thousand entries can fill in seconds to minutes.
 
 ```diagram
 caption = "The attacker on F0/9 floods S1 with frames from fake source MACs. Real hosts can no longer be learned."
@@ -48,7 +48,7 @@ why = "A full table cannot learn the real hosts, so frames for them are treated 
 
 ## Stopping it
 
-The fix is to limit how many MAC addresses any one port is allowed to learn. *Port security* does exactly that. An access port that serves a single PC rarely needs more than one or two addresses, so you set a small maximum. When a frame arrives that would exceed it, the switch takes an action such as dropping the frame or shutting the port down. A flood from one port then ends within a handful of frames, long before the table fills. Chapter 11 shows the configuration in [Enabling port security](srwe/11/02-enabling-port-security).
+The fix is to limit how many MAC addresses any one port is allowed to learn. *Port security* does exactly that. An access port that serves a single PC rarely needs more than one or two addresses, so you set a small maximum. When a frame arrives that would exceed it, the switch takes an action such as dropping the frame or shutting the port down. A flood from one port then stops as soon as that port passes its limit, long before the table fills. Chapter 11 shows the configuration in [Enabling port security](srwe/11/02-enabling-port-security).
 
 ```trap
 Port security stops the flood at the port, but only if it is turned on. A switch with the defaults has no limit, so the first fake address is as welcome as the last.

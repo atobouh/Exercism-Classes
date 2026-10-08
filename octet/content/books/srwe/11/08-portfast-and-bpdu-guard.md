@@ -86,7 +86,7 @@ why = "BPDU guard treats any BPDU on a PortFast port as an error and shuts the p
 ```console S1
 S1# show spanning-tree summary
 Switch is in rapid-pvst mode
-Root bridge for: none
+...
 Extended system ID           is enabled
 Portfast Default             is enabled
 PortFast BPDU Guard Default  is enabled

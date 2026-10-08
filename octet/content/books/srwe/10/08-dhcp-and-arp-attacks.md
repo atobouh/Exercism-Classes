@@ -10,7 +10,7 @@ DHCP gives a new host its address, gateway and DNS server, and ARP lets it find 
 
 A DHCP server has a finite pool of addresses. In *DHCP starvation*, an attacker runs a tool such as Gobbler that sends a flood of DHCP Discover messages, each with a different forged client MAC. The server offers and leases an address to each, until the pool is empty. Real clients that arrive afterward get no address, so this is a denial of service.
 
-Starvation is often the first step of a second attack, because it removes the legitimate server from the picture.
+Starvation is often the first step of a second attack. Once the pool is empty, the only offers a client can receive come from a rogue server.
 
 ## DHCP spoofing
 

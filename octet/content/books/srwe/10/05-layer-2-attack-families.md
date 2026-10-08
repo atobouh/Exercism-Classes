@@ -41,7 +41,7 @@ A switch can be perfect against these attacks and still be exposed through how y
 | SNMPv1 and v2c (community strings in clear text) | SNMPv3 |
 | HTTP management | HTTPS |
 
-Where possible, keep management on its own path as well: a dedicated management VLAN, or an out-of-band network that user traffic never touches. An attacker on a user port then cannot even address the switch's management interface. For enabling SSH, see [Enabling SSH](itn/16/08-enabling-ssh).
+Where possible, keep management on its own path as well: a dedicated management VLAN, or an out-of-band network that user traffic never touches. An attacker on a user port then has no direct path to the switch's management interface. For enabling SSH, see [Enabling SSH](itn/16/08-enabling-ssh).
 
 ## Shut down and isolate unused ports
 

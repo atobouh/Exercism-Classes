@@ -67,7 +67,7 @@ S1(config-if)# shutdown
 S1(config-if)# no shutdown
 ```
 
-The `shutdown` is required. `no shutdown` alone does nothing on a port that is already administratively up, because the error-disabled state is separate. After the pair, the link comes up and the port returns to `Secure-up`.
+The `shutdown` is required. `no shutdown` alone usually does not clear the error-disabled state, because the port is already administratively up and the switch's error-disabled state is separate. After the pair, the link comes up and the port returns to `Secure-up`.
 
 ```trap
 Running `no shutdown` on its own, with the intruder still plugged in, only produces another violation. Clear the cause first, then cycle the port.
