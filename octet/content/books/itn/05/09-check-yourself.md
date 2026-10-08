@@ -6,6 +6,14 @@ links = ["itn/05/03-binary-to-decimal", "itn/05/04-decimal-to-binary", "itn/05/0
 
 This page mixes everything from the chapter. Work through the questions without looking back, then use the drills until the conversions feel like reading. Where you miss one, the explanation shows the working so you can see which step slipped. The skills here carry straight into subnetting in chapter 11 and IPv6 in chapter 12, so it is worth being fluent before you move on.
 
+## Habits worth keeping
+
+Three habits catch most mistakes in this chapter.
+
+- **Write the place values first.** Put 128 64 32 16 8 4 2 1 on paper before you convert anything. It costs five seconds and removes the commonest error, which is losing track of which bit is which.
+- **Convert back to check.** Add up the bits you wrote and confirm they match the number you started with. The same goes for hex: turn the result into bits and compare.
+- **Work in octets and nibbles.** Never treat 32 bits as one number. Convert an octet at a time in IPv4, and a nibble at a time in hex.
+
 ## Binary and decimal
 
 ```question
