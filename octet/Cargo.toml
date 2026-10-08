@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["crates/octet-sim"]
-default-members = ["crates/octet-sim"]
+members = ["crates/octet-sim", "crates/octet-core"]
+default-members = ["crates/octet-sim", "crates/octet-core"]
 
 [workspace.package]
 edition = "2021"

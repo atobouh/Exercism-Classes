@@ -1,0 +1,60 @@
+id = "ensa"
+title = "Enterprise Networking, Security and Automation"
+short = "CCNA 3"
+cloth = "ensa"
+
+[[chapter]]
+number = 1
+title = "Single-area OSPFv2 concepts"
+
+[[chapter]]
+number = 2
+title = "Single-area OSPFv2 configuration"
+
+[[chapter]]
+number = 3
+title = "Network security concepts"
+
+[[chapter]]
+number = 4
+title = "ACL concepts"
+
+[[chapter]]
+number = 5
+title = "ACLs for IPv4 configuration"
+
+[[chapter]]
+number = 6
+title = "NAT for IPv4"
+
+[[chapter]]
+number = 7
+title = "WAN concepts"
+
+[[chapter]]
+number = 8
+title = "VPN and IPsec concepts"
+
+[[chapter]]
+number = 9
+title = "QoS concepts"
+
+[[chapter]]
+number = 10
+title = "Network management"
+
+[[chapter]]
+number = 11
+title = "Network design"
+
+[[chapter]]
+number = 12
+title = "Network troubleshooting"
+
+[[chapter]]
+number = 13
+title = "Network virtualization"
+
+[[chapter]]
+number = 14
+title = "Network automation"

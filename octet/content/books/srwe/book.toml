@@ -1,0 +1,68 @@
+id = "srwe"
+title = "Switching, Routing and Wireless"
+short = "CCNA 2"
+cloth = "srwe"
+
+[[chapter]]
+number = 1
+title = "Basic device configuration"
+
+[[chapter]]
+number = 2
+title = "Switching concepts"
+
+[[chapter]]
+number = 3
+title = "VLANs"
+
+[[chapter]]
+number = 4
+title = "Inter-VLAN routing"
+
+[[chapter]]
+number = 5
+title = "STP concepts"
+
+[[chapter]]
+number = 6
+title = "EtherChannel"
+
+[[chapter]]
+number = 7
+title = "DHCPv4"
+
+[[chapter]]
+number = 8
+title = "SLAAC and DHCPv6"
+
+[[chapter]]
+number = 9
+title = "FHRP concepts"
+
+[[chapter]]
+number = 10
+title = "LAN security concepts"
+
+[[chapter]]
+number = 11
+title = "Switch security configuration"
+
+[[chapter]]
+number = 12
+title = "WLAN concepts"
+
+[[chapter]]
+number = 13
+title = "WLAN configuration"
+
+[[chapter]]
+number = 14
+title = "Routing concepts"
+
+[[chapter]]
+number = 15
+title = "IP static routing"
+
+[[chapter]]
+number = 16
+title = "Troubleshoot static and default routes"
