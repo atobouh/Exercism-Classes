@@ -4,7 +4,7 @@ summary = "Messages must be encoded, formatted, sized, timed and addressed for o
 links = ["itn/03/03-protocols-at-work", "itn/04/02-encoding-signaling-bandwidth", "itn/07/04-unicast-broadcast-multicast-macs", "itn/11/04-unicast-broadcast-multicast", "itn/12/10-ipv6-multicast", "itn/06/04-duplex-and-media-access"]
 +++
 
-Before a message can cross a network, five decisions have been made about it, either by you or by the protocols doing the work. Each one has a plain parallel in sending a letter, which makes them easy to remember. If any one is wrong, the message does not arrive in a usable form.
+Before a message can cross a network, five decisions have been made about it, either by you or by the protocols doing the work. Each one has a plain parallel in sending a letter, which helps you remember them. If any one is wrong, the message does not arrive in a usable form.
 
 ## Encoding
 

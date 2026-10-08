@@ -17,7 +17,7 @@ A wire can only do so much: it can be at one voltage or another, and it can chan
 | 1 | Rises from low to high |
 | 0 | Falls from high to low |
 
-Because there is always a change, the receiver can recover the timing from the signal itself. The cost is that the signal changes twice as often as the data rate would suggest, so the method wastes bandwidth. Faster Ethernet uses cleverer codes that carry more bits per change and still keep the receiver in step. Which code a link uses is part of its standard; you never configure it.
+Because there is always a change, the receiver can recover the timing from the signal itself. The cost is that the signal changes up to twice as often as the data rate, which wastes bandwidth. Faster Ethernet uses cleverer codes that carry more bits per change. The code is part of the link's standard; you never configure it.
 
 ```deeper
 Gigabit Ethernet over copper, 1000BASE-T, sends on all four pairs of the cable in both directions at once. It uses five voltage levels per symbol and sends 125 million symbols a second on each pair, which is how a cable rated for far lower frequencies carries a gigabit. The cable and the chips both have to be good enough, which is why a poorly made cable can negotiate 100 Mbps and refuse to do 1000.
@@ -33,7 +33,7 @@ Gigabit Ethernet over copper, 1000BASE-T, sends on all four pairs of the cable i
 | Fiber | Light | A light source turns on and off, or changes brightness |
 | Wireless | Radio wave | A wave is varied (its strength, phase or frequency) to stand for bits |
 
-Encoding is the pattern and signaling is the physics that carries it. Hold on to that split: a standard names both, so "10BASE-T" tells you the speed, that it is baseband signaling and that it runs on twisted pair.
+Encoding is the pattern and signaling is the physics that carries it. A standard names both.
 
 ```question
 prompt = "A receiver sees a signal with a change in voltage in the middle of every bit period. Which statement fits Manchester encoding?"
@@ -79,7 +79,7 @@ Take a 500 MB file (500,000,000 bytes) sent over a 1 Gbps link. The arithmetic i
 2. **Other traffic.** If the link is shared and your transfer gets 60 percent of it, you are at roughly 570 Mbps and the time is about 7 seconds.
 3. **Everything else.** The disk, the server's CPU, the TCP window waiting for acknowledgments across a high-latency path, and a busy switch queue all slow the real rate further.
 
-None of this means the link is broken. It means bandwidth is a ceiling, and throughput is whatever fits under it after the rest of the world has taken a share. When throughput falls far below what you expect on an otherwise quiet link, that is the moment to look at interface errors and duplex, covered in [troubleshooting interface errors](itn/17/08-interface-errors-and-duplex).
+None of this means the link is broken. Bandwidth is a ceiling, and throughput is what fits under it. When throughput falls far below expectations on a quiet link, look at interface errors and duplex, covered in [interface errors and duplex mismatch](itn/17/08-interface-errors-and-duplex).
 
 ```deeper
 The `BW 1000000 Kbit/sec` that `show interfaces` prints is not measured. It is a reference value that routing protocols such as OSPF use to compute cost, and you can change it with the `bandwidth` command without changing how fast the port runs.
