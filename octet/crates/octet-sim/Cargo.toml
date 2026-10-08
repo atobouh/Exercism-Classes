@@ -1,0 +1,12 @@
+[package]
+name = "octet-sim"
+description = "Octet's network simulator: devices, VLANs, trunks, routing and an IOS-style console"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+thiserror.workspace = true
