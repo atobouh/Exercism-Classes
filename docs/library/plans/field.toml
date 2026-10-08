@@ -1,0 +1,1852 @@
+book = "field"
+
+# ---------------------------------------------------------------------------
+# Chapter 1
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 1
+title = "Learning networking well"
+
+[[chapter.page]]
+name = "01-understanding-over-memorizing"
+title = "Understanding over memorizing"
+summary = "Why learning how a network behaves lasts longer, and works better, than memorizing facts about it."
+teaches = [
+  "The difference between knowing a fact (HSRP hello is 3 seconds) and understanding a mechanism (why a standby router needs hellos at all)",
+  "Facts worth memorizing are few: port numbers, defaults, timers, administrative distances; everything else should be derivable from how the protocol works",
+  "Asking 'what problem does this solve?' and 'what breaks without it?' for every feature, with STP and DHCP as examples",
+  "The three skills the reader is building: explain it, configure it, troubleshoot it, and why each needs the others",
+  "How this companion book relates to the three course books: it goes deeper on topics they skip or only touch",
+  "A plan for using each page: read, answer the questions, type the commands, then let the review cards bring it back",
+  "Misconception: reading a page twice is not the same as being able to recall it; testing yourself is what makes it stick",
+]
+
+[[chapter.page]]
+name = "02-follow-the-packet"
+title = "Follow the packet"
+summary = "One habit that explains most of networking: trace a single packet, hop by hop, and say what each device does to it."
+teaches = [
+  "The habit: for any scenario, pick one packet and walk it from sender to receiver, naming every decision on the way",
+  "What the host decides first: is the destination on my subnet (compare with the mask) or do I send to my default gateway",
+  "ARP before the first frame: the host resolves the gateway's MAC, not the remote host's MAC",
+  "At each router the frame is rebuilt: new source and destination MAC, same source and destination IP, TTL decreases by 1",
+  "At each switch the frame is unchanged: the switch learns the source MAC and forwards, floods or filters by destination MAC",
+  "Using the OSI layers as a map of where a decision happens (L2 switch, L3 router, L4 firewall or ACL), not as a list to recite",
+  "A worked walk: PC in VLAN 10 pings a server across one router, with a diagram and the MAC and IP pair on each link",
+  "How this habit becomes a troubleshooting method later (chapter 14): the packet stops somewhere, and that place tells you the layer",
+]
+
+[[chapter.page]]
+name = "03-building-a-practice-lab"
+title = "Building a practice lab"
+summary = "The options for practicing on real or simulated gear, what each does well, and what each gets wrong."
+teaches = [
+  "Why typing commands matters: configuration skill is muscle memory plus reading the device's reply",
+  "Simulators (Packet Tracer): free, light, good for topology and basic config; supports a subset of IOS and some output differs from real devices",
+  "Emulators running real IOS images (Cisco Modeling Labs, GNS3, EVE-NG): real output and features, need a capable computer and licensed images",
+  "Physical gear (used Catalyst 2960 switches and ISR routers): real cabling, PoE and console work; costs space, power and noise",
+  "What you need for physical gear: a console cable (RJ-45 rollover or USB console), a terminal program, 9600 baud 8-N-1 as the console default",
+  "What no lab simulates well: real RF for wireless, large scale, and real user traffic; how to learn those from output and diagrams instead",
+  "A table comparing the three lab types on cost, realism, wireless support and setup effort",
+  "Lab hygiene: save a known-good config, use `write erase` and `reload` to reset, and keep notes of what you changed",
+]
+
+[[chapter.page]]
+name = "04-spaced-review-and-active-recall"
+title = "Spaced review and active recall"
+summary = "How memory actually works for technical material, and how Octet's review cards use it."
+teaches = [
+  "Active recall: pulling an answer out of memory strengthens it far more than rereading the answer",
+  "The spacing effect: reviews spread over days and weeks beat the same time spent in one sitting",
+  "The forgetting curve in plain terms: each successful recall makes the next forgetting slower, so intervals can grow",
+  "How Octet turns every question, command and recall card into a review card and schedules it again later",
+  "Rating honestly: marking a card you hesitated on as known makes the schedule wrong",
+  "Interleaving: mixing topics (subnetting, STP, ACLs) in one session builds the skill of choosing the right tool",
+  "How much to review: short daily sessions beat long weekly ones",
+  "Writing your own recall cards: one fact per card, a real question on the front, a short answer on the back",
+]
+
+[[chapter.page]]
+name = "05-reading-command-output"
+title = "Reading command output"
+summary = "How to read a show command line by line, and where the important fields hide."
+teaches = [
+  "Reading `show interfaces` from the top: the two status words ('GigabitEthernet0/1 is up, line protocol is up'), then MTU, bandwidth, duplex and speed, then the counters",
+  "The four status combinations and what each means: up/up, up/down, down/down, administratively down/down",
+  "Reading `show ip interface brief`: the Status and Protocol columns, and 'unassigned' in the IP-Address column",
+  "Reading a routing table entry: code, prefix/length, [administrative distance/metric], via next hop, age, exit interface, using `show ip route` output",
+  "Reading `show vlan brief` and `show interfaces trunk` together to see which VLANs actually cross a link",
+  "Counters that matter and those that are noise: input errors, CRC, output drops versus total packets",
+  "Clearing counters with `clear counters` and watching them again to see whether a problem is current or historic",
+  "Misconception: a show command shows state, while `show running-config` shows intent; a configured feature can still be down",
+]
+
+[[chapter.page]]
+name = "06-finding-your-way-in-the-cli"
+title = "Finding your way in the CLI"
+summary = "Help, filters and error messages that make the IOS command line faster to use and easier to read."
+teaches = [
+  "Context help: `?` after a space lists the next words, `?` right after letters completes them, Tab completes a unique word",
+  "The three common error messages and their meaning: '% Invalid input detected at '^' marker', '% Incomplete command', '% Ambiguous command'",
+  "Output filters: `| include`, `| exclude`, `| begin`, `| section`, with `show running-config | section interface` and `show ip route | include 10.1`",
+  "`terminal length 0` to stop paging, and Space, Enter and q at the --More-- prompt",
+  "The `do` prefix to run show commands from configuration mode",
+  "Command history: Up arrow, Ctrl-P, `show history`, and `terminal history size`",
+  "Undoing a command with `no`, and resetting an interface to defaults with `default interface`",
+  "Practice: command blocks for filtering the running config and finding one interface's settings",
+]
+
+[[chapter.page]]
+name = "07-explaining-and-documenting"
+title = "Explaining and documenting"
+summary = "Drawing topologies and explaining ideas in your own words are learning tools, not chores."
+teaches = [
+  "The teach-back test: if you can explain an idea to a friend without notes, you understand it; where you stall shows the gap",
+  "Drawing a physical topology (devices, cables, interface names) versus a logical topology (subnets, VLANs, routing domains)",
+  "What to label on a diagram: interface names, IP subnets, VLAN IDs, and which device is the root bridge or default gateway",
+  "Keeping study notes in your own words, built around problems and mechanisms rather than copied definitions",
+  "Writing a short config template for a task you repeat (a new access port, an SSH setup) and checking each line's purpose",
+  "Keeping a change log in a lab, which is the same habit that saves real networks",
+  "Why diagrams and baselines matter later when troubleshooting: you can only spot 'different' if you know 'normal'",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself: a study routine"
+summary = "A worked weekly routine that combines reading, labs and review, followed by mixed questions on the chapter."
+teaches = [
+  "A sample week: new pages on three days, lab practice on two, daily short review sessions, and one mixed-topic day",
+  "How to handle a hard topic such as STP elections: draw it, predict the result, then check it in a lab with `show spanning-tree`",
+  "How to tell you are ready to move on: you can predict device output before running the command",
+  "Mixed questions covering active recall, spacing, interface status combinations, CLI filters and following a packet",
+  "Recall cards on the console defaults, the four interface states and what changes at each router hop",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 2
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 2
+title = "Number fluency: binary, subnets and VLSM"
+
+[[chapter.page]]
+name = "01-why-number-fluency"
+title = "Why number fluency matters"
+summary = "Subnets, masks, wildcards and IPv6 all rest on a few number skills that become fast with practice."
+teaches = [
+  "Where numbers appear in daily networking: addressing plans, ACL wildcards, OSPF network statements, route summaries, IPv6 prefixes",
+  "The goal is speed and accuracy without a calculator, built from understanding first and then repetition",
+  "The powers of two from 2^0 to 2^16, with 2^8 = 256 and 2^10 = 1024 as anchors",
+  "The eight bit values in an octet: 128, 64, 32, 16, 8, 4, 2, 1, and why they sum to 255",
+  "The plan for the chapter: binary, hex, masks, network and broadcast, requirements, VLSM, wildcards, IPv6",
+  "How the drill blocks work: endless generated practice, not graded, best in short daily bursts",
+]
+
+[[chapter.page]]
+name = "02-binary-place-values"
+title = "Binary place values"
+summary = "Converting between decimal and binary octets quickly, in both directions."
+teaches = [
+  "Binary as place values: each position doubles, and a 1 means that value is included",
+  "Binary to decimal: add the place values of the 1 bits, with 11000000 = 192 and 10101100 = 172 as worked examples",
+  "Decimal to binary by subtraction: take the largest place value that fits, write 1, subtract, continue, with 200 = 11001000 worked step by step",
+  "Patterns worth seeing at a glance: 255 is eight ones, 127 is 01111111, 128 is 10000000, even numbers end in 0",
+  "Converting a full dotted-decimal IPv4 address to 32 bits, octet by octet",
+  "Common slip: forgetting leading zeros, so 5 is 00000101, not 101, when an octet must be 8 bits",
+  "A `drill` of binary conversions",
+]
+
+[[chapter.page]]
+name = "03-hexadecimal"
+title = "Hexadecimal"
+summary = "Reading and converting hex, the shorthand for MAC addresses, IPv6 and many protocol fields."
+teaches = [
+  "Hex digits 0 to 9 and A to F (10 to 15), and that one hex digit is exactly four bits (a nibble)",
+  "Hex to binary and back by nibbles: 0xAC = 1010 1100, 0x3F = 0011 1111",
+  "Hex to decimal for one byte: first digit times 16 plus second digit, with 0xC0 = 192 and 0xFF = 255",
+  "Where hex appears: MAC addresses (0050.7966.6800), IPv6 addresses, EtherType 0x0800 for IPv4 and 0x86DD for IPv6, the 0x8100 802.1Q tag",
+  "Reading a MAC address: the first three bytes are the OUI, and the low-order bit of the first byte marks group (multicast) addresses",
+  "A table of all 16 hex digits with their 4-bit binary and decimal values",
+  "A `drill` of hex conversions",
+]
+
+[[chapter.page]]
+name = "04-masks-and-prefixes"
+title = "Masks and prefixes"
+summary = "Moving between prefix length and dotted mask, and the nine values a mask octet can take."
+teaches = [
+  "A subnet mask is a run of 1 bits followed by 0 bits; the prefix length counts the 1 bits",
+  "The nine valid mask octet values: 0, 128, 192, 224, 240, 248, 252, 254, 255, and how each comes from adding bit values",
+  "Prefix to mask: /20 = 255.255.240.0, /27 = 255.255.255.224, worked by filling octets of eight",
+  "Mask to prefix: count 8 per 255 octet, then the bits in the interesting octet",
+  "Invalid masks such as 255.255.255.100 and 255.0.255.0, and why IOS rejects them",
+  "A table of /8 through /32 with mask, block size in the interesting octet and addresses per subnet",
+  "A `drill` of mask and prefix conversions",
+]
+
+[[chapter.page]]
+name = "05-network-broadcast-and-range"
+title = "Network, broadcast and host range"
+summary = "Finding the subnet an address belongs to, its broadcast address and its usable hosts, in seconds."
+teaches = [
+  "The bitwise AND that a host performs: address AND mask gives the network address, shown in binary once",
+  "The fast method: find the interesting octet, compute the block size (256 minus the mask octet), find the multiple of the block at or below the address",
+  "Broadcast is the next network address minus one; first host is network plus one; last host is broadcast minus one",
+  "Worked examples in different octets: 192.168.10.77/27, 172.16.45.200/20, 10.100.3.9/12",
+  "Checking whether two addresses are on the same subnet, which is the host's local-or-remote decision",
+  "Misconception: the network address is not always .0 and the broadcast is not always .255",
+  "A `drill` of subnet calculations",
+]
+
+[[chapter.page]]
+name = "06-subnetting-to-requirements"
+title = "Subnetting to requirements"
+summary = "Choosing a prefix from how many subnets or hosts you need, and counting what a prefix gives you."
+teaches = [
+  "Usable hosts per subnet = 2^h minus 2, where h is the number of host bits; the 2 are the network and broadcast addresses",
+  "Number of subnets = 2^s, where s is the number of borrowed bits",
+  "Choosing the prefix for a host requirement: smallest h with 2^h minus 2 at least the need, with 50 hosts giving /26 and 500 hosts giving /23",
+  "Choosing the prefix for a subnet requirement: smallest s with 2^s at least the need, from a /24, a /16 and a /8",
+  "Listing the subnets: start at the base network and add the block size each time",
+  "Special cases: /31 for point-to-point links (RFC 3021, two usable addresses, supported on IOS) and /32 for loopbacks and host routes",
+  "Planning for growth: leave room in host counts and in the number of subnets",
+  "A `drill` of host and subnet counts",
+]
+
+[[chapter.page]]
+name = "07-vlsm-step-by-step"
+title = "VLSM step by step"
+summary = "Carving one block into subnets of different sizes without overlap or waste."
+teaches = [
+  "Why VLSM: a /24 split into equal /26s wastes addresses on a two-host link",
+  "The method: list requirements, sort largest first, assign each the smallest prefix that fits, start each at the next free address on its own boundary",
+  "A full worked example from 192.168.50.0/24: LANs of 100, 50 and 20 hosts plus three point-to-point links, with a table of network, prefix, range and broadcast",
+  "Why largest first: smaller blocks always fit on the boundaries left after larger ones, never the reverse",
+  "Checking for overlap: each subnet must start on a multiple of its own block size",
+  "Using /30 or /31 for links, and keeping link and loopback space at the end of the block",
+  "Misconception: VLSM is a planning method; routers simply carry prefixes of any length, and classless routing protocols such as OSPF advertise the mask",
+  "A `drill` of subnet calculations to rehearse boundaries",
+]
+
+[[chapter.page]]
+name = "08-wildcard-masks"
+title = "Wildcard masks"
+summary = "The inverse masks used by ACLs and OSPF, and how to build one for a subnet or range."
+teaches = [
+  "A wildcard bit of 0 means 'must match', a 1 means 'ignore', the opposite of a subnet mask",
+  "Wildcard for a subnet: 255.255.255.255 minus the mask, so /24 gives 0.0.0.255 and /27 gives 0.0.0.31",
+  "The keywords: `host 10.1.1.1` equals 10.1.1.1 0.0.0.0, and `any` equals 0.0.0.0 255.255.255.255",
+  "Matching a range that is a power of two on a boundary, such as 192.168.16.0 to 192.168.31.255 with 192.168.16.0 0.0.15.255",
+  "Where wildcards appear: `access-list 10 permit 192.168.10.0 0.0.0.255` and `network 10.1.1.0 0.0.0.255 area 0`",
+  "Misconception: a range that does not start on a block boundary cannot be matched by one wildcard and needs several entries",
+  "Non-contiguous wildcards exist (for example matching odd addresses) but are rarely used; recognise them, do not build plans on them",
+  "A `drill` of wildcard masks",
+]
+
+[[chapter.page]]
+name = "09-ipv6-shortening-and-subnets"
+title = "IPv6 shortening and subnets"
+summary = "Writing IPv6 addresses in their shortest correct form and splitting a /48 into /64 subnets."
+teaches = [
+  "An IPv6 address is 128 bits written as eight 16-bit hextets in hex",
+  "Rule 1: drop leading zeros in each hextet (0db8 becomes db8, 0000 becomes 0)",
+  "Rule 2: replace one run of all-zero hextets with ::, and only once in an address",
+  "The preferred form (RFC 5952): lowercase, shorten the longest zero run, take the leftmost on a tie, do not use :: for a single zero hextet",
+  "Expanding a shortened address back to full form by counting the missing hextets",
+  "Subnetting on hextet boundaries: a /48 site with a 16-bit subnet ID gives 65,536 /64 subnets, such as 2001:db8:acad:1::/64 to 2001:db8:acad:ffff::/64",
+  "Why /64 is the normal LAN prefix: SLAAC and EUI-64 need a 64-bit interface ID",
+  "A `drill` of IPv6 shortening",
+]
+
+[[chapter.page]]
+name = "10-check-yourself"
+title = "Check yourself: numbers under time"
+summary = "Mixed practice across every skill in the chapter, and a routine to keep them fast."
+teaches = [
+  "A short daily routine: two minutes each of binary, mask, subnet and wildcard drills",
+  "Common error patterns and how to catch them: wrong interesting octet, block size off by one, network and broadcast swapped",
+  "Sanity checks: the network address is even in its block, the broadcast is odd, host counts are 2 less than a power of two",
+  "Mixed questions: find the subnet for a host, pick a prefix for a requirement, write a wildcard, shorten an IPv6 address",
+  "All seven drill kinds on one page: `binary`, `hex`, `mask`, `wildcard`, `subnet`, `hosts`, `ipv6`",
+  "Recall cards on the nine mask values, the host formula and the IPv6 shortening rules",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 3
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 3
+title = "Rapid PVST+ and the spanning tree guards"
+
+[[chapter.page]]
+name = "01-why-rapid-spanning-tree"
+title = "Why rapid spanning tree"
+summary = "Classic STP takes up to 50 seconds to recover; RSTP does it in about a second, and Rapid PVST+ runs it per VLAN."
+teaches = [
+  "The picture: a redundant switch triangle, a link fails, and users wait while 802.1D reconverges",
+  "802.1D timers and their cost: hello 2 s, max age 20 s, forward delay 15 s, so 30 to 50 seconds to forward again",
+  "RSTP (802.1w) replaces timer-based waiting with a handshake between neighbors, so convergence is usually under a few seconds",
+  "The STP family on Cisco switches: PVST+ (802.1D per VLAN), Rapid PVST+ (802.1w per VLAN), MST (802.1s, groups of VLANs per instance)",
+  "Defaults: PVST+ is the default mode on Catalyst 2960; Catalyst 9000 switches running IOS XE default to Rapid PVST+",
+  "RSTP is backward compatible: a port that hears 802.1D BPDUs falls back to 802.1D behavior on that link",
+  "The four guards this chapter adds (BPDU guard, BPDU filter, root guard, loop guard) and the failure each prevents, as a preview",
+]
+
+[[chapter.page]]
+name = "02-bridge-id-and-root-election"
+title = "Bridge ID and the root election"
+summary = "How the lowest bridge ID wins, what the extended system ID adds, and how to choose the root yourself."
+teaches = [
+  "Bridge ID = priority (4 bits) + extended system ID (12 bits, the VLAN number) + MAC address (48 bits)",
+  "Default priority 32768, so VLAN 10 shows 32778 in `show spanning-tree vlan 10`; priority can only be set in multiples of 4096",
+  "Lowest bridge ID wins: lowest priority first, then lowest MAC; with all defaults the oldest switch (lowest MAC) often wins, which is rarely what you want",
+  "`spanning-tree vlan 10 root primary`: sets priority to 24576, or to 4096 below the current root if that is already 24576 or lower; it is a one-time macro, not a permanent rule",
+  "`spanning-tree vlan 10 root secondary` sets 28672; `spanning-tree vlan 10 priority 4096` sets an exact value",
+  "Reading the Root ID and Bridge ID sections of `show spanning-tree vlan 10`, including 'This bridge is the root'",
+  "A worked election with three switches and their priorities and MACs",
+  "Per-VLAN roots for load sharing: S1 root for VLANs 10 and 30, S2 root for VLANs 20 and 40",
+]
+
+[[chapter.page]]
+name = "03-port-roles"
+title = "Port roles"
+summary = "Root, designated, alternate and backup ports, and the tie-breakers that decide each one."
+teaches = [
+  "RSTP port roles: root port (best path to root), designated port (best port on a segment toward it), alternate port (backup path to root), backup port (redundant port on a shared segment), disabled",
+  "Root port selection order: lowest root path cost, then lowest sender bridge ID, then lowest sender port priority, then lowest sender port number",
+  "Port costs, short method: 10 Mb/s 100, 100 Mb/s 19, 1 Gb/s 4, 10 Gb/s 2; long method: 2,000,000, 200,000, 20,000, 2,000",
+  "`spanning-tree pathcost method long` and checking the method with `show spanning-tree summary`; defaults differ by platform and release, so check rather than assume",
+  "Designated port selection on each segment: lowest root path cost of the switch, then lowest bridge ID",
+  "Every port on the root bridge is designated; every non-root switch has exactly one root port per VLAN",
+  "Adjusting the result with `spanning-tree vlan 10 cost 10` and `spanning-tree vlan 10 port-priority 64` (port priority in steps of 16, default 128)",
+  "A worked three-switch diagram labeling every port's role, with a `question` asking which port becomes alternate",
+]
+
+[[chapter.page]]
+name = "04-port-states-and-convergence"
+title = "Port states and rapid convergence"
+summary = "Discarding, learning and forwarding, and the proposal and agreement handshake that makes RSTP fast."
+teaches = [
+  "RSTP states: discarding, learning, forwarding; 802.1D blocking, listening and disabled all map to discarding",
+  "A table mapping 802.1D states to RSTP states, with whether each learns MACs and forwards frames",
+  "Link types: point-to-point (full duplex, assumed for switch links), shared (half duplex), and edge (an end device, configured with PortFast)",
+  "The proposal and agreement handshake on point-to-point links: the upstream switch proposes, the downstream switch syncs (blocks its other non-edge designated ports) and agrees, then both forward",
+  "Why the handshake needs point-to-point links: on shared links RSTP falls back to timers",
+  "In RSTP every switch sends BPDUs every hello (2 s); three missed hellos (6 s) mean the neighbor is gone",
+  "An alternate port becomes root port immediately when the root port fails, without waiting",
+  "Topology changes: only non-edge ports moving to forwarding cause a TC, and switches flush learned MACs on affected ports",
+]
+
+[[chapter.page]]
+name = "05-configuring-rapid-pvst"
+title = "Configuring and verifying Rapid PVST+"
+summary = "Turning on Rapid PVST+, placing the root, tuning ports and reading the output."
+teaches = [
+  "`spanning-tree mode rapid-pvst` in global configuration, and that changing modes briefly disrupts forwarding",
+  "Setting root and secondary per VLAN: `spanning-tree vlan 10,20 root primary` on S1 and `spanning-tree vlan 10,20 root secondary` on S2",
+  "`spanning-tree link-type point-to-point` to force the link type when a port is half duplex but really point-to-point",
+  "Reading `show spanning-tree vlan 10`: 'Spanning tree enabled protocol rstp', the Role and Sts columns (Root FWD, Desg FWD, Altn BLK), and the Type column (P2p, P2p Edge, Shr)",
+  "Why the output still says BLK for a discarding alternate port",
+  "`show spanning-tree summary` for the mode, root bridge VLANs and which guards are enabled globally",
+  "`show spanning-tree interface g0/1 detail` for one port across all VLANs",
+  "A `command` block for setting the mode and one for making a switch root primary",
+]
+
+[[chapter.page]]
+name = "06-portfast-and-bpdu-guard"
+title = "PortFast and BPDU guard"
+summary = "Letting access ports forward at once, and shutting them down if a switch appears there."
+teaches = [
+  "PortFast makes a port an edge port: it goes straight to forwarding and does not cause topology changes",
+  "`spanning-tree portfast` on an interface, `spanning-tree portfast default` globally (applies to access ports only), and `spanning-tree portfast trunk` for a trunk to a server or AP",
+  "Platform difference in one sentence: some IOS releases use `spanning-tree portfast edge` and `spanning-tree portfast edge default`",
+  "The risk: a PortFast port connected to a switch can create a loop before STP reacts",
+  "BPDU guard: `spanning-tree bpduguard enable` per interface, or `spanning-tree portfast bpduguard default` globally (applies only to PortFast ports)",
+  "What happens when a BPDU arrives: the port goes err-disabled, with a %SPANTREE-2-BLOCK_BPDUGUARD log message",
+  "Finding and recovering err-disabled ports: `show interfaces status err-disabled`, then `shutdown` and `no shutdown`, or `errdisable recovery cause bpduguard` with a default interval of 300 seconds",
+  "A `console` showing the log message and the err-disabled status",
+]
+
+[[chapter.page]]
+name = "07-bpdu-filter"
+title = "BPDU filter"
+summary = "Stopping BPDUs on edge ports, and why the interface form can quietly remove loop protection."
+teaches = [
+  "Purpose: stop sending BPDUs out of edge ports to hosts that never need them",
+  "Global form `spanning-tree portfast bpdufilter default`: PortFast ports send a few BPDUs at link-up, then stop; if a BPDU arrives the port loses PortFast and filtering and runs normal STP",
+  "Interface form `spanning-tree bpdufilter enable`: the port neither sends nor processes received BPDUs, which effectively turns STP off on that port",
+  "Why the interface form is dangerous: two such ports cabled into a loop will forward a broadcast storm",
+  "If BPDU filter and BPDU guard are both on one interface, the filter wins and the guard never triggers",
+  "A table comparing global and interface BPDU filter: scope, sends BPDUs, reacts to received BPDUs, risk",
+  "Verifying with `show spanning-tree summary` (BPDU filter default line) and `show spanning-tree interface g0/5 detail`",
+]
+
+[[chapter.page]]
+name = "08-root-guard-and-loop-guard"
+title = "Root guard and loop guard"
+summary = "Keeping the root where you placed it, and keeping a silent link from turning into a loop."
+teaches = [
+  "Root guard: `spanning-tree guard root` on designated ports where a better root must never appear, such as distribution downlinks to access switches",
+  "Root guard action: a superior BPDU puts the port in root-inconsistent state (discarding); it recovers by itself when the superior BPDUs stop",
+  "The %SPANTREE-2-ROOTGUARD_BLOCK message and `show spanning-tree inconsistentports`",
+  "Loop guard: protects root and alternate ports that stop receiving BPDUs, for example on a unidirectional fiber link",
+  "Without loop guard a port that stops hearing BPDUs becomes designated and forwards, creating a loop; with it the port goes loop-inconsistent and stays discarding until BPDUs return",
+  "`spanning-tree guard loop` per interface or `spanning-tree loopguard default` globally (applies to point-to-point links)",
+  "Root guard and loop guard cannot be enabled on the same port",
+  "UDLD as a related tool for detecting one-way links, mentioned as going deeper",
+]
+
+[[chapter.page]]
+name = "09-guards-in-a-design"
+title = "Guards in a design"
+summary = "Where each guard belongs in a campus, and a walk-through of the three failures they report."
+teaches = [
+  "A summary table of PortFast, BPDU guard, BPDU filter, root guard and loop guard: where applied, what triggers it, the resulting state, how it recovers",
+  "A campus design: access ports with PortFast and BPDU guard, distribution downlinks with root guard, uplinks and alternate paths with loop guard",
+  "A diagram of a distribution pair and two access switches with each guard labeled at its port",
+  "Walk-through 1: a user plugs a small switch into a wall port, the port goes err-disabled; how you find it and fix it",
+  "Walk-through 2: a lab switch with priority 0 is connected, root guard blocks the port as root-inconsistent",
+  "Walk-through 3: a fiber strand fails in one direction, loop guard holds an alternate port in loop-inconsistent",
+  "Mixed questions on roles, states, root election and choosing the right guard",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 4
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 4
+title = "Wireless architectures and AP modes"
+
+[[chapter.page]]
+name = "01-from-one-ap-to-hundreds"
+title = "From one AP to hundreds"
+summary = "Why a building full of access points needs a different design than a single home router."
+teaches = [
+  "The picture: one home router does everything; a campus has hundreds of APs that must share channels, settings and security",
+  "Problems at scale: configuring each AP by hand, channel and power planning, roaming between APs, finding rogue APs",
+  "The roles in a wireless network: AP (radio and 802.11 framing), WLC (central management and policy), authentication server, switch (PoE and wired connectivity)",
+  "The architectures this chapter covers: autonomous, centralized (lightweight APs with a WLC), embedded, controller on the AP, and cloud-managed",
+  "SSID versus BSSID: one network name, many radio MAC addresses across APs",
+  "How a WLAN maps to a VLAN: each SSID's clients land in a VLAN on the wired side",
+]
+
+[[chapter.page]]
+name = "02-autonomous-aps"
+title = "Autonomous APs"
+summary = "Standalone access points that each hold their own configuration, and where they still make sense."
+teaches = [
+  "An autonomous AP holds its full configuration and makes every decision itself; it is managed one by one with CLI or a web page",
+  "Each SSID maps to a VLAN on the AP, so an AP with several SSIDs connects to a switch trunk port",
+  "The AP has a management IP in a management VLAN, often the native VLAN of the trunk",
+  "Traffic is bridged locally from the radio to the wired VLAN, with no tunnel",
+  "Limits at scale: per-AP configuration, no central RF management, roaming with less coordination",
+  "Where autonomous APs fit: a small office with one or two APs, or point-to-point wireless bridges",
+  "A diagram of two autonomous APs on trunk ports carrying a staff VLAN and a guest VLAN",
+]
+
+[[chapter.page]]
+name = "03-split-mac-and-capwap"
+title = "Split MAC and CAPWAP"
+summary = "How lightweight APs share the work with a WLC, and the tunnel that connects them."
+teaches = [
+  "Split MAC: the AP handles real-time 802.11 work (beacons, probe responses, acknowledgments, retransmissions, encryption of frames in the air); the WLC handles management (association, authentication, security policy, RF management, roaming, QoS)",
+  "A table listing which functions live on the AP and which on the WLC",
+  "CAPWAP: control traffic on UDP 5246, always protected with DTLS; data traffic on UDP 5247, DTLS optional",
+  "In local mode, client traffic is tunneled in CAPWAP to the WLC and enters the wired network there (centralized switching)",
+  "How an AP finds a WLC: previously known controllers, DHCP option 43, DNS lookup of CISCO-CAPWAP-CONTROLLER.localdomain, and local subnet broadcast",
+  "The join sequence in outline: discovery, DTLS setup, join, image and configuration download, then run",
+  "Why the AP and WLC can be in different subnets and even different sites: CAPWAP is IP and routable",
+  "A `fields` block showing the outer IP and UDP, the CAPWAP header and the inner 802.11 frame",
+]
+
+[[chapter.page]]
+name = "04-wlc-deployment-models"
+title = "WLC deployment models"
+summary = "Where the controller lives: a central appliance, inside a switch, on an AP, in a cloud, or in a vendor's dashboard."
+teaches = [
+  "Centralized (unified): a hardware WLC in a data center or campus core, such as the Catalyst 9800-40 or 9800-80, or older AireOS models like the 3504 and 5520, managing thousands of APs",
+  "Cloud-hosted controller: the Catalyst 9800-CL virtual WLC running in a private or public cloud, same features as the appliance",
+  "Embedded: the controller runs on a Catalyst 9000 switch, for a smaller site",
+  "Controller on an AP: one AP also runs the controller software for the others (Mobility Express on older APs, Embedded Wireless Controller on Catalyst 9100 APs), sized for small sites of up to about 100 APs",
+  "Cloud-managed (Meraki): APs are managed from a web dashboard over the internet, with no local controller; user traffic stays local",
+  "A table comparing the models on where the controller runs, typical site size, and what happens to clients if the controller is unreachable",
+  "The two controller software families: AireOS (older) and IOS XE on the Catalyst 9800, and why both appear in study material",
+]
+
+[[chapter.page]]
+name = "05-ap-modes"
+title = "AP modes"
+summary = "One lightweight AP can serve clients, guard the air, capture packets or bridge to another building, depending on its mode."
+teaches = [
+  "Local mode (the default): serves clients, tunnels all traffic to the WLC, and briefly scans other channels for rogues and interference",
+  "FlexConnect: can switch client traffic locally at a branch and keep serving clients if the link to the WLC fails",
+  "Monitor mode: serves no clients; scans all channels for intrusion detection, rogue detection and location tracking",
+  "Sniffer mode: captures 802.11 frames on one channel and forwards them to a remote analyzer such as Wireshark",
+  "Rogue detector mode: radios off; listens on the wired network for MAC addresses of clients seen by other APs to find rogues connected to the LAN",
+  "SE-Connect mode: dedicates the radios to spectrum analysis, sending data to a spectrum tool to find non-Wi-Fi interference",
+  "Bridge (mesh) mode: root APs on the wire and mesh APs linked wirelessly to extend coverage or join buildings; Flex+Bridge combines mesh with FlexConnect",
+  "A table of all modes: serves clients, scans, typical use",
+]
+
+[[chapter.page]]
+name = "06-flexconnect-in-depth"
+title = "FlexConnect in depth"
+summary = "How a branch AP decides between local and central switching, and what it does when the WAN goes down."
+teaches = [
+  "The branch problem: tunneling every packet to a WLC at headquarters wastes WAN bandwidth and fails when the WAN fails",
+  "Central switching versus local switching per WLAN: corporate traffic can be bridged to a local VLAN while guest traffic tunnels to HQ",
+  "Connected mode (CAPWAP up) versus standalone mode (CAPWAP down): in standalone mode locally switched WLANs keep working for clients using local or cached authentication",
+  "VLAN mapping on a FlexConnect AP, and why its switch port is a trunk",
+  "Central authentication versus local authentication, and the effect of a WAN outage on new 802.1X clients",
+  "Where FlexConnect is configured: AP mode on the AireOS WLC; flex profile and site tag on the 9800",
+  "A diagram of a branch with a FlexConnect AP, a local switch trunk, and the WAN to HQ",
+]
+
+[[chapter.page]]
+name = "07-physical-connections"
+title = "Physical connections for APs and WLCs"
+summary = "Which switch port type each AP and WLC needs, how WLC ports bundle, and how APs get power."
+teaches = [
+  "A local-mode AP connects to an access port: all client VLANs travel inside the CAPWAP tunnel, so the switch only needs the AP's own VLAN",
+  "A FlexConnect or autonomous AP connects to a trunk port, because client traffic leaves the AP in several VLANs; the AP's management VLAN is usually native",
+  "WLC distribution ports connect to switch trunks carrying the management VLAN and every client VLAN",
+  "LAG on the WLC: AireOS bundles all distribution ports into one LAG with no LACP or PAgP, so the switch side uses `channel-group 1 mode on`; the 9800 also supports LACP",
+  "The service port (out-of-band management) and the redundancy port (HA pair) and why they do not carry client traffic",
+  "PoE for APs: 802.3af up to 15.4 W at the switch port, 802.3at (PoE+) 30 W, 802.3bt 60 W and 90 W; checking with `show power inline`",
+  "A diagram with a WLC on a two-link LAG trunk, a local-mode AP on an access port and a FlexConnect AP on a trunk",
+  "A `question` on why a FlexConnect AP on an access port leaves some WLANs broken",
+]
+
+[[chapter.page]]
+name = "08-wlc-ports-and-interfaces"
+title = "WLC ports and interfaces"
+summary = "Physical ports versus logical interfaces on a controller, and how a WLAN reaches its VLAN."
+teaches = [
+  "Ports are physical connectors; interfaces are logical, each with an IP, a VLAN tag and a port or LAG",
+  "AireOS interfaces: management (WLC management and CAPWAP termination), virtual (used for DHCP relay and web authentication redirect, a non-routed address), service-port, redundancy-management, and dynamic interfaces (one per client VLAN)",
+  "How an AireOS WLAN is tied to a dynamic interface, which puts its clients in that VLAN and subnet",
+  "On the 9800: a wireless management interface (an SVI) and the client VLAN set in the policy profile",
+  "The WLC as DHCP relay or internal DHCP server for client subnets",
+  "A table of AireOS interface types with purpose and whether clients use them",
+  "Common misconfiguration: a dynamic interface VLAN not allowed on the switch trunk, so clients associate but get no address",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself: choosing an architecture"
+summary = "A worked design for a headquarters and branches, followed by mixed questions on architectures and AP modes."
+teaches = [
+  "Scenario: an HQ campus with 300 APs, three small branches and a warehouse yard; choose controller model, AP modes and port types",
+  "Reasoning for each choice: central 9800 at HQ, FlexConnect at branches, mesh for the yard, a few monitor-mode APs for security",
+  "What happens to each site when the WAN fails",
+  "Mixed questions on split MAC duties, CAPWAP ports, discovery methods, AP modes and access versus trunk ports",
+  "Recall cards on CAPWAP ports, the default AP mode, and which AP modes serve no clients",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 5
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 5
+title = "Wireless LAN configuration and security"
+
+[[chapter.page]]
+name = "01-securing-the-air"
+title = "Securing the air"
+summary = "Radio crosses walls, so a WLAN must prove who joins and encrypt what they send."
+teaches = [
+  "The picture: anyone in the car park can hear your Wi-Fi; wired security assumes physical access, wireless cannot",
+  "The two jobs of WLAN security: authentication (who may join) and encryption (keeping frames private), plus integrity checks",
+  "Threats in outline: eavesdropping, rogue APs, evil twin APs, deauthentication floods, and attacks on weak passphrases",
+  "Weak measures that are not security: hiding the SSID (it still appears in probe and association frames) and MAC filtering (MACs are easy to copy)",
+  "Open networks versus open with Enhanced Open (OWE), which encrypts without a password",
+  "The chapter plan: protocols, personal versus enterprise, then WLC configuration, QoS and advanced settings, then troubleshooting",
+]
+
+[[chapter.page]]
+name = "02-wpa-wpa2-wpa3"
+title = "WPA, WPA2 and WPA3"
+summary = "How Wi-Fi security evolved from broken WEP to WPA3, and what each generation changed."
+teaches = [
+  "WEP: RC4 with static keys and short IVs, broken and never to be used",
+  "WPA: an interim fix using TKIP (still RC4-based) with per-packet keys and a message integrity check; now deprecated",
+  "WPA2 (802.11i): AES-CCMP encryption, the long-standing baseline, in Personal (PSK) and Enterprise (802.1X) forms",
+  "WPA3-Personal: SAE replaces the PSK handshake, resists offline dictionary attacks and gives forward secrecy",
+  "WPA3-Enterprise: 802.1X as before, with an optional 192-bit mode using GCMP-256",
+  "WPA3 makes Protected Management Frames (802.11w) mandatory, which blocks forged deauthentication frames",
+  "Transition mode: WPA2 and WPA3 clients on the same SSID, and its trade-off",
+  "A table comparing WEP, WPA, WPA2 and WPA3 on cipher, key exchange, integrity and status",
+]
+
+[[chapter.page]]
+name = "03-personal-versus-enterprise"
+title = "Personal versus enterprise"
+summary = "One shared passphrase for everyone, or a separate identity and key for every user."
+teaches = [
+  "Personal (PSK): every client knows the same passphrase, 8 to 63 ASCII characters or 64 hex digits; the 4-way handshake derives per-session keys from it",
+  "The PSK weakness: a captured WPA2 handshake allows offline guessing of a weak passphrase; and one leaked passphrase means changing it on every device",
+  "Enterprise (802.1X): each user or device authenticates to a RADIUS server, and each gets its own keys",
+  "The three 802.1X roles on a WLAN: supplicant (client), authenticator (the WLC or autonomous AP), authentication server (RADIUS, such as Cisco ISE)",
+  "EAP methods: EAP-TLS (certificates on client and server), PEAP (server certificate, then a password inside the tunnel, usually MSCHAPv2), EAP-FAST (Cisco, uses a PAC); LEAP is legacy and weak",
+  "A table comparing Personal and Enterprise on credentials, key per user, revoking one user, and typical use",
+  "Where each fits: Personal for homes and small shops or IoT, Enterprise for organizations",
+]
+
+[[chapter.page]]
+name = "04-wlc-gui-tour"
+title = "A tour of the WLC GUI"
+summary = "Finding your way around the AireOS and Catalyst 9800 controller web interfaces."
+teaches = [
+  "Logging in over HTTPS to the WLC management address",
+  "AireOS top menu: MONITOR, WLANs, CONTROLLER, WIRELESS, SECURITY, MANAGEMENT, COMMANDS, HELP, FEEDBACK, and the Advanced versus summary views",
+  "Where common tasks live on AireOS: WLANs for SSIDs, WIRELESS for APs and RF, SECURITY for RADIUS and ACLs, CONTROLLER for interfaces and ports",
+  "Catalyst 9800 menu: Dashboard, Monitoring, Configuration, Administration, Licensing, Troubleshooting",
+  "The 9800 configuration model: WLAN profile (SSID and security), policy profile (VLAN, QoS, ACLs), policy tag (joins WLAN profiles to policy profiles), site tag and RF tag, all applied to APs",
+  "A diagram or table showing how tags and profiles combine on the 9800 compared with a single WLAN entry on AireOS",
+  "Reading the summary pages: AP list with names, models and modes, and the client list with SSID, AP and IP",
+]
+
+[[chapter.page]]
+name = "05-create-a-wpa2-psk-wlan"
+title = "Creating a WPA2 PSK WLAN"
+summary = "Building a WLAN with a passphrase on the controller, field by field, and checking it works."
+teaches = [
+  "AireOS steps: WLANs, Create New, Go; type WLAN, profile name, SSID, WLAN ID",
+  "General tab: Status Enabled, the interface or interface group (the client VLAN), Radio Policy, Broadcast SSID",
+  "Security tab, Layer 2: WPA+WPA2, WPA2 Policy with AES encryption, Authentication Key Management set to PSK, PSK format ASCII and the passphrase",
+  "Why Layer 3 security stays None for a basic PSK WLAN",
+  "Apply, then confirm the WLAN shows Enabled in the WLANs list",
+  "The 9800 equivalent: Configuration, Tags and Profiles, WLANs, Add, with WPA2, AES and PSK under Security, then mapping it to a policy profile in a policy tag",
+  "Verifying: a client connects, appears in Monitor, Clients with the right SSID, VLAN and IP",
+  "A `question` on what a client sees when the passphrase is wrong versus when the WLAN is disabled",
+]
+
+[[chapter.page]]
+name = "06-wpa2-enterprise-on-the-wlc"
+title = "WPA2 Enterprise on the WLC"
+summary = "Adding a RADIUS server, a client VLAN and an 802.1X WLAN on the controller."
+teaches = [
+  "Adding the RADIUS server on AireOS: Security, AAA, RADIUS, Authentication, New: server IP, shared secret, port 1812; accounting on port 1813",
+  "The shared secret must match exactly on the WLC and the RADIUS server, and the WLC must be added as a client (network device) on the server",
+  "Creating a dynamic interface for a new client VLAN: name, VLAN ID, port, IP, mask, gateway and DHCP server",
+  "Optional internal DHCP scope on the WLC, and why an external DHCP server is more common",
+  "WLAN security: Layer 2 WPA2 with AES and 802.1X key management; AAA Servers tab selects the RADIUS server",
+  "Allow AAA Override: letting RADIUS assign a VLAN or ACL per user",
+  "A diagram of client, AP, WLC and RADIUS server, labeling EAP over the air and RADIUS between WLC and server",
+]
+
+[[chapter.page]]
+name = "07-wlan-qos-profiles"
+title = "WLAN QoS profiles"
+summary = "Platinum, Gold, Silver and Bronze, and how a WLAN's QoS profile treats its traffic."
+teaches = [
+  "Why wireless QoS matters: the air is shared and half duplex, and voice cannot wait",
+  "The four profiles: Platinum (voice), Gold (video), Silver (best effort, the default), Bronze (background)",
+  "The profile sets the maximum priority for the WLAN's traffic, both in the air (WMM access categories) and in the CAPWAP tunnel (DSCP)",
+  "WMM: the Wi-Fi QoS standard based on 802.11e, with four access categories voice, video, best effort, background; WMM must be allowed or required for 802.11n and later speeds",
+  "Where it is set: WLAN QoS tab on AireOS; QoS settings in the policy profile on the 9800",
+  "Choosing: voice SSID Platinum, guest SSID Bronze, corporate data Silver",
+  "Misconception: setting Platinum on a guest WLAN does not make it faster, it lets it crowd out voice",
+]
+
+[[chapter.page]]
+name = "08-advanced-wlan-settings"
+title = "Advanced WLAN settings"
+summary = "The settings on the Advanced tab that change how clients join, roam and are protected."
+teaches = [
+  "Session timeout: how long before a client must reauthenticate (1800 seconds by default on AireOS)",
+  "Client exclusion: temporarily blocking clients after repeated authentication failures",
+  "Management frame protection (MFP or PMF): optional, required or disabled, and its link to WPA3",
+  "Peer-to-peer blocking: stopping clients on the same WLAN from talking directly, useful for guest networks",
+  "DHCP address assignment required: clients must use DHCP, not a static address",
+  "Band select and client load balancing: steering dual-band clients to 5 GHz and spreading clients across APs",
+  "Maximum allowed clients per WLAN and FlexConnect local switching on the same tab",
+  "A table of each setting, what it does and a typical choice for a guest WLAN and a corporate WLAN",
+]
+
+[[chapter.page]]
+name = "09-troubleshooting-wlans"
+title = "Troubleshooting WLANs"
+summary = "A step-by-step walk-through for clients that cannot see, join or use a WLAN."
+teaches = [
+  "Sort the symptom first: cannot see the SSID, sees it but cannot join, joins but no IP, has an IP but no access",
+  "Cannot see: WLAN disabled, not broadcast, not in the AP group or policy tag, AP not joined, radio off",
+  "Cannot join: wrong passphrase, security mismatch (WPA3-only WLAN and an old client), RADIUS unreachable or shared secret mismatch",
+  "No IP: client VLAN not on the switch trunk, DHCP server or relay missing, scope exhausted",
+  "AireOS CLI checks: `show wlan summary`, `show ap summary`, `show client detail <mac>`",
+  "Catalyst 9800 CLI checks: `show wlan summary`, `show ap summary`, `show wireless client summary`",
+  "A worked walk-through: guest users cannot get addresses after a new VLAN was added, traced to the trunk allowed list",
+  "Mixed questions on WPA versions, PSK versus 802.1X, QoS profiles and advanced settings",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 6
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 6
+title = "First hop redundancy in practice"
+
+[[chapter.page]]
+name = "01-the-gateway-problem"
+title = "The gateway problem"
+summary = "Hosts trust one default gateway; FHRPs let two routers share one virtual gateway so a failure goes unnoticed."
+teaches = [
+  "The picture: 200 PCs with gateway 192.168.10.1; that router fails and every PC loses the internet although a second router is right there",
+  "Why hosts cannot fix it themselves: the default gateway is a single static or DHCP-given address",
+  "The FHRP idea: a virtual IP and a virtual MAC shared by a group of routers; one answers, the others stand by",
+  "Failover from the host's point of view: same gateway IP, same MAC in its ARP cache, so nothing changes on the host",
+  "The three protocols: HSRP (Cisco), VRRP (open standard), GLBP (Cisco, load balancing), as a preview table",
+  "FHRPs on routers and on Layer 3 switch SVIs, which is the usual campus place",
+]
+
+[[chapter.page]]
+name = "02-how-hsrp-works"
+title = "How HSRP works"
+summary = "Active and standby routers, hellos and states, and the two HSRP versions."
+teaches = [
+  "Roles: one active router forwards for the virtual IP, one standby is ready, any others listen",
+  "Election: highest priority wins (default 100, range 0 to 255); on a tie the highest interface IP wins",
+  "Timers: hello every 3 seconds, hold time 10 seconds",
+  "States in order: initial, learn, listen, speak, standby, active",
+  "HSRPv1: multicast 224.0.0.2, UDP 1985, groups 0 to 255, virtual MAC 0000.0c07.acXX where XX is the group in hex",
+  "HSRPv2: multicast 224.0.0.102, groups 0 to 4095, virtual MAC 0000.0c9f.fXXX, millisecond timers and IPv6 support",
+  "Preemption is off by default, so a higher-priority router that comes back does not take over unless configured",
+  "Gratuitous ARP from the new active router updates switch MAC tables after a failover",
+]
+
+[[chapter.page]]
+name = "03-configuring-hsrp"
+title = "Configuring HSRP"
+summary = "Building an HSRP group on two routers or switches and reading `show standby`."
+teaches = [
+  "Commands on R1's LAN interface: `standby version 2`, `standby 1 ip 192.168.10.1`, `standby 1 priority 110`, `standby 1 preempt`",
+  "R2 needs the same group number, version and virtual IP; only priority differs",
+  "Hosts use the virtual IP as their default gateway, never a router's real interface IP",
+  "Optional: `standby 1 timers 1 3` for faster failover, `standby 1 authentication md5 key-string` for authentication",
+  "IPv6 HSRP in one line: `standby 2 ipv6 autoconfig` with HSRPv2",
+  "Reading `show standby brief`: Interface, Grp, Pri, P, State, Active, Standby, Virtual IP columns",
+  "Reading `show standby` for the virtual MAC, timers and the active and standby routers",
+  "`command` blocks for setting the virtual IP and enabling preemption",
+]
+
+[[chapter.page]]
+name = "04-tracking-and-preemption"
+title = "Tracking and preemption"
+summary = "Making the active role move when the uplink fails, not only when the router dies."
+teaches = [
+  "The hidden failure: R1's LAN side is up but its WAN uplink is down, so it stays active and drops traffic",
+  "Object tracking: `track 1 interface GigabitEthernet0/0/1 line-protocol` then `standby 1 track 1 decrement 20`",
+  "The math: R1 110 minus 20 is 90, below R2's 100, so R2 can take over",
+  "Why preemption must be enabled on R2 for the decrement to matter, and on R1 to take the role back",
+  "`standby 1 preempt delay minimum 60` to wait for routing to converge before taking over",
+  "Tracking reachability rather than line state with IP SLA, mentioned as going deeper",
+  "Reading the tracking lines in `show standby` and `show track`",
+]
+
+[[chapter.page]]
+name = "05-hsrp-load-sharing"
+title = "Sharing the load with HSRP"
+summary = "Using several HSRP groups so both routers carry traffic, and aligning them with spanning tree."
+teaches = [
+  "One HSRP group leaves the standby router idle for that subnet",
+  "Multiple groups across VLANs: R1 active for VLAN 10, R2 active for VLAN 20, each standby for the other",
+  "Aligning the HSRP active router with the STP root for each VLAN so traffic takes the shortest Layer 2 path",
+  "A diagram of a distribution pair with two VLANs, showing root bridge and HSRP active for each",
+  "Configuration side by side for both switches, with priorities mirrored",
+  "Why this is load sharing per subnet, not per host, and how GLBP differs",
+]
+
+[[chapter.page]]
+name = "06-vrrp"
+title = "VRRP"
+summary = "The open-standard FHRP: master and backup, an owner that always wins, and preemption on by default."
+teaches = [
+  "VRRP (RFC 5798 for version 3) works across vendors; roles are master and backup",
+  "Virtual router ID 1 to 255, virtual MAC 0000.5e00.01XX, multicast 224.0.0.18, IP protocol 112, advertisement every 1 second",
+  "Priority default 100; a router whose real address is the virtual IP is the owner with priority 255",
+  "Preemption is enabled by default, unlike HSRP",
+  "IOS XE VRRPv3 configuration: `fhrp version vrrp v3`, then `vrrp 10 address-family ipv4`, `address 192.168.10.1 primary`, `priority 110`",
+  "Older IOS syntax `vrrp 10 ip 192.168.10.1`, and `show vrrp brief` for verification",
+  "A table comparing HSRP and VRRP: standard, role names, multicast address, virtual MAC, default preemption, hello timer",
+]
+
+[[chapter.page]]
+name = "07-glbp"
+title = "GLBP"
+summary = "One virtual IP, several virtual MACs, and real load balancing across routers."
+teaches = [
+  "Roles: one active virtual gateway (AVG) answers ARP; up to four active virtual forwarders (AVF) each own a virtual MAC",
+  "How load balancing works: the AVG replies to each host's ARP with a different AVF's virtual MAC",
+  "Virtual MAC format 0007.b400.XXYY (group, forwarder number), multicast 224.0.0.102, UDP 3222",
+  "Load-balancing methods: round-robin (default), weighted, host-dependent",
+  "Configuration: `glbp 1 ip 192.168.10.1`, `glbp 1 priority 110`, `glbp 1 preempt`, `glbp 1 load-balancing round-robin`; `show glbp brief`",
+  "AVG preemption is off by default; AVF preemption is on by default",
+  "Platform note in one sentence: GLBP is mainly a router feature and many Catalyst switches do not support it",
+  "A table comparing HSRP, VRRP and GLBP",
+]
+
+[[chapter.page]]
+name = "08-troubleshooting-fhrp"
+title = "Troubleshooting first hop redundancy"
+summary = "What split-brain, stuck roles and wrong gateways look like, and how to fix each."
+teaches = [
+  "Both routers active: hellos are not getting through (VLAN missing on a trunk, ACL blocking the multicast, interfaces in different subnets)",
+  "Mismatches that break a group: group number, version, virtual IP, authentication string",
+  "The higher-priority router comes back but stays standby: preemption is not configured",
+  "Failover does not happen when the WAN fails: tracking missing or decrement too small",
+  "Hosts with the wrong gateway (a real router IP), which bypasses the FHRP",
+  "Tools: `show standby brief`, `show vrrp brief`, `show glbp brief`, %HSRP-5-STATECHANGE log messages, `debug standby` with care",
+  "A worked walk-through of a split-brain HSRP pair traced to a trunk allowed-list error",
+  "Mixed questions on states, virtual MAC formats, default preemption and tracking math",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 7
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 7
+title = "Device access, AAA and passwords"
+
+[[chapter.page]]
+name = "01-who-gets-in"
+title = "Who gets in, and how"
+summary = "A network device's management access is a door; this chapter is about who holds the keys."
+teaches = [
+  "The picture: an attacker with admin access to one core switch can read, redirect or stop all traffic",
+  "The management plane as distinct from the data plane: access to configure, not traffic passing through",
+  "Layers of protection: physical access, how you connect, who you are (authentication), what you may do (authorization), what you did (accounting)",
+  "Why shared local passwords do not scale: no individual accountability, hard to revoke, hard to rotate",
+  "The chapter plan: access methods, local passwords, AAA with RADIUS and TACACS+, 802.1X, cloud management, password policy, a full security program",
+]
+
+[[chapter.page]]
+name = "02-management-access-methods"
+title = "Management access methods"
+summary = "Console, Telnet, SSH, HTTP, HTTPS and in-band versus out-of-band, with the case for each."
+teaches = [
+  "Console: physical, out-of-band, works with no IP; the recovery path of last resort",
+  "Telnet (TCP 23) sends everything in clear text including passwords; SSH (TCP 22) encrypts the session",
+  "HTTP (TCP 80) and HTTPS (TCP 443) for web GUIs such as WLCs; `no ip http server` and `ip http secure-server` on IOS",
+  "SSH hardening beyond the basics: `ip ssh version 2`, `crypto key generate rsa modulus 2048`, `transport input ssh`, `ip ssh time-out` and `ip ssh authentication-retries`",
+  "Restricting VTY access to a management subnet with a standard ACL and `access-class 10 in`",
+  "In-band management (over the production network) versus out-of-band (a separate management network or console server)",
+  "Management interfaces and VRFs: the dedicated management port on Catalyst 9000 (GigabitEthernet0/0 in Mgmt-vrf)",
+  "A table of methods with port, encryption and typical use",
+]
+
+[[chapter.page]]
+name = "03-local-passwords-done-right"
+title = "Local passwords done right"
+summary = "Password types on IOS, which ones are safe, and the settings that slow attackers down."
+teaches = [
+  "`enable password` versus `enable secret`, and why secret always wins when both are set",
+  "Password types: 0 (clear text), 7 (reversible, `service password-encryption`), 5 (MD5 hash), 8 (PBKDF2-SHA-256), 9 (scrypt)",
+  "Type 7 can be reversed in seconds; it only stops someone reading over your shoulder",
+  "Creating strong hashes: `username admin privilege 15 algorithm-type scrypt secret <password>` and `enable algorithm-type scrypt secret <password>`",
+  "`security passwords min-length 10` to enforce length on new passwords",
+  "`login block-for 120 attempts 3 within 60` against guessing, and `exec-timeout 5 0` on lines",
+  "`login local` on console and VTY lines to use the local user database, and privilege levels 1 and 15",
+  "A `console` showing `show running-config | include username|enable` with type 9 hashes",
+]
+
+[[chapter.page]]
+name = "04-aaa-concepts"
+title = "AAA concepts"
+summary = "Authentication, authorization and accounting: who you are, what you may do, and what you did."
+teaches = [
+  "Authentication: proving identity (password, certificate, token)",
+  "Authorization: deciding what an authenticated user may do (privilege level, commands, VLAN)",
+  "Accounting: recording what happened (logins, commands, session time) for audit and billing",
+  "An everyday analogy kept short: a building badge, the rooms it opens, and the door log",
+  "Local AAA versus server-based AAA with a central server such as Cisco ISE",
+  "Method lists: an ordered list of methods, such as server group first then local; the next method is tried only if the server is unreachable, not if it rejects the user",
+  "`aaa new-model` changes how every line authenticates, and the console lockout risk if the method list is wrong",
+  "A `question` on what happens when the TACACS+ server rejects a valid local username",
+]
+
+[[chapter.page]]
+name = "05-radius-and-tacacs"
+title = "RADIUS and TACACS+"
+summary = "The two AAA protocols, how they differ, and which job each does best."
+teaches = [
+  "RADIUS: open standard, UDP 1812 authentication and 1813 accounting (older 1645 and 1646), encrypts only the password",
+  "RADIUS combines authentication and authorization in one exchange",
+  "TACACS+: Cisco-developed and now documented in RFC 8907, TCP 49, encrypts the entire payload",
+  "TACACS+ separates authentication, authorization and accounting, which allows per-command authorization",
+  "Typical use: TACACS+ for device administration, RADIUS for network access (802.1X, Wi-Fi, VPN)",
+  "A table comparing them on transport, port, encryption, AAA separation, command authorization and typical use",
+  "Cisco ISE as a server that speaks both",
+]
+
+[[chapter.page]]
+name = "06-configuring-aaa-on-ios"
+title = "Configuring AAA on IOS"
+summary = "Pointing a router at TACACS+ and RADIUS servers, building method lists, and keeping a way back in."
+teaches = [
+  "Enabling AAA: `aaa new-model`, with a local user created first as the fallback",
+  "Defining a server: `tacacs server ISE1`, `address ipv4 10.10.10.5`, `key <secret>`; and `radius server RAD1`, `address ipv4 10.10.10.6 auth-port 1812 acct-port 1813`, `key <secret>`",
+  "Server groups: `aaa group server tacacs+ ADMINS` with `server name ISE1`",
+  "Method lists: `aaa authentication login default group ADMINS local`, `aaa authorization exec default group ADMINS local`, `aaa accounting commands 15 default start-stop group ADMINS`",
+  "Named lists applied to lines with `login authentication VTY-LIST`, and keeping the console on a simpler list",
+  "Testing with `test aaa group tacacs+ <user> <password> legacy` and checking `show aaa servers`",
+  "What happens when the server is down: fallback to local only when the server does not answer",
+  "A `console` showing a successful test and the server status",
+]
+
+[[chapter.page]]
+name = "07-8021x-port-based-access"
+title = "802.1X port-based access"
+summary = "Making a switch port ask who is connected before it passes any traffic."
+teaches = [
+  "Roles: supplicant (the PC), authenticator (the switch), authentication server (RADIUS)",
+  "EAP over LAN (EAPOL) between PC and switch; RADIUS between switch and server; the switch relays",
+  "Port states: unauthorized (only EAPOL passes) and authorized (normal traffic)",
+  "Configuration: `aaa new-model`, `aaa authentication dot1x default group radius`, `dot1x system-auth-control`, and on the access port `authentication port-control auto` and `dot1x pae authenticator`",
+  "Platform note in one sentence: older IOS uses `dot1x port-control auto` on the interface",
+  "MAC Authentication Bypass (MAB) for printers and phones without a supplicant",
+  "Dynamic VLAN or ACL assignment from the RADIUS server after login",
+  "Verifying with `show authentication sessions` and `show dot1x all`",
+]
+
+[[chapter.page]]
+name = "08-cloud-managed-networks"
+title = "Cloud-managed networks"
+summary = "Managing switches, APs and firewalls from a web dashboard, and what moves to the cloud and what stays."
+teaches = [
+  "The idea: devices connect outbound to a cloud service and are configured and monitored from a web dashboard (Meraki is the common example)",
+  "The management plane moves to the cloud; the control and data planes stay on the devices, so user traffic does not pass through the cloud",
+  "Zero-touch provisioning: a device is claimed in the dashboard by serial number, plugged in on site, and downloads its configuration",
+  "What happens if the internet link fails: traffic keeps flowing, but changes and monitoring wait",
+  "Benefits: one view of many sites, no on-site controller, built-in firmware updates and analytics",
+  "Trade-offs: subscription licensing, dependency on the vendor, less CLI-level control",
+  "A table comparing per-device CLI, on-premises controller and cloud-managed on where configuration lives, scale and offline behavior",
+]
+
+[[chapter.page]]
+name = "09-password-policy-and-mfa"
+title = "Password policy and alternatives"
+summary = "What a good password policy asks for, and the alternatives that do better than passwords alone."
+teaches = [
+  "Policy elements: minimum length, complexity, lockout after failed attempts, history, change on compromise, storage and sharing rules",
+  "Current guidance favors long passphrases over forced complexity and checks new passwords against lists of breached ones; forced frequent rotation tends to produce weaker passwords",
+  "Password management: password managers, unique passwords per system, no shared admin accounts",
+  "Multifactor authentication: something you know, something you have, something you are; two passwords are still one factor",
+  "Common second factors: one-time codes (TOTP), push approvals, hardware security keys",
+  "Certificates: a private key the user or device holds, checked against a trusted CA; used in EAP-TLS and for device identity",
+  "Biometrics: fingerprints and faces, convenient but cannot be changed if leaked; false accept versus false reject",
+  "A `question` on which combination counts as two factors",
+]
+
+[[chapter.page]]
+name = "10-a-security-program"
+title = "Putting it together: a security program"
+summary = "Technical controls work only inside a program of awareness, training and physical security."
+teaches = [
+  "Security program elements: policies, user awareness, training, and physical access control",
+  "User awareness: helping everyone recognize phishing and social engineering, for example with simulated phishing",
+  "Training: deeper, role-based instruction for admins and staff with special access",
+  "Physical access control: badges, locked wiring closets, access control vestibules (mantraps), cameras, visitor logs, and why console ports make physical access equal to admin access",
+  "A worked scenario: securing a branch from the door to the device, mapping each step to a page of this chapter (lock, OOB console, SSH, AAA with TACACS+, 802.1X, MFA)",
+  "Mixed questions on access methods, password types, RADIUS versus TACACS+, 802.1X roles and MFA",
+  "Recall cards on TACACS+ and RADIUS ports and password type numbers",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 8
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 8
+title = "IPv6 beyond the basics"
+
+[[chapter.page]]
+name = "01-the-ipv6-address-map"
+title = "The IPv6 address map"
+summary = "Every kind of IPv6 address, where it lives in the address space, and how far it travels."
+teaches = [
+  "An interface normally has several IPv6 addresses at once: a link-local, one or more global, and multicast group memberships",
+  "The address type table: GUA 2000::/3, link-local fe80::/10, ULA fc00::/7, multicast ff00::/8, loopback ::1/128, unspecified ::/128",
+  "Scope: link-local stays on one link, ULA within an organization, global across the internet",
+  "No broadcast in IPv6: its jobs move to multicast",
+  "Anycast has no prefix of its own; it looks like unicast",
+  "Recognizing a type from the first hextet, with a `question` on several sample addresses",
+  "The chapter plan: GUA structure, ULA, link-local, EUI-64, multicast, anycast, static routes, OSPFv3",
+]
+
+[[chapter.page]]
+name = "02-global-unicast-structure"
+title = "Global unicast structure"
+summary = "Global routing prefix, subnet ID and interface ID, and how to plan subnets from a /48."
+teaches = [
+  "The three parts: global routing prefix (often /48 from a provider), subnet ID (16 bits for a /48), interface ID (64 bits)",
+  "A worked plan from 2001:db8:acad::/48: subnets 2001:db8:acad:1::/64, :2::/64 and so on",
+  "Planning on nibble boundaries so subnets read cleanly in hex, such as using the subnet ID to encode building and floor",
+  "Smaller allocations (/56 for a home) and how many /64s each gives",
+  "Configuring a static GUA: `ipv6 address 2001:db8:acad:1::1/64` and `ipv6 unicast-routing`",
+  "Reading `show ipv6 interface brief` with link-local and global addresses listed",
+  "A `drill` of IPv6 shortening",
+]
+
+[[chapter.page]]
+name = "03-unique-local-addresses"
+title = "Unique local addresses"
+summary = "IPv6's internal-only addresses: what fd00::/8 means and how to pick a prefix."
+teaches = [
+  "ULA range fc00::/7; in practice fd00::/8, where the eighth bit (L) set to 1 means locally assigned",
+  "Structure: fd, a 40-bit random global ID, a 16-bit subnet ID, a 64-bit interface ID, so each site gets a /48",
+  "Why the global ID is random: two organizations that merge are very unlikely to collide",
+  "ULAs are not routed on the internet, and are used for internal services, labs and stable internal addressing",
+  "Comparison with IPv4 private addresses, and why IPv6 does not intend NAT as the normal companion to ULA",
+  "A host can have a ULA and a GUA at the same time and choose by source address selection",
+  "Misconception: fec0::/10 site-local addresses are deprecated; ULA replaced them",
+]
+
+[[chapter.page]]
+name = "04-link-local-addresses"
+title = "Link-local addresses"
+summary = "The address every IPv6 interface has, and why routers use it for nearly everything on a link."
+teaches = [
+  "Range fe80::/10, used as fe80::/64; created automatically when IPv6 is enabled on an interface",
+  "Uses: Neighbor Discovery, router advertisements, routing protocol neighbors, and the next hop in IPv6 routing tables",
+  "The same link-local can exist on every interface of a router, so a link-local alone does not say which link",
+  "Setting a readable one: `ipv6 address fe80::1 link-local`",
+  "Pinging a link-local needs the outgoing interface, and IOS prompts for it",
+  "`ipv6 enable` creates a link-local without a global address",
+  "Reading `show ipv6 interface g0/0/0` for the link-local and the joined groups",
+]
+
+[[chapter.page]]
+name = "05-modified-eui-64"
+title = "Modified EUI-64"
+summary = "Building a 64-bit interface ID from a 48-bit MAC address, step by step."
+teaches = [
+  "Step 1: split the MAC in half (0050.79 | 66.6800)",
+  "Step 2: insert fffe in the middle (0050:79ff:fe66:6800)",
+  "Step 3: flip the seventh bit of the first byte (the U/L bit), so 00 becomes 02, giving 0250:79ff:fe66:6800",
+  "The full address with a prefix: 2001:db8:acad:1:250:79ff:fe66:6800",
+  "Configuring it: `ipv6 address 2001:db8:acad:1::/64 eui-64`; link-locals on IOS also use EUI-64 by default",
+  "Spotting EUI-64 in output: ff:fe in the middle of the interface ID",
+  "Privacy concern: the MAC is visible in the address, so many host operating systems use random interface IDs instead",
+  "A `drill` of hex conversions and a `question` computing an interface ID",
+]
+
+[[chapter.page]]
+name = "06-ipv6-multicast"
+title = "IPv6 multicast"
+summary = "The well-known groups, solicited-node addresses, and how IPv6 does without broadcast."
+teaches = [
+  "Format ff00::/8 with flags and a scope field: ff02 link-local, ff05 site-local, ff0e global",
+  "Well-known groups: ff02::1 all nodes, ff02::2 all routers, ff02::5 OSPFv3 routers, ff02::6 OSPFv3 DRs, ff02::9 RIPng, ff02::a EIGRP, ff02::1:2 DHCPv6 agents",
+  "Solicited-node multicast: ff02::1:ff plus the last 24 bits of the unicast address, used by Neighbor Discovery instead of ARP broadcast",
+  "A worked solicited-node example from 2001:db8:acad:1::a:1",
+  "Multicast MAC mapping: 33:33 plus the last 32 bits of the group",
+  "Reading the 'Joined group address(es)' list in `show ipv6 interface`",
+  "A table of the well-known groups with their meaning",
+]
+
+[[chapter.page]]
+name = "07-anycast-addresses"
+title = "Anycast addresses"
+summary = "One address on several devices, with routing delivering each packet to the nearest one."
+teaches = [
+  "Anycast: the same unicast-format address assigned to more than one device; routing sends each packet to the closest by metric",
+  "Uses: DNS root servers and public resolvers, content delivery, and spreading load across sites",
+  "Anycast is a routing technique, not a special address range, and also works with IPv4",
+  "IOS configuration: `ipv6 address 2001:db8:acad:99::1/64 anycast` so the router skips duplicate address detection",
+  "The subnet-router anycast address: the subnet prefix with an all-zero interface ID",
+  "Limitations: suits short or connectionless exchanges best, because a routing change can move a session to another server",
+  "A diagram of two servers with the same anycast address in different sites",
+]
+
+[[chapter.page]]
+name = "08-ipv6-static-routes"
+title = "IPv6 static routes"
+summary = "Next-hop, directly attached and fully specified IPv6 static routes, defaults, hosts and floating backups."
+teaches = [
+  "`ipv6 unicast-routing` is needed before a router forwards IPv6",
+  "Next-hop route: `ipv6 route 2001:db8:acad:2::/64 2001:db8:acad:12::2`",
+  "Directly attached: `ipv6 route 2001:db8:acad:2::/64 serial0/1/0`, recommended only on point-to-point links",
+  "Fully specified with a link-local next hop, which needs the exit interface: `ipv6 route 2001:db8:acad:2::/64 g0/0/1 fe80::2`",
+  "Default route `ipv6 route ::/0 2001:db8:acad:12::2`, host route with /128, floating static with a higher administrative distance such as `ipv6 route ::/0 2001:db8:acad:13::3 5`",
+  "Reading `show ipv6 route`: codes C, L and S, [1/0], and that every interface address appears as a /128 local route",
+  "Verifying with `ping` and `traceroute` to IPv6 destinations",
+  "`command` blocks for a default route and a fully specified route",
+]
+
+[[chapter.page]]
+name = "09-first-look-at-ospfv3"
+title = "A first look at OSPFv3"
+summary = "OSPF for IPv6: the same ideas as OSPFv2, enabled per interface and spoken over link-local addresses."
+teaches = [
+  "What stays the same: link state, areas, Dijkstra, hello and dead timers, neighbor states, DR and BDR on multiaccess links, cost",
+  "What changes: neighbors talk over link-local addresses using ff02::5 and ff02::6, and the protocol is enabled on interfaces rather than with network statements",
+  "The router ID is still a 32-bit dotted number; on an IPv6-only router it must be set by hand",
+  "Configuration: `ipv6 unicast-routing`, `ipv6 router ospf 10`, `router-id 1.1.1.1`, then `ipv6 ospf 10 area 0` on each interface",
+  "Verifying: `show ipv6 ospf neighbor`, `show ipv6 ospf interface brief`, `show ipv6 route ospf` (code O)",
+  "Neighbor problems carry over: area, timers and subnet mismatches, plus the missing router ID",
+  "Newer IOS syntax with `router ospfv3` and address families, mentioned in one sentence",
+  "A table comparing OSPFv2 and OSPFv3",
+]
+
+[[chapter.page]]
+name = "10-check-yourself"
+title = "Check yourself: IPv6 in depth"
+summary = "Mixed practice on address types, EUI-64, multicast, static routes and OSPFv3."
+teaches = [
+  "A worked scenario: a two-router site with a /48, ULA for servers, EUI-64 on one LAN, a default static route and OSPFv3 between routers",
+  "Identify the type and scope of a list of addresses",
+  "Compute an EUI-64 interface ID and a solicited-node group",
+  "Spot the error in a static route with a link-local next hop and no interface",
+  "A `drill` of IPv6 shortening and mixed questions on everything in the chapter",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 9
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 9
+title = "Virtualization, containers, VRFs and cloud"
+
+[[chapter.page]]
+name = "01-one-box-many-machines"
+title = "One box, many machines"
+summary = "Why data centers moved from one server per application to many virtual machines per server."
+teaches = [
+  "The picture: a rack of servers each running one application at 10 percent load",
+  "Virtualization separates the operating system from the hardware so one physical host runs many isolated systems",
+  "Benefits: consolidation, faster provisioning, isolation, easier recovery and testing",
+  "What gets virtualized: servers, network functions, and the network itself (VLANs, VRFs, overlays)",
+  "The chapter plan: hypervisors, containers, virtual network functions, spine-leaf, VRFs, cloud",
+]
+
+[[chapter.page]]
+name = "02-hypervisors-and-virtual-machines"
+title = "Hypervisors and virtual machines"
+summary = "Type 1 and Type 2 hypervisors, what a VM is made of, and how VMs reach the network."
+teaches = [
+  "Type 1 (bare metal) hypervisors run directly on hardware: VMware ESXi, Microsoft Hyper-V, KVM",
+  "Type 2 (hosted) hypervisors run on a desktop OS: VirtualBox, VMware Workstation",
+  "A VM's parts: virtual CPUs, memory, virtual disk files, virtual NICs, and its own guest OS",
+  "The virtual switch inside the host connects vNICs to each other and to the physical NICs",
+  "VLANs reach VMs through the vSwitch, so the physical switch port to a host is usually a trunk",
+  "Live migration moves a running VM between hosts, which is why VLANs often span many access switches in a data center",
+  "A diagram of one host with three VMs, a vSwitch and two uplinks to the physical network",
+]
+
+[[chapter.page]]
+name = "03-containers"
+title = "Containers"
+summary = "Lighter than VMs: applications packaged with their dependencies, sharing the host's kernel."
+teaches = [
+  "A container packages an application and its libraries but shares the host OS kernel, so it starts in seconds and is often megabytes rather than gigabytes",
+  "Image versus container: the image is the template, a container is a running instance; images come from a registry",
+  "Docker as the common container engine; Kubernetes as the orchestrator that schedules containers across many hosts",
+  "Container networking: a bridge network on the host, NAT and port mapping such as host port 8080 to container port 80",
+  "A table comparing VMs and containers on isolation, size, start time, OS per instance and typical use",
+  "Containers on network devices: IOS XE application hosting can run containers on Catalyst 9000 switches, mentioned as going deeper",
+  "Misconception: containers do not each run their own OS kernel, so a Linux container needs a Linux kernel",
+]
+
+[[chapter.page]]
+name = "04-virtual-network-functions"
+title = "Virtual network functions"
+summary = "Routers, firewalls and controllers that run as software on ordinary servers."
+teaches = [
+  "Network functions virtualization (NFV): running network services as VMs or containers instead of dedicated appliances",
+  "Examples: Catalyst 8000V virtual router, virtual firewalls, the Catalyst 9800-CL virtual WLC",
+  "Where they run: data centers, branch compute platforms, and public clouds",
+  "Benefits: deploy in minutes, scale by adding instances, no hardware shipping",
+  "Limits: performance depends on the host CPU, and the hypervisor becomes part of the network path",
+  "Service chaining in outline: traffic passing through a virtual firewall and then a virtual load balancer",
+]
+
+[[chapter.page]]
+name = "05-spine-leaf-data-centers"
+title = "Spine-leaf data centers"
+summary = "The two-layer fabric that gives every server the same short path to every other server."
+teaches = [
+  "Traffic shift: virtualized data centers have mostly east-west traffic (server to server), not north-south",
+  "The design: every leaf connects to every spine; leaves never connect to leaves, spines never to spines",
+  "Servers, storage and routers to the outside (border leaves) attach to leaves",
+  "Any server to any other server is leaf, spine, leaf: always the same number of hops",
+  "Equal-cost multipath across all spines, usually with a routed underlay instead of STP",
+  "Scaling: add a leaf for more ports, add a spine for more bandwidth",
+  "A diagram of two spines and three leaves, and a comparison with the three-tier campus design",
+]
+
+[[chapter.page]]
+name = "06-vrfs"
+title = "VRFs"
+summary = "Several separate routing tables in one router, so overlapping networks never meet."
+teaches = [
+  "A VRF (virtual routing and forwarding) instance is a separate routing table and set of interfaces inside one router",
+  "Uses: separating customers with overlapping addresses, isolating guest or management traffic, the base of MPLS VPNs",
+  "VRF-Lite configuration: `vrf definition CUST-A`, `address-family ipv4`, then on the interface `vrf forwarding CUST-A` and the IP address",
+  "Trap: `vrf forwarding` removes the interface's existing IP address, so it must be entered again",
+  "Verifying: `show vrf`, `show ip route vrf CUST-A`, `ping vrf CUST-A 10.1.1.1`",
+  "Built-in management VRFs: Mgmt-vrf on Catalyst 9000 switches, Mgmt-intf on ISR 4000 routers",
+  "Older syntax `ip vrf` and `ip vrf forwarding`, mentioned in one sentence",
+  "A `console` showing two VRFs with the same 10.1.1.0/24 prefix",
+]
+
+[[chapter.page]]
+name = "07-cloud-computing"
+title = "Cloud computing"
+summary = "What makes a service a cloud, the service and deployment models, and how a network reaches it."
+teaches = [
+  "The five essential characteristics: on-demand self-service, broad network access, resource pooling, rapid elasticity, measured service",
+  "Service models: IaaS (you manage OS and up), PaaS (you manage code and data), SaaS (you use the application), with a table of who manages what",
+  "Deployment models: public, private, hybrid, community",
+  "On-premises versus cloud: capital versus operating expense, control versus speed, where the data lives",
+  "Connecting to a cloud: over the internet, through an IPsec VPN, or with a private dedicated connection",
+  "Networking inside a public cloud in outline: virtual networks (VPC or VNet), subnets, route tables, security groups, virtual routers and firewalls",
+  "Misconception: moving to the cloud does not remove networking work; it moves it into software",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself: placing workloads"
+summary = "A worked scenario choosing VMs, containers, VRFs and cloud services, then mixed questions."
+teaches = [
+  "Scenario: a company with an old app, a new web service, a guest network and a partner with overlapping addresses",
+  "Choices and reasons: VM for the old app, containers for the web service, VRF for the partner, SaaS for email",
+  "Mixed questions on hypervisor types, VMs versus containers, VRF commands, spine-leaf and cloud models",
+  "Recall cards on Type 1 versus Type 2, IaaS versus PaaS versus SaaS, and the VRF interface trap",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 10
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 10
+title = "Controllers and software-defined networks"
+
+[[chapter.page]]
+name = "01-from-box-by-box-to-controller"
+title = "From box by box to a controller"
+summary = "Why configuring hundreds of devices one at a time stopped scaling, and what a controller changes."
+teaches = [
+  "The picture: adding one VLAN to 200 switches by SSH, one at a time, with typos",
+  "Traditional networks: each device runs its own control plane and is configured individually",
+  "Controller-based networks: a central controller holds the intent and programs the devices",
+  "What improves: consistency, speed, central visibility, fewer manual errors",
+  "What does not go away: devices still forward packets, and the underlying protocols still matter",
+  "A table comparing traditional and controller-based networking on configuration, visibility, change speed and troubleshooting",
+]
+
+[[chapter.page]]
+name = "02-data-control-management-planes"
+title = "Data, control and management planes"
+summary = "The three jobs inside every network device, and which one a controller takes over."
+teaches = [
+  "Data plane: forwarding each packet or frame, in hardware (ASICs) using tables such as CEF and the MAC table",
+  "Control plane: building those tables, with OSPF, STP, ARP and similar protocols",
+  "Management plane: how people and tools configure and monitor the device, with SSH, SNMP, syslog and APIs",
+  "A table sorting common protocols and functions into the three planes",
+  "In SDN the control plane is centralized or the controller sets policy for it, while the data plane stays on the devices",
+  "Pure SDN (OpenFlow, the controller computes forwarding) versus the common hybrid (devices keep routing protocols, controller manages policy)",
+  "A `question` asking which plane a given function belongs to",
+]
+
+[[chapter.page]]
+name = "03-northbound-and-southbound-apis"
+title = "Northbound and southbound APIs"
+summary = "How applications talk to the controller, and how the controller talks to devices."
+teaches = [
+  "The picture: apps on top, the controller in the middle, devices below; north is up toward apps, south is down toward devices",
+  "Northbound APIs: usually REST over HTTPS with JSON, used by scripts, portals and orchestration tools",
+  "Southbound interfaces: OpenFlow, NETCONF (over SSH, TCP 830, XML), RESTCONF (HTTPS, JSON or XML), SNMP, the CLI over SSH, OpFlex in Cisco ACI",
+  "YANG data models describe what NETCONF and RESTCONF can read and change",
+  "A diagram of the three layers labeled with example APIs",
+  "Misconception: the direction names describe the controller's view, not the traffic direction",
+]
+
+[[chapter.page]]
+name = "04-underlay-overlay-fabric"
+title = "Underlay, overlay and fabric"
+summary = "A physical network that only moves packets, a virtual network on top that carries the policy, and the fabric that is both."
+teaches = [
+  "Underlay: the physical devices and links running a routing protocol for plain IP reachability between them",
+  "Overlay: virtual tunnels between edge devices, carrying user traffic and segmentation across the underlay",
+  "Fabric: the combined system of underlay and overlay, managed as one",
+  "VXLAN as the common overlay encapsulation: original frame inside UDP, about 50 bytes of overhead, so underlay MTU must be raised",
+  "Why overlays help: users keep the same subnet anywhere, segmentation without many VLANs, a simple routed underlay without STP",
+  "A `fields` block showing a VXLAN-encapsulated frame: outer IP and UDP, VXLAN header with VNI, inner Ethernet frame",
+  "An everyday analogy: the road network is the underlay, a courier service with its own sealed boxes is the overlay",
+]
+
+[[chapter.page]]
+name = "05-sd-access"
+title = "SD-Access in outline"
+summary = "Cisco's campus fabric: the planes, the node roles and how it segments users."
+teaches = [
+  "SD-Access is a campus fabric managed by Catalyst Center, with Cisco ISE for identity and policy",
+  "Control plane: LISP maps endpoints to the edge node they sit behind",
+  "Data plane: VXLAN carries traffic between fabric nodes",
+  "Policy plane: Cisco TrustSec with Scalable Group Tags (SGTs) carried in the VXLAN header",
+  "Node roles: edge nodes (access), border nodes (exit to other networks), control plane nodes (the LISP map server), fabric WLC",
+  "Two levels of segmentation: virtual networks (VRFs) for macro-segmentation, SGTs for micro-segmentation within a VN",
+  "The underlay is a routed network, which Catalyst Center can build automatically (LAN automation uses IS-IS)",
+]
+
+[[chapter.page]]
+name = "06-catalyst-center"
+title = "Catalyst Center"
+summary = "Cisco's campus controller, formerly DNA Center: design, policy, provision and assurance."
+teaches = [
+  "Name history: Cisco DNA Center was renamed Catalyst Center; older material uses the old name",
+  "The four workflows: Design (sites, IP pools, settings), Policy (groups and access rules), Provision (push to devices), Assurance (health and issues)",
+  "Intent-based networking: you state the outcome, the controller translates it into device configuration and checks it stays true",
+  "Assurance: health scores for clients, devices and applications, with issues and suggested actions",
+  "Plug and Play for new devices, software image management (SWIM), and configuration templates",
+  "Southbound it uses SSH, NETCONF and SNMP; northbound it exposes the Intent API (REST)",
+  "A table comparing traditional management and Catalyst Center management",
+]
+
+[[chapter.page]]
+name = "07-other-controllers"
+title = "Other controllers"
+summary = "WLCs, SD-WAN, Meraki and ACI: the controllers you will meet beyond the campus."
+teaches = [
+  "WLC: a controller for APs, the oldest controller most network engineers meet (chapter 4)",
+  "Catalyst SD-WAN: Manager (formerly vManage) for management, Controller (formerly vSmart) for control, Validator (formerly vBond) for onboarding, and WAN Edge routers",
+  "Meraki dashboard: a cloud controller for switches, APs, security appliances and cameras",
+  "Cisco ACI: the APIC controller for data center spine-leaf fabrics, using application-centric policy",
+  "Older APIC-EM as the ancestor of Catalyst Center, in one sentence",
+  "A table of controllers with domain, where they run and the name of the controller",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself: controller-based networks"
+summary = "A worked comparison of one change done box by box and through a controller, then mixed questions."
+teaches = [
+  "Worked example: adding a guest VLAN and policy to 50 sites, first by CLI, then with Catalyst Center",
+  "Identify the plane for a list of functions",
+  "Classify a list of APIs as northbound or southbound",
+  "Match underlay, overlay and fabric to descriptions, and SD-Access planes to LISP, VXLAN and SGT",
+  "Recall cards on the planes, NETCONF port and the Catalyst Center workflows",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 11
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 11
+title = "APIs, REST and JSON"
+
+[[chapter.page]]
+name = "01-why-machines-need-apis"
+title = "Why machines need APIs"
+summary = "Screen-scraping CLI output breaks; an API gives programs structured data and a stable contract."
+teaches = [
+  "The picture: a script that parses `show ip interface brief` text breaks when a column moves",
+  "An API (application programming interface) is a defined way for programs to ask for data or actions",
+  "Structured data versus human-readable output",
+  "Where network APIs appear: controllers (Catalyst Center, Meraki, SD-WAN Manager), devices (RESTCONF, NETCONF), clouds",
+  "Web APIs use HTTP, so the same tools that fetch web pages can drive the network",
+  "The chapter plan: HTTP, REST, CRUD and verbs, JSON, YAML and XML, authentication, a full exchange",
+]
+
+[[chapter.page]]
+name = "02-http-in-brief"
+title = "HTTP in brief"
+summary = "The request and response that every REST call is built from."
+teaches = [
+  "A request: method, URI, headers, optional body",
+  "URI parts: scheme (https), host, port, path (/dna/intent/api/v1/network-device), query string (?family=Switches)",
+  "Headers that matter: Content-Type, Accept, Authorization",
+  "A response: status code, headers, body",
+  "Status code classes: 1xx informational, 2xx success, 3xx redirect, 4xx client error, 5xx server error",
+  "Common codes: 200 OK, 201 Created, 204 No Content, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Internal Server Error",
+  "A `console` showing a raw request and response",
+  "A `question` on 401 versus 403",
+]
+
+[[chapter.page]]
+name = "03-rest-principles"
+title = "REST principles"
+summary = "What makes an API RESTful: resources, URIs and stateless requests."
+teaches = [
+  "REST is an architectural style, not a protocol; it usually runs over HTTP",
+  "Resources named by URIs: a collection (/devices) and a member (/devices/42)",
+  "Constraints in plain words: client-server, stateless (each request carries everything needed), cacheable, uniform interface, layered system, code on demand (optional)",
+  "Stateless means the server keeps no session memory between requests, which is why each request carries a token",
+  "Representations: the same resource returned as JSON or XML depending on the Accept header",
+  "REST compared with older styles such as SOAP in one short paragraph",
+]
+
+[[chapter.page]]
+name = "04-crud-and-http-verbs"
+title = "CRUD and HTTP verbs"
+summary = "Create, read, update and delete, and the HTTP method that does each."
+teaches = [
+  "The mapping: Create POST, Read GET, Update PUT or PATCH, Delete DELETE",
+  "PUT replaces the whole resource; PATCH changes part of it",
+  "Safe methods (GET) change nothing; idempotent methods (GET, PUT, DELETE) give the same result when repeated; POST is neither",
+  "Typical success codes: GET 200, POST 201, DELETE 200 or 204",
+  "Examples against a controller: list devices, add a site, change a hostname, delete a user",
+  "A table of CRUD action, HTTP verb, idempotent and typical status",
+  "Misconception: POST is not always 'create'; some APIs use it for actions, but in CRUD terms it maps to create",
+]
+
+[[chapter.page]]
+name = "05-json"
+title = "JSON"
+summary = "Objects, arrays and values: reading and writing the format most network APIs use."
+teaches = [
+  "Objects in braces with key-value pairs; keys are strings in double quotes; pairs separated by commas",
+  "Arrays in square brackets, ordered lists of values",
+  "Value types: string, number, true, false, null, object, array",
+  "Rules that catch people out: no comments, no trailing comma, double quotes only, whitespace does not matter",
+  "Reading a nested example: a device object with a list of interface objects, and following a path to one value",
+  "Counting objects, arrays and key-value pairs in a sample, as a `question`",
+  "Spotting invalid JSON in a sample",
+]
+
+[[chapter.page]]
+name = "06-yaml-and-xml"
+title = "YAML and XML"
+summary = "The other two data formats you will meet, shown with the same data as JSON."
+teaches = [
+  "YAML: indentation shows structure, `key: value`, `-` for list items, `---` to start a document, comments with #",
+  "YAML is used by Ansible playbooks and inventories",
+  "XML: nested tags, attributes, namespaces; used by NETCONF",
+  "The same interface data in JSON, YAML and XML side by side",
+  "A table comparing the three on readability, comments, typical use",
+  "Trap: YAML indentation must use spaces, never tabs",
+]
+
+[[chapter.page]]
+name = "07-api-authentication"
+title = "API authentication"
+summary = "Basic auth, API keys, bearer tokens and OAuth, and how to keep them safe."
+teaches = [
+  "Basic authentication: username and password Base64-encoded in the Authorization header; Base64 is encoding, not encryption, so HTTPS is required",
+  "API keys: a long secret string sent in a header such as X-API-Key (or a query parameter, which is less safe)",
+  "Token-based: log in once, receive a token, send it with each request (Authorization: Bearer <token>); tokens expire",
+  "Catalyst Center example: POST to /dna/system/api/v1/auth/token with basic auth returns a token, then send it in the X-Auth-Token header",
+  "OAuth 2.0: an authorization server issues access tokens with scopes, used for 'sign in with' and third-party access without sharing a password; refresh tokens",
+  "A table comparing basic, API key, token and OAuth on what is sent, expiry and typical use",
+  "Good practice: always HTTPS, least privilege, rotate keys, never hard-code secrets in scripts",
+]
+
+[[chapter.page]]
+name = "08-reading-an-api-exchange"
+title = "Reading an API exchange"
+summary = "A full worked call to a controller, from token to JSON response, and what to check when it fails."
+teaches = [
+  "Step 1: get a token with POST and basic auth, and read the JSON response",
+  "Step 2: GET the device list with the token in a header, shown with curl",
+  "The same call in a few lines of Python using the requests library",
+  "Reading the JSON response and pulling out hostname and management IP",
+  "When it fails: 401 means bad or expired token, 403 means not allowed, 404 means wrong path, 400 means a bad body",
+  "Tools: curl, Postman, Python, and the controller's own API documentation page",
+  "Mixed questions on verbs, status codes, JSON structure and authentication types",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 12
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 12
+title = "Ansible, Terraform and infrastructure as code"
+
+[[chapter.page]]
+name = "01-configuration-at-scale"
+title = "Configuration at scale"
+summary = "Hand-typed changes drift and break; describing configuration as code keeps hundreds of devices consistent."
+teaches = [
+  "The picture: 300 switches that were 'the same' a year ago and now each differ a little (configuration drift)",
+  "Costs of manual change: typos, missed devices, no record of who changed what",
+  "Automation as a spectrum: scripts, configuration management tools, controllers",
+  "Idempotency: running the same automation twice leaves the device in the same state",
+  "Declarative (describe the end state) versus imperative (list the steps), with a short example of each",
+  "The chapter plan: infrastructure as code, Ansible, Terraform, comparing them, other tools",
+]
+
+[[chapter.page]]
+name = "02-infrastructure-as-code"
+title = "Infrastructure as code"
+summary = "Keeping the network's intended state in files, under version control, with review before change."
+teaches = [
+  "IaC: infrastructure defined in text files that tools apply, instead of hand-typed changes",
+  "Source of truth: the files (and their variables) describe what should exist",
+  "Version control with Git: commits, history, branches, pull requests and review",
+  "Pipelines in outline: a change is committed, checked automatically, reviewed, then applied",
+  "Rollback by applying an earlier version",
+  "Benefits and cautions: speed and consistency, but a mistake can also spread to every device at once",
+]
+
+[[chapter.page]]
+name = "03-ansible-architecture"
+title = "Ansible architecture"
+summary = "Agentless, push-based configuration management: control node, inventory, modules and playbooks."
+teaches = [
+  "Agentless: nothing to install on network devices; Ansible connects over SSH (or an API)",
+  "Push model: the control node (Linux with Python) pushes changes when you run it",
+  "Inventory: hosts and groups in INI or YAML, with variables per host or group",
+  "Modules do the work (for IOS: cisco.ios.ios_command, cisco.ios.ios_config, and resource modules such as cisco.ios.ios_vlans), packaged in collections",
+  "Tasks, plays and playbooks: a task calls a module, a play maps tasks to hosts, a playbook holds plays, all in YAML",
+  "Network connection settings: `ansible_connection: ansible.netcommon.network_cli` and `ansible_network_os: cisco.ios.ios`",
+  "Variables and Jinja2 templates for building per-device configuration",
+  "A diagram of a control node pushing to three switches",
+]
+
+[[chapter.page]]
+name = "04-reading-a-playbook"
+title = "Reading a playbook"
+summary = "A short playbook for IOS devices, line by line, and the output of running it."
+teaches = [
+  "A playbook with `name`, `hosts: switches`, `gather_facts: false`, and two tasks",
+  "Task 1 uses cisco.ios.ios_command to run `show version` and `register` the result",
+  "Task 2 uses cisco.ios.ios_config with `lines` to set NTP servers",
+  "Running it: `ansible-playbook -i inventory.yml ntp.yml`, and `--check` for a dry run",
+  "Reading PLAY RECAP: ok, changed, unreachable, failed, skipped",
+  "Idempotency in practice: the second run reports changed=0",
+  "Ad hoc commands for one-off tasks, such as running a module against a group from the command line",
+]
+
+[[chapter.page]]
+name = "05-terraform-basics"
+title = "Terraform basics"
+summary = "Declaring infrastructure in HCL, planning the change and applying it, with state to remember what exists."
+teaches = [
+  "Terraform (HashiCorp) is declarative IaC, originally for provisioning cloud resources, now also used with network platforms",
+  "HCL configuration: `provider` blocks, `resource` blocks, variables and outputs, with a short example",
+  "Providers talk to each platform's API: public clouds, Meraki, Catalyst Center, IOS XE and others",
+  "State: terraform.tfstate records what Terraform created, so it can compute differences",
+  "Workflow: `terraform init` (download providers), `terraform plan` (show changes), `terraform apply` (make them), `terraform destroy`",
+  "Reading a plan: + create, ~ update in place, - destroy",
+  "Trap: the state file can contain secrets and must be stored and shared carefully",
+]
+
+[[chapter.page]]
+name = "06-ansible-versus-terraform"
+title = "Ansible versus Terraform"
+summary = "Two tools with different strengths, often used together."
+teaches = [
+  "Ansible: configuration management, YAML playbooks, tasks run in order, no state file, connects over SSH or APIs",
+  "Terraform: provisioning, HCL, declarative, keeps a state file, connects through provider APIs",
+  "A comparison table: language, approach, state, connection, typical use",
+  "Using both: Terraform creates the cloud network and VMs, Ansible configures what runs on them",
+  "Agent-based pull tools (Puppet, Chef) in one paragraph: an agent on each node pulls configuration from a server",
+  "A `question` on which tool fits a given task",
+]
+
+[[chapter.page]]
+name = "07-scripts-and-libraries"
+title = "Scripts and libraries"
+summary = "Python with Netmiko, NAPALM and model-driven APIs, and when a script is the right tool."
+teaches = [
+  "Python is the common language for network scripts",
+  "Netmiko: a library that handles SSH sessions to network devices and sends commands",
+  "NAPALM: a library with one set of functions across vendors, such as getting facts or replacing a configuration",
+  "Model-driven programmability: NETCONF and RESTCONF with YANG models, returning structured data",
+  "When a script fits (a quick one-off, custom logic) and when a tool fits (repeatable, shared, reviewed changes)",
+  "A short Python example that connects with Netmiko and prints `show ip interface brief`",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself: an automated change"
+summary = "A worked rollout of a configuration change with Git and Ansible, then mixed questions."
+teaches = [
+  "Scenario: set NTP and syslog on 200 switches; edit variables, open a pull request, run with `--check`, apply, verify",
+  "What the PLAY RECAP shows on the first and second runs",
+  "The same goal for cloud resources with Terraform plan and apply",
+  "Mixed questions on IaC, idempotency, Ansible parts, Terraform workflow and Ansible versus Terraform",
+  "Recall cards on agentless, the Terraform commands and the state file",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 13
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 13
+title = "AI and machine learning in network operations"
+
+[[chapter.page]]
+name = "01-what-ai-means-here"
+title = "What AI means in operations"
+summary = "Sorting AI, machine learning, predictive AI and generative AI, and where each meets the network."
+teaches = [
+  "The nested picture: AI (machines doing tasks that seem to need intelligence) contains machine learning (learning from data) which contains deep learning (many-layer neural networks)",
+  "Narrow AI (one task) versus general AI (not something in use today)",
+  "Rules-based automation versus learning systems: a threshold alarm versus a learned baseline",
+  "Predictive AI: forecasting and spotting anomalies from data",
+  "Generative AI: producing new text, code or images from a prompt",
+  "Agentic AI: systems that plan and take actions using tools",
+  "A table placing each type with an example from network operations",
+]
+
+[[chapter.page]]
+name = "02-how-machines-learn"
+title = "How machines learn"
+summary = "Supervised, unsupervised and reinforcement learning, and why data quality decides the result."
+teaches = [
+  "Training builds a model from data; inference uses the model on new data",
+  "Supervised learning: labeled examples (this traffic is normal, this is an attack), for classification and prediction",
+  "Unsupervised learning: no labels, finds clusters and outliers, the basis of anomaly detection",
+  "Reinforcement learning: learns actions from rewards and penalties",
+  "Data quality: missing, biased or old data produces wrong models",
+  "Overfitting in plain words: a model that memorizes its training data and fails on new data",
+  "A `question` matching a network task to a learning type",
+]
+
+[[chapter.page]]
+name = "03-predictive-ai"
+title = "Predictive AI"
+summary = "Learning what normal looks like, so the network can warn before users notice."
+teaches = [
+  "Baselining: learning normal behavior per site, time of day and device instead of fixed thresholds",
+  "Anomaly detection: flagging departures from the baseline, such as unusual onboarding failures at one site",
+  "Forecasting: capacity planning for links and wireless, predicting when a link will saturate",
+  "Predicting failures: hardware, optics or link errors trending toward an outage",
+  "Examples in products in general terms: AI-driven assurance in controllers such as Catalyst Center and Meraki, path monitoring services",
+  "Reactive versus proactive operations, with a table",
+  "Limits: false positives, needing enough history, alerts still need a person to judge",
+]
+
+[[chapter.page]]
+name = "04-generative-ai"
+title = "Generative AI"
+summary = "Large language models that write text and configuration, and why their output must be checked."
+teaches = [
+  "A large language model predicts likely next words (tokens) after training on large amounts of text",
+  "Uses in operations: explaining unfamiliar output, summarizing logs and incidents, drafting configurations and scripts, answering questions about documentation",
+  "Assistants built into network platforms that answer in natural language",
+  "Hallucination: confident but wrong output, such as a command that does not exist",
+  "Non-determinism: the same prompt can give different answers",
+  "Knowledge limits: a model's training has a cutoff and may not know your network or newer releases",
+  "Rule: treat generated configuration like a colleague's draft, review it and test it in a lab before production",
+]
+
+[[chapter.page]]
+name = "05-prompting-well"
+title = "Prompting well"
+summary = "How to ask a generative AI for useful, checkable help with a network task."
+teaches = [
+  "Give context: platform and software (Catalyst 9300, IOS XE), the topology, the goal",
+  "State constraints: what must not change, naming conventions, security requirements",
+  "Ask for a format: a config block, a table, step-by-step reasoning, verification commands",
+  "Give an example of the output you want when the format matters",
+  "Iterate: correct the answer and ask again rather than starting over",
+  "Never paste secrets, passwords, keys or sensitive configuration into a public tool",
+  "A weak prompt and a strong prompt for the same task side by side",
+]
+
+[[chapter.page]]
+name = "06-agentic-ai"
+title = "Agentic AI"
+summary = "AI that can take actions through tools, and the guardrails that keep it safe on a network."
+teaches = [
+  "An agent works in a loop: observe, plan, act with a tool (an API, a show command), check the result, repeat",
+  "How it differs from a chat assistant: it does things rather than only suggesting them",
+  "Network examples: gathering show output across devices during an incident, opening a ticket, proposing and testing a fix",
+  "Guardrails: least privilege, read-only by default, a human approves changes, change windows",
+  "Audit: logging every action and its reason",
+  "Risks: a wrong action repeated quickly across many devices, and instructions hidden in data the agent reads",
+]
+
+[[chapter.page]]
+name = "07-risks-and-responsible-use"
+title = "Risks and responsible use"
+summary = "Privacy, bias, explainability and security: what to watch when AI touches the network."
+teaches = [
+  "Data privacy: logs and configs can contain addresses, names and secrets; know where data goes",
+  "Bias and gaps from training data that does not match your network",
+  "Explainable AI (XAI): being able to see why a model flagged something, which matters for trust and audit",
+  "Prompt injection: text in a log or web page that tries to steer an AI tool",
+  "Overreliance: skills fade if people stop checking the output",
+  "Governance: policies on which tools are approved and what data they may see",
+  "A table of risks with a control for each",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself: AI in operations"
+summary = "A worked incident handled with predictive, generative and agentic help, then mixed questions."
+teaches = [
+  "Scenario: assurance flags rising onboarding failures at one site (predictive), an assistant summarizes logs and suggests causes (generative), an agent collects show output with approval (agentic)",
+  "Where a person must decide in each step",
+  "Mixed questions classifying tasks as predictive, generative or agentic, and supervised versus unsupervised",
+  "Recall cards on hallucination, XAI and the AI, ML, deep learning nesting",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 14
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 14
+title = "Troubleshooting any network"
+
+[[chapter.page]]
+name = "01-a-method-not-a-guess"
+title = "A method, not a guess"
+summary = "Why a structured process finds faults faster than intuition, and the steps it follows."
+teaches = [
+  "The picture: 'the network is down', and the trap of changing things at random",
+  "The general process: define the problem, gather information, analyze, eliminate causes, form a hypothesis, test it, solve, document",
+  "Changing one thing at a time and recording each change",
+  "Knowing when to escalate and what information to hand over",
+  "Documenting the fix so the next person is faster",
+  "A diagram or numbered list of the process with a loop back from test to hypothesis",
+]
+
+[[chapter.page]]
+name = "02-gathering-information"
+title = "Gathering information"
+summary = "The questions, records and commands that turn a vague complaint into a precise problem."
+teaches = [
+  "Questions to ask: who is affected, what exactly fails, since when, what changed, can it be reproduced",
+  "Scope: one user, one VLAN, one site or everyone, and what that suggests",
+  "Documentation: physical and logical diagrams, device inventory, configuration backups",
+  "Baselines: normal CPU, interface load and error counters, so abnormal stands out",
+  "Change records: most outages follow a change",
+  "First commands: `show ip interface brief`, `show interfaces`, `show cdp neighbors`, `show logging`, `show ip route`",
+]
+
+[[chapter.page]]
+name = "03-layered-approaches"
+title = "Layered approaches"
+summary = "Bottom-up, top-down, divide and conquer and others, and how to pick one."
+teaches = [
+  "Bottom-up: start at Layer 1 and work upward; good when physical problems are likely",
+  "Top-down: start at the application; good when one application fails and others work",
+  "Divide and conquer: start in the middle with a ping; success points up, failure points down",
+  "Follow the path: trace the traffic device by device, as in chapter 1",
+  "Swap components, and compare with a working configuration (spot the difference)",
+  "Educated guess: fine for experts, risky for beginners",
+  "A table of each approach with when to use it",
+]
+
+[[chapter.page]]
+name = "04-physical-and-data-link-problems"
+title = "Physical and data link problems"
+summary = "Cables, duplex, VLANs, trunks and spanning tree: the faults below the IP layer and how they show themselves."
+teaches = [
+  "Interface status combinations and causes: down/down (cable, far end), up/down (encapsulation or keepalive mismatch), administratively down, err-disabled",
+  "Error counters in `show interfaces`: input errors, CRC (bad cable or interference), runts, giants, collisions and late collisions (duplex mismatch), output drops (congestion)",
+  "Duplex mismatch symptoms: works but slow, late collisions on the half-duplex side",
+  "VLAN problems: access port in the wrong VLAN, VLAN not created, VLAN not allowed on the trunk",
+  "Trunk problems: native VLAN mismatch (%CDP-4-NATIVE_VLAN_MISMATCH), one side access and one side trunk",
+  "STP problems: a port blocking that you expected to forward, an unexpected root bridge, err-disabled by BPDU guard",
+  "Tools: `show interfaces status`, `show vlan brief`, `show interfaces trunk`, `show spanning-tree`, `show mac address-table`, `test cable-diagnostics tdr interface` where supported",
+]
+
+[[chapter.page]]
+name = "05-network-layer-problems"
+title = "Network layer problems"
+summary = "Addresses, gateways, routes, neighbors and ACLs: the faults at Layer 3 and the commands that reveal them."
+teaches = [
+  "Host checks: `ipconfig /all` (Windows), `ip address` and `ip route` (Linux), `ifconfig` and `netstat -rn` (macOS)",
+  "Common host faults: wrong mask, wrong or missing default gateway, duplicate IP, APIPA 169.254.x.x meaning DHCP failed",
+  "Reading ping results: ! success, . timeout, U unreachable; and why the first ping often loses one packet to ARP",
+  "Extended ping with a source interface, and traceroute output with * * * where a hop stops answering",
+  "Routing faults: missing route, wrong next hop, longest match choosing an unexpected route, a floating static with the wrong administrative distance",
+  "OSPF neighbor faults: area, hello and dead timers, subnet, MTU, passive interface, duplicate router ID",
+  "ACL faults: the implicit deny, wrong direction, wrong order; hit counters in `show access-lists`",
+  "NAT faults: inside and outside swapped, ACL not matching; `show ip nat translations`",
+]
+
+[[chapter.page]]
+name = "06-transport-and-application-problems"
+title = "Transport and application problems"
+summary = "When ping works but the application does not: ports, DNS, DHCP and time."
+teaches = [
+  "Ping works but the app fails: a filter on the TCP or UDP port, or the service is down",
+  "Testing a port: `telnet <host> 443` from IOS or a client, or `Test-NetConnection` on Windows",
+  "DNS faults: name fails but IP works; `nslookup`, `ip name-server`, and `ip domain lookup` on IOS",
+  "DHCP faults: no offers (missing `ip helper-address`, scope exhausted, snooping dropping replies on an untrusted port)",
+  "Time faults: wrong NTP time breaks certificates, log correlation and some authentication",
+  "MTU problems: small packets work, large ones fail, often with tunnels",
+]
+
+[[chapter.page]]
+name = "07-tools-of-the-trade"
+title = "Tools of the trade"
+summary = "Logs, debugs, packet captures and monitoring: what each tool shows and its cost."
+teaches = [
+  "Syslog severities 0 to 7 (emergencies to debugging), `show logging`, and `terminal monitor` to see messages over SSH",
+  "Debug with care: high CPU risk, narrow it, and stop with `undebug all`",
+  "SPAN for packet capture: `monitor session 1 source interface g0/1` and `monitor session 1 destination interface g0/24`, with Wireshark on the destination",
+  "Embedded Packet Capture on IOS XE in one sentence",
+  "SNMP and NetFlow for trends and top talkers; IP SLA for continuous reachability tests",
+  "Cable testers and the switch TDR test for physical faults",
+  "A table of tools with what they show and when to use each",
+]
+
+[[chapter.page]]
+name = "08-a-troubleshooting-walk-through"
+title = "A troubleshooting walk-through"
+summary = "One full case from complaint to fix, applying the method and reading real output at each step."
+teaches = [
+  "The complaint: users in VLAN 20 on one floor cannot reach a server; VLAN 10 is fine",
+  "Gathering: scope is one VLAN on one access switch, a change last night added VLAN 30",
+  "Divide and conquer: a host pings its gateway and fails; it has an address from DHCP earlier, so Layer 1 is fine",
+  "Following the path: `show interfaces trunk` on the access switch shows VLAN 20 missing from the allowed list after `switchport trunk allowed vlan 30` replaced it",
+  "The fix: `switchport trunk allowed vlan add 20` (or restore the full list), and why `add` matters",
+  "Verifying: ping, ARP entry, user test; documenting the change",
+  "Diagram of the floor and console output at each step",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself: troubleshooting"
+summary = "Short symptom-to-cause cases across every layer, and recall cards for the key signs."
+teaches = [
+  "Cases: late collisions, APIPA addresses, OSPF stuck in EXSTART, ping by IP works but by name fails, err-disabled port",
+  "For each: the likely cause and the command that confirms it",
+  "Mixed questions on choosing a troubleshooting approach",
+  "Recall cards on ping symbols, syslog severity numbers and what up/down means",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 15
+# ---------------------------------------------------------------------------
+
+[[chapter]]
+number = 15
+title = "Exam topics, mapped"
+
+[[chapter.page]]
+name = "01-how-exams-ask"
+title = "How exams ask"
+summary = "The kinds of questions certification exams use, and how understanding prepares you for all of them."
+teaches = [
+  "Question types: multiple choice with one answer, multiple choice with several, drag-and-drop, fill-in-the-blank, testlets (a scenario with several questions), simlets (show commands on a simulated network, then questions), simulations (configure a simulated device)",
+  "The verbs in exam topic lists and the depth each implies: describe and explain (understand), compare (know differences), interpret (read a running network's output), configure and verify (do it at the CLI), recognize (know what a tool does)",
+  "Many exams are forward-only: you cannot return to a question, so answer each fully before moving on",
+  "Reading an exhibit first, then the question, then every option",
+  "Eliminating wrong options using the mechanism rather than memory",
+  "Time: simulations take longer, so keep a steady pace and do not spend too long on any one item",
+  "Why deep understanding beats memorizing questions: exams change, mechanisms do not",
+  "No exam version numbers, prices or passing scores on this page; it stays general",
+]
+
+[[chapter.page]]
+name = "02-every-topic-mapped"
+title = "Every topic, mapped"
+summary = "Each exam topic, linked to the pages across all four books that teach it."
+teaches = [
+  "A short opening: what the map is and how it is built from the published exam topic list",
+  "The body is a single `exam-map` block, which renders every topic with links to its pages",
+  "How to use it: find a topic, follow its links, and check you can explain, configure and troubleshoot it",
+  "Using it to find gaps: topics where your review cards are weakest",
+  "How topics group into domains and how the verbs on the previous page apply to each",
+  "Two or three recall cards on how to use the map, kept short",
+]

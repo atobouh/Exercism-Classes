@@ -1,0 +1,2240 @@
+book = "itn"
+
+# ---------------------------------------------------------------------------
+# Chapter 1: Networking today (ITN module 1)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 1
+title = "Networking today"
+
+[[chapter.page]]
+name = "01-networks-everywhere"
+title = "Networks everywhere"
+summary = "A message you send crosses many devices and links you never see. This book is about how that works."
+teaches = [
+  "Follow one concrete action (a video call or a web search) from a laptop across a home router, an ISP and a server, naming each kind of device it touches",
+  "Define a *network* as devices connected so they can share data, and the *internet* as a network of networks",
+  "Define a *host* (end device) as any device that sends or receives messages and has an address",
+  "How networks changed learning, work, play and communication, with two or three concrete examples rather than a list",
+  "The idea that the same principles run a two-PC home network and a global provider network, so learning one teaches you the other",
+  "A short preview of what the reader will be able to do after the book: address hosts, configure a switch and a router, test and troubleshoot",
+]
+
+[[chapter.page]]
+name = "02-network-components"
+title = "End devices and intermediary devices"
+summary = "Hosts create and receive data. Switches, routers, access points and firewalls carry it between them."
+teaches = [
+  "End devices: PCs, laptops, phones, printers, IP phones, cameras, servers; clients request services and servers provide them, and one host can be both",
+  "Peer-to-peer networks (a host is client and server at once): cheap and simple, but no central management, weak security and poor scaling",
+  "Intermediary devices and what each does: a *switch* connects hosts in one LAN, a *router* connects networks and picks paths, an *access point* bridges wireless clients to the wired LAN, a *firewall* filters traffic",
+  "Layer 2 switches versus Layer 3 (multilayer) switches: a Layer 3 switch can also route between networks",
+  "Next-generation firewalls and IPS: a firewall permits or denies by rule, an IPS inspects traffic and blocks known attacks; an NGFW combines both with application awareness",
+  "Wireless LAN controllers (WLCs) manage many access points centrally; endpoints and servers are the sources and sinks of traffic",
+  "Power over Ethernet (PoE): a switch port powers an IP phone, AP or camera over the same cable",
+  "Jobs intermediary devices do: regenerate signals, keep path information, report errors, choose alternate paths, apply priority and security policy",
+]
+
+[[chapter.page]]
+name = "03-media-and-topology-diagrams"
+title = "Network media and topology diagrams"
+summary = "Data travels over copper, glass or radio, and engineers draw it with a small set of symbols."
+teaches = [
+  "The three media types and how each carries bits: metal wires (electrical pulses), glass or plastic fiber (light), and wireless (radio waves)",
+  "Terms: *NIC* (network interface card), *physical port* (the socket), *interface* (a port on a networking device that connects to a network)",
+  "Standard symbols for PC, server, switch, router, wireless router, access point and firewall, shown in a `diagram`",
+  "Physical topology diagrams show where devices and cables are (rooms, racks); logical topology diagrams show devices, ports and addressing",
+  "Read a small logical diagram: which hosts share a LAN, which router interface is each LAN's gateway, which link joins two routers",
+  "Ask the reader to identify the device kinds and network count in a diagram (`question`)",
+]
+
+[[chapter.page]]
+name = "04-lans-and-wans"
+title = "LANs, WANs and the internet"
+summary = "A LAN covers one building under one owner. A WAN joins LANs over long distances, usually through a provider."
+teaches = [
+  "A *LAN* spans a small area, is run by one organization or person, and gives high-speed links to its hosts",
+  "A *WAN* joins LANs across large distances, is usually run by one or more service providers, and is typically slower and costs more per bit",
+  "Comparison `table`: LAN versus WAN on area, ownership, speed and cost",
+  "The internet as an interconnection of LANs and WANs with no single owner; organizations such as IETF, ICANN and IAB keep it working",
+  "*Intranet* (private to one organization) versus *extranet* (secure access for outside partners such as suppliers)",
+  "Small office/home office (SOHO) networks: one wireless router doing switching, routing, Wi-Fi and the internet connection",
+  "On-premises networks versus cloud-hosted services, as a first idea the book returns to later",
+]
+
+[[chapter.page]]
+name = "05-internet-connections"
+title = "Connecting to the internet"
+summary = "Homes and businesses reach the internet through cable, DSL, cellular, satellite, fiber or leased lines."
+teaches = [
+  "Home and small office options: cable (shares the TV coax), DSL (telephone line), cellular, satellite, fiber to the home, and dial-up as a legacy option",
+  "Business options: dedicated leased lines, Metro Ethernet, business DSL and satellite, and why businesses pay for guaranteed bandwidth and service levels",
+  "A comparison `table` of connection types by medium, typical use and tradeoff",
+  "Separate networks (phone, TV, data) versus a *converged network* that carries voice, video and data on one infrastructure",
+  "The ISP's role: it provides the WAN link and the path to the rest of the internet",
+  "`question`: choose a suitable connection for a described site (rural home, branch office, data center)",
+]
+
+[[chapter.page]]
+name = "06-reliable-networks"
+title = "What makes a network reliable"
+summary = "Reliable networks rest on four ideas: fault tolerance, scalability, quality of service and security."
+teaches = [
+  "*Fault tolerance*: redundant paths limit the damage of a failure; packet switching lets traffic take another path, unlike a circuit-switched phone call",
+  "*Scalability*: a network grows by adding users and devices without redesigning it, because it follows standard protocols and a layered design",
+  "*Quality of service (QoS)*: when links congest, voice and video need priority over bulk data; congestion is when demand exceeds bandwidth",
+  "*Security*: physical security of devices and media, and information security (confidentiality, integrity, availability, the CIA triad)",
+  "A comparison of packet switching and circuit switching with a concrete example of each",
+  "`question` cards that map a described design choice (a second uplink, a priority queue, a lock on the wiring closet) to the property it serves",
+]
+
+[[chapter.page]]
+name = "07-network-trends"
+title = "Network trends"
+summary = "BYOD, collaboration tools, video and the cloud change what a network must carry."
+teaches = [
+  "*BYOD* (bring your own device): any device, anywhere, and the security and capacity problems it creates",
+  "Online collaboration and video communication: real-time traffic that is sensitive to delay",
+  "Cloud computing: services and storage reached over the internet; public, private, hybrid and community clouds compared in a `table`",
+  "Data centers: where cloud services physically live; on-premises versus cloud as a cost, control and responsibility tradeoff",
+  "Server virtualization in one paragraph: one physical server runs many virtual machines; containers share one operating system kernel and are lighter still",
+  "Home trends: smart home devices, powerline networking (data over electrical wiring), wireless broadband from a WISP or cellular provider",
+]
+
+[[chapter.page]]
+name = "08-network-security-basics"
+title = "Threats and defenses"
+summary = "Networks face attacks from outside and inside. Layers of defense keep them in check."
+teaches = [
+  "External threats: viruses, worms and Trojan horses, spyware and adware, zero-day attacks, threat actor attacks, denial of service, data interception and theft, identity theft",
+  "Internal threats: lost or stolen devices, accidental misuse by employees, malicious insiders; many breaches start inside",
+  "Why no single solution works: security is implemented in layers",
+  "Home and small office defenses: antivirus and antispyware, firewall filtering on the home router",
+  "Larger network defenses: dedicated firewalls, access control lists (ACLs), intrusion prevention systems (IPS), virtual private networks (VPNs)",
+  "A `table` matching each threat to a defense that addresses it",
+  "Point forward: chapter 16 configures device hardening on real switches and routers",
+]
+
+[[chapter.page]]
+name = "09-the-networking-profession"
+title = "Working in networking"
+summary = "Networking skills lead to many roles, and certification shows you have them."
+teaches = [
+  "The CCNA certification as a starting point: it covers fundamentals, network access, IP connectivity, IP services, security and automation",
+  "What the three CCNA courses cover, and how this book's chapters follow the first course",
+  "Roles that use these skills: network technician, network administrator, network engineer, security analyst, cloud and automation roles",
+  "Why hands-on command-line practice matters as much as theory",
+  "How to use this app: read in order, answer the questions, use recall cards and drills for spaced practice",
+]
+
+[[chapter.page]]
+name = "10-check-yourself"
+title = "Check yourself: networking today"
+summary = "Mixed questions on devices, network types, connections, reliability, trends and threats."
+teaches = [
+  "Mixed `question` blocks: identify end devices versus intermediary devices from descriptions",
+  "LAN versus WAN, intranet versus extranet, by scenario",
+  "Pick the internet connection type that matches a described site",
+  "Match fault tolerance, scalability, QoS and security to design choices",
+  "Public, private, hybrid and community cloud by scenario",
+  "Match threats to defenses",
+  "Four to six `recall` cards covering the chapter's key terms",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 2: Basic switch and end device configuration (ITN module 2)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 2
+title = "Basic switch and end device configuration"
+
+[[chapter.page]]
+name = "01-a-switch-out-of-the-box"
+title = "A switch out of the box"
+summary = "A new Cisco switch forwards frames on its own. To manage and secure it, you talk to its operating system."
+teaches = [
+  "Scene: a new Catalyst 2960 on a desk; plug in PCs and it already switches, but it has no name, no passwords and no management address",
+  "An operating system's parts: the *shell* (user interface), the *kernel* (talks to hardware), the hardware",
+  "Cisco IOS is the operating system on Cisco switches and routers; IOS XE runs on Catalyst 9000 switches and ISR 4000 routers and behaves the same at the CLI for this book",
+  "GUI versus CLI: why network engineers use the command-line interface (precise, scriptable, works over a slow console link)",
+  "Firmware and the IOS image are stored in flash; the running configuration lives in RAM (detail on page 6)",
+  "Preview of the chapter: reach the CLI, move between modes, name and secure the switch, save, address hosts and the switch, test",
+]
+
+[[chapter.page]]
+name = "02-reaching-the-cli"
+title = "Reaching the CLI"
+summary = "You reach a switch through its console port, or over the network with SSH or Telnet."
+teaches = [
+  "Console port: out-of-band access through a rollover (console) cable or a USB console cable, used for first setup and when the network is down",
+  "Terminal emulator settings for the console: 9600 baud, 8 data bits, no parity, 1 stop bit, no flow control",
+  "Terminal emulators such as PuTTY, Tera Term and SecureCRT",
+  "SSH: in-band, encrypted remote access, the recommended method; needs an IP address on the device",
+  "Telnet: in-band remote access that sends everything, including passwords, in clear text; avoid it",
+  "AUX port on some routers for dial-up modem access (legacy)",
+  "Comparison `table` of console, SSH, Telnet and AUX: in-band or out-of-band, encrypted or not, needs an IP address or not",
+  "`question`: which access method works on a switch that has no IP address yet",
+]
+
+[[chapter.page]]
+name = "03-command-modes"
+title = "IOS command modes"
+summary = "IOS separates looking from changing. Each mode has its own prompt and its own commands."
+teaches = [
+  "User EXEC mode (`Switch>`): limited monitoring commands only",
+  "Privileged EXEC mode (`Switch#`): all show commands, copy, reload, debug; entered with `enable`, left with `disable`",
+  "Global configuration mode (`Switch(config)#`), entered with `configure terminal`; changes apply immediately to the running configuration",
+  "Subconfiguration modes: line (`Switch(config-line)#`), entered with `line console 0` or `line vty 0 15`; interface (`Switch(config-if)#`), entered with `interface fastethernet0/1` or `interface vlan 1`",
+  "Moving back: `exit` goes up one level, `end` or Ctrl+Z goes straight to privileged EXEC; moving from one subconfig mode directly to another",
+  "A `console` showing a session moving through every mode",
+  "`command` blocks: enter privileged EXEC; enter global configuration",
+  "Misconception: show commands do not work in global configuration mode unless you prefix them with `do`",
+]
+
+[[chapter.page]]
+name = "04-command-structure-and-help"
+title = "Command structure and help"
+summary = "Every command is keywords and arguments. The question mark and the Tab key save you from memorizing them."
+teaches = [
+  "Command structure: a keyword (`ping`) followed by arguments (`192.168.10.5`); syntax conventions such as bold keywords and italic arguments, square brackets for optional, braces for required choices",
+  "Context-sensitive help: `?` alone lists commands in this mode, `sh?` completes a partial word, `show ?` lists the next keywords",
+  "Tab completion and abbreviation: `conf t`, `sh ip int br` work as long as the abbreviation is unique",
+  "IOS error messages: `% Ambiguous command`, `% Incomplete command.`, `% Invalid input detected at '^' marker.`, shown in a `console`",
+  "Hotkeys: Up arrow and Ctrl+P (history), Ctrl+A and Ctrl+E (line start and end), Ctrl+C (abort in config mode), Ctrl+Shift+6 (interrupt a ping, traceroute or DNS lookup), Space and Enter at `--More--`",
+  "`no ip domain-lookup` stops a mistyped word from being treated as a hostname and waiting for DNS",
+  "`command` block using an abbreviation",
+]
+
+[[chapter.page]]
+name = "05-naming-and-securing-the-switch"
+title = "Naming and securing the switch"
+summary = "Give the switch a hostname, lock its console and remote lines, and protect privileged mode."
+teaches = [
+  "`hostname S1`: hostname rules (start with a letter, no spaces, end with a letter or digit, letters, digits and dashes only, under 64 characters)",
+  "Securing the console: `line console 0`, `password`, `login`; without `login` the password is never asked for",
+  "Securing privileged EXEC with `enable secret` (hashed) rather than `enable password` (stored as typed); if both exist the secret wins",
+  "Securing remote lines: `line vty 0 15` on a 2960 (16 lines), `password`, `login`; routers often have `line vty 0 4` by default",
+  "`service password-encryption`: encrypts clear-text passwords in the config with weak type 7, which only stops shoulder surfing",
+  "`banner motd #Authorized access only#`: the delimiter character, and why a banner should warn rather than welcome",
+  "A `console` of the full sequence and the resulting lines in `show running-config`",
+  "`command` blocks for `enable secret` and `login` in line mode",
+]
+
+[[chapter.page]]
+name = "06-saving-the-configuration"
+title = "Saving and restoring the configuration"
+summary = "Changes live in RAM until you copy them to NVRAM. A reload without saving undoes them."
+teaches = [
+  "running-config in RAM (active, lost on power loss) versus startup-config in NVRAM (loaded at boot)",
+  "`show running-config` and `show startup-config`, and how to compare them",
+  "`copy running-config startup-config` (abbreviated `copy run start`) and its `Destination filename [startup-config]?` prompt, shown in a `console`",
+  "Undo unsaved changes with `reload`, and the `System configuration has been modified. Save? [yes/no]:` prompt",
+  "`erase startup-config` then `reload` to return to a blank configuration; on a switch VLANs are kept in `vlan.dat` in flash, so `delete vlan.dat` as well for a full reset",
+  "Capturing a configuration to a text file from the terminal emulator, and pasting a text file back in",
+  "`command` block for saving the configuration",
+  "Misconception: configuration changes take effect immediately; saving controls only whether they survive a reboot",
+]
+
+[[chapter.page]]
+name = "07-ports-and-addresses"
+title = "Ports, interfaces and addresses"
+summary = "Hosts need an IP address, a mask and a gateway. A switch needs one too, but only so you can manage it."
+teaches = [
+  "An IPv4 address is 32 bits written as four decimal octets (192.168.10.10); the subnet mask (255.255.255.0) marks which part names the network; the default gateway is the router address for leaving the network",
+  "IPv6 addresses are 128 bits in hexadecimal, previewed with 2001:db8:acad:10::10/64",
+  "Physical ports and media: copper twisted pair, fiber, wireless; each has its own standards (preview of chapter 4)",
+  "A Layer 2 switch forwards frames by MAC address and does not need an IP address to do that",
+  "The *switch virtual interface (SVI)*: `interface vlan 1` is a virtual interface that gives the switch a management address",
+  "Why VLAN 1 is the default and all access ports start in it",
+  "`question`: which device needs a default gateway for which purpose",
+]
+
+[[chapter.page]]
+name = "08-configuring-ip-addressing"
+title = "Configuring IP addressing"
+summary = "Set a host's address by hand or with DHCP, then give the switch its management address."
+teaches = [
+  "Windows manual IPv4 configuration: IP address, subnet mask, default gateway, preferred DNS server, in the adapter's IPv4 properties",
+  "DHCP: 'Obtain an IP address automatically' and why most hosts use it; what the DHCP server hands out",
+  "IPv6 host settings: manual, or automatic with SLAAC or DHCPv6 (chapter 12 explains them)",
+  "Switch SVI: `interface vlan 1`, `ip address 192.168.1.2 255.255.255.0`, `no shutdown`, shown in a `console` with the resulting status messages",
+  "`ip default-gateway 192.168.1.1` in global configuration so the switch can be managed from other networks",
+  "`command` blocks for the SVI address and the default gateway",
+  "Misconception: the switch's default gateway does not affect frames it forwards for hosts; it is only for traffic the switch itself sends",
+]
+
+[[chapter.page]]
+name = "09-verifying-connectivity"
+title = "Verifying connectivity"
+summary = "Check the address you set, then prove two devices can reach each other."
+teaches = [
+  "`ipconfig` on Windows: IPv4 address, subnet mask, default gateway, and IPv6 link-local address, shown in a `console`",
+  "`show ip interface brief` on the switch: columns Interface, IP-Address, OK?, Method, Status, Protocol, shown in a `console`",
+  "Why `Vlan1` can show `up/down` or `down/down`: the SVI comes up only when at least one port in VLAN 1 is up",
+  "`ping` from PC1 to PC2 and from a PC to the switch SVI; reading Windows ping output (Reply from, bytes=32, time, TTL)",
+  "What a failed ping tells you and does not tell you: wrong address, wrong mask, cable, shut interface",
+  "`command` block: show a summary of interfaces and their IPv4 addresses",
+]
+
+[[chapter.page]]
+name = "10-worked-setup"
+title = "Worked setup: a new switch"
+summary = "Configure a switch from blank to managed and secured, then prove it works."
+teaches = [
+  "Scenario: S1 with PC1 and PC2, addressed from 192.168.1.0/24, shown in a `diagram`",
+  "The full ordered configuration in one `console`: hostname, `no ip domain-lookup`, enable secret, console and VTY passwords, `service password-encryption`, banner, SVI, default gateway, save",
+  "Host configuration for both PCs",
+  "Verification sequence: `show running-config`, `show ip interface brief`, ping between PCs and to S1",
+  "Two planted faults (a missing `login`, an SVI left shut) and how the reader would spot each",
+  "Mixed `command` and `question` blocks, and three or four `recall` cards on modes and saving",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 3: Protocols and models (ITN module 3)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 3
+title = "Protocols and models"
+
+[[chapter.page]]
+name = "01-rules-for-talking"
+title = "Rules for talking"
+summary = "Any conversation needs a sender, a receiver, a channel and rules both sides follow."
+teaches = [
+  "The three parts of any communication: message source (sender), destination (receiver), channel (media)",
+  "A human example (a phone call or a letter) and how each part maps to a network",
+  "What both sides must agree on: who is sending and who receives, a common language and grammar, speed and timing, confirmation that the message arrived",
+  "Define a *protocol* as an agreed set of rules for communication",
+  "Why networks need protocols for every step: from what a voltage means to how a web page is requested",
+]
+
+[[chapter.page]]
+name = "02-what-every-message-needs"
+title = "What every message needs"
+summary = "Messages must be encoded, formatted, sized, timed and addressed for one, some or all receivers."
+teaches = [
+  "Message encoding: turning information into a form that can be sent (bits into voltage, light or radio)",
+  "Message formatting and encapsulation: placing a message in a defined structure with addresses, like an envelope",
+  "Message size: long messages are broken into smaller pieces that fit the medium and are reassembled",
+  "Message timing: flow control (how fast), response timeout (how long to wait), access method (when you may send)",
+  "Delivery options: *unicast* (one to one), *multicast* (one to a group), *broadcast* (one to all); IPv6 has no broadcast",
+  "A `question` per timing term matched to a described situation",
+]
+
+[[chapter.page]]
+name = "03-protocols-at-work"
+title = "Protocols working together"
+summary = "Several protocols, each with one job, cooperate to deliver a single web page."
+teaches = [
+  "Functions protocols provide: addressing, reliability, flow control, sequencing, error detection, application interface",
+  "Protocol types: network communications protocols, network security protocols, routing protocols, service discovery protocols, with one example each",
+  "The web page example: HTTP (application), TCP (transport, conversations and reliability), IP (addressing and delivery between networks), Ethernet (delivery on one link)",
+  "Each protocol does its own job and relies on the one below",
+  "A `table` of the four protocols and what each contributes",
+]
+
+[[chapter.page]]
+name = "04-protocol-suites"
+title = "Protocol suites and TCP/IP"
+summary = "Protocols come in suites that are designed to work together. TCP/IP won."
+teaches = [
+  "A *protocol suite* is a set of protocols designed to work together; historical suites (AppleTalk, Novell NetWare IPX/SPX, the OSI suite) and why TCP/IP became the standard",
+  "TCP/IP is open: anyone can implement it, and it is defined in public RFCs",
+  "TCP/IP protocols by layer, as a `table`: application (DNS, DHCP, SMTP, POP3, IMAP, FTP, TFTP, HTTP, HTTPS), transport (TCP, UDP), internet (IPv4, IPv6, ICMPv4, ICMPv6, NAT, OSPF, EIGRP, BGP), network access (ARP, Ethernet, WLAN)",
+  "Note that ARP works between the internet and network access layers and is grouped differently by different sources",
+  "Walk through a browser requesting a page: the server encapsulates the HTML down the stack, and the client de-encapsulates it up the stack",
+  "`question`: which layer a named protocol belongs to",
+]
+
+[[chapter.page]]
+name = "05-standards-organizations"
+title = "Standards organizations"
+summary = "Open standards let devices from different vendors work together. A handful of bodies write them."
+teaches = [
+  "Open standards versus proprietary protocols, and why open standards encourage competition and interoperability",
+  "Internet bodies: ISOC (promotes open development), IAB (oversight of architecture), IETF (develops protocols, publishes RFCs), IRTF (long-term research)",
+  "Addressing bodies: ICANN coordinates IP addresses and domain names; IANA manages address allocation, domain names and protocol numbers",
+  "Electronics and communications bodies: IEEE (802.3 Ethernet, 802.11 Wi-Fi), EIA, TIA (cabling standards such as T568A and T568B), ITU-T (telecom and video standards)",
+  "A `table` of organization, what it standardizes, one example standard",
+  "`question` matching a standard to its body",
+]
+
+[[chapter.page]]
+name = "06-the-osi-and-tcpip-models"
+title = "The OSI and TCP/IP models"
+summary = "Layered models split networking into jobs. The OSI model has seven layers and TCP/IP has four."
+teaches = [
+  "Why layers help: protocols can be designed and changed independently, vendors interoperate, troubleshooting has a shared vocabulary",
+  "Reference model (OSI, used to describe and teach) versus protocol model (TCP/IP, matches the protocols in use)",
+  "The seven OSI layers with one-line jobs: application, presentation, session, transport, network, data link, physical",
+  "The four TCP/IP layers: application, transport, internet, network access",
+  "A mapping `table`: OSI 5 to 7 to TCP/IP application, 4 to transport, 3 to internet, 1 and 2 to network access",
+  "Using layer numbers in conversation: 'a Layer 2 problem', 'a Layer 3 switch'",
+  "`question`: which OSI layer handles a described function (path selection, MAC addressing, port numbers, encoding bits)",
+  "`recall` card for the OSI layer order",
+]
+
+[[chapter.page]]
+name = "07-encapsulation-and-pdus"
+title = "Encapsulation and PDUs"
+summary = "Each layer wraps the data from the layer above. The wrapped unit gets a new name at each layer."
+teaches = [
+  "*Segmentation*: dividing data into smaller pieces so many conversations can share the network (multiplexing) and a lost piece is cheap to resend",
+  "*Sequencing*: numbering pieces so the receiver can rebuild the data in order",
+  "Protocol data units by layer: data, segment (TCP) or datagram (UDP), packet, frame, bits",
+  "Encapsulation on the way down: transport header, then IP header, then frame header and trailer; de-encapsulation on the way up",
+  "A `fields` block showing a frame containing a packet containing a segment containing data",
+  "`question`: name the PDU at a given layer",
+  "Misconception: the frame trailer (FCS) is added only at Layer 2, not by every layer",
+]
+
+[[chapter.page]]
+name = "08-addresses-at-each-layer"
+title = "Addresses at each layer"
+summary = "IP addresses name the two ends of a conversation. MAC addresses name the two ends of one link."
+teaches = [
+  "Layer 3 logical addresses (source and destination IP) stay the same from original sender to final receiver",
+  "Layer 2 physical addresses (source and destination MAC) are for one link, NIC to NIC, and change at every router",
+  "Same network: the destination MAC is the destination host's MAC",
+  "Remote network: the destination MAC is the default gateway's MAC, while the destination IP is still the remote host",
+  "A `diagram` of PC1, R1 and a web server on another network, with a `table` of the four addresses on each link",
+  "The network portion and host portion of an IPv4 address decide whether a destination is local (preview of chapter 11)",
+  "`question`: give the destination MAC for a packet to a remote server",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself: protocols and models"
+summary = "Mixed questions on message rules, protocol suites, standards, layers, PDUs and addressing."
+teaches = [
+  "Delivery options and timing terms by scenario",
+  "TCP/IP protocols placed at their layer",
+  "Standards bodies matched to standards",
+  "OSI layer by function, and OSI to TCP/IP mapping",
+  "PDU names and the order of encapsulation",
+  "Source and destination MAC and IP for a packet crossing a router",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 4: Physical layer (ITN module 4)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 4
+title = "Physical layer"
+
+[[chapter.page]]
+name = "01-bits-on-the-wire"
+title = "Getting bits onto the medium"
+summary = "The physical layer turns a frame into electrical pulses, light or radio and back again."
+teaches = [
+  "Scene: a frame leaves a NIC as a stream of bits and must cross a cable or the air",
+  "The physical layer accepts a complete frame from the data link layer and encodes it as signals on the medium",
+  "Wired connections (a NIC with an RJ-45 port) and wireless connections (a wireless NIC talking to an AP)",
+  "Physical layer standards come from engineering bodies: ISO, TIA/EIA, ITU, ANSI, IEEE, and national telecom regulators",
+  "The three things physical standards define: physical components (cables, connectors, NICs), encoding, signaling",
+  "Contrast with upper layers, whose protocols are written mostly by the IETF in software",
+]
+
+[[chapter.page]]
+name = "02-encoding-signaling-bandwidth"
+title = "Encoding, signaling and bandwidth"
+summary = "Bits become patterns on the medium, and bandwidth says how many can cross each second."
+teaches = [
+  "*Encoding*: converting bits into a predefined code; Manchester encoding represents 0 and 1 as transitions in the middle of each bit period",
+  "*Signaling*: how 1 and 0 appear on the medium: voltage on copper, pulses of light on fiber, radio waves for wireless",
+  "*Bandwidth*: the capacity of a medium in bits per second; units bps, kbps, Mbps, Gbps, Tbps",
+  "*Latency* (time for data to travel), *throughput* (actual bits per second achieved), *goodput* (usable data after overhead and retransmissions)",
+  "Why throughput is usually lower than bandwidth: traffic volume, type of traffic, latency across devices",
+  "Worked example: a 1 Gbps link carrying a 500 MB file, and why it takes longer than the arithmetic suggests",
+  "`question` distinguishing bandwidth, throughput and goodput",
+]
+
+[[chapter.page]]
+name = "03-copper-cabling"
+title = "Copper cabling"
+summary = "Copper is cheap and easy to install, but signals weaken with distance and pick up noise."
+teaches = [
+  "*Attenuation*: signals weaken with distance, which is why copper has strict length limits",
+  "Interference: electromagnetic interference (EMI) and radio frequency interference (RFI) from motors and lights; *crosstalk* from neighboring wires",
+  "Countermeasures: twisting pairs (cancellation), shielding, keeping within length limits, routing away from interference",
+  "Unshielded twisted pair (UTP): the standard for Ethernet LANs",
+  "Shielded twisted pair (STP): better noise protection, costlier, harder to install, must be grounded",
+  "Coaxial cable: used for cable internet, satellite and antenna connections",
+  "A comparison `table` of UTP, STP and coax",
+  "Copper safety: electrical hazards and grounding",
+]
+
+[[chapter.page]]
+name = "04-utp-cabling"
+title = "UTP cables and wiring"
+summary = "UTP has four twisted pairs, an RJ-45 plug and two wiring standards. Which pairs cross decides the cable type."
+teaches = [
+  "UTP construction: four color-coded pairs, different twist rates per pair, no shield; the 100 meter channel limit for Ethernet",
+  "Categories in a `table`: Cat5e (1 Gbps), Cat6 (1 Gbps, 10 Gbps up to about 55 m), Cat6a (10 Gbps at 100 m)",
+  "RJ-45 connector and jack; a bad termination (untwisted wires too long) causes errors",
+  "T568A and T568B pinouts; most installations use T568B",
+  "Straight-through (same standard both ends: host to switch, switch to router), crossover (T568A one end, T568B the other: legacy like-to-like links), rollover (console, Cisco proprietary)",
+  "*Auto-MDIX*: modern ports detect the cable and swap pairs, so a straight-through cable works between like devices",
+  "Cable testers check wire map, length and faults",
+  "`question`: choose the cable type for a described connection",
+]
+
+[[chapter.page]]
+name = "05-fiber-optic-cabling"
+title = "Fiber-optic cabling"
+summary = "Fiber carries light over glass, far and fast, and ignores electrical noise."
+teaches = [
+  "Fiber properties: light pulses through a glass core, immune to EMI and RFI, much longer distances and higher bandwidth than copper",
+  "Cable parts: core, cladding, buffer, strengthening material, jacket",
+  "Single-mode fiber (SMF): very small core (about 9 micrometers), laser light, one path, long distances (many kilometers)",
+  "Multimode fiber (MMF): larger core (50 or 62.5 micrometers), LED or VCSEL light, many paths, dispersion limits it to a few hundred meters at high speeds",
+  "SMF versus MMF comparison `table`",
+  "Uses: enterprise backbones, fiber to the home, long-haul and submarine links",
+  "Connectors: ST, SC, LC, and duplex LC; patch cord jacket colors (yellow for SMF, orange or aqua for MMF)",
+  "Fiber versus copper `table`: bandwidth, distance, immunity, cost, installation skill, safety (look away from the light source)",
+]
+
+[[chapter.page]]
+name = "06-wireless-media"
+title = "Wireless media"
+summary = "Wireless carries data by radio. It frees users from cables at the cost of range, interference and security concerns."
+teaches = [
+  "Wireless properties: coverage limited by walls and distance, interference from other devices on the same frequencies, security (anyone in range can receive), shared medium (one device talks at a time, half duplex)",
+  "Standards: Wi-Fi (IEEE 802.11), Bluetooth (IEEE 802.15), WiMAX (IEEE 802.16), Zigbee (IEEE 802.15.4)",
+  "WLAN components: wireless NIC, access point (AP), wireless router in a SOHO",
+  "An AP connects wireless clients to the wired LAN; a wireless router combines an AP, a switch and a router",
+  "Wi-Fi Alliance certifies interoperability",
+  "`question` matching a standard to a use case",
+]
+
+[[chapter.page]]
+name = "07-wi-fi-standards-and-channels"
+title = "Wi-Fi standards and channels"
+summary = "Each 802.11 generation uses certain bands and speeds. Channels that do not overlap avoid interference."
+teaches = [
+  "802.11 standards in a `table` with band and maximum data rate: 802.11a (5 GHz, 54 Mbps), 802.11b (2.4 GHz, 11 Mbps), 802.11g (2.4 GHz, 54 Mbps), 802.11n Wi-Fi 4 (2.4 and 5 GHz, up to 600 Mbps), 802.11ac Wi-Fi 5 (5 GHz, multi-gigabit), 802.11ax Wi-Fi 6 (2.4 and 5 GHz; Wi-Fi 6E adds 6 GHz)",
+  "2.4 GHz has longer range but fewer channels and more interference; 5 GHz has more channels and higher speed but shorter range",
+  "In the 2.4 GHz band only channels 1, 6 and 11 do not overlap (in North America), so neighboring APs use those",
+  "5 GHz offers many more non-overlapping channels",
+  "The *SSID* is the name of a wireless network that clients choose",
+  "Encryption protects wireless traffic: WPA2 and WPA3 (details in the second book)",
+  "`question`: pick channels for three neighboring 2.4 GHz APs",
+]
+
+[[chapter.page]]
+name = "08-choosing-media-and-poe"
+title = "Choosing media and Power over Ethernet"
+summary = "Distance, noise, speed and cost decide the medium. PoE lets one cable carry both data and power."
+teaches = [
+  "Worked scenario: a small building with desks, an IP phone at each desk, a ceiling AP, and a link to a building 400 m away; pick UTP, fiber or wireless for each and explain why",
+  "Decision factors: distance, environment (EMI), required bandwidth, cost, installation",
+  "Power over Ethernet: the switch (power sourcing equipment) powers phones, APs and cameras over UTP",
+  "PoE standards: 802.3af (up to 15.4 W per port), 802.3at PoE+ (up to 30 W), 802.3bt (up to 60 W and 90 W)",
+  "A switch has a total PoE budget, so not every port can draw its maximum at once",
+  "`question`: which medium for a described link",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself: physical layer"
+summary = "Mixed questions on signaling, bandwidth, copper, fiber and wireless."
+teaches = [
+  "Bandwidth, throughput, goodput and latency by scenario",
+  "Attenuation, EMI and crosstalk and what reduces each",
+  "Straight-through, crossover and rollover cable choice, and the role of auto-MDIX",
+  "UTP category for a required speed and distance",
+  "SMF versus MMF by distance and light source",
+  "802.11 standard by band and speed; non-overlapping 2.4 GHz channels",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 5: Number systems (ITN module 5)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 5
+title = "Number systems"
+
+[[chapter.page]]
+name = "01-why-numbers-matter"
+title = "Why networkers count in binary"
+summary = "Devices see addresses as bits. To subnet and troubleshoot, you need to see them the same way."
+teaches = [
+  "Scene: the address 192.168.10.77 and the mask 255.255.255.224 look unrelated in decimal, but in binary the mask's edge and the host part are obvious",
+  "Computers store everything as bits (0 and 1); a byte or *octet* is 8 bits",
+  "Where each system appears: IPv4 addresses and masks in dotted decimal (binary underneath), MAC addresses and IPv6 addresses in hexadecimal",
+  "What this chapter builds: fast binary and decimal conversion for octets, hexadecimal for MAC and IPv6",
+  "Reassurance and method: only eight place values matter for IPv4 octets",
+]
+
+[[chapter.page]]
+name = "02-positional-notation"
+title = "Positional notation"
+summary = "A digit's value depends on its position. In binary, each position is a power of 2."
+teaches = [
+  "Decimal positional notation: 1,947 as 1x1000 + 9x100 + 4x10 + 7x1, positions are powers of 10",
+  "Binary positional notation: positions are powers of 2; the eight octet place values 128, 64, 32, 16, 8, 4, 2, 1",
+  "A `table` of the eight positions with 2^7 down to 2^0 and their values",
+  "Why an octet ranges from 0 (00000000) to 255 (11111111), and why 255 = 256 - 1",
+  "The high-order bit (leftmost, 128) and low-order bit (rightmost, 1)",
+  "`recall` card for the eight place values",
+]
+
+[[chapter.page]]
+name = "03-binary-to-decimal"
+title = "Binary to decimal"
+summary = "Add up the place values where the bit is 1."
+teaches = [
+  "Method: write the place values over the bits, add the values under each 1",
+  "Worked examples: 11000000 = 192, 10101000 = 168, 00001010 = 10, 11111110 = 254",
+  "Converting a whole 32-bit address octet by octet into dotted decimal",
+  "Shortcut: 11110000 = 255 - 15 = 240 (all ones minus the trailing ones you removed)",
+  "Common octet values worth recognizing: 128, 192, 224, 240, 248, 252, 254, 255",
+  "`question` blocks converting octets",
+  "A `drill` of kind binary",
+]
+
+[[chapter.page]]
+name = "04-decimal-to-binary"
+title = "Decimal to binary"
+summary = "Walk the place values from 128 down, subtracting each one that fits."
+teaches = [
+  "Subtraction method: start at 128; if the number is at least the place value, write 1 and subtract, else write 0; continue to 1",
+  "Worked examples: 172 = 10101100, 77 = 01001101, 31 = 00011111, 200 = 11001000",
+  "Always write all eight bits, including leading zeros, so octets line up",
+  "Checking your answer by converting back",
+  "Converting a full address such as 10.1.16.254 into 32 bits",
+  "Misconception: 256 does not fit in an octet; the largest octet is 255",
+  "A `drill` of kind binary",
+]
+
+[[chapter.page]]
+name = "05-masks-in-binary"
+title = "Addresses and masks in binary"
+summary = "A subnet mask is a run of 1s followed by 0s. Its decimal octets come from a short list."
+teaches = [
+  "An IPv4 subnet mask is 32 bits: contiguous 1s for the network part, then 0s for the host part",
+  "The only valid mask octet values: 0, 128, 192, 224, 240, 248, 252, 254, 255, with the bit count for each in a `table`",
+  "Prefix length counts the 1 bits: 255.255.255.0 is /24, 255.255.255.192 is /26, 255.255.240.0 is /20",
+  "Converting mask to prefix and prefix to mask, octet by octet",
+  "Why 255.255.0.255 or 255.255.255.100 are not valid masks",
+  "Preview of the AND operation that chapter 11 uses to find the network address",
+  "A `drill` of kind mask",
+]
+
+[[chapter.page]]
+name = "06-hexadecimal"
+title = "Hexadecimal"
+summary = "Hexadecimal packs four bits into one character, using 0 to 9 and A to F."
+teaches = [
+  "Base 16: digits 0 to 9 and A (10) to F (15); positions are powers of 16",
+  "One hex digit is exactly four bits (a *nibble*); two hex digits are one byte",
+  "A `table` of 0 to F with decimal and 4-bit binary values",
+  "Why hex is used: MAC addresses (48 bits = 12 hex digits) and IPv6 addresses (128 bits = 32 hex digits) are much shorter than binary",
+  "Notation: hex may be written with 0x (0x0800) or a trailing h; case does not matter",
+  "`recall` cards for A, C and F values",
+]
+
+[[chapter.page]]
+name = "07-converting-hex"
+title = "Converting hexadecimal"
+summary = "Convert through binary, one nibble at a time, and decimal becomes routine."
+teaches = [
+  "Hex to binary: replace each hex digit with its 4 bits (A8 = 1010 1000)",
+  "Binary to hex: group bits into fours from the right and replace each group (11000000 = C0)",
+  "Hex to decimal for a byte: first digit x 16 + second digit (A8 = 10x16 + 8 = 168)",
+  "Decimal to hex for a byte: divide by 16 for the first digit, remainder is the second (192 = C0, 255 = FF)",
+  "Worked examples with values that appear in networking: 0x0800 (IPv4 EtherType), FF (all ones), FE80 (start of IPv6 link-local)",
+  "`question` blocks converting between all three systems",
+  "A `drill` of kind hex",
+]
+
+[[chapter.page]]
+name = "08-hex-in-macs-and-ipv6"
+title = "Hex in MAC and IPv6 addresses"
+summary = "Read a MAC address and an IPv6 address as the bits they really are."
+teaches = [
+  "MAC address formats for the same 48 bits: 00-50-79-66-68-00 (Windows), 00:50:79:66:68:00 (Linux, macOS), 0050.7966.6800 (Cisco IOS)",
+  "Splitting a MAC into the OUI (first 24 bits) and the vendor-assigned part",
+  "An IPv6 address as eight hextets of 16 bits each: 2001:0db8:acad:0001:0000:0000:0000:0010",
+  "Converting one hextet to binary (ACAD = 1010 1100 1010 1101)",
+  "Why IPv6 prefix boundaries fall cleanly on hex digits when they are multiples of 4 bits (/48, /56, /64)",
+  "`question`: how many bits a given number of hex digits represents",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself: number systems"
+summary = "Mixed conversions and drills across binary, decimal and hexadecimal."
+teaches = [
+  "`question` blocks: binary to decimal, decimal to binary, decimal to hex, hex to binary",
+  "Mask to prefix and prefix to mask conversions",
+  "Spot the invalid mask",
+  "Count bits in MAC and IPv6 addresses",
+  "Drills of kinds binary, hex and mask in sequence",
+  "Four to six `recall` cards (place values, valid mask octets, bits per hex digit)",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 6: Data link layer (ITN module 6)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 6
+title = "Data link layer"
+
+[[chapter.page]]
+name = "01-one-link-at-a-time"
+title = "One link at a time"
+summary = "The data link layer moves a frame across one link. At every router the packet gets a new frame."
+teaches = [
+  "Scene: a packet crossing an Ethernet LAN, a serial WAN link and a wireless LAN keeps its IP header but rides in a different frame on each",
+  "Jobs of the data link layer: lets upper layers use the media, encapsulates packets into frames, controls access to the media, detects errors",
+  "Routers de-encapsulate the frame, forward the packet, and re-encapsulate it in a new frame for the next link",
+  "Layer 2 addresses (MAC addresses on Ethernet) are local to one link",
+  "A `diagram` of a path that crosses three link types",
+]
+
+[[chapter.page]]
+name = "02-llc-and-mac-sublayers"
+title = "The LLC and MAC sublayers"
+summary = "IEEE splits the data link layer into a top half that talks to software and a bottom half that talks to hardware."
+teaches = [
+  "Logical Link Control (LLC, IEEE 802.2): identifies the network layer protocol in the frame, implemented in software, independent of media",
+  "Media Access Control (MAC): data encapsulation, addressing, frame delimiting, error detection, and media access; implemented in the NIC hardware",
+  "IEEE 802 standards per technology: 802.3 Ethernet, 802.11 wireless LAN, 802.15 personal area networks",
+  "Other data link standards bodies: ITU-T, ANSI",
+  "A `table` of sublayer, job, where implemented",
+  "`question` placing a function in LLC or MAC",
+]
+
+[[chapter.page]]
+name = "03-topologies"
+title = "Physical and logical topologies"
+summary = "WANs and LANs connect nodes in a few standard shapes, and the shape affects how frames get on the medium."
+teaches = [
+  "Physical topology (cables and devices) versus logical topology (how frames travel between nodes)",
+  "WAN topologies: point-to-point (simplest and most common), hub and spoke, mesh (full and partial), with a `diagram`",
+  "Half-duplex and full-duplex logical point-to-point links",
+  "LAN topologies: star and extended star (switch-based, used today), bus and ring (legacy)",
+  "Tradeoffs of full mesh (resilience) versus hub and spoke (cost)",
+  "`question`: name the topology from a description",
+]
+
+[[chapter.page]]
+name = "04-duplex-and-media-access"
+title = "Duplex and media access control"
+summary = "On a shared medium devices must take turns. On a switched full-duplex link they do not."
+teaches = [
+  "Half duplex: both devices can send but not at the same time (old hubs, wireless); full duplex: both send at once (switched Ethernet)",
+  "Shared media (multiaccess) versus point-to-point connections, as the exam calls them",
+  "Contention-based access: CSMA/CD on legacy half-duplex Ethernet (listen, send, detect collision, jam, back off and retry)",
+  "CSMA/CA on 802.11 wireless: listen, then avoid collisions with timing and acknowledgments, because radios cannot detect collisions while sending",
+  "Controlled access: deterministic turns (legacy Token Ring), and why it faded",
+  "Why modern switched full-duplex Ethernet does not need CSMA/CD: each port is its own collision domain",
+  "A comparison `table` of CSMA/CD and CSMA/CA",
+  "`question`: which access method for a hub, a switch port and a Wi-Fi client",
+]
+
+[[chapter.page]]
+name = "05-the-data-link-frame"
+title = "The data link frame"
+summary = "Every frame has a header, the packet and a trailer, but each technology fills them in its own way."
+teaches = [
+  "Generic frame fields: frame start and stop, addressing, type (which Layer 3 protocol), control (for example QoS), data (the packet), error detection, as a `fields` block",
+  "Error detection: the sender computes a cyclic redundancy check (CRC) and puts it in the *frame check sequence* (FCS); the receiver recomputes it and discards the frame on mismatch",
+  "Discarded frames are not resent by Ethernet; upper layers (TCP) recover",
+  "Layer 2 addresses are only meaningful on the local link and are replaced at each router",
+  "Frame types by technology: Ethernet, 802.11 wireless, PPP, HDLC; wireless frames carry up to four addresses because of the AP",
+  "Why WAN point-to-point protocols may need little or no addressing",
+  "`question`: what a switch does with a frame that fails the FCS check",
+]
+
+[[chapter.page]]
+name = "06-check-yourself"
+title = "Check yourself: data link layer"
+summary = "Mixed questions on sublayers, topologies, duplex, media access and frames."
+teaches = [
+  "LLC versus MAC functions",
+  "WAN and LAN topology names from diagrams",
+  "Half versus full duplex and which access method applies",
+  "CSMA/CD versus CSMA/CA",
+  "Frame fields and the FCS",
+  "What changes and what stays the same as a packet crosses routers",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 7: Ethernet switching (ITN module 7)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 7
+title = "Ethernet switching"
+
+[[chapter.page]]
+name = "01-ethernet-today"
+title = "Ethernet today"
+summary = "Ethernet is the wired LAN technology. A switch reads each frame and sends it only where it needs to go."
+teaches = [
+  "Scene: a floor of PCs plugged into one switch, and a frame from PC1 to PC3 that PC2 never sees",
+  "Ethernet is defined by IEEE 802.2 (LLC) and 802.3 (MAC and physical), and runs over copper and fiber at 10 Mbps to 400 Gbps and beyond",
+  "From hubs (shared, one collision domain) to switches (each port its own collision domain, full duplex)",
+  "What this chapter covers: the frame, MAC addresses, how a switch learns and forwards, forwarding methods, port speed and duplex",
+  "A `diagram` of a single-switch LAN",
+]
+
+[[chapter.page]]
+name = "02-the-ethernet-frame"
+title = "The Ethernet frame"
+summary = "An Ethernet frame is 64 to 1518 bytes, with two MAC addresses, a type and a check sequence."
+teaches = [
+  "`fields` block of the Ethernet II frame: Preamble (7 bytes) and SFD (1 byte), Destination MAC (6), Source MAC (6), EtherType (2), Data (46 to 1500), FCS (4)",
+  "Minimum frame 64 bytes and maximum 1518 bytes, counted from destination MAC to FCS (preamble not counted); 802.1Q tagging allows 1522",
+  "Padding: a payload under 46 bytes is padded up",
+  "EtherType values: 0x0800 IPv4, 0x86DD IPv6, 0x0806 ARP",
+  "*Runts* (under 64 bytes) and *giants* (over the maximum) are dropped; runts often come from collisions",
+  "Jumbo frames (up to about 9000 bytes) exist on some networks as an exception",
+  "`question` on frame size limits",
+]
+
+[[chapter.page]]
+name = "03-mac-addresses"
+title = "MAC addresses"
+summary = "A MAC address is 48 bits: a vendor code and a serial number, written in hexadecimal."
+teaches = [
+  "48 bits written as 12 hex digits; formats 00-50-79-66-68-00, 00:50:79:66:68:00, 0050.7966.6800",
+  "The OUI (first 24 bits) is assigned by the IEEE to a vendor; the vendor assigns the last 24 bits uniquely",
+  "Burned-in address (BIA) in the NIC, and that the operating system can override it",
+  "Every Ethernet frame carries a source MAC (always unicast, the sender's NIC) and a destination MAC",
+  "A NIC accepts a frame whose destination MAC is its own, broadcast, or a multicast group it has joined, and discards others",
+  "`question`: identify the OUI in a given address",
+]
+
+[[chapter.page]]
+name = "04-unicast-broadcast-multicast-macs"
+title = "Unicast, broadcast and multicast MACs"
+summary = "The destination MAC says whether a frame is for one NIC, all of them, or a group."
+teaches = [
+  "Unicast MAC: one specific NIC; to reach a host on the same LAN the sender needs its MAC (ARP finds it, chapter 9)",
+  "Broadcast MAC FF-FF-FF-FF-FF-FF: every device on the LAN processes it; used by ARP requests and DHCP discover",
+  "Multicast MACs: IPv4 multicast maps to 01-00-5E plus the low 23 bits of the group address; IPv6 multicast maps to 33-33 plus the low 32 bits",
+  "The least significant bit of the first byte: 0 for unicast, 1 for group (multicast or broadcast)",
+  "A `table` of type, example address, who processes it",
+  "Switches flood broadcasts out every port except the incoming one, so a broadcast domain is the whole LAN",
+  "`question`: classify given destination MACs",
+]
+
+[[chapter.page]]
+name = "05-how-a-switch-learns"
+title = "How a switch learns and forwards"
+summary = "A switch learns from source addresses and forwards by destination address."
+teaches = [
+  "Learn: on every incoming frame the switch records the source MAC, the incoming port and the VLAN in its MAC address table (CAM table), and refreshes the timer if already present",
+  "Aging: entries not refreshed are removed after 300 seconds by default on Catalyst switches",
+  "Forward: known unicast destination is sent out only the matching port; unknown unicast, broadcast and multicast are flooded out all ports in the VLAN except the incoming one",
+  "Filter: if the destination is on the same port the frame arrived on, the switch drops it",
+  "`show mac address-table` output with columns Vlan, Mac Address, Type, Ports, shown in a `console`",
+  "`show mac address-table dynamic`, `clear mac address-table dynamic`, and static entries with `mac address-table static`",
+  "`command` block: display the MAC address table",
+  "Misconception: a switch learns from the source address, never from the destination",
+]
+
+[[chapter.page]]
+name = "06-forwarding-step-by-step"
+title = "Forwarding a frame, step by step"
+summary = "Follow three frames through two switches and watch both MAC tables fill."
+teaches = [
+  "Topology: S1 and S2 connected by an uplink, two PCs on each, shown in a `diagram`",
+  "Frame 1 from PC1 to PC3 with empty tables: learned on S1, flooded, learned on S2 with the uplink as the port, flooded",
+  "Frame 2, PC3 replies: now a known unicast on both switches",
+  "Frame 3, a broadcast: flooded everywhere regardless of table contents",
+  "Many MACs can be learned on one port (the uplink)",
+  "A `table` of each switch's MAC table after each frame",
+  "`question` blocks predicting which ports a frame leaves",
+]
+
+[[chapter.page]]
+name = "07-switching-methods"
+title = "Store-and-forward and cut-through"
+summary = "A switch can check the whole frame before sending it on, or start sending as soon as it reads the address."
+teaches = [
+  "Store-and-forward: receive the entire frame, check the FCS, discard bad frames, then forward; the method on Cisco Catalyst switches and required for QoS and speed mismatches",
+  "Cut-through: forward after reading the destination MAC; lower latency, but forwards corrupt frames",
+  "Fast-forward (forward right after the destination address) and fragment-free (wait for the first 64 bytes, which filters most collision fragments)",
+  "A comparison `table` of the three: latency, error checking",
+  "Memory buffering: port-based buffering (queue per port) versus shared memory buffering (one pool, allows larger frames and asymmetric speeds)",
+  "`question`: which method drops a frame with a bad FCS",
+]
+
+[[chapter.page]]
+name = "08-speed-duplex-and-auto-mdix"
+title = "Speed, duplex and auto-MDIX"
+summary = "Two ends of a link must agree on speed and duplex. Autonegotiation usually gets it right."
+teaches = [
+  "Autonegotiation: both ends advertise capabilities and choose the best common speed and duplex; Gigabit and faster ports run full duplex",
+  "Manual settings in interface mode: `speed 100`, `duplex full`, and the return to `speed auto` and `duplex auto`",
+  "Duplex mismatch: one side full, one side half; the link works but is slow, with late collisions on the half-duplex side and errors such as CRC and runts on the full-duplex side",
+  "Why mismatches happen: one end hard-coded, the other left on auto, so autonegotiation falls back to half duplex",
+  "Auto-MDIX with `mdix auto` (default on most current switches), which needs speed and duplex on auto on some platforms",
+  "Verifying with `show interfaces fa0/1` (the `Full-duplex, 100Mb/s` line) and `show interfaces status`, in a `console`",
+  "`command` blocks to set and reset duplex",
+]
+
+[[chapter.page]]
+name = "09-check-yourself"
+title = "Check yourself: Ethernet switching"
+summary = "Mixed questions on frames, MAC addresses, MAC tables and port settings."
+teaches = [
+  "Frame fields, sizes and EtherType values",
+  "Unicast, broadcast and multicast MACs, and the 01-00-5E and 33-33 prefixes",
+  "Predict switch learning and forwarding in a two-switch topology",
+  "Store-and-forward versus cut-through variants",
+  "Diagnose a duplex mismatch from interface symptoms",
+  "Four to six `recall` cards including the 300 second aging default",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 8: Network layer (ITN module 8)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 8
+title = "Network layer"
+
+[[chapter.page]]
+name = "01-end-to-end-delivery"
+title = "End-to-end delivery"
+summary = "The network layer carries a packet from the original sender to the final receiver, across any number of networks."
+teaches = [
+  "Scene: a packet from a laptop at home to a server on another continent, crossing many routers and link types",
+  "The four network layer processes: addressing end devices, encapsulation, routing, de-encapsulation",
+  "IPv4 and IPv6 are the network layer protocols in use today",
+  "Routers forward packets between networks; the network layer does not care what each link is",
+  "A `diagram` of a multi-router path",
+]
+
+[[chapter.page]]
+name = "02-ip-characteristics"
+title = "Connectionless, best effort, media independent"
+summary = "IP sends each packet on its own, makes no promises, and runs over any medium."
+teaches = [
+  "*Connectionless*: no setup before sending, like posting a letter",
+  "*Best effort*: no delivery guarantee, no acknowledgment, no retransmission; reliability is left to TCP or the application",
+  "*Media independent*: IP runs over copper, fiber or wireless; it only needs to know the link's maximum transmission unit (MTU)",
+  "IPv4 fragmentation: a router can split a packet that exceeds the next link's MTU (1500 bytes on Ethernet), and why that is costly",
+  "IPv6 routers do not fragment; the sender must size packets (path MTU discovery)",
+  "`question` blocks on what IP does and does not do",
+  "Misconception: 'unreliable' means IP does not check delivery, not that packets usually get lost",
+]
+
+[[chapter.page]]
+name = "03-the-ipv4-header"
+title = "The IPv4 header"
+summary = "A 20-byte IPv4 header carries addresses, a lifetime and the name of what it carries."
+teaches = [
+  "`fields` block with unit bits and row 32: Version (4), IHL (4), Differentiated Services (8), Total Length (16), Identification (16), Flags (3), Fragment Offset (13), Time to Live (8), Protocol (8), Header Checksum (16), Source Address (32), Destination Address (32), Options",
+  "Minimum header size 20 bytes",
+  "Version is 4; Differentiated Services carries DSCP (6 bits) and ECN (2 bits) for QoS",
+  "Time to Live: decremented by one at every router; at 0 the packet is dropped and an ICMP Time Exceeded is sent (traceroute uses this)",
+  "Protocol field values: 1 ICMP, 6 TCP, 17 UDP",
+  "Header checksum covers only the header and is recomputed at each router because TTL changes",
+  "Identification, flags and fragment offset are used for fragmentation",
+  "`question`: which field stops a packet from looping forever",
+]
+
+[[chapter.page]]
+name = "04-the-ipv6-header"
+title = "The IPv6 header"
+summary = "IPv6 uses a simpler fixed 40-byte header with much larger addresses."
+teaches = [
+  "Limits of IPv4 that IPv6 addresses: address depletion, lack of end-to-end connectivity because of NAT, increased network complexity",
+  "`fields` block with unit bits and row 32: Version (4), Traffic Class (8), Flow Label (20), Payload Length (16), Next Header (8), Hop Limit (8), Source Address (128), Destination Address (128)",
+  "Fixed 40-byte header; optional extension headers follow it",
+  "Next Header plays the role of IPv4 Protocol (6 TCP, 17 UDP, 58 ICMPv6); Hop Limit plays the role of TTL",
+  "Removed from IPv6: header checksum, fragmentation fields in the main header, IHL",
+  "IPv4 versus IPv6 header comparison `table`",
+  "`question`: what replaced TTL in IPv6",
+]
+
+[[chapter.page]]
+name = "05-how-a-host-routes"
+title = "How a host decides where to send"
+summary = "A host sends a packet straight to a local destination, and to its default gateway for anything else."
+teaches = [
+  "Three destinations: itself (loopback 127.0.0.1 or ::1), a local host on the same network, a remote host on another network",
+  "The host compares the destination with its own network using its mask to decide local or remote",
+  "The *default gateway*: the router interface on the host's network; needed for any remote destination",
+  "A host's routing table: Windows `route print` (or `netstat -r`) showing IPv4 Network Destination, Netmask, Gateway, Interface, Metric, and an IPv6 route table, in a `console`",
+  "Reading the 0.0.0.0 0.0.0.0 route on a host as its default gateway",
+  "What fails when the gateway is missing or wrong: local traffic works, remote traffic does not",
+  "`question`: will this host send to the gateway or directly",
+]
+
+[[chapter.page]]
+name = "06-the-router-routing-table"
+title = "The router's routing table"
+summary = "A router forwards by matching a packet's destination against routes it has learned."
+teaches = [
+  "Three kinds of entries: directly connected networks, remote networks (static or dynamic), the default route",
+  "Directly connected routes appear when an interface has an address and is up/up: code C for the network, code L for the interface's own address (/32)",
+  "`show ip route` output in a `console`: the codes legend, `Gateway of last resort`, and entries such as `C`, `L`, `S`, `O`, `S*`",
+  "Dissect a remote route line: code, prefix and mask, [administrative distance/metric], `via` next-hop address, age, exit interface",
+  "Gateway of last resort is the default route used when nothing else matches",
+  "Longest prefix match: when several routes match, the most specific (longest prefix) wins",
+  "`question` choosing which route a router uses for a given destination",
+]
+
+[[chapter.page]]
+name = "07-static-and-dynamic-routing"
+title = "Static and dynamic routing"
+summary = "Routes to remote networks are typed by hand or learned from other routers."
+teaches = [
+  "Static routes: configured manually, e.g. `ip route 192.168.20.0 255.255.255.0 10.1.1.2`; no protocol overhead, do not adapt to failures, good for small or stub networks",
+  "Default static route: `ip route 0.0.0.0 0.0.0.0 10.1.1.2`; IPv6 `ipv6 route ::/0 2001:db8:acad:12::2`",
+  "Dynamic routing protocols discover networks, keep tables current and pick the best path; OSPF, EIGRP and BGP named",
+  "Administrative distance as a preview: how trustworthy a source is (connected 0, static 1, OSPF 110)",
+  "Comparison `table`: static versus dynamic on configuration, resources, adaptability, security",
+  "IPv6 routing table on a router with `show ipv6 route`",
+  "Point forward: the second book configures static routing and the third configures OSPF",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself: a packet across two routers"
+summary = "Walk a packet across two routers, then answer mixed questions on IP and routing tables."
+teaches = [
+  "Worked scenario: PC1 to a server two routers away, with a `diagram`; at each hop decide local or remote, look up the route, decrement TTL",
+  "Read a short `show ip route` output and pick the route used for three destinations",
+  "IPv4 and IPv6 header field questions",
+  "Connectionless, best effort, media independent by scenario",
+  "Host routing table and default gateway questions",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 9: Address resolution (ITN module 9)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 9
+title = "Address resolution"
+
+[[chapter.page]]
+name = "01-two-addresses-two-jobs"
+title = "Two addresses, two jobs"
+summary = "A host knows the IP address it wants. To build the frame, it also needs a MAC address."
+teaches = [
+  "Scene: PC1 types `ping 192.168.1.20` and knows the IP address, but the Ethernet frame needs a destination MAC it does not have",
+  "IP addresses are end to end; MAC addresses are hop by hop",
+  "Destination on the same network: the frame goes to the destination host's MAC",
+  "Destination on a remote network: the frame goes to the default gateway's MAC",
+  "IPv4 uses ARP to find the MAC; IPv6 uses Neighbor Discovery",
+  "`question`: whose MAC does PC1 need for a given destination",
+]
+
+[[chapter.page]]
+name = "02-arp-request-and-reply"
+title = "ARP request and reply"
+summary = "A host broadcasts 'who has this IP?' and the owner answers with its MAC address."
+teaches = [
+  "The ARP table (ARP cache) maps IPv4 addresses to MACs; the host checks it first",
+  "ARP request: broadcast frame (destination FF-FF-FF-FF-FF-FF, EtherType 0x0806) asking for the MAC of a target IPv4 address",
+  "Every host on the LAN receives it; only the owner of the target IP replies",
+  "ARP reply: unicast frame back to the requester carrying the target's MAC",
+  "Both sides add entries to their ARP tables; entries age out after a while",
+  "`fields` block of the important ARP message fields: sender MAC, sender IP, target MAC (zeros in the request), target IP",
+  "Sequence `diagram` of PC1, switch, PC2 for one exchange",
+]
+
+[[chapter.page]]
+name = "03-arp-across-a-router"
+title = "ARP across a router"
+summary = "A host never ARPs for a remote host. It ARPs for its gateway, and each router ARPs on the next link."
+teaches = [
+  "PC1 to a remote server: PC1 ARPs for its default gateway's IP, not the server's",
+  "The router receives the frame, looks up the route, and ARPs on the outgoing link for the next hop or the final host",
+  "A `table` of MACs and IPs on each link: IPs constant, MACs change",
+  "Misconception: a router does not forward the ARP broadcast to other networks; broadcasts stop at the router",
+  "What happens on the very first ping: the first echo can time out while ARP completes (seen as `.!!!!` on IOS)",
+  "`question` blocks naming the source and destination MAC on each link",
+]
+
+[[chapter.page]]
+name = "04-viewing-the-arp-table"
+title = "Viewing and clearing the ARP table"
+summary = "Hosts and routers show their ARP tables, so you can see what they have learned."
+teaches = [
+  "Windows: `arp -a` shows Internet Address, Physical Address, Type (dynamic or static) per interface, in a `console`; `arp -d` deletes entries",
+  "Cisco router: `show ip arp` (or `show arp`) with columns Protocol, Address, Age (min), Hardware Addr, Type, Interface, in a `console`",
+  "Entries with Age `-` are the router's own interface addresses",
+  "Cisco IOS ARP entries time out after 4 hours by default; host operating systems use much shorter timers that vary by OS",
+  "`clear arp-cache` on a router",
+  "Static ARP entries exist but are rarely used",
+  "`command` block: display the router's ARP table",
+]
+
+[[chapter.page]]
+name = "05-arp-issues"
+title = "ARP problems and risks"
+summary = "ARP broadcasts load the LAN, and anyone can send a fake ARP reply."
+teaches = [
+  "Broadcast overhead: many hosts starting up at once flood ARP requests; segmenting the network limits it",
+  "Gratuitous ARP: a host announces its own IP and MAC without being asked (used after address changes and for duplicate detection)",
+  "ARP spoofing (ARP poisoning): an attacker replies with its own MAC for the gateway's IP and becomes a man in the middle",
+  "Hosts accept ARP replies they did not request, which makes spoofing possible",
+  "Mitigation preview: Dynamic ARP Inspection on enterprise switches (covered in the second book)",
+  "`question`: what an attacker gains by spoofing the gateway's MAC",
+]
+
+[[chapter.page]]
+name = "06-ipv6-neighbor-discovery"
+title = "IPv6 Neighbor Discovery"
+summary = "IPv6 replaces ARP with ICMPv6 messages that also find routers and detect duplicate addresses."
+teaches = [
+  "Neighbor Discovery (ND) uses ICMPv6 messages: Router Solicitation (type 133), Router Advertisement (134), Neighbor Solicitation (135), Neighbor Advertisement (136), Redirect (137)",
+  "Device to device (address resolution): NS and NA replace ARP request and reply",
+  "Device to router: RS and RA let hosts find routers and learn prefixes (chapter 12)",
+  "NS is sent to the target's *solicited-node multicast* address (ff02::1:ff plus the last 24 bits of the target address), not to everyone",
+  "Duplicate Address Detection (DAD): a host sends an NS for its own new address; any reply means the address is in use",
+  "`show ipv6 neighbors` on a router, with columns IPv6 Address, Age, Link-layer Addr, State, Interface, in a `console`",
+  "ARP versus ND comparison `table`",
+]
+
+[[chapter.page]]
+name = "07-check-yourself"
+title = "Check yourself: address resolution"
+summary = "Mixed questions on ARP, its risks and IPv6 Neighbor Discovery."
+teaches = [
+  "Whose MAC is needed for local and remote destinations",
+  "ARP request and reply: broadcast or unicast, who replies",
+  "MACs on each link across a router",
+  "Reading `arp -a` and `show ip arp`",
+  "ARP spoofing and gratuitous ARP",
+  "ND message types and their ICMPv6 numbers; solicited-node multicast; DAD",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 10: Basic router configuration (ITN module 10)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 10
+title = "Basic router configuration"
+
+[[chapter.page]]
+name = "01-a-router-out-of-the-box"
+title = "A router out of the box"
+summary = "A new router routes nothing until its interfaces have addresses and are turned on."
+teaches = [
+  "Scene: an ISR 4321 between two LANs, with a `diagram` of R1, S1, S2 and two PCs",
+  "Router interfaces are named by slot, subslot and port: GigabitEthernet0/0/0, GigabitEthernet0/0/1",
+  "Router interfaces are administratively down by default, unlike switch ports",
+  "Each router interface sits in a different network and becomes that network's default gateway",
+  "The chapter plan: initial settings, interfaces, verification, filtering output, the default gateway",
+]
+
+[[chapter.page]]
+name = "02-initial-router-settings"
+title = "Initial router settings"
+summary = "Name and secure a router with the same commands you used on the switch."
+teaches = [
+  "`hostname R1`, `enable secret`, `line console 0` with `password` and `login`, `line vty 0 4` with `password` and `login` (VTY lines 0 to 4 by default on ISR 4000)",
+  "`service password-encryption` and `banner motd`",
+  "`no ip domain-lookup` to avoid DNS lookups on typos",
+  "`copy running-config startup-config`",
+  "One complete `console` showing the configuration",
+  "`command` blocks for two of the steps",
+  "These commands are identical on switches and routers because both run IOS",
+]
+
+[[chapter.page]]
+name = "03-configuring-router-interfaces"
+title = "Configuring router interfaces"
+summary = "Give each interface an IPv4 address, an IPv6 address and a description, then turn it on."
+teaches = [
+  "`interface gigabitethernet 0/0/0`, `description Link to LAN 1`, `ip address 192.168.10.1 255.255.255.0`, `no shutdown`",
+  "IPv6 on the same interface: `ipv6 address 2001:db8:acad:10::1/64` and `ipv6 address fe80::1 link-local`",
+  "`ipv6 unicast-routing` in global config so the router forwards IPv6 and sends Router Advertisements",
+  "The console messages after `no shutdown`: `%LINK-3-UPDOWN` then `%LINEPROTO-5-UPDOWN`, shown in a `console`",
+  "An interface needs a working cable to a powered device to reach up/up",
+  "A dual-stack device runs IPv4 and IPv6 at once",
+  "`command` blocks: set an IPv4 address; enable the interface",
+  "Misconception: two router interfaces cannot have addresses in the same subnet; IOS rejects it with an overlap message",
+]
+
+[[chapter.page]]
+name = "04-verifying-interfaces"
+title = "Verifying interface configuration"
+summary = "Check status, addresses and routes before you blame anything else."
+teaches = [
+  "`show ip interface brief` and `show ipv6 interface brief`, in a `console`",
+  "Status and Protocol combinations: up/up (working), administratively down/down (shut), down/down (no cable or far end down), up/down (Layer 2 problem)",
+  "`show interfaces` for counters and line state; `show ip interface` for detailed IPv4 settings",
+  "`show ip route` and `show ipv6 route` showing C and L routes appearing once interfaces are up",
+  "`show running-config interface g0/0/0` to see one interface's settings",
+  "`ping` from the router to each connected host",
+  "`question`: interpret a given status/protocol pair",
+]
+
+[[chapter.page]]
+name = "05-filtering-show-output"
+title = "Filtering show output and command history"
+summary = "Long outputs shrink to the lines you need with a pipe and a filter."
+teaches = [
+  "Filters after a pipe: `| include`, `| exclude`, `| begin`, `| section`",
+  "Examples: `show running-config | section line vty`, `show ip interface brief | include up`, `show running-config | begin interface`",
+  "Filters are case sensitive and match regular expressions",
+  "Command history: Up arrow and Ctrl+P, Down arrow and Ctrl+N, `show history`",
+  "`terminal history size 200` changes the buffer for the current session only; the default is 10 lines",
+  "`command` blocks using `| include` and `| section`",
+]
+
+[[chapter.page]]
+name = "06-the-default-gateway"
+title = "The default gateway"
+summary = "Hosts and switches send everything off their network to the router interface on their own subnet."
+teaches = [
+  "Host default gateway: the IPv4 address of the router interface on the host's LAN; without it the host can reach only its own network",
+  "IPv6 hosts usually learn their default gateway from Router Advertisements, using the router's link-local address",
+  "Switch default gateway with `ip default-gateway 192.168.10.1`, needed only for managing the switch from another network",
+  "A switch's gateway does not affect the frames it switches for hosts",
+  "Troubleshooting: a host that can ping local devices but nothing remote usually has a missing or wrong gateway",
+  "`command` block for the switch's default gateway",
+  "`question` from a scenario with a wrong gateway",
+]
+
+[[chapter.page]]
+name = "07-worked-scenario"
+title = "Worked scenario: two LANs, one router"
+summary = "Configure R1, S1 and two PCs for dual-stack connectivity, then prove every path."
+teaches = [
+  "Topology `diagram` with addressing `table` (192.168.10.0/24, 192.168.11.0/24, 2001:db8:acad:10::/64, 2001:db8:acad:11::/64)",
+  "Full R1 configuration in one `console`: initial settings, both interfaces dual stack, `ipv6 unicast-routing`, save",
+  "S1 SVI and default gateway",
+  "PC settings for IPv4 and IPv6",
+  "Verification: `show ip interface brief`, `show ip route`, ping PC1 to PC2 over IPv4 and IPv6",
+  "A planted fault: one PC with the wrong gateway; show the symptom and the fix",
+  "Three or four `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 11: IPv4 addressing (ITN module 11)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 11
+title = "IPv4 addressing"
+
+[[chapter.page]]
+name = "01-why-addresses-have-structure"
+title = "Why addresses have structure"
+summary = "An IPv4 address names both a network and a host. The mask says where one ends and the other begins."
+teaches = [
+  "Scene: a postal address (street, then house number) as the picture for network part and host part",
+  "Routers forward by network part; hosts on one network share it",
+  "Every device's address, mask and gateway must agree for communication to work",
+  "What the chapter builds: address structure, address types, subnetting a /24, /16 and /8, VLSM, and a structured design",
+  "Subnetting is the most practiced skill in the CCNA, and drills on these pages build speed",
+]
+
+[[chapter.page]]
+name = "02-network-and-host-portions"
+title = "Network and host portions"
+summary = "AND the address with the mask and you get the network address."
+teaches = [
+  "An IPv4 address is 32 bits; the subnet mask has 1s over the network bits and 0s over the host bits",
+  "Prefix length notation: 192.168.10.10/24 means the first 24 bits are network",
+  "The logical AND: 1 AND 1 = 1, anything AND 0 = 0",
+  "Worked example in binary: 192.168.10.77 AND 255.255.255.192 = 192.168.10.64",
+  "A `table` of common masks with prefix length and number of host bits",
+  "Hosts use the AND to decide local or remote; routers use it to match routes",
+  "A `drill` of kind mask",
+]
+
+[[chapter.page]]
+name = "03-network-host-broadcast-addresses"
+title = "Network, host and broadcast addresses"
+summary = "In every subnet the first address names the network, the last is broadcast, and the rest are hosts."
+teaches = [
+  "Network address: all host bits 0; broadcast address: all host bits 1; usable host range is everything in between",
+  "Usable hosts = 2^h - 2, where h is the number of host bits",
+  "Worked examples: 192.168.10.0/24 (hosts .1 to .254, broadcast .255) and 10.1.1.0/25 (hosts .1 to .126, broadcast .127)",
+  "Conventions for assigning addresses: gateway often the first usable (.1) or the last usable, servers and printers static, clients from DHCP",
+  "Misconception: the network and broadcast addresses can not be assigned to hosts",
+  "`question` blocks giving network, first, last and broadcast",
+  "A `drill` of kind hosts",
+]
+
+[[chapter.page]]
+name = "04-unicast-broadcast-multicast"
+title = "Unicast, broadcast and multicast"
+summary = "IPv4 can send to one host, every host on a network, or a group of interested hosts."
+teaches = [
+  "Unicast: one to one; source addresses are always unicast",
+  "Limited broadcast 255.255.255.255 stays on the local network; directed broadcast (all host bits 1, e.g. 172.16.4.255/24) targets one remote network",
+  "Routers do not forward limited broadcasts, and IOS does not forward directed broadcasts by default (`no ip directed-broadcast`)",
+  "A router interface is the boundary of a broadcast domain",
+  "Multicast range 224.0.0.0 to 239.255.255.255; 224.0.0.0 to 224.0.0.255 is reserved for local link use, e.g. 224.0.0.5 and 224.0.0.6 for OSPF",
+  "Hosts join multicast groups; one packet reaches many receivers",
+  "`question` classifying given destination addresses",
+]
+
+[[chapter.page]]
+name = "05-public-private-and-special"
+title = "Public, private and special addresses"
+summary = "Some ranges are private, some are reserved for special uses, and the rest are routed on the internet."
+teaches = [
+  "Private ranges (RFC 1918): 10.0.0.0/8, 172.16.0.0/12 (172.16.0.0 to 172.31.255.255), 192.168.0.0/16; not routed on the internet",
+  "NAT translates private addresses to public ones at the edge (configured in the third book)",
+  "Special ranges: loopback 127.0.0.0/8 (127.0.0.1), link-local (APIPA) 169.254.0.0/16 assigned when DHCP fails, 0.0.0.0 as 'this network' or unspecified, TEST-NET documentation ranges 192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24",
+  "Legacy classful addressing in a `table`: class A (first octet 1 to 126, /8), B (128 to 191, /16), C (192 to 223, /24), D multicast (224 to 239), E experimental (240 to 255); classless (CIDR) replaced it",
+  "Who assigns public addresses: IANA to the five RIRs (AFRINIC, APNIC, ARIN, LACNIC, RIPE NCC), then to ISPs and organizations",
+  "`question` blocks: is this address private, public or special",
+  "Misconception: 172.32.0.1 is public, because the 172 private range stops at 172.31",
+]
+
+[[chapter.page]]
+name = "06-why-subnet"
+title = "Why segment a network"
+summary = "One huge broadcast domain is slow and hard to secure. Subnets split it into manageable pieces."
+teaches = [
+  "Broadcasts reach every host in a broadcast domain; large domains waste bandwidth and host CPU",
+  "Subnetting divides one network into smaller networks connected by a router or Layer 3 switch",
+  "Ways to segment: by location (floor, building), by group or function (staff, students, guests), by device type (printers, servers, phones)",
+  "Benefits: smaller broadcast domains, security policy between subnets, easier management and troubleshooting",
+  "A `diagram` of one flat network versus three subnets",
+  "`question`: choose a segmentation plan for a described organization",
+]
+
+[[chapter.page]]
+name = "07-subnetting-a-slash-24"
+title = "Subnetting a /24"
+summary = "Borrow host bits to make subnets. Each borrowed bit doubles the subnets and halves the hosts."
+teaches = [
+  "Borrowing bits: extending the prefix into the host part; subnets created = 2^n where n is borrowed bits",
+  "A `table` for a /24: /25 (2 subnets, 126 hosts, mask .128), /26 (4, 62, .192), /27 (8, 30, .224), /28 (16, 14, .240), /29 (32, 6, .248), /30 (64, 2, .252)",
+  "The *block size* (magic number) = 256 minus the interesting mask octet; subnets start at multiples of it",
+  "Worked example: 192.168.1.0/24 into /26: list the four subnets with network, first host, last host, broadcast",
+  "Worked example: the same network into /27, listing all eight",
+  "The tradeoff: more subnets means fewer hosts per subnet",
+  "A `drill` of kind subnet",
+]
+
+[[chapter.page]]
+name = "08-finding-the-subnet"
+title = "Finding the subnet of any address"
+summary = "Given an address and a prefix, find its network, host range and broadcast in a few steps."
+teaches = [
+  "Method: find the interesting octet, compute the block size, find the largest multiple of the block size that is not more than the address's octet",
+  "Worked example: 192.168.1.77/27: block 32, network 192.168.1.64, hosts .65 to .94, broadcast .95",
+  "Worked example: 10.10.10.200/29: block 8, network .200, hosts .201 to .206, broadcast .207",
+  "Checking the result with binary AND for one example",
+  "Are two hosts in the same subnet? Compute both networks and compare",
+  "`question` blocks: is this a valid host address, which subnet is it in",
+  "A `drill` of kind subnet",
+]
+
+[[chapter.page]]
+name = "09-subnetting-a-slash-16"
+title = "Subnetting a /16"
+summary = "With 16 host bits, borrowed bits move into the third octet and host counts get large."
+teaches = [
+  "172.16.0.0/16 has 16 host bits; borrowing 1 to 8 bits changes the third octet",
+  "A `table` for a /16: /17 to /24 with subnets and hosts per subnet (for example /20: 16 subnets, 4,094 hosts; /23: 128 subnets, 510 hosts; /24: 256 subnets, 254 hosts)",
+  "Block size in the third octet: /20 has block 16, so subnets are 172.16.0.0, 172.16.16.0, 172.16.32.0, ...",
+  "Host ranges that span octets: 172.16.16.0/20 has hosts 172.16.16.1 to 172.16.31.254, broadcast 172.16.31.255",
+  "Borrowing past the third octet into the fourth (/25 to /30 within a /16)",
+  "Worked example: find the subnet of 172.16.45.10/22",
+  "A `drill` of kind hosts",
+]
+
+[[chapter.page]]
+name = "10-subnetting-a-slash-8"
+title = "Subnetting a /8"
+summary = "A /8 has 24 host bits, enough for thousands of subnets with thousands of hosts each."
+teaches = [
+  "10.0.0.0/8 has 24 host bits; borrowed bits fall in the second, third and fourth octets",
+  "A `table` of selected prefixes within a /8 (for example /16: 256 subnets, 65,534 hosts; /20: 4,096 subnets, 4,094 hosts; /24: 65,536 subnets, 254 hosts)",
+  "Worked example: 10.0.0.0/8 into /12; the first subnets 10.0.0.0, 10.16.0.0, 10.32.0.0 with ranges",
+  "Worked example: find the subnet and broadcast of 10.45.200.7/14",
+  "The rule stays the same in any octet: block size in the interesting octet, all host bits 0 for network, all 1 for broadcast",
+  "A `drill` of kind mask, then a `drill` of kind subnet",
+]
+
+[[chapter.page]]
+name = "11-subnetting-to-requirements"
+title = "Subnetting to meet requirements"
+summary = "Start from what is needed: how many subnets, how many hosts in the largest one."
+teaches = [
+  "Two questions: how many subnets are needed, and how many hosts must the largest subnet hold",
+  "Choose host bits h with 2^h - 2 at least the host requirement; choose borrowed bits n with 2^n at least the subnet requirement",
+  "When both cannot be met from the given block, you need a larger block or VLSM",
+  "Worked example: 192.168.20.0/24 needs 5 subnets of up to 25 hosts: /27 gives 8 subnets of 30 hosts",
+  "Worked example: 172.16.0.0/16 needs 100 subnets of up to 500 hosts: /23 gives 128 subnets of 510 hosts",
+  "Plan for growth and use private addresses internally",
+  "`question` blocks: choose the prefix for a requirement",
+  "A `drill` of kind hosts",
+]
+
+[[chapter.page]]
+name = "12-vlsm"
+title = "Variable length subnet masks"
+summary = "Different subnets can have different sizes, so small links do not waste large blocks."
+teaches = [
+  "The waste problem: fixed /27 subnets give 30 hosts to a two-router link that needs 2",
+  "VLSM: subnet an already-subnetted block again, so prefixes differ within one network",
+  "Point-to-point links use /30 (2 hosts); IOS also supports /31 on point-to-point links (RFC 3021), as a `deeper` note",
+  "The VLSM method: list requirements, sort largest first, allocate each from the next free block on its own boundary",
+  "Worked example: 192.168.30.0/24 for LANs of 60, 28 and 12 hosts and two WAN links: /26, /27, /28, /30, /30, with the address map",
+  "Misconception: subnets must not overlap, and each must start on a multiple of its own block size",
+  "A `drill` of kind subnet",
+]
+
+[[chapter.page]]
+name = "13-structured-design"
+title = "Structured addressing design"
+summary = "Plan an address scheme for a whole site, then assign addresses to devices consistently."
+teaches = [
+  "Planning steps: inventory networks and host counts, choose the block (private), apply VLSM, document",
+  "Worked design: a three-building site with LANs of 100, 50 and 20 hosts plus three router links from 10.10.0.0/24 or 172.16.10.0/23, with a complete allocation `table`",
+  "Device address assignment conventions: router gateways, switch management SVIs, servers and printers (static), clients (DHCP pool), with a `table`",
+  "Leaving room for growth between allocations",
+  "Configuring one router interface and one switch SVI from the plan, in a `console`, and verifying with `show ip interface brief`",
+  "`question`: spot the overlapping subnet in a flawed plan",
+]
+
+[[chapter.page]]
+name = "14-check-yourself"
+title = "Check yourself: IPv4 addressing"
+summary = "Mixed subnetting problems, address types and design questions, with drills to build speed."
+teaches = [
+  "Network, first host, last host and broadcast for addresses in /8, /16 and /24 blocks",
+  "Hosts per subnet and subnets per block",
+  "Private, public and special address recognition",
+  "Unicast, limited broadcast, directed broadcast and multicast classification",
+  "Choose a prefix to meet requirements; spot VLSM overlaps",
+  "`drill` blocks of kinds subnet, hosts and mask",
+  "Four to six `recall` cards (RFC 1918 ranges, 2^h - 2, block size rule)",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 12: IPv6 addressing (ITN module 12)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 12
+title = "IPv6 addressing"
+
+[[chapter.page]]
+name = "01-why-ipv6"
+title = "Why IPv6"
+summary = "IPv4 ran out of addresses. IPv6 has enough for everything, and the two run side by side for now."
+teaches = [
+  "IPv4 has about 4.3 billion addresses; IANA's free pool ran out in 2011 and the RIRs followed",
+  "NAT stretched IPv4 but broke end-to-end connectivity and added complexity",
+  "IPv6 has 2^128 addresses and was designed with autoconfiguration and a simpler header",
+  "Coexistence methods: dual stack (both protocols on every device), tunneling (IPv6 inside IPv4), translation (NAT64)",
+  "Dual stack is the recommended approach where possible",
+  "`question` matching a coexistence method to a description",
+]
+
+[[chapter.page]]
+name = "02-writing-ipv6-addresses"
+title = "Writing IPv6 addresses"
+summary = "An IPv6 address is eight groups of four hex digits, and two rules make it shorter."
+teaches = [
+  "128 bits written as eight *hextets* of 16 bits (four hex digits) separated by colons; the preferred (full) format 2001:0db8:0000:0000:00a0:0000:0000:0001",
+  "Rule 1: omit leading zeros in any hextet (00a0 becomes a0, 0000 becomes 0); never trailing zeros",
+  "Rule 2: a double colon (::) replaces one run of consecutive all-zero hextets, once per address",
+  "When there are two equal runs, compress the longest, or the first if equal (RFC 5952 recommendation)",
+  "Worked examples compressing and expanding addresses",
+  "Misconceptions: using :: twice makes the address ambiguous; removing trailing zeros changes the address",
+  "`question` blocks choosing the valid compressed form",
+  "A `drill` of kind ipv6",
+]
+
+[[chapter.page]]
+name = "03-prefix-and-interface-id"
+title = "Prefix length and interface ID"
+summary = "IPv6 has no dotted mask. A prefix length marks the network part, and /64 is the norm for a LAN."
+teaches = [
+  "Prefix length notation from /0 to /128, e.g. 2001:db8:acad:1::10/64",
+  "The prefix identifies the network; the *interface ID* identifies the host",
+  "A /64 gives a 64-bit prefix and 64-bit interface ID; SLAAC and EUI-64 need /64",
+  "Prefix boundaries on hex-digit edges (multiples of 4 bits) are easiest to read",
+  "Extracting the prefix of an address for /64 and /48",
+  "IPv6 has no broadcast and no reserved host addresses at the ends of the range in the IPv4 sense",
+  "`question` blocks finding the prefix",
+  "A `drill` of kind ipv6",
+]
+
+[[chapter.page]]
+name = "04-ipv6-address-types"
+title = "IPv6 address types"
+summary = "IPv6 has unicast, multicast and anycast addresses, and several kinds of unicast."
+teaches = [
+  "Three types: unicast (one interface), multicast (a group), anycast (the nearest of several interfaces with the same address); no broadcast",
+  "Anycast: the same unicast address on several devices, and routing delivers to the closest; used for services such as DNS",
+  "Unicast kinds in a `table` with prefix: global unicast (GUA, currently 2000::/3), link-local (LLA, fe80::/10), loopback (::1/128), unspecified (::/128), unique local (ULA, fc00::/7, in practice fd00::/8), embedded IPv4",
+  "ULAs are like private IPv4 addresses: routable inside an organization, not on the internet",
+  "An interface usually has several IPv6 addresses at once: an LLA always, plus GUAs",
+  "`question` blocks identifying the type from a given address",
+  "`recall` cards for fe80::/10, 2000::/3, fc00::/7",
+]
+
+[[chapter.page]]
+name = "05-global-unicast-addresses"
+title = "Global unicast addresses"
+summary = "A GUA has a global routing prefix from the provider, a subnet ID you choose and an interface ID."
+teaches = [
+  "Structure: global routing prefix (often /48 from the provider), subnet ID (16 bits for a /48 to /64), interface ID (64 bits)",
+  "A `fields` block of a GUA with 48, 16 and 64 bit spans",
+  "Worked example: 2001:db8:acad::/48 gives subnets 2001:db8:acad:1::/64, 2001:db8:acad:2::/64",
+  "A /48 provides 65,536 /64 subnets",
+  "Reading an address: which part the provider gave, which part the network team assigned",
+  "`question`: identify the subnet ID in an address",
+]
+
+[[chapter.page]]
+name = "06-link-local-addresses"
+title = "Link-local addresses"
+summary = "Every IPv6 interface has a link-local address. It never leaves the link, and routers use it constantly."
+teaches = [
+  "Link-local addresses fe80::/10 are confined to one link and are never routed",
+  "Every IPv6-enabled interface creates one automatically, even without a GUA",
+  "Uses: Neighbor Discovery, router advertisements, routing protocol neighbors and next hops, and the host's default gateway (the router's LLA)",
+  "The same LLA can exist on different links, so routers can use fe80::1 on every interface to make it easy to recognize",
+  "Windows shows link-local addresses with a zone index such as %11 to say which interface",
+  "`question`: why a packet to an LLA is not forwarded by a router",
+]
+
+[[chapter.page]]
+name = "07-static-ipv6-configuration"
+title = "Static IPv6 on routers and hosts"
+summary = "Type in a GUA and a memorable link-local address on each router interface."
+teaches = [
+  "`ipv6 unicast-routing` in global config: required for forwarding IPv6 and sending RAs",
+  "`ipv6 address 2001:db8:acad:1::1/64` and `ipv6 address fe80::1 link-local` in interface config",
+  "Router LLAs are created with EUI-64 by default unless set manually",
+  "`show ipv6 interface brief` output showing each interface's LLA and GUA, in a `console`",
+  "Static IPv6 on a Windows host: address, prefix length, default gateway (often the router LLA fe80::1), DNS",
+  "`command` blocks for the GUA and the LLA",
+  "Misconception: an IPv6 address typed without a prefix length is rejected; the prefix is part of the command",
+]
+
+[[chapter.page]]
+name = "08-slaac-and-dhcpv6"
+title = "Dynamic GUAs: SLAAC and DHCPv6"
+summary = "A router advertisement tells hosts how to get their addresses: on their own, partly from DHCPv6, or fully from DHCPv6."
+teaches = [
+  "Router Solicitation (to ff02::2, all routers) and Router Advertisement (to ff02::1, all nodes); Cisco routers send RAs every 200 seconds by default once `ipv6 unicast-routing` is on",
+  "Method 1, SLAAC only: the RA carries the prefix and the host builds its own GUA; default gateway is the router's LLA",
+  "Method 2, SLAAC with stateless DHCPv6: the host makes its address with SLAAC and gets DNS and other settings from a DHCPv6 server (the O flag)",
+  "Method 3, stateful DHCPv6: the host gets its address from a DHCPv6 server (the M flag), still using the RA for its default gateway",
+  "A `table` of the three methods: where the address comes from, where DNS comes from, which flag",
+  "Duplicate Address Detection runs before a host uses its new address",
+  "Point forward: configuring DHCPv6 servers is in the second book",
+  "`question`: which method does a given RA flag combination select",
+]
+
+[[chapter.page]]
+name = "09-interface-ids-eui64-and-random"
+title = "Interface IDs: EUI-64 and random"
+summary = "A host builds its 64-bit interface ID from its MAC address or from random bits."
+teaches = [
+  "EUI-64 steps: split the 48-bit MAC in half, insert FFFE in the middle, flip the seventh bit (the U/L bit) of the first byte",
+  "Worked example: MAC 0050.7966.6800 becomes interface ID 0250:79ff:fe66:6800",
+  "A second worked example where flipping the bit turns 02 into 00",
+  "Randomly generated interface IDs: used by Windows and other modern OSes by default for privacy, because EUI-64 exposes the MAC",
+  "LLAs are built the same way: fe80:: plus the interface ID",
+  "`ipv6 address 2001:db8:acad:1::/64 eui-64` on a router, and spotting `FFFE` in `show ipv6 interface brief`",
+  "`question` blocks computing EUI-64 interface IDs",
+]
+
+[[chapter.page]]
+name = "10-ipv6-multicast"
+title = "IPv6 multicast"
+summary = "IPv6 uses multicast where IPv4 used broadcast, and every host joins a few groups automatically."
+teaches = [
+  "Multicast prefix ff00::/8; well-known assigned multicast addresses",
+  "ff02::1 all-nodes (every IPv6 device joins it; the closest thing to a broadcast) and ff02::2 all-routers (routers join it once `ipv6 unicast-routing` is on)",
+  "Solicited-node multicast: ff02::1:ff00:0/104 plus the last 24 bits of a unicast address; one per address, used by ND so only the target is interrupted",
+  "Worked example: the solicited-node address for 2001:db8:acad:1::10 is ff02::1:ff00:10",
+  "`show ipv6 interface g0/0/0` on a router showing `Joined group address(es)` with ff02::1, ff02::2 and solicited-node groups, in a `console`",
+  "`question` blocks: which group an address belongs to",
+]
+
+[[chapter.page]]
+name = "11-subnetting-ipv6"
+title = "Subnetting an IPv6 network"
+summary = "Subnet IPv6 by counting in the subnet ID. There are no host counts to worry about."
+teaches = [
+  "With a /48 site prefix and /64 subnets, the 16-bit subnet ID is the fourth hextet",
+  "Allocate subnets by counting: 2001:db8:acad:1::/64, 2001:db8:acad:2::/64, ... up to 2001:db8:acad:ffff::/64",
+  "Every LAN and every point-to-point link gets its own /64 in a simple design",
+  "No host-count arithmetic: a /64 holds 2^64 interface IDs",
+  "Worked example: assign subnets to four LANs and two router links, with an addressing `table`",
+  "Configuring router interfaces from the plan in a `console`",
+  "`question`: next available subnet",
+]
+
+[[chapter.page]]
+name = "12-verifying-ipv6"
+title = "Verifying IPv6 configuration"
+summary = "Check addresses, routes and reachability for IPv6 the same way you would for IPv4."
+teaches = [
+  "`show ipv6 interface brief` and `show ipv6 interface` (LLA, GUAs, groups, ND settings)",
+  "`show ipv6 route`: codes C (connected) and L (local /128) for each GUA, in a `console`",
+  "`ping 2001:db8:acad:2::10` from a router and `ping` from a host; `ipconfig` on Windows showing IPv6 Address, Link-local IPv6 Address and Default Gateway",
+  "Common faults: `ipv6 unicast-routing` missing (no RAs, hosts get no GUA), wrong prefix length, interface shut",
+  "`command` block: show a brief list of IPv6 interface addresses",
+  "`question` interpreting output with a planted fault",
+]
+
+[[chapter.page]]
+name = "13-check-yourself"
+title = "Check yourself: IPv6 addressing"
+summary = "Mixed questions on IPv6 notation, address types, dynamic addressing and multicast."
+teaches = [
+  "Compress and expand addresses; spot invalid compressions",
+  "Identify GUA, LLA, ULA, multicast, loopback and unspecified addresses",
+  "SLAAC, stateless DHCPv6 and stateful DHCPv6 by RA flags",
+  "EUI-64 interface ID calculation",
+  "Solicited-node multicast addresses",
+  "Next /64 subnet from a /48",
+  "`drill` of kind ipv6, plus four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 13: ICMP (ITN module 13)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 13
+title = "ICMP"
+
+[[chapter.page]]
+name = "01-the-network-talks-back"
+title = "When the network talks back"
+summary = "IP gives no feedback on its own. ICMP carries the error and test messages that tell you what happened."
+teaches = [
+  "Scene: a ping that fails and a router that reports why",
+  "ICMP gives feedback about delivery problems; it does not make IP reliable",
+  "ICMPv4 (IP protocol 1) and ICMPv6 (next header 58); ICMPv6 also carries Neighbor Discovery",
+  "Why some networks block ICMP and what that costs troubleshooting",
+  "The chapter plan: message types, ping, traceroute, a test sequence",
+]
+
+[[chapter.page]]
+name = "02-icmp-messages"
+title = "ICMP message types"
+summary = "Echo, unreachable and time exceeded messages cover most of what you will see."
+teaches = [
+  "Echo request and echo reply: ICMPv4 types 8 and 0, ICMPv6 types 128 and 129",
+  "Destination unreachable: ICMPv4 type 3 with codes 0 net, 1 host, 2 protocol, 3 port unreachable; ICMPv6 type 1 with codes such as 0 no route, 1 administratively prohibited, 3 address unreachable, 4 port unreachable",
+  "Time exceeded: ICMPv4 type 11 and ICMPv6 type 3, sent when TTL or hop limit reaches 0",
+  "ICMPv6 ND messages recap: RS 133, RA 134, NS 135, NA 136, Redirect 137",
+  "A `table` of message, ICMPv4 type, ICMPv6 type, what triggers it",
+  "`question` matching a situation to the message a router sends",
+]
+
+[[chapter.page]]
+name = "03-ping"
+title = "Ping from hosts and routers"
+summary = "Ping sends echo requests and times the replies."
+teaches = [
+  "Windows `ping`: four echo requests of 32 bytes by default; reading Reply lines, time and TTL, and the statistics summary, in a `console`",
+  "IOS `ping`: five 100-byte echoes with a 2 second timeout, `!!!!!` and `Success rate is 100 percent (5/5), round-trip min/avg/max`, in a `console`",
+  "IPv6 ping: `ping 2001:db8:acad:1::10` and the same output shape",
+  "Extended ping on IOS: typing `ping` alone to set the source interface, repeat count and size",
+  "Ctrl+Shift+6 to stop a long ping on IOS, Ctrl+C on Windows",
+  "`command` block: ping an IPv6 address from a router",
+]
+
+[[chapter.page]]
+name = "04-reading-ping-results"
+title = "Reading ping results"
+summary = "Each character in IOS ping output and each line in Windows output points to a different cause."
+teaches = [
+  "IOS ping characters in a `table`: `!` reply received, `.` timed out, `U` destination unreachable received, `Q` source quench, `M` could not fragment, `?` unknown packet type, `&` packet lifetime exceeded",
+  "`.!!!!` on the first ping: the first echo timed out while ARP resolved the next hop",
+  "Windows 'Request timed out' (no reply at all) versus 'Destination host unreachable' (a router or the local host reported it)",
+  "A failed ping does not always mean no connectivity: a firewall may drop ICMP",
+  "Reading TTL in replies to estimate the hop count",
+  "`question` blocks interpreting outputs",
+]
+
+[[chapter.page]]
+name = "05-traceroute"
+title = "Traceroute"
+summary = "Traceroute sends packets with a TTL of 1, 2, 3 and so on, and each router that drops one names itself."
+teaches = [
+  "How it works: the first probes have TTL 1, the first router sends Time Exceeded, the next probes have TTL 2, until the destination answers",
+  "Windows `tracert` uses ICMP echo; Cisco IOS `traceroute` and Linux `traceroute` use UDP probes to high ports, and the destination answers with port unreachable",
+  "Three probes per hop, with a round-trip time for each",
+  "Reading `* * *`: no reply from that hop (timeout, filtering, or the path breaks there)",
+  "Using traceroute to find where a path stops",
+  "IOS `traceroute` output and Windows `tracert` output in `console` blocks",
+  "`question`: where is the fault given a traceroute that stops at hop 3",
+]
+
+[[chapter.page]]
+name = "06-a-test-sequence"
+title = "A test sequence"
+summary = "Test from the inside out: your own stack, your own address, your gateway, then the remote host."
+teaches = [
+  "Step 1: `ping 127.0.0.1` (or `::1`) tests the host's own TCP/IP stack",
+  "Step 2: ping your own assigned address to test the NIC configuration",
+  "Step 3: ping the default gateway to test the local network",
+  "Step 4: ping a remote host to test routing; step 5: traceroute if it fails",
+  "Step 6: ping by name to test DNS separately from connectivity",
+  "What each failure points to in a `table`",
+  "`question` blocks: given the step that fails, what is the likely cause",
+]
+
+[[chapter.page]]
+name = "07-check-yourself"
+title = "Check yourself: ICMP"
+summary = "Mixed questions on ICMP messages, ping output and traceroute."
+teaches = [
+  "ICMPv4 and ICMPv6 type numbers for echo, unreachable, time exceeded",
+  "IOS ping characters and Windows ping messages",
+  "Traceroute mechanics: TTL, time exceeded, UDP versus ICMP probes",
+  "Locate a fault from a test sequence or traceroute output",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 14: Transport layer (ITN module 14)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 14
+title = "Transport layer"
+
+[[chapter.page]]
+name = "01-many-conversations-one-host"
+title = "Many conversations, one host"
+summary = "A host runs a browser, email and a video call at once. The transport layer keeps their data apart."
+teaches = [
+  "Scene: one laptop with several applications sending and receiving at once over one network connection",
+  "Transport layer jobs: track individual conversations, segment data and reassemble it, add header information, identify the application",
+  "Multiplexing: segments from many conversations interleave on the network",
+  "Two protocols with different priorities: TCP (reliable, ordered) and UDP (fast, light)",
+  "Where the transport layer sits: between applications and IP, end to end only (routers do not look at it to forward)",
+]
+
+[[chapter.page]]
+name = "02-tcp-features"
+title = "What TCP provides"
+summary = "TCP sets up a session and guarantees ordered, complete delivery."
+teaches = [
+  "Connection-oriented: a session is set up before data flows",
+  "Reliable delivery: lost segments are retransmitted",
+  "Same-order delivery using sequence numbers",
+  "Flow control: the receiver limits how much the sender may send",
+  "Stateful: both ends track the session",
+  "Applications that use TCP: HTTP, HTTPS, SMTP, POP3, IMAP, FTP, SSH, Telnet",
+  "The cost: more overhead and delay than UDP",
+]
+
+[[chapter.page]]
+name = "03-the-tcp-header"
+title = "The TCP header"
+summary = "A 20-byte TCP header carries ports, sequence and acknowledgment numbers, flags and a window."
+teaches = [
+  "`fields` block with unit bits and row 32: Source Port (16), Destination Port (16), Sequence Number (32), Acknowledgment Number (32), Header Length (4), Reserved (6), Control Bits (6), Window Size (16), Checksum (16), Urgent (16), Options",
+  "Minimum header 20 bytes",
+  "Control bits: URG, ACK, PSH, RST, SYN, FIN, each with its meaning",
+  "Window size: how many bytes the receiver will accept before acknowledging",
+  "Checksum covers the header and data",
+  "`question`: which field enables reordering",
+]
+
+[[chapter.page]]
+name = "04-udp-and-tcp-compared"
+title = "UDP and how it compares"
+summary = "UDP adds ports and a checksum to IP and nothing more. That is exactly what real-time traffic wants."
+teaches = [
+  "UDP features: connectionless, no acknowledgments or retransmission, no reordering, no flow control",
+  "`fields` block of the 8-byte UDP header: Source Port, Length, Destination Port, Checksum (16 bits each)",
+  "Applications that use UDP: DNS, DHCP, TFTP, SNMP, syslog, VoIP and live video",
+  "Why real-time traffic prefers UDP: a late retransmission is worse than a gap",
+  "TCP versus UDP comparison `table`: connection setup, reliability, ordering, flow control, header size (20 versus 8 bytes), typical applications",
+  "`question` blocks: choose TCP or UDP for a described application",
+]
+
+[[chapter.page]]
+name = "05-port-numbers"
+title = "Port numbers and sockets"
+summary = "Port numbers say which application a segment is for. An IP address plus a port is a socket."
+teaches = [
+  "Source port (usually a random dynamic port chosen by the client) and destination port (the server's well-known port)",
+  "A *socket* is an IP address plus a port; a socket pair identifies one conversation",
+  "Port ranges: well-known 0 to 1023, registered 1024 to 49151, dynamic or private 49152 to 65535",
+  "A `table` of common ports: 20 and 21 FTP, 22 SSH, 23 Telnet, 25 SMTP, 53 DNS (UDP and TCP), 67 and 68 DHCP, 69 TFTP, 80 HTTP, 110 POP3, 143 IMAP, 161 SNMP, 443 HTTPS",
+  "`netstat` (and `netstat -n`) on a host listing active connections with local and foreign sockets, in a `console`",
+  "`question` blocks matching ports to protocols",
+  "`recall` cards for several common ports",
+]
+
+[[chapter.page]]
+name = "06-the-three-way-handshake"
+title = "Opening and closing a TCP session"
+summary = "A session opens with SYN, SYN-ACK, ACK and closes with FIN and ACK from each side."
+teaches = [
+  "Three-way handshake: client SYN, server SYN-ACK, client ACK; what each step proves",
+  "Server process listens on a port; each client session gets its own socket pair",
+  "Session termination: FIN from one side, ACK, FIN from the other, ACK (four steps, sometimes combined)",
+  "RST abruptly ends a session",
+  "A sequence `table` of each segment with flags",
+  "SYN flood attack as a preview of chapter 16",
+  "`question`: which flags are set in the second handshake segment",
+]
+
+[[chapter.page]]
+name = "07-sequence-and-acknowledgment"
+title = "Sequence numbers and acknowledgments"
+summary = "TCP numbers every byte. The receiver acknowledges by naming the next byte it expects."
+teaches = [
+  "The initial sequence number (ISN) is chosen at random during the handshake",
+  "Sequence numbers count bytes, not segments",
+  "The acknowledgment number is the next byte expected (expectational acknowledgment)",
+  "Worked example with numbers: 1,460-byte segments and the ACKs that follow",
+  "Lost data: the sender retransmits unacknowledged data after a timeout",
+  "Selective acknowledgment (SACK) lets the receiver report non-contiguous blocks, so only missing data is resent",
+  "Out-of-order segments are reordered by sequence number before delivery to the application",
+  "`question`: compute the acknowledgment number",
+]
+
+[[chapter.page]]
+name = "08-flow-control-and-windows"
+title = "Flow control and window size"
+summary = "The receiver's window tells the sender how much it may send before waiting for an acknowledgment."
+teaches = [
+  "Window size: bytes the sender may transmit before it must receive an acknowledgment",
+  "Sliding window: the window moves forward as acknowledgments arrive",
+  "Maximum segment size (MSS): typically 1,460 bytes on Ethernet (1,500 byte MTU minus 20 IP and 20 TCP header bytes)",
+  "Congestion avoidance: when segments are lost the sender reduces how much it sends, then increases again",
+  "Difference between flow control (protecting the receiver) and congestion avoidance (protecting the network)",
+  "`question` blocks on window behavior",
+]
+
+[[chapter.page]]
+name = "09-udp-communication"
+title = "UDP communication"
+summary = "UDP sends datagrams without setup. The application handles anything else it needs."
+teaches = [
+  "Low overhead: no handshake, no acknowledgments, no session state",
+  "Datagrams may arrive out of order or not at all; UDP does not reorder them",
+  "Server listens on its well-known port; the client picks a random source port",
+  "Applications add reliability themselves where needed (TFTP acknowledges each block)",
+  "DNS uses UDP for most queries and TCP for large responses and zone transfers",
+  "`question`: what happens when a UDP datagram is lost",
+]
+
+[[chapter.page]]
+name = "10-check-yourself"
+title = "Check yourself: transport layer"
+summary = "Mixed questions on TCP, UDP, ports and reliability."
+teaches = [
+  "Choose TCP or UDP for described applications",
+  "Port numbers for common protocols, and port ranges",
+  "Handshake and termination flags",
+  "Compute sequence and acknowledgment numbers",
+  "Window size and flow control versus congestion avoidance",
+  "Header sizes and fields",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 15: Application layer (ITN module 15)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 15
+title = "Application layer"
+
+[[chapter.page]]
+name = "01-where-applications-meet-the-network"
+title = "Where applications meet the network"
+summary = "The top three OSI layers turn what users do into data the network can carry."
+teaches = [
+  "Scene: opening a web page, and the services that make it work behind the browser",
+  "OSI application, presentation and session layers map to the single TCP/IP application layer",
+  "Presentation layer jobs: formatting, compression, encryption; formats such as JPEG, PNG, MP3, MPEG",
+  "Session layer jobs: create and maintain dialogs between applications, restart interrupted sessions",
+  "Applications versus application layer protocols: the browser is the application, HTTP is the protocol",
+  "`question`: which layer handles compression",
+]
+
+[[chapter.page]]
+name = "02-client-server-and-peer-to-peer"
+title = "Client-server and peer-to-peer"
+summary = "Most services run client-server. Some let every device be both client and server."
+teaches = [
+  "Client-server model: clients request, servers respond; downloads and uploads are named from the client's point of view",
+  "Peer-to-peer networking: devices share resources directly without a dedicated server",
+  "Peer-to-peer applications: a device runs both client and server roles; examples include BitTorrent and other file-sharing applications",
+  "Hybrid systems use a central index but direct transfers",
+  "Comparison `table`: client-server versus peer-to-peer on management, security, scalability",
+  "`question` classifying described applications",
+]
+
+[[chapter.page]]
+name = "03-web-http-https"
+title = "The web: HTTP and HTTPS"
+summary = "A browser requests a page with HTTP. HTTPS wraps the same exchange in encryption."
+teaches = [
+  "URL parts: protocol (`http://` or `https://`), server name, path and resource",
+  "The browser resolves the name with DNS, opens a TCP connection to port 80 (HTTP) or 443 (HTTPS), and sends a request",
+  "HTTP methods: GET (retrieve), POST (send data to the server), PUT (upload a resource)",
+  "HTTP is a request-response protocol and is stateless; HTTP sends everything in plain text",
+  "HTTPS adds TLS encryption and server authentication",
+  "A step `table` of the request from typing the URL to rendering the page",
+  "`question`: which port a browser uses for an https URL",
+]
+
+[[chapter.page]]
+name = "04-email-protocols"
+title = "Email: SMTP, POP3 and IMAP"
+summary = "SMTP sends mail. POP3 and IMAP let a client read it."
+teaches = [
+  "SMTP (TCP 25) carries mail from client to server and from server to server",
+  "POP3 (TCP 110) downloads messages to the client and typically deletes them from the server",
+  "IMAP (TCP 143) keeps messages on the server and synchronizes folders across devices",
+  "The email path: sender's client, sender's server, recipient's server, recipient's client",
+  "Comparison `table` of POP3 and IMAP",
+  "`question`: which protocol suits someone reading mail on three devices",
+]
+
+[[chapter.page]]
+name = "05-dns"
+title = "DNS"
+summary = "DNS turns names into addresses through a hierarchy of servers."
+teaches = [
+  "Why names: people remember names, devices need addresses",
+  "The hierarchy: root servers, top-level domains (.com, .org, country codes), second-level domains",
+  "Resolution: the client asks its configured DNS server, which answers from cache or queries the hierarchy",
+  "Record types: A (IPv4), AAAA (IPv6), NS (name server), MX (mail exchange)",
+  "DNS uses UDP and TCP port 53",
+  "`nslookup` on a host, showing the server used and the answer, in a `console`; `ipconfig /displaydns` and `ipconfig /flushdns` on Windows",
+  "`question`: which record type a mail server lookup returns",
+]
+
+[[chapter.page]]
+name = "06-dhcp"
+title = "DHCP for IPv4"
+summary = "DHCP hands out addresses, masks, gateways and DNS servers on loan."
+teaches = [
+  "Why DHCP: automatic, consistent configuration for clients; static addresses for servers, printers and network devices",
+  "The four messages: DHCPDISCOVER (broadcast), DHCPOFFER, DHCPREQUEST, DHCPACK",
+  "What a lease includes: IPv4 address, mask, default gateway, DNS server, lease time; renewal before the lease ends",
+  "DHCP uses UDP 67 (server) and 68 (client)",
+  "DHCP servers can be a dedicated server, a router or a home wireless router",
+  "Because DISCOVER is a broadcast, a remote DHCP server needs a relay on the router (`ip helper-address`, configured in the second book)",
+  "`ipconfig /release` and `ipconfig /renew`, and `ipconfig /all` showing DHCP Server and Lease Obtained, in a `console`",
+  "DHCPv6 is the IPv6 counterpart (chapter 12)",
+]
+
+[[chapter.page]]
+name = "07-file-sharing-services"
+title = "File sharing: FTP, TFTP and SMB"
+summary = "FTP moves files with two connections, TFTP moves them simply, and SMB shares them on a LAN."
+teaches = [
+  "FTP: TCP 21 for control commands and TCP 20 for data (active mode); the client opens the control connection",
+  "FTP sends usernames and passwords in clear text; SFTP (over SSH) and FTPS are secure alternatives",
+  "TFTP: UDP 69, no authentication, no directory listing, simple acknowledgment per block; used to move IOS images and configuration files",
+  "SMB: TCP 445, Windows file and printer sharing, sessions that let clients open, read and write remote files",
+  "Comparison `table` of FTP, TFTP and SMB: transport, port, authentication, typical use",
+  "`question`: which protocol a router uses to copy its configuration to a server with no login",
+]
+
+[[chapter.page]]
+name = "08-check-yourself"
+title = "Check yourself: application layer"
+summary = "Mixed questions on application protocols, their ports and how they work."
+teaches = [
+  "Presentation and session layer functions",
+  "Client-server versus peer-to-peer by scenario",
+  "HTTP methods and ports, HTTPS",
+  "SMTP, POP3 and IMAP choice",
+  "DNS hierarchy and record types; DHCP message order and ports",
+  "FTP, TFTP and SMB by scenario",
+  "Four to six `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 16: Network security fundamentals (ITN module 16)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 16
+title = "Network security fundamentals"
+
+[[chapter.page]]
+name = "01-threats-and-vulnerabilities"
+title = "Threats, vulnerabilities and exploits"
+summary = "Security starts with names: what can go wrong, what makes it possible, and what stops it."
+teaches = [
+  "Definitions: *asset*, *vulnerability* (a weakness), *threat* (a potential danger), *exploit* (the method that uses a vulnerability), *mitigation* (a countermeasure), *risk*",
+  "Types of threats: information theft, data loss and manipulation, identity theft, disruption of service",
+  "Three sources of vulnerability: technological (protocol, OS, equipment weaknesses), configuration (default passwords, misconfigured services), security policy (no written policy, no monitoring)",
+  "A `table` of the three vulnerability sources with examples",
+  "`question` classifying a described weakness as technological, configuration or policy",
+  "Misconception: a vulnerability is not an attack; it is the weakness an attack uses",
+]
+
+[[chapter.page]]
+name = "02-physical-security-and-people"
+title = "Physical security and people"
+summary = "Locks, power and people matter as much as configuration."
+teaches = [
+  "Four classes of physical threats: hardware (theft, damage), environmental (heat, humidity), electrical (spikes, brownouts), maintenance (poor handling, missing spares)",
+  "Physical access control: locked wiring closets and server rooms, badge readers, logs, mantraps",
+  "Security program elements: written policy, user awareness, regular training, phishing simulations",
+  "Why users are often the weakest point: social engineering targets people, not devices",
+  "Power protection: UPS and surge protection",
+  "`question` matching a physical threat to a mitigation",
+]
+
+[[chapter.page]]
+name = "03-malware"
+title = "Viruses, worms and Trojan horses"
+summary = "Malware is software built to harm. It spreads in a few distinct ways."
+teaches = [
+  "Virus: attaches to executable code and needs a user to run it",
+  "Worm: replicates itself and spreads across networks on its own by exploiting vulnerabilities",
+  "Trojan horse: looks like useful software but carries a malicious payload",
+  "Other malware in brief: ransomware, spyware, adware",
+  "Comparison `table` of how each spreads and what it needs",
+  "Defenses: patching, antivirus or endpoint protection, least privilege, user awareness",
+  "`question` identifying malware from a description",
+]
+
+[[chapter.page]]
+name = "04-reconnaissance-and-access-attacks"
+title = "Reconnaissance and access attacks"
+summary = "Attackers first map the network, then try to get in."
+teaches = [
+  "Reconnaissance: internet information queries, ping sweeps, port scans, vulnerability scanners",
+  "Access attacks: password attacks (guessing, brute force, dictionary), trust exploitation, port redirection, man-in-the-middle",
+  "Social engineering: pretexting, phishing, spear phishing, spam, something for something, baiting, impersonation, tailgating, shoulder surfing, dumpster diving",
+  "A `table` of attack, goal, example",
+  "`question` blocks naming the attack type in a scenario",
+]
+
+[[chapter.page]]
+name = "05-denial-of-service"
+title = "Denial of service"
+summary = "A DoS attack does not steal data. It stops a service from working for its real users."
+teaches = [
+  "DoS: overwhelming a service with traffic or sending malformed data to crash it",
+  "DDoS: many compromised hosts (a botnet of zombies) attack at once, directed by a command and control server",
+  "Why DoS is common: easy to launch, hard to block completely",
+  "TCP SYN flood: half-open connections exhaust the server",
+  "Mitigations: firewalls and IPS, provider filtering, keeping systems patched",
+  "`question` distinguishing DoS from DDoS",
+]
+
+[[chapter.page]]
+name = "06-defense-in-depth"
+title = "Defense in depth"
+summary = "No single device stops every attack. Layers of protection do."
+teaches = [
+  "Defense in depth: VPN, firewall, IPS, email and web security appliances, AAA server, each covering different threats",
+  "Keep backups (frequent, tested, stored off site) and keep systems upgraded and patched",
+  "AAA: authentication (who you are), authorization (what you may do), accounting (what you did); local versus server-based (RADIUS, TACACS+)",
+  "Firewall types: packet filtering, application filtering, URL filtering, stateful packet inspection; next-generation firewalls add application awareness and IPS",
+  "Endpoint security: antivirus, host firewalls, host intrusion prevention",
+  "A `table` matching each layer to the threats it addresses",
+  "`question` blocks: which AAA component logs commands",
+]
+
+[[chapter.page]]
+name = "07-passwords-and-access"
+title = "Passwords and login protection"
+summary = "Strong passwords, hashed secrets and login limits make device access harder to abuse."
+teaches = [
+  "Strong password guidance: long, mixed characters, no dictionary words, changed when compromised, never reused; passphrases",
+  "Password policy elements: minimum length and complexity, history, lockout, management of shared credentials",
+  "Alternatives and additions: multifactor authentication (something you know, have, are), certificates, biometrics",
+  "`enable secret` is hashed (type 5 MD5 on older IOS, stronger types 8 or 9 on newer IOS XE), while `service password-encryption` gives only reversible type 7",
+  "`security passwords min-length 8`",
+  "`login block-for 120 attempts 3 within 60` to slow brute-force logins",
+  "`exec-timeout 5 0` on console and VTY lines (default 10 minutes)",
+  "A `console` of the hardening commands and `command` blocks for two of them",
+]
+
+[[chapter.page]]
+name = "08-enabling-ssh"
+title = "Enabling SSH"
+summary = "Replace Telnet with SSH so remote logins and commands are encrypted."
+teaches = [
+  "Prerequisites: an IOS image that supports cryptography, a hostname other than the default, and a domain name",
+  "Steps in order: `hostname R1`, `ip domain-name example.com`, `crypto key generate rsa general-keys modulus 2048`, `username admin secret ...`, `line vty 0 4`, `transport input ssh`, `login local`, `ip ssh version 2`",
+  "Why `login local` (use the local username database) instead of `login` with a line password",
+  "Verify with `show ip ssh` (SSH Enabled - version 2.0) and `show ssh`, in a `console`",
+  "Connect from a client with an SSH client (or `ssh -l admin 192.168.10.1` from another IOS device)",
+  "The same steps on a switch, with `line vty 0 15`",
+  "Misconception: `transport input ssh` blocks Telnet; leaving `transport input all` allows both",
+  "`command` blocks for generating the RSA key and restricting VTY to SSH",
+]
+
+[[chapter.page]]
+name = "09-disabling-unused-services"
+title = "Disabling unused services and ports"
+summary = "Every running service and every live port is a door. Close the ones you do not use."
+teaches = [
+  "Cisco devices may run services that are not needed, such as the HTTP server",
+  "Listing open ports: `show control-plane host open-ports` on IOS XE; `show ip ports all` on some IOS releases",
+  "Disabling services: `no ip http server`, `no ip http secure-server` if the GUI is not used",
+  "Shutting down unused switch ports with `interface range fa0/10 - 24` then `shutdown`",
+  "Other basic hardening: banners that warn, keeping IOS updated",
+  "`command` block for shutting an interface range",
+]
+
+[[chapter.page]]
+name = "10-hardening-walk-through"
+title = "Hardening walk-through"
+summary = "Take a router with weak defaults and harden it step by step, then check the result."
+teaches = [
+  "Start from a weak configuration in a `console`: Telnet open, `enable password`, no timeouts, no banner",
+  "Apply the fixes in order: enable secret, `service password-encryption`, minimum length, `login block-for`, local user, SSH, `transport input ssh`, `exec-timeout`, banner, `no ip http server`",
+  "Verify with `show running-config`, `show ip ssh`, an SSH login, a refused Telnet attempt",
+  "A checklist `table` the reader can reuse on any device",
+  "Mixed `question` blocks on threats, attacks and mitigations",
+  "Four `recall` cards",
+]
+
+# ---------------------------------------------------------------------------
+# Chapter 17: Build a small network (ITN module 17)
+# ---------------------------------------------------------------------------
+[[chapter]]
+number = 17
+title = "Build a small network"
+
+[[chapter.page]]
+name = "01-a-small-network"
+title = "Designing a small network"
+summary = "A small business needs a router, a switch, a few servers and a plan for addresses and growth."
+teaches = [
+  "Scene: a 20-person office with one router, one switch, a wireless AP, a server and printers, shown in a `diagram`",
+  "Device selection factors: cost, port speed and type, expandability (fixed versus modular), OS features and services",
+  "IP addressing plan by device type: end devices, servers and peripherals, network devices, with static versus DHCP and documented ranges",
+  "Redundancy in a small network: redundant servers, links and power where the business needs them",
+  "Traffic management: give voice priority over video and video over data with QoS",
+  "`question`: choose between fixed and modular devices for a growth scenario",
+]
+
+[[chapter.page]]
+name = "02-applications-and-protocols"
+title = "Applications and protocols in a small network"
+summary = "Users see applications. The network has to support the protocols underneath them."
+teaches = [
+  "Network-aware applications (email client, browser) versus application layer services (file transfer, print spooling)",
+  "Common protocols a small network supports: DNS, DHCP, SSH, Telnet (legacy), SMTP, POP3, IMAP, HTTP, HTTPS, FTP, TFTP, SMB, with ports in a `table`",
+  "Voice and video: VoIP, IP telephony and real-time video need low delay and jitter and may need QoS and more bandwidth",
+  "Infrastructure checks for voice: PoE switches, QoS support, enough bandwidth",
+  "`question` blocks matching services to protocols",
+]
+
+[[chapter.page]]
+name = "03-growing-the-network"
+title = "Growing to a larger network"
+summary = "Plan growth with documentation, inventory and traffic analysis, and the design shape changes as the network grows."
+teaches = [
+  "Design for growth: documentation (physical and logical topology), device inventory, budget, traffic analysis",
+  "Protocol analysis with a capture tool such as Wireshark to see which protocols dominate and when",
+  "Employee network utilization: OS, applications and their traffic over time, and how usage changes",
+  "Topology shapes as networks grow: two-tier (collapsed core) and three-tier (access, distribution, core) campus designs, spine-leaf in data centers, WAN links between sites",
+  "On-premises versus cloud-hosted services as a growth choice",
+  "`question`: which tool gives a traffic baseline",
+]
+
+[[chapter.page]]
+name = "04-verifying-with-ping-and-traceroute"
+title = "Verifying with ping and traceroute"
+summary = "Ping and traceroute prove reachability and, measured over time, give a performance baseline."
+teaches = [
+  "A network baseline: record normal round-trip times and paths so you can recognize abnormal",
+  "Extended ping on IOS: set source interface, repeat count, datagram size and timeout, in a `console`",
+  "Using round-trip times to compare relative performance of paths and times of day",
+  "Extended traceroute on IOS for choosing the source and probe settings",
+  "Windows `tracert` and IOS `traceroute` used together to locate slow or broken hops",
+  "`question` interpreting a rising round-trip time",
+]
+
+[[chapter.page]]
+name = "05-host-ip-commands"
+title = "Checking IP settings on Windows, Linux and macOS"
+summary = "Every client OS can show its address, mask, gateway and DNS. Know the command on each."
+teaches = [
+  "Windows: `ipconfig`, `ipconfig /all` (MAC, DHCP server, lease, DNS servers), `ipconfig /displaydns`, in a `console`",
+  "Linux: `ip address` (and `ifconfig` on older systems), `ip route` for the default gateway, in a `console`",
+  "macOS: `ifconfig`, and `networksetup -getinfo` with a service name such as Wi-Fi",
+  "`arp -a` on all three to see the neighbor cache",
+  "`netstat` or `ss` (Linux) for active connections",
+  "A `table` of the command per OS for address, gateway, DNS, ARP cache",
+  "`question` blocks: which command shows the DHCP server on Windows",
+]
+
+[[chapter.page]]
+name = "06-ios-show-commands"
+title = "IOS show commands for a small network"
+summary = "A handful of show commands answers most questions about a switch or router."
+teaches = [
+  "`show running-config`, `show interfaces`, `show ip interface`, `show ip interface brief`, `show arp`, `show ip route`, `show protocols`",
+  "`show version` output: IOS version, uptime, image file, memory, interfaces, configuration register (0x2102 for a normal boot), in a `console`",
+  "`show cdp neighbors` (Device ID, Local Intrfce, Holdtme, Capability, Platform, Port ID) and `show cdp neighbors detail` for neighbor IP addresses, in a `console`",
+  "CDP runs by default on Cisco devices; it helps map a topology but leaks information, so disable it on untrusted ports",
+  "`show ip interface brief` on a switch and a router side by side",
+  "`command` blocks for `show version` and `show cdp neighbors`",
+]
+
+[[chapter.page]]
+name = "07-troubleshooting-methodology"
+title = "A troubleshooting method"
+summary = "Follow a fixed method, change one thing at a time, and write down what you did."
+teaches = [
+  "The six steps: identify the problem, establish a theory of probable causes, test the theory, establish a plan and implement it, verify the solution, document findings and actions",
+  "Gathering information by asking users good questions (what changed, when, who is affected)",
+  "When to escalate to a senior technician or vendor support, according to company policy",
+  "`debug` commands show events in real time (for example `debug ip icmp`); they use CPU, so use them carefully and stop them with `undebug all`",
+  "`terminal monitor` to see log and debug output in an SSH or Telnet session; `terminal no monitor` to stop",
+  "A `console` of `debug ip icmp` during a ping",
+  "`command` block: turn off all debugging",
+]
+
+[[chapter.page]]
+name = "08-interface-errors-and-duplex"
+title = "Interface errors and duplex mismatch"
+summary = "Interface counters reveal cabling, duplex and speed problems before users report them."
+teaches = [
+  "`show interfaces` counters and their meaning: input errors, CRC (often cabling or noise), runts, giants, collisions, late collisions (often duplex mismatch), output errors",
+  "A `console` of `show interfaces` with the counter lines highlighted",
+  "Duplex mismatch symptoms: slow performance, late collisions on the half-duplex end, CRC errors and runts on the full-duplex end",
+  "CDP reports mismatches with a `%CDP-4-DUPLEX_MISMATCH` log message",
+  "Fixing it: set both ends to auto, or set both to the same values",
+  "Speed mismatch brings the link down entirely",
+  "`clear counters` to reset counters before testing",
+  "`question` blocks diagnosing from counters",
+]
+
+[[chapter.page]]
+name = "09-addressing-and-dns-problems"
+title = "Addressing, gateway and DNS problems"
+summary = "Most 'the network is down' calls come down to a wrong address, a wrong gateway or a DNS failure."
+teaches = [
+  "IP addressing on IOS devices: wrong address or mask on an interface, overlapping subnets, interface shut",
+  "IP addressing on end devices: a 169.254.x.x address means DHCP failed (APIPA)",
+  "Default gateway problems: the host can reach local devices but nothing remote",
+  "DNS problems: ping by address works, ping by name fails; check the configured DNS server with `ipconfig /all` and test with `nslookup`",
+  "A symptom to cause `table`",
+  "`question` blocks with host output to diagnose",
+]
+
+[[chapter.page]]
+name = "10-troubleshooting-walk-through"
+title = "Troubleshooting walk-through"
+summary = "A user cannot reach the file server. Work the problem from the user's PC to the server, layer by layer."
+teaches = [
+  "Scenario topology `diagram`: PC, S1, R1, server on another subnet, with addressing `table`",
+  "Apply the six-step method: gather symptoms, check the PC with `ipconfig /all`, ping loopback, own address, gateway, server",
+  "Find the fault in stages: a duplex mismatch on the switch uplink and a wrong gateway on the PC, each found with the right command",
+  "Fix, verify end to end with ping and traceroute, and document",
+  "Mixed `question` blocks covering the whole chapter and earlier chapters",
+  "Four `recall` cards summarizing the method and the key commands",
+]
