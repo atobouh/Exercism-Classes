@@ -78,7 +78,7 @@ Every feature that follows protects against a particular attack from chapter 10,
 4. **Dynamic ARP inspection**: stop forged ARP replies. It depends on step 3.
 5. **PortFast and BPDU guard**: make edge ports fast and keep switches from appearing on them.
 
-Not one of these needs a new device. They are switch configuration, and a switch with all five applied has closed most of the easy doors on the access layer.
+Not one of these needs a new device. They are switch configuration, and a switch with all five applied has closed the most common doors on the access layer.
 
 ```key
 Two habits come before any feature: shut every port you do not use, and set every port you do use to a fixed mode. Everything else in this chapter assumes both are done.
