@@ -8,7 +8,7 @@ Policy rule 1 is different from the others. It doesn't say what may cross the ro
 
 ## Why not an interface ACL
 
-You could block management traffic with extended ACLs on every interface, denying TCP port 22 to each of the router's addresses. It would be long, and easy to get wrong, because the router answers on all of its addresses. Worse, a packet addressed to the router can arrive on any interface.
+You could block management traffic with extended ACLs on every interface, denying TCP port 22 to each of the router's addresses. It would be long, and mistakes would creep in, because the router answers on all of its addresses. Worse, a packet addressed to the router can arrive on any interface.
 
 IOS has a better hook. A *VTY line* (virtual terminal line) is the software port that an incoming Telnet or SSH session attaches to. Attach a standard ACL to the VTY lines, and the router checks the source address of every session before it offers a login prompt. The rest of the router's traffic is unaffected.
 

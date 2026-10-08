@@ -39,7 +39,7 @@ Read it aloud: permit TCP packets from the 192.168.10.0/24 network, to any desti
 
 The protocol field says what the IPv4 packet carries. The router matches it against the protocol number in the IP header.
 
-- `ip` matches every IPv4 packet, whatever it carries. It is the "don't care" protocol, and the only one that can't have ports.
+- `ip` matches every IPv4 packet, whatever it carries. It is the "don't care" protocol. Like `icmp` and the routing protocols, it has no ports.
 - `tcp` and `udp` match those transport protocols, and allow port matching.
 - `icmp` matches ping, unreachables and other control messages.
 - `ospf`, `eigrp`, `gre`, `esp` and `ahp` match routing and tunneling protocols that ride directly on IP.
@@ -84,7 +84,7 @@ IOS lets you type a name for the best-known ports. `eq www` and `eq 80` produce 
 
 Names exist only for some ports, and the list differs a little between releases. When in doubt, type the number. It always works, and it is what the reader of your ACL will look up anyway. For the full picture of what each port is for, see [port numbers](itn/14/05-port-numbers).
 
-Use numbers for HTTPS and SSH. This is the typical pair, written as two entries because one entry takes one port or range.
+Web access usually needs two entries, one for HTTP and one for HTTPS, because an entry takes one port or one range.
 
 ```console R1
 R1(config)# access-list 110 permit tcp 192.168.10.0 0.0.0.255 any eq www

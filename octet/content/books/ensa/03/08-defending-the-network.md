@@ -76,13 +76,13 @@ A *stateful firewall* keeps a table of connections it has seen. Traffic from the
 
 ### IPS and IDS
 
-An *intrusion detection system* (IDS) watches a copy of the traffic and raises alerts, but cannot stop anything: the attack has already gone through by the time anyone reads the alert. An *intrusion prevention system* (IPS) sits in the path of the traffic, *inline*, so it can drop the malicious packets before they arrive. The price of being inline is that the IPS is a possible point of failure and delay, and a false positive blocks legitimate traffic.
+An *intrusion detection system* (IDS) watches a copy of the traffic and raises alerts, but does not block the traffic itself: the attack has usually gone through by the time anyone reads the alert. An *intrusion prevention system* (IPS) sits in the path of the traffic, *inline*, so it can drop the malicious packets before they arrive. The price of being inline is that the IPS is a possible point of failure and delay, and a false positive blocks legitimate traffic.
 
 ```question
 prompt = "A requirement says that known attack traffic must be dropped before it reaches the servers. Which device meets it?"
 options = ["An IDS fed by a copy of the traffic", "A syslog server", "An inline IPS", "A packet sniffer"]
 answer = 2
-why = "Only a device in the traffic path can drop packets. An IDS sees a copy and can only alert, so the attack would already be through."
+why = "Only a device in the traffic path can drop packets. An IDS sees a copy and alerts, so the attack would usually be through already."
 ```
 
 ## Everyday practices that count
