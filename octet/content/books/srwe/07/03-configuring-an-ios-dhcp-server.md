@@ -14,7 +14,7 @@ The router will lend any address in the pool's network unless told otherwise. Th
 R1(config)# ip dhcp excluded-address 192.168.10.1 192.168.10.9
 ```
 
-The two addresses are the first and last of the range. For a single address, give just one. You can repeat the command for more ranges.
+The two addresses are the first and last of the range. For a single address, give that address alone. You can repeat the command for more ranges.
 
 ```command
 prompt = "Keep 192.168.10.1 through 192.168.10.9 out of the DHCP pool."

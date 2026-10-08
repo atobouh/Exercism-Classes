@@ -57,7 +57,7 @@ Fa0/1               Root FWD 19        128.1    P2p
 Fa0/2               Altn BLK 19        128.2    P2p
 ```
 
-The Role column holds `Root`, `Desg` or `Altn`. The Sts column holds the state, `FWD` or `BLK`. Fa0/1 reads `Root FWD`. Fa0/2 reads `Altn BLK`, and the S2 end of that cable would read `Desg FWD`.
+The Role column holds `Root`, `Desg` or `Altn`. The Sts column holds the state: `FWD` or `BLK` once the tree has settled, with `LIS` and `LRN` while a port is still changing. Fa0/1 reads `Root FWD`. Fa0/2 reads `Altn BLK`, and the S2 end of that cable would read `Desg FWD`.
 
 ```question
 prompt = "Same triangle, all Fast Ethernet, with S1 as root. This time S2 has MAC 0019.0670.5e00 and S3 has MAC 0019.0670.3c80, and the priorities are equal. Which port blocks?"
@@ -78,7 +78,7 @@ S2(config-if)# spanning-tree port-priority 64
 Priority 64 makes Fa0/4 `64.4`, which beats `128.3`, so now S3 would choose the cable on Fa0/4. The change is made on the sending switch, because the sender's port ID is what gets compared.
 
 ```key
-Order of questions: lowest root path cost, then lowest sender BID, then lowest sender port ID. Every non-root switch gets one root port, every segment gets one designated port, and the rest block.
+The tie-breakers, in order: lowest root path cost, then lowest sender BID, then lowest sender port ID. Every non-root switch gets one root port, every segment gets one designated port, and the rest block.
 ```
 
 ```recall
