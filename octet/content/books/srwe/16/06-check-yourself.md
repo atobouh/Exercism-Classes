@@ -126,6 +126,43 @@ answer = 1
 why = "Neither route has a distance, so both get 1. Equal AD and equal prefix means both are installed. Giving the backup a larger AD, such as 5, makes it float."
 ```
 
+## Scenario 5: the route that went missing
+
+R2 had a working route to PC1's LAN yesterday. Today the user says PC3 can no longer reach PC1, and the static route is still in the configuration.
+
+```console R2
+R2# show running-config | include ip route
+ip route 192.168.1.0 255.255.255.0 172.16.12.1
+ip route 192.168.3.0 255.255.255.0 172.16.23.2
+R2# show ip route static
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+...
+Gateway of last resort is not set
+
+S     192.168.3.0/24 [1/0] via 172.16.23.2
+```
+
+```console R2
+R2# show ip interface brief
+Interface              IP-Address      OK? Method Status                Protocol
+GigabitEthernet0/0/0   172.16.12.2     YES manual administratively down down
+GigabitEthernet0/0/1   172.16.23.1     YES manual up                    up
+```
+
+```question
+prompt = "Why is the route to 192.168.1.0/24 missing from R2's table while it stays in the configuration?"
+options = ["Its mask is wrong for a /24", "The next hop 172.16.12.1 cannot be resolved, because G0/0/0 is shut down", "Static routes with a next hop are removed after a day", "The AD of 1 is too low to be installed"]
+answer = 1
+why = "The next hop 172.16.12.1 sits on 172.16.12.0/30, the network that G0/0/0 supplies. With the interface down that network is gone, so the route is not installed. The route still sits in the configuration and returns when the interface does."
+```
+
+```command
+prompt = "On R2, bring G0/0/0 back up from its interface configuration mode."
+mode = "R2(config-if)#"
+answer = ["no shutdown"]
+why = "The interface was shut down by hand. Only the no form enables it, after which 172.16.12.0/30 and the static route return."
+```
+
 ## Mixed questions
 
 ```question
