@@ -97,7 +97,7 @@ The pages ahead take them one at a time.
 
 ## The trade you make
 
-A static route adds no traffic and uses almost no CPU. It does exactly what you typed, which makes it easy to predict and hard to attack. But it cannot notice that anything has changed. If a router in the path dies or you renumber a link, the route stays in the table until someone edits it. That is why static routing fits small networks and *stub* networks with a single way out, and why larger networks hand the job to a routing protocol.
+A static route adds no traffic and uses almost no CPU. It does exactly what you typed, which makes it simple to predict and hard to attack. But it cannot notice that anything has changed. If a router in the path dies or you renumber a link, the route stays in the table until someone edits it. That is why static routing fits small networks and *stub* networks with a single way out, and why larger networks hand the job to a routing protocol.
 
 ```recall
 front = "Why do static routes suit stub networks but not large changing ones?"
