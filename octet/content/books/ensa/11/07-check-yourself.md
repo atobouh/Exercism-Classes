@@ -8,17 +8,17 @@ This page puts the chapter to work. First you design a small campus by making a 
 
 ## The scenario
 
-Harbor Freight Partners has 800 users on three floors, and a small data room with about a dozen servers on the ground floor. They use IP phones and wireless access points. The design must survive the loss of any one switch or uplink and leave room to grow.
+Marlow Logistics has 800 users on three floors, and a small data room with about a dozen servers on the ground floor. They use IP phones and wireless access points. The design must survive the loss of any one switch or uplink and leave room to grow.
 
 Work through these choices before reading on.
 
 1. **Two-tier or three-tier?** One building, three floors, one data room. A separate core would hold two or three switches and nothing else to join. A collapsed core fits: two Layer 3 switches take the roles of distribution and core. If the company later adds a second building, split the core out then.
 2. **Which switch form factor?** The floors need many ports and the ability to add more. Stackable access switches, one stack per floor, let you add a unit as the floor fills and manage the stack as one. The collapsed core is a better fit for a modular chassis or a pair of high-capacity multilayer switches with redundant power.
-3. **How many ports?** 800 users, plus printers and access points, is roughly 900 wired ports (phones share the desk cable through a built-in switch port). Add 20 to 25 percent spare and you need about 1,100 ports, which is 23 or 24 switches of 48 ports.
-4. **PoE budget?** Each floor has phones and access points on PoE. Phones take under 15.4 W, so 802.3af is enough for them. Access points that need more call for 802.3at (30 W). Add the wattage per floor and check the budget of each switch, since the total across ports is limited.
+3. **How many ports?** 800 users, plus printers and access points, is roughly 900 wired ports (phones share the desk cable through a built-in switch port). A common rule of thumb adds 20 to 25 percent spare ports, which brings the total to about 1,100 ports, or 23 or 24 switches of 48 ports.
+4. **PoE budget?** Each floor has phones and access points on PoE. Most IP phones draw well under the 12.95 W that 802.3af delivers to the device, so 802.3af is enough for them. Access points that need more call for 802.3at (30 W). Add the wattage per floor and check the budget of each switch, since the total across ports is limited.
 
 ```question
-prompt = "Harbor Freight has one building and two Layer 3 switches act as both distribution and core. What is this design called?"
+prompt = "Marlow Logistics has one building and two Layer 3 switches act as both distribution and core. What is this design called?"
 options = ["Spine-leaf", "Three-tier", "Collapsed core (two-tier)", "Modular access"]
 answer = 2
 why = "Combining the distribution and core layers into one set of switches is a collapsed core, which suits a single building."
@@ -38,6 +38,13 @@ prompt = "Which feature is typical of the access layer?"
 options = ["Ultra-fast backbone links with no filtering", "PoE and VLAN assignment for end devices", "Route summarization between areas", "Traffic shaping on the WAN"]
 answer = 1
 why = "Access switches serve phones, PCs and access points, so PoE, VLAN assignment and port security belong there."
+```
+
+```question
+prompt = "Which job belongs to the core layer, and not to the distribution layer?"
+options = ["Forwarding traffic between buildings as fast as possible, with no filtering", "Applying ACLs to guest traffic", "Routing between VLANs for an access block", "Aggregating uplinks from access switches"]
+answer = 0
+why = "The core is a fast backbone that forwards without filtering. ACLs, routing between VLANs and aggregating access uplinks all belong to the distribution layer."
 ```
 
 ```question
