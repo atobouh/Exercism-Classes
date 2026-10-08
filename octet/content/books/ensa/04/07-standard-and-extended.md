@@ -43,8 +43,8 @@ Line 20 lets anyone reach the portal on TCP port 443. Line 30 blocks everything 
 
 ```question
 prompt = "A policy says: block the guest LAN from reaching the file server on TCP 445, but let guests use the internet. Which kind of ACL can do this?"
-options = ["A standard ACL, because the guests are one source subnet", "An extended ACL, because the rule depends on the destination and the port", "Either, as long as it is placed close to the file server"]
-answer = 1
+options = ["A standard ACL, because the guests are one source subnet", "Either, as long as it is placed close to the file server", "An extended ACL, because the rule depends on the destination and the port"]
+answer = 2
 why = "A standard ACL sees only the source, so it could block guests from everything or nothing. The rule needs the destination server and TCP port 445."
 ```
 

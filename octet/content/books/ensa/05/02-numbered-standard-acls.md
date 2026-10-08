@@ -12,10 +12,10 @@ This page builds the rule as a *numbered standard ACL*, the oldest and shortest 
 
 A numbered standard ACL is a set of global configuration commands that share one number between 1 and 99 (or 1300 to 1999, the expanded range). Each command adds one *access control entry* (ACE) to the end of the list.
 
-```text
-access-list number {permit | deny} source [wildcard] [log]
-access-list number remark text
-```
+The two forms are:
+
+- `access-list number {permit | deny} source [wildcard] [log]`
+- `access-list number remark text`
 
 - `number` names the list and tells IOS it is standard.
 - `permit` or `deny` is the action when a packet matches.
@@ -29,7 +29,7 @@ The simplest useful ACL has one line.
 R2(config)# access-list 10 permit 192.168.10.0 0.0.0.255
 ```
 
-That line permits the staff LAN. It also blocks everything else, because every ACL ends with an invisible *implicit deny* that drops any packet no entry matched. Guests, the internet and even R1's own serial address would all be refused. That is rarely what you want, so an ACL meant to block one thing almost always ends with a permit.
+That line permits the staff LAN. It also blocks everything else, because every ACL ends with an invisible *implicit deny* that drops any packet no entry matched. Guests, the internet and every other network would all be refused. That is rarely what you want, so an ACL meant to block one thing almost always ends with a permit.
 
 ```command
 prompt = "On R2, add an entry to standard ACL 10 that permits the whole 192.168.10.0/24 network."
@@ -56,9 +56,7 @@ A host can be written two ways. `access-list 10 permit host 192.168.20.5` and `a
 
 The list exists now, but it isn't filtering anything. You attach it in interface configuration mode, with a direction.
 
-```text
-ip access-group number {in | out}
-```
+The command is `ip access-group number {in | out}`.
 
 The destination of this policy is the server LAN behind R2 G0/0/0. Packets heading to the servers leave R2 through that interface, so the ACL goes there, outbound.
 
@@ -68,7 +66,7 @@ R2(config-if)# ip access-group 10 out
 R2(config-if)# end
 ```
 
-Placed there, ACL 10 checks only traffic about to enter the server LAN. Guests can still reach the internet through G0/0/1, which a standard ACL on R1 could not have allowed.
+Placed there, ACL 10 checks only traffic about to enter the server LAN. Guests can still reach the internet through G0/0/1. A standard ACL on R1's serial interface would have cut them off from the internet as well, because it can't tell the server LAN from any other destination.
 
 ```command
 prompt = "You are in interface configuration mode for R2 G0/0/0. Apply standard ACL 10 to traffic leaving the interface."
@@ -96,8 +94,6 @@ access-list 10 remark Keep the guest LAN out of the server LAN
 access-list 10 deny   192.168.20.0 0.0.0.255
 access-list 10 permit any
 ```
-
-Some IOS XE releases display numbered ACLs in the running configuration as an `ip access-list standard 10` block with sequence numbers instead. The entries are the same either way.
 
 ## Removing it
 

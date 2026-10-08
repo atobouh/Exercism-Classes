@@ -45,7 +45,7 @@ links = [
 ]
 ```
 
-A traceroute from R1 shows the path through R2. After the link between R2 and R3 fails, the same traceroute goes through R4:
+A traceroute from R1 shows the path through R2, then R3:
 
 ```console R1
 R1# traceroute 192.168.30.10
@@ -55,6 +55,11 @@ VRF info: (vrf in name/id, vrf out name/id)
   1 10.0.12.2 1 msec 1 msec 1 msec
   2 10.0.23.3 1 msec 2 msec 1 msec
   3 192.168.30.10 2 msec 1 msec 2 msec
+```
+
+After the link between R2 and R3 fails, the same command shows a path through R4 instead:
+
+```console R1
 R1# traceroute 192.168.30.10
 Type escape sequence to abort.
 Tracing the route to 192.168.30.10
@@ -65,6 +70,13 @@ VRF info: (vrf in name/id, vrf out name/id)
 ```
 
 No one redialed anything. The routers found the other path by themselves.
+
+```command
+prompt = "From R1, trace the route to the server at 192.168.30.10."
+mode = "R1#"
+answer = ["traceroute 192.168.30.10"]
+why = "traceroute lists each router a packet crosses, so you can see which path the network is using right now."
+```
 
 ## Scalability
 
@@ -87,7 +99,7 @@ A network that works but leaks is not reliable. Security has two parts.
 *Information security* protects the data itself. It has three goals, often called the *CIA triad*:
 
 - *Confidentiality*: only the intended people can read the data. Encryption keeps a stolen packet unreadable.
-- *Integrity*: the data is not changed on the way. A checksum or digital signature shows if it was altered.
+- *Integrity*: the data is not changed on the way. A hash or digital signature shows if it was altered.
 - *Availability*: people who should reach the data can reach it when they need it, even under attack.
 
 ## Which property does it serve?

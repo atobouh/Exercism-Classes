@@ -59,7 +59,7 @@ why = "A standard ACL matches only the source, so at the source it drops all of 
 Once you have picked the router, pick the interface and direction by standing inside the router and watching the packet. It arrives on one interface and leaves on another.
 
 - For policy 1, R1 sees the Telnet packet arrive on G0/0/0. Inbound on G0/0/0 catches it before routing.
-- For policy 2, R3 sends server-bound packets out G0/0/0. Outbound on G0/0/0 catches them whichever interface they came in on. Inbound on R3's G0/0/1 would also work here, but it would miss LAN A traffic if R3 ever gained a second path, and an outbound ACL toward the servers keeps working.
+- For policy 2, R3 sends server-bound packets out G0/0/0. Outbound on G0/0/0 catches them whichever interface they came in on. Inbound on R3's G0/0/1 would also catch it today, but the outbound ACL stays correct if traffic ever reaches R3 by another interface.
 
 Get the direction backward and the ACL may never see the traffic. A deny for LAN A sources applied inbound on R3's G0/0/0 checks only packets coming from the servers, so LAN A passes freely.
 

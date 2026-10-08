@@ -34,7 +34,7 @@ Nothing in the output reveals a provider in between. The neighbor is reached on 
 The benefits explain why Ethernet WAN replaced leased lines:
 
 - **Lower cost**: Ethernet ports and switches are mass-produced and cheap compared with serial interfaces and CSU/DSUs.
-- **Easy integration**: the same Ethernet skills, interfaces and tools work on the LAN and the WAN.
+- **Integration with the LAN**: the same Ethernet skills, interfaces and tools work on the LAN and the WAN.
 - **Higher bandwidth**: services from 10 Mbps up to 10 Gbps and beyond, often raised by changing the contract rather than the hardware.
 
 ```question

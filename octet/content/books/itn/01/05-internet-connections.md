@@ -77,8 +77,8 @@ A *converged network* carries voice, video and data on one shared infrastructure
 
 ```question
 prompt = "A school replaces its separate phone wiring and its separate cable TV system with IP phones and video streamed over the computer network. What has it built?"
-options = ["A peer-to-peer network", "A converged network", "An extranet", "A circuit-switched network"]
-answer = 1
+options = ["A peer-to-peer network", "An extranet", "A circuit-switched network", "A converged network"]
+answer = 3
 why = "A converged network carries voice, video and data over one shared infrastructure."
 ```
 

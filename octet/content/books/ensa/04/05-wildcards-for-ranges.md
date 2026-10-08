@@ -68,8 +68,8 @@ Wildcards are not only for ACLs. The OSPF `network` command uses an address and 
 
 ```question
 prompt = "Which single entry matches exactly 10.10.16.0 to 10.10.23.255?"
-options = ["10.10.16.0 0.0.8.255", "10.10.16.0 255.255.248.0", "10.10.16.0 0.0.7.255", "10.10.16.0 0.0.23.255"]
-answer = 2
+options = ["10.10.16.0 0.0.7.255", "10.10.16.0 255.255.248.0", "10.10.16.0 0.0.8.255", "10.10.16.0 0.0.23.255"]
+answer = 0
 why = "That is eight /24s starting at 16, a multiple of 8, so the third octet wildcard is 7. Using 8 would ignore the wrong bit, and 255.255.248.0 is a subnet mask, not a wildcard."
 ```
 

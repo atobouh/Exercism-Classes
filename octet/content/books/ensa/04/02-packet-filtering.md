@@ -37,8 +37,8 @@ An **outbound** ACL runs after routing. The router has already looked up the des
 
 ```question
 prompt = "An ACL is applied inbound on R1's G0/0/1 and denies a packet that arrives there. What has R1 done with the packet before dropping it?"
-options = ["Looked up the destination in the routing table", "Nothing: the inbound check happens before the routing lookup", "Forwarded a copy to the exit interface for logging"]
-answer = 1
+options = ["Nothing: the inbound check happens before the routing lookup", "Looked up the destination in the routing table", "Forwarded a copy to the exit interface for logging"]
+answer = 0
 why = "Inbound ACLs are checked on arrival, before routing, so a denied packet costs the router no lookup."
 ```
 
@@ -60,8 +60,8 @@ A list that reads "deny 192.168.20.0/24" and nothing else does not mean "block s
 
 ```question
 prompt = "An applied ACL has two entries: deny 192.168.20.0 0.0.0.255, then deny 192.168.30.0 0.0.0.255. A packet arrives from 172.16.1.1. What happens to it?"
-options = ["It is permitted, because no entry denies its source", "It is dropped by the implicit deny", "It is permitted, because an ACL ends with an implicit permit when every entry is a deny"]
-answer = 1
+options = ["It is permitted, because no entry denies its source", "It is permitted, because an ACL ends with an implicit permit when every entry is a deny", "It is dropped by the implicit deny"]
+answer = 2
 why = "The packet matches neither entry, so it reaches the end of the list and the implicit deny drops it. The list needs a final permit to let other traffic through."
 ```
 
@@ -92,8 +92,8 @@ Put the most specific entries at the top and the broad ones below. A good test w
 
 ```question
 prompt = "An ACL reads: line 10 permits 192.168.10.0/24, line 20 denies 192.168.30.0/24, line 30 denies host 192.168.10.66. A packet arrives from 192.168.10.66. What happens?"
-options = ["Denied by line 30, because a host entry is more specific", "Permitted by line 10, because it is the first match", "Denied by the implicit deny", "Permitted, but logged by line 30"]
-answer = 1
+options = ["Denied by line 30, because a host entry is more specific", "Denied by the implicit deny", "Permitted, but logged by line 30", "Permitted by line 10, because it is the first match"]
+answer = 3
 why = "The router stops at the first match. Line 10 covers the whole subnet, so line 30 is never read. Specificity only matters through order."
 ```
 

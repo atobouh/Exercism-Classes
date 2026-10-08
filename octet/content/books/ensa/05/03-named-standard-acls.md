@@ -12,9 +12,7 @@ This page rebuilds policy rule 2 as a named standard ACL, this time with its exc
 
 You create a named ACL with one global command. Instead of adding an entry, it puts you in a configuration mode that belongs to that list.
 
-```text
-ip access-list standard NAME
-```
+The command is `ip access-list standard NAME`.
 
 The prompt changes to `(config-std-nacl)`, short for standard named access list. Every command you type there adds an entry to that list, without repeating the name or a number.
 
@@ -40,7 +38,7 @@ why = "ip access-list standard followed by a name creates the list (or opens it 
 
 ## Naming rules
 
-A name can use letters, digits, hyphens and underscores. Avoid spaces and punctuation. Names are case-sensitive: `GUEST-FILTER` and `guest-filter` are two different lists, and applying the wrong one to an interface applies an empty list. Writing names in capitals is a common convention, because they stand out from the IOS keywords around them.
+Stick to letters, digits, hyphens and underscores, and avoid spaces and other punctuation. Names are case-sensitive: `GUEST-FILTER` and `guest-filter` are two different lists, and applying the wrong one to an interface applies an empty list. Writing names in capitals is a common convention, because they stand out from the IOS keywords around them.
 
 Choose a name that says what the list does, or where it lives. `GUEST-FILTER` is better than `ACL1`, and `SERVER-LAN-OUT` would also be a good choice.
 
@@ -90,11 +88,7 @@ ip access-list standard GUEST-FILTER
  permit any
 ```
 
-On recent IOS XE releases each line inside the block also starts with its sequence number. Older IOS prints the entries without them.
-
-```deeper
-In a standard ACL, IOS stores single-host entries in a hash table so it can look them up faster, and `show access-lists` may print host entries ahead of the range entries, not always in sequence-number order. IOS only does this where it can't change which entry a packet matches, so the list still behaves as you wrote it.
-```
+Some releases, mostly IOS XE, also print a sequence number at the start of each line inside the block.
 
 ## Why names are worth it
 

@@ -42,9 +42,9 @@ Every `question`, `command` and `recall` block in these books becomes a review c
 | Grade | Use it when | What happens next |
 | --- | --- | --- |
 | Again | You got it wrong or could not answer | It returns in about 10 minutes and its interval starts over |
-| Hard | You got it, but slowly or unsure | A shorter gap than Good, and later gaps grow more slowly |
+| Hard | You got it, but slowly or unsure | A gap shorter than Good would give (the first time it is 1 day), and later gaps grow only a little |
 | Good | You got it after normal thought | The gap grows: 1 day, then 6, then about 2.5 times the last gap |
-| Easy | It came instantly | A longer jump, and later gaps grow faster |
+| Easy | It came instantly | A longer jump (4 days the first time), and later gaps grow faster |
 
 A card you keep answering well drifts out to weeks and months. A card you miss comes back the same session. Any question you get wrong is also kept under "Things I got wrong", so you can see your weak spots in one place.
 

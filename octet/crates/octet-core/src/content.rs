@@ -554,7 +554,8 @@ fn fenced(kind: &str, title: &str, inner: &[&str], n: usize) -> Result<Block, St
             }
             Block::Fields(f)
         }
-        "console" => {
+        // `text`, `ios` and `config` are common names for the same thing.
+        "console" | "text" | "ios" | "config" => {
             let mut lines: Vec<String> = inner.iter().map(|l| l.trim_end().to_string()).collect();
             while lines.last().is_some_and(|l| l.is_empty()) {
                 lines.pop();

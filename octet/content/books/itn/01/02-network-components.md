@@ -6,19 +6,19 @@ links = ["itn/01/03-media-and-topology-diagrams", "itn/04/08-choosing-media-and-
 
 Every network holds two kinds of device. Some are where messages begin and end: the laptop that asks for a web page and the server that sends it. Others sit in between and carry those messages: switches, routers, access points and firewalls.
 
-When you look at any network, the first thing to work out is which devices are which. The ends tell you who is talking. The devices in between tell you which path the conversation takes, and where it can break.
+The first thing to work out in any network is which devices are which. The ends tell you who is talking. The devices in between tell you which path the conversation takes, and where it can break.
 
 ## End devices
 
-An *end device* (a host) is where a message starts or finishes. PCs, laptops, phones, tablets, printers, IP phones, security cameras and servers are all end devices. Each one has at least one address.
+An *end device* (a host) is where a message starts or finishes. PCs, laptops, phones, tablets, printers, IP phones, security cameras and servers are all end devices. 
 
 Hosts play one of two roles in a conversation. A *client* asks for a service: your web browser asks for a page. A *server* provides a service: a web server sends the page, a mail server stores your email, a file server holds shared folders.
 
-Being a server is a matter of software, not of the box. One host can run a web server and a file server at once. A PC can share a folder with the office (acting as a server) while its user browses the web (acting as a client). Exam topics often call user devices *endpoints* and service hosts *servers*. Together they are the sources and destinations of nearly all traffic.
+Being a server is a matter of software, not of the box. One host can run a web server and a file server at once, and a PC can share a folder with the office (acting as a server) while its user browses the web (acting as a client). User devices are often called *endpoints*. Endpoints and servers are the sources and destinations of nearly all traffic.
 
 ## Peer-to-peer networks
 
-In a small office with three PCs, nobody buys a server. One PC shares its printer, another shares a folder, and each PC is both client and server. This is a *peer-to-peer* network.
+In a small office with three PCs, nobody buys a server. One PC shares a printer, another shares a folder, and each is both client and server. This is a *peer-to-peer* network.
 
 | | Peer-to-peer | Client-server |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ In a small office with three PCs, nobody buys a server. One PC shares its printe
 | Security | Each user decides | Set by the administrator |
 | Growth | Breaks down past a handful of hosts | Scales to thousands |
 
-Peer-to-peer also slows down the PC doing the sharing, because its user is working on it while others pull files from it.
+Sharing also slows down the PC doing it, because its user is working on it while others pull files from it.
 
 ```question
 prompt = "A five-person office shares files from each user's PC, with no server. The owner wants one place to control who can open which folder. What is the main weakness of the current setup?"
@@ -39,7 +39,7 @@ why = "In a peer-to-peer network every PC manages its own shares and permissions
 
 ## Intermediary devices
 
-*Intermediary devices* connect hosts to the network and connect networks to each other. They don't start conversations of their own about your data. They carry other devices' messages and make decisions about them.
+*Intermediary devices* connect hosts to the network and networks to each other. They carry other devices' messages and make decisions about them.
 
 | Device | What it connects | What it decides |
 | --- | --- | --- |
@@ -51,17 +51,17 @@ why = "In a peer-to-peer network every PC manages its own shares and permissions
 
 ### Layer 2 and Layer 3 switches
 
-An ordinary *Layer 2 switch* forwards frames between hosts in the same LAN, using MAC addresses. It does not move traffic between different networks. A *Layer 3 switch* (a *multilayer switch*) does everything a Layer 2 switch does and can also route between networks, in hardware, at full speed. Campus networks often use Layer 3 switches in the middle of the network, and keep routers at the edge, where links to providers need features such as address translation and VPNs.
+An ordinary *Layer 2 switch* forwards frames between hosts in the same LAN, using MAC addresses, and does not move traffic between networks. A *Layer 3 switch* (a *multilayer switch*) does everything a Layer 2 switch does and can also route between networks, in hardware. Campus networks often put Layer 3 switches in the middle and routers at the edge, where provider links need features such as NAT and VPNs.
 
 ### Firewalls, IPS and next-generation firewalls
 
-A *firewall* sits at a boundary, often between your network and the internet. It permits or denies traffic by rules, and it remembers connections started from inside so that their replies are let back in. An *intrusion prevention system* (IPS) looks deeper, at the content of the traffic, and compares it against signatures of known attacks. When it sees a match, it drops the traffic.
+A *firewall* sits at a boundary, often between your network and the internet. It permits or denies traffic by rules, and it lets replies back in for connections that started inside. An *intrusion prevention system* (IPS) looks deeper, at the content of the traffic, and compares it with signatures of known attacks. On a match, it drops the traffic.
 
 A *next-generation firewall* (NGFW) combines both and adds *application awareness*: it can tell a video call from a file upload even when both use the same port, and it can apply a rule per application or per user.
 
 ### Wireless LAN controllers
 
-You can configure one access point by itself. A hospital with 300 access points is another matter. A *WLC* holds the configuration for all of them: it pushes the wireless network names and security settings to every AP, adjusts their channels and power, and helps clients move from one AP to the next without dropping a call.
+You can configure one access point by itself, but not 300 in a hospital. A *WLC* holds the configuration for all of them: it pushes the network names and security settings to every AP, adjusts channels and power, and helps clients move from one AP to the next without dropping a call.
 
 ```question
 prompt = "A company wants PCs in the sales network and PCs in the engineering network to reach each other, and it wants this done inside the building at full switching speed. Which device fits best?"
@@ -72,9 +72,9 @@ why = "Traffic between two networks must be routed. A Layer 3 switch routes in h
 
 ## Power over Ethernet
 
-IP phones, access points and cameras are often mounted on a ceiling or a wall, far from a power outlet. *Power over Ethernet* (PoE) lets a switch port send electrical power down the same Ethernet cable that carries the data. The device needs one cable, and the switch can power it off and on remotely.
+IP phones, access points and cameras are often mounted on a ceiling or wall, far from an outlet. *Power over Ethernet* (PoE) lets a switch port send power down the same cable that carries the data. The device needs one cable, and the switch can turn its power off and on remotely.
 
-The original PoE standard supplies up to 15.4 W per port, PoE+ up to 30 W, and the newer 802.3bt standard up to 90 W. On a Catalyst switch, `show power inline` shows what each port is supplying:
+Original PoE supplies up to 15.4 W per port, PoE+ up to 30 W, and the newer 802.3bt standard up to 90 W. On a Catalyst switch, `show power inline` shows what each port supplies:
 
 ```console S1
 S1# show power inline
@@ -92,12 +92,12 @@ Gi1/0/3   auto   off        0.0     n/a                 n/a   30.0
 ```
 
 ```trap
-A switch has a total PoE budget shared by all its ports. A 24-port switch with a 370 W budget cannot give every port 30 W at once (that would need 720 W). Check the budget before you plug in a row of access points.
+A switch has a total PoE budget shared by all its ports. A 24-port switch with a 370 W budget cannot give every port 30 W at once (that needs 720 W). Check the budget before plugging in a row of access points.
 ```
 
 ## What intermediary devices do for traffic
 
-Beyond forwarding, intermediary devices do several jobs that keep a network working:
+Beyond forwarding, intermediary devices keep a network working in several ways:
 
 - They regenerate and retransmit signals, so data can travel farther than one cable allows.
 - They keep information about paths: a switch learns which host is on which port, and a router keeps a table of networks.
