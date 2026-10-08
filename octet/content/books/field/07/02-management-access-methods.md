@@ -57,7 +57,7 @@ R1(config-line)# exec-timeout 5 0
 - `ip ssh authentication-retries 3` allows three failed tries per connection. Three is also the default.
 - `transport input ssh` closes the Telnet door.
 
-Check the result with `show ip ssh`, which prints the version and the two timers, and `show ssh`, which lists live sessions.
+Check the result with `show ip ssh`, which prints the SSH version (`SSH Enabled - version 2.0`) and the authentication timeout and retry count, and `show ssh`, which lists live sessions.
 
 ## Who may knock
 
@@ -84,13 +84,7 @@ why = "`access-class` is the line-mode counterpart of `ip access-group`. The `in
 
 *Out-of-band* management uses a separate path: a dedicated management network, a cellular modem, or a *console server*, a box that connects to many console ports and lets you reach them over one network connection. A fault in the production network cannot cut it off.
 
-Catalyst 9000 switches add a middle path. Their dedicated management port, GigabitEthernet0/0, sits in its own routing table, a *VRF* (virtual routing and forwarding instance) named `Mgmt-vrf`. Traffic on that port stays separate from the production routes.
-
-```console S1
-S1# show vrf
-  Name                             Default RD            Protocols   Interfaces
-  Mgmt-vrf                         <not set>             ipv4,ipv6   Gi0/0
-```
+Catalyst 9000 switches add a middle path. Their dedicated management port, GigabitEthernet0/0, sits in its own routing table, a *VRF* (virtual routing and forwarding instance) named `Mgmt-vrf`. Traffic on that port stays separate from the production routes. `show vrf` lists each VRF and the interfaces that belong to it, so it confirms that the management port is in `Mgmt-vrf` and not in the global table.
 
 Because it has its own routes, you test it by naming the VRF: `ping vrf Mgmt-vrf 10.1.1.5`.
 

@@ -24,7 +24,7 @@ Each stored password carries a type number that says how it was protected.
 
 Type 7 deserves a plain warning. `service password-encryption` produces it, and it is not encryption in any useful sense. The algorithm is public and decoders are built into free tools, so anyone holding the string recovers the password in an instant. It only stops a person glancing at your screen.
 
-Hashes are different. A *hash* is a one-way function: you can check a guess against it, but you cannot run it backwards. What separates types 5, 8 and 9 is how costly each guess is. MD5 is quick, so a stolen hash can be tested at enormous speed. Types 8 and 9 are deliberately slow and memory-hungry, which makes guessing expensive.
+Hashes are different. A *hash* is a one-way function: you can check a guess against it, but you cannot run it backwards. What separates types 5, 8 and 9 is how costly each guess is. MD5 is quick, so a stolen hash can be tested at enormous speed. Types 8 and 9 are deliberately slow, and scrypt (type 9) also needs a lot of memory, which makes each guess expensive.
 
 ```question
 prompt = "A configuration backup contains `username ops password 7 070C285F4D06`. What does that tell you?"
@@ -35,7 +35,7 @@ why = "Type 7 is a reversible encoding. Only types 5, 8 and 9 are hashes."
 
 ## Asking for a strong hash
 
-By default `enable secret` and `username ... secret` give you type 5. Name the algorithm to get type 9 instead. Support depends on release; current IOS XE on ISR 4000 and Catalyst 9000 has it.
+Unless you name an algorithm, `enable secret` and `username ... secret` store an MD5 hash, type 5, on many releases. Name the algorithm to get type 9 instead, and check the stored type in the output, because the default can differ between releases. Algorithm keywords need a release that supports types 8 and 9; current IOS XE on ISR 4000 and Catalyst 9000 has them.
 
 ```console R1
 R1(config)# enable algorithm-type scrypt secret Tr1cky-Passphrase-42
@@ -52,7 +52,7 @@ The `9` after `secret` is the type, and the `$9$` prefix repeats it. Use `algori
 prompt = "Set the enable secret to a type 9 hash for the password Tr1cky-Passphrase-42."
 mode = "R1(config)#"
 answer = ["enable algorithm-type scrypt secret Tr1cky-Passphrase-42"]
-why = "The `algorithm-type scrypt` keywords choose type 9. Without them the device uses its default, type 5."
+why = "The `algorithm-type scrypt` keywords choose type 9. Without them the device may store the default, type 5, depending on the release."
 ```
 
 ## Making guessing slow
@@ -70,7 +70,7 @@ R1(config-line)# login local
 ```
 
 - `security passwords min-length 10` rejects new passwords shorter than ten characters. Existing ones stay as they are.
-- `login block-for 120 attempts 3 within 60` refuses all further remote logins for 120 seconds after three failures inside 60 seconds. That includes you. To keep one subnet working during a block, name an ACL with `login quiet-mode access-class`.
+- `login block-for 120 attempts 3 within 60` refuses all further remote logins for 120 seconds after three failures inside 60 seconds. That includes you, although the console stays open, so keep a console path in mind before you test it. To keep one subnet working during a block, name an ACL with `login quiet-mode access-class`.
 - `login on-failure log` and `login on-success log` write a syslog message for each attempt, with the user and source address. These messages are what an investigator searches later.
 - `exec-timeout 5 0` ends an idle session after 5 minutes. The default is 10.
 - `login local` makes the line check the local user database, so every administrator has a name.
