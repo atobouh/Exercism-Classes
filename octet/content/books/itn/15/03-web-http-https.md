@@ -8,11 +8,9 @@ Every page you open starts with a browser asking a web server for a file. The ru
 
 ## Reading a URL
 
-A *URL* (uniform resource locator) tells the browser what to fetch and how.
+A *URL* (uniform resource locator) tells the browser what to fetch and how. Here is one:
 
-```console
-https://www.example.com/shop/boots.html
-```
+`https://www.example.com/shop/boots.html`
 
 - **Protocol:** `https://` says which protocol to use. `http://` is the unencrypted version.
 - **Server name:** `www.example.com` is the server to contact. DNS turns it into an IP address.
@@ -56,12 +54,12 @@ GET /shop/boots.html HTTP/1.1
 Host: www.example.com
 ```
 
-Every response starts with a status code. Codes in the 200s mean success, 300s mean the resource has moved, 400s mean the client made an error, and 500s mean the server failed.
+Every response starts with a status code. Codes in the 200s mean success, 300s mean the client must look somewhere else, 400s mean the client made an error, and 500s mean the server failed.
 
 | Code | Meaning |
 | --- | --- |
 | 200 | OK, the response holds the resource |
-| 301, 302 | The resource has moved, go to the new address |
+| 301, 302 | Moved (301 permanently, 302 temporarily): the response points to the new address |
 | 404 | Not found: the server is up but has no such resource |
 | 500 | Internal server error |
 

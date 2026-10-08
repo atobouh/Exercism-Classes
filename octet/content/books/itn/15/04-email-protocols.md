@@ -40,7 +40,7 @@ SMTP only sends. It has no way for a person to read a mailbox.
 
 ## POP3: download and go
 
-The *Post Office Protocol* version 3 (POP3) uses TCP port 110. The client logs in, downloads the waiting messages to the device, and then, by default, the server deletes its copies. Mail lives on the one device that downloaded it. That suits a single computer with limited server storage. It is awkward if you also want to read the mail on a phone, since the message is gone from the server.
+The *Post Office Protocol* version 3 (POP3) uses TCP port 110. The client logs in, downloads the waiting messages to the device, and then the server typically deletes its copies. Mail lives on the one device that downloaded it. That suits a single computer with limited server storage. It is awkward if you also want to read the mail on a phone, since the message is gone from the server.
 
 ## IMAP: leave it on the server
 
