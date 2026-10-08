@@ -24,7 +24,7 @@ Three switches, all at the default, all carrying VLAN 10:
 
 Compare priority first. All three tie at 32778. The MAC address breaks the tie, and the lowest wins. Compare the addresses from the left: `0019.0670.` is shared, then `0a00` is lower than `3c80`, which is lower than `5e00`. S2 is root.
 
-That is the usual accident. A low MAC tends to mean an old switch, and an old switch is often a small one in a wiring closet, with every other switch now sending traffic through it. Nothing is broken, and nothing is designed either.
+That is the usual accident. A low MAC is an accident of manufacturing, not a design decision. The switch that owns it is often a small one in a wiring closet, with every other switch now sending traffic through it. Nothing is broken, and nothing is designed either.
 
 ```question
 prompt = "SW-A has priority 32768 and MAC 0019.0670.0a00. SW-B has priority 28672 and MAC 0019.0670.ff00. Both run VLAN 10. Which is root for VLAN 10?"
