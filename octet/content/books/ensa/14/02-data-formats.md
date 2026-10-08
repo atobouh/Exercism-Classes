@@ -78,7 +78,7 @@ In YAML, indentation is syntax. A line indented one space too far, or too few, c
 
 ## Telling them apart
 
-You can identify a format from the first glance. Braces and quoted keys mean JSON. A lack of brackets, with indented `key: value` lines, means YAML. Angle brackets mean XML.
+You can usually tell the format at a glance. Braces and quoted keys mean JSON. A lack of brackets, with indented `key: value` lines, means YAML. Angle brackets mean XML.
 
 ```question
 prompt = "A sample begins like this: the first line is three dashes, then lines such as `hostname: S1` and, indented below `vlans:`, items starting with `- 10`. Which format is it?"

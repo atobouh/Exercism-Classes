@@ -55,7 +55,7 @@ REST dominates for network devices and controllers for practical reasons:
 An API is a contract between a client program and a server program. The type depends on who may call it (open, internal or partner), and the style depends on how messages are built (SOAP, REST, XML-RPC or JSON-RPC).
 ```
 
-## The same thing in a command
+## The contract in practice
 
 To get a feel for the contract, imagine a client asking a controller for its devices. The client names a resource and a verb, and the server replies with data. Nothing in that exchange depends on how the controller stores devices. That separation is the point of an API, and the next page shows the real mechanics.
 

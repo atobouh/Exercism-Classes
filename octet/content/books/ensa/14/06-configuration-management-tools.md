@@ -37,7 +37,7 @@ Agentless tools are usually push. Agent-based tools are usually pull. The pairin
 | Chef | Yes | Pull | Ruby | Recipes and cookbooks |
 | SaltStack | Yes (minion), or agentless over SSH | Push | Python | Pillars (data) and state files |
 
-Ansible is widely used for network work because most switches and routers cannot easily host an agent, and SSH is already available.
+Ansible is widely used for network work because it needs nothing installed on the switches and routers beyond the SSH service they already run.
 
 ```question
 prompt = "Which configuration management tool needs no software installed on the managed device and connects over SSH?"

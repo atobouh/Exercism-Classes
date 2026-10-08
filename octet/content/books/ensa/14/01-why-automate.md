@@ -16,7 +16,7 @@ The change from the opening story becomes a short description of the VLAN plus a
 
 ## What you gain
 
-- **Speed.** A program does not get tired. Two hundred switches take about as long as ten.
+- **Speed.** A program does not get tired. It works through two hundred switches without the drift that set in after the fortieth.
 - **Consistency.** Every device gets the same lines in the same order. A typo is made once, in the description, and is visible to everyone who reads it.
 - **Fewer errors.** Checking a result is also automatable. The program can read each switch back and compare it with what you intended.
 - **Documentation as code.** The description of the network lives in a text file. It can be read, reviewed by a colleague and stored with a history of every change, so it works as documentation that cannot drift far from reality.
