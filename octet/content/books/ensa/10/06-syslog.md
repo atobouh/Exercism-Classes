@@ -4,7 +4,7 @@ summary = "Devices report events as syslog messages, each with a facility, a sev
 links = ["ensa/10/04-ntp", "ensa/10/05-snmp"]
 +++
 
-Every time an interface changes state, a user logs in or a neighbor relationship forms, the device writes a short line of text. These are *syslog* messages. By default you only see them if you happen to be on the console at that moment, which is useless for a failure at 3 a.m. The fix is to send them to a server that keeps them all in one place. Syslog sends messages in UDP datagrams to port 514.
+Every time an interface changes state, a user logs in or a neighbor relationship forms, the device writes a short line of text. These are *syslog* messages. Unless you happen to be watching the console at that moment, you miss them, which is no help for a failure at 3 a.m. The fix is to send them to a server that keeps them all in one place. Syslog sends messages in UDP datagrams to port 514.
 
 ## Where messages go
 
@@ -28,7 +28,7 @@ Every message has the same shape.
 
 The timestamp is first. The next part, between `%` and the colon, has three pieces separated by hyphens: `%FACILITY-SEVERITY-MNEMONIC`. In `%LINK-3-UPDOWN`, `LINK` is the *facility*, the part of the system that produced the message. `3` is the *severity*. `UPDOWN` is the *mnemonic*, a short label for this kind of event. The text after the colon is the description.
 
-Other facilities you will see include `SYS` for the system itself (`%SYS-5-CONFIG_I` appears when someone changes the configuration), `OSPF` for the routing protocol, `IP`, and `IPSEC`. The facility tells you where to look.
+Other facilities you will see include `SYS` for the system itself (`%SYS-5-CONFIG_I` appears when someone changes the configuration), `OSPF` for the routing protocol, `IP`, and `IPSEC`. Interface messages come from `LINK` and `LINEPROTO`, as in the lines above. The facility tells you where to look.
 
 ```question
 prompt = "A log line begins %OSPF-5-ADJCHG. Which part is the severity?"

@@ -40,8 +40,8 @@ The asterisk marks the current default file system. The ones you use most are th
 R1# dir nvram:
 Directory of nvram:/
 
-   ...  -rw-        1544                    <no date>  startup-config
-   ...  -rw-          ...                   <no date>  private-config
+  496  -rw-        1544                    <no date>  startup-config
+  497  -rw-          ...                   <no date>  private-config
 ...
 ```
 
@@ -58,7 +58,7 @@ R1# copy running-config tftp:
 Address or name of remote host []? 192.168.1.20
 Destination filename [r1-confg]? R1-backup.cfg
 Write file R1-backup.cfg to tftp://192.168.1.20/R1-backup.cfg? [confirm]
-!!
+Writing R1-backup.cfg !!
 1544 bytes copied in 0.744 secs (2075 bytes/sec)
 ```
 
