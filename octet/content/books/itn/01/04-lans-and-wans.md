@@ -37,7 +37,7 @@ The *internet* is a worldwide mesh of LANs and WANs joined together. Homes and c
 Someone still has to agree on the rules and hand out the names and numbers. A few organizations do that work:
 
 - The *IETF* (Internet Engineering Task Force) develops and publishes the protocol standards the internet runs on, in documents called RFCs.
-- *ICANN* (Internet Corporation for Assigned Names and Numbers) coordinates IP address allocation and the domain name system, so that no two networks claim the same addresses or names.
+- *ICANN* (Internet Corporation for Assigned Names and Numbers) coordinates the top level of IP address allocation (through IANA and the regional registries) and the domain name system, so that no two networks claim the same addresses or names.
 - The *IAB* (Internet Architecture Board) oversees the overall design of internet standards and guides the IETF.
 
 You will meet these and other standards bodies again in [the protocols chapter](itn/03/05-standards-organizations).

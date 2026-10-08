@@ -12,9 +12,9 @@ The IEEE's 802.11 standard has been revised many times, each version adding spee
 
 | Standard | Wi-Fi name | Band | Maximum data rate |
 | --- | --- | --- | --- |
-| 802.11a | | 5 GHz | 54 Mbps |
-| 802.11b | | 2.4 GHz | 11 Mbps |
-| 802.11g | | 2.4 GHz | 54 Mbps |
+| 802.11a | None | 5 GHz | 54 Mbps |
+| 802.11b | None | 2.4 GHz | 11 Mbps |
+| 802.11g | None | 2.4 GHz | 54 Mbps |
 | 802.11n | Wi-Fi 4 | 2.4 and 5 GHz | Up to 600 Mbps |
 | 802.11ac | Wi-Fi 5 | 5 GHz | Multi-gigabit |
 | 802.11ax | Wi-Fi 6 | 2.4 and 5 GHz | Multi-gigabit |
