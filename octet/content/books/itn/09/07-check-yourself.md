@@ -35,7 +35,7 @@ why = "The request is a broadcast and the reply is a unicast. ARP uses EtherType
 prompt = "A router's show ip arp has a row for 192.168.2.1 with Age - and a row for 192.168.2.50 with Age 4. What can you conclude?"
 options = ["Both are neighbors, and 192.168.2.1 has expired", "192.168.2.1 is the router's own interface, and 192.168.2.50 was learned 4 minutes ago", "192.168.2.50 is the router's own interface", "Both entries are static"]
 answer = 1
-why = "A dash in the Age column marks the router's own addresses. A number is the minutes since a learned entry was refreshed."
+why = "A dash in the Age column marks the router's own addresses (static entries also show one). A number is the minutes since a learned entry was refreshed."
 ```
 
 ```question
@@ -58,7 +58,7 @@ why = "The source IP stays PC1's all the way. The source MAC is rewritten to the
 
 ```question
 prompt = "An attacker sends unrequested ARP replies saying the gateway's IP address is at the attacker's MAC. What is this attack called?"
-options = ["A gratuitous ARP, used for duplicate detection", "ARP spoofing, which makes the attacker a man in the middle", "A broadcast storm", "MAC flooding"]
+options = ["A gratuitous ARP, an announcement of the sender's own address", "ARP spoofing, which makes the attacker a man in the middle", "A broadcast storm", "MAC flooding"]
 answer = 1
 why = "Forged replies that poison a victim's ARP cache are ARP spoofing. A gratuitous ARP announces the sender's own real address."
 ```

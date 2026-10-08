@@ -26,11 +26,11 @@ Suppose PC1 (2001:db8:acad:1::10) wants the MAC for 2001:db8:acad:1::20. It send
 
 ## Solicited-node multicast
 
-ARP shouts to the whole LAN. IPv6 takes a narrower approach. Every IPv6 address has a matching *solicited-node multicast address*, built from the prefix `ff02::1:ff` plus the last 24 bits (6 hex digits) of the address. For 2001:db8:acad:1::20, the last 24 bits are 00:0020, so the address is `ff02::1:ff00:20`.
+ARP shouts to the whole LAN. IPv6 takes a narrower approach. Every IPv6 address has a matching *solicited-node multicast address*, built from the prefix `ff02::1:ff` plus the last 24 bits (6 hex digits) of the address, which makes the block `ff02::1:ff00:0/104`. For 2001:db8:acad:1::20, the last 24 bits are 00:0020, so the address is `ff02::1:ff00:20`.
 
 The NS goes to that address. A host listens to the solicited-node address of each of its own addresses, and only those hosts receive the message. Because few hosts share the same last 24 bits, usually just the target hears the question, and everyone else is not interrupted.
 
-The multicast address maps to an Ethernet multicast MAC that starts with 33-33. The last four bytes of the MAC are the last four bytes of the IPv6 address. So the NS above is sent to the MAC 33-33-FF-00-00-20, and the network card of every other host drops it without bothering the CPU.
+The multicast address maps to an Ethernet multicast MAC that starts with 33-33. The last four bytes of the MAC are the last four bytes of the IPv6 multicast address. So the NS above is sent to the MAC 33-33-FF-00-00-20, and the network card of most other hosts drops it without bothering the CPU.
 
 ```question
 prompt = "What destination does a Neighbor Solicitation for 2001:db8:acad:1::20 use?"
@@ -41,7 +41,7 @@ why = "The solicited-node address is ff02::1:ff plus the last 24 bits of the tar
 
 ## Duplicate Address Detection
 
-Before a host uses a new IPv6 address, it checks that nobody else has it. This is *Duplicate Address Detection* (DAD). The host sends an NS for its own new address, with the unspecified address `::` as the source. If another device answers with an NA, the address is already in use and the host does not take it. If nothing answers, the address is safe. It is the same idea as an ARP for your own address.
+Before a host uses a new IPv6 address, it checks that nobody else has it. This is *Duplicate Address Detection* (DAD). The host sends an NS for its own new address, with the unspecified address `::` as the source, because it has no usable address yet. The destination is the solicited-node multicast address of the new (tentative) address. If another device answers with an NA, the address is already in use and the host does not take it. If nothing answers, the address is safe. It is the same idea as an ARP for your own address.
 
 ## Looking at the neighbor table
 
@@ -54,7 +54,7 @@ IPv6 Address                              Age Link-layer Addr State Interface
 FE80::250:79FF:FE66:6800                    2 0050.7966.6800  STALE Gi0/0/0
 ```
 
-The State column shows how fresh the entry is. `REACH` means reachability was confirmed recently. `STALE` means the entry has not been used for a while, but it is still used until traffic needs it. `DELAY` and `PROBE` mean the router is checking whether the neighbor is still there, and `INCMP` (incomplete) means a solicitation was sent and no answer has come back yet. On Windows the same data comes from `netsh interface ipv6 show neighbors`.
+The State column shows how fresh the entry is. `REACH` means reachability was confirmed recently. `STALE` means reachability is unknown because nothing has confirmed it lately. The entry is still used, but the next packet sent to it moves it to `DELAY`, where the router waits a few seconds for proof the neighbor is reachable. With none, it moves to `PROBE` and sends unicast solicitations. `INCMP` (incomplete) means a solicitation was sent and no answer has come back yet. On Windows the same data comes from `netsh interface ipv6 show neighbors`.
 
 ## ARP and ND compared
 
@@ -64,7 +64,7 @@ The State column shows how fresh the entry is. `REACH` means reachability was co
 | Request goes to | Broadcast, every host | Solicited-node multicast, few hosts |
 | Reply | Unicast ARP reply | Unicast Neighbor Advertisement |
 | Also finds routers | No | Yes, with RS and RA |
-| Duplicate detection | Optional gratuitous ARP | Built in, with DAD |
+| Duplicate detection | Optional ARP probe | Built in, with DAD |
 
 ```recall
 front = "Which ICMPv6 types are Neighbor Solicitation and Neighbor Advertisement?"

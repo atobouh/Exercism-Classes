@@ -1,7 +1,7 @@
 +++
 title = "GRE, DMVPN and IPsec VTI"
 summary = "Ways to carry routing protocols and multicast through IPsec, and to build many tunnels without configuring each one."
-links = ["ensa/08/03-ssl-and-ipsec", "ensa/08/05-the-ipsec-framework", "ensa/07/02-wan-topologies", "ensa/02/07-cost-and-reference-bandwidth"]
+links = ["ensa/08/03-ssl-and-ipsec", "ensa/08/05-the-ipsec-framework", "ensa/07/02-wan-topologies"]
 +++
 
 A branch router and a head-office router build an IPsec tunnel. Now you want them to run OSPF across it so each learns the other's networks. The neighbors never appear. OSPF Hellos are sent to a multicast address, and plain IPsec does not carry multicast. This page covers the tools that fix that, and the tools that stop a network of fifty sites from needing fifty hand-built tunnels.
@@ -58,7 +58,7 @@ The spokes only need to know the hub in advance. The hub is the directory, and t
 
 ## IPsec virtual tunnel interface
 
-An *IPsec VTI* (virtual tunnel interface) is another way to avoid GRE. The router creates a tunnel interface that is itself protected by IPsec. Anything routed out of that interface is encrypted, and the interface can carry both unicast and multicast. A routing protocol can run across it, with less overhead than GRE, because there is no extra GRE header. A VTI can only carry IP, which is almost always what you need.
+An *IPsec VTI* (virtual tunnel interface) is another way to avoid GRE. The router creates a tunnel interface that is itself protected by IPsec. Anything routed out of that interface is encrypted, and the interface can carry both unicast and multicast. A routing protocol can run across it, with less overhead than GRE, because there is no extra GRE header.
 
 ## Provider-managed alternatives
 

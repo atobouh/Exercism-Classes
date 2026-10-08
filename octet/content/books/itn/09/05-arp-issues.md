@@ -23,14 +23,16 @@ why = "Broadcasts stop at the router. Smaller subnets mean fewer hosts receive e
 
 Sometimes a host sends an ARP message that nobody asked for. A *gratuitous ARP* announces the sender's own IP and MAC address. The sender is, in effect, asking about itself or announcing itself. It is used for:
 
-- **Duplicate detection.** A host that has just been given an address can send an ARP request for that very address. If anyone answers, the address is already in use.
+- **Announcing an address.** A host that has just been given or has just moved an address announces it, with its own IP address as both sender and target. Any host that already holds that address can then spot the conflict.
 - **Refreshing neighbors' caches.** After a host changes its network card, or a failover moves an address to a standby device, the gratuitous ARP tells everyone the new MAC at once, instead of waiting for old entries to expire.
+
+Before announcing, a host can also run an *ARP probe* to check for duplicates. It is an ARP request for the address it wants, sent with sender IP 0.0.0.0 so that it does not pollute anyone's cache. If any host replies, the address is taken. A probe is not a gratuitous ARP, because it does not announce anything.
 
 So an unrequested ARP message is not automatically an attack. The legitimate kind is rare and carries the sender's own details.
 
 ## ARP spoofing
 
-Here is the weakness. A host that receives an ARP reply updates its cache. Most hosts do this even when they never sent a request. Nothing in ARP proves the reply is honest.
+Here is the weakness. A host that receives an ARP reply updates its cache. Many hosts do this even when they never sent a request. Nothing in ARP proves the reply is honest.
 
 An attacker on the LAN exploits this. The attacker, say 192.168.1.66, sends ARP replies to PC1 claiming "192.168.1.1 is at my MAC address." PC1 overwrites its good gateway entry. Now every frame PC1 sends toward the gateway goes to the attacker. This is called *ARP spoofing* or *ARP poisoning*.
 
@@ -49,7 +51,7 @@ links = [
 ]
 ```
 
-The attacker can then forward the traffic on to the real gateway, so PC1 notices nothing. It becomes a *man in the middle*, able to read or alter everything that passes. If it forwards nothing, PC1 simply loses its connection. Poisoning the gateway's entry is the most useful attack, since all outside traffic goes through the gateway.
+The attacker can then forward the traffic on to the real gateway, so PC1 notices nothing. It becomes a *man in the middle*, able to read or alter everything that passes. If it forwards nothing, PC1 loses its connection. Poisoning the gateway's entry is the most useful attack, since all outside traffic goes through the gateway.
 
 ```question
 prompt = "An attacker sends PC1 forged ARP replies saying the gateway's IP address belongs to the attacker's MAC. What does the attacker gain?"
@@ -68,7 +70,7 @@ Enterprise switches can fight this with *Dynamic ARP Inspection* (DAI). The swit
 
 ```recall
 front = "What is a gratuitous ARP?"
-back = "An ARP message a host sends unasked, announcing its own IP and MAC. It is used to detect duplicate addresses and refresh neighbors' caches."
+back = "An ARP message a host sends unasked, announcing its own IP and MAC. It is used to announce a new address and refresh neighbors' caches. An ARP probe, with sender IP 0.0.0.0, is what checks for duplicates."
 ```
 
 ```recall

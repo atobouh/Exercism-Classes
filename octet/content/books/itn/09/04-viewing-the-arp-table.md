@@ -69,7 +69,7 @@ why = "Both forms print the IPv4 ARP table with address, age, MAC, type and inte
 
 ## Timers
 
-A dynamic entry on a Cisco router stays for 4 hours by default, counted from when it was last used. Windows and other host operating systems use much shorter timers, from seconds to minutes depending on the version, because hosts see more change than routers do. You do not need to memorize the host numbers. Just know that a host forgets a quiet neighbor quickly and a router forgets slowly.
+A dynamic entry on a Cisco router stays for 4 hours by default, counted from when the entry was learned or last refreshed. Windows and other host operating systems use much shorter timers, from seconds to minutes depending on the version, because hosts see more change than routers do. You do not need to memorize the host numbers. Remember that a host forgets a quiet neighbor quickly and a router forgets slowly.
 
 ## Clearing the router's table
 
@@ -87,14 +87,14 @@ Only the router's own entries remain. Clearing the table is a handy way to test,
 
 ```question
 prompt = "In show ip arp, what does an Age of - mean?"
-options = ["The entry has expired", "The entry is a neighbor that has not been used yet", "The address belongs to one of the router's own interfaces", "The entry was entered by hand"]
+options = ["The entry has expired", "The entry is a neighbor that has not been used yet", "The address belongs to one of the router's own interfaces", "The router has never used the entry"]
 answer = 2
-why = "The router's own interface addresses never age, so IOS prints a dash instead of a number."
+why = "The router's own interface addresses never age, so IOS prints a dash instead of a number. Static entries also show a dash."
 ```
 
 ## Static entries
 
-You can add a fixed mapping, for instance with `arp -s` on Windows or the global configuration command `arp 192.168.1.20 0050.7966.6801 arpa` on IOS. A static entry never times out and cannot be overwritten by a reply. It is rarely used, because it must be updated by hand whenever the card changes.
+You can add a fixed mapping, for instance with `arp -s` on Windows or the global configuration command `arp 192.168.1.20 0050.7966.6801 arpa` on IOS. A static entry never times out (it shows `-` in the Age column) and cannot be overwritten by a reply. It is rarely used, because it must be updated by hand whenever the card changes.
 
 ```recall
 front = "Which Windows command shows the ARP table, and which deletes all entries?"
@@ -103,7 +103,7 @@ back = "arp -a shows it. arp -d * deletes all entries (from an administrator pro
 
 ```recall
 front = "Which IOS command shows the ARP table, and what does Age - mean?"
-back = "show ip arp. Age - marks the router's own interface addresses."
+back = "show ip arp. Age - marks the router's own interface addresses (and static entries)."
 ```
 
 ```recall
