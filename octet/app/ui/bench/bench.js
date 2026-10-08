@@ -16,14 +16,29 @@ import { createNetwork, maskLen, short } from './engine.js';
 import { CABLES } from './catalog.js';
 import { drawDevice, DEFS } from './faceplate.js';
 
+const LIGHT = `--b-bench: oklch(99.1% 0.002 85); --b-pane: oklch(97.9% 0.003 80); --b-pop: oklch(99.4% 0.002 85); --b-dot: oklch(84% 0.006 70);
+  --b-line: oklch(90.5% 0.006 70); --b-hover: oklch(93.6% 0.006 78); --b-sel: oklch(91.8% 0.008 78); --b-term: oklch(97.9% 0.003 80);
+  --b-ink: oklch(23% 0.01 60); --b-ink2: oklch(43% 0.01 60); --b-ink3: oklch(53% 0.009 60);
+  --b-you: oklch(45% 0.09 165); --b-on-you: oklch(98% 0.003 85); --b-broken: oklch(52% 0.16 28); --b-log: oklch(50% 0.1 70); --b-ok: oklch(50% 0.12 155);
+  --b-shadow: 0 1px 2px oklch(25% 0.02 60 / 0.06), 0 12px 32px -14px oklch(25% 0.02 60 / 0.25); color-scheme: light;`;
+
 const CSS = `
-:host { --b-bench: oklch(17.5% 0.006 250); --b-dot: oklch(27% 0.008 250); --b-glass: oklch(21% 0.007 250 / 0.92); --b-glass2: oklch(25% 0.008 250 / 0.96); --b-edge: oklch(34% 0.01 250); --b-edge2: oklch(42% 0.008 255);
-  --b-ink: oklch(92% 0.006 250); --b-ink2: oklch(72% 0.01 250); --b-ink3: oklch(56% 0.01 250);
-  --b-metal-hi: oklch(36% 0.008 255); --b-metal: oklch(29% 0.008 255); --b-metal-lo: oklch(23% 0.008 255); --b-recess: oklch(13% 0.004 255); --b-silk: oklch(76% 0.01 250); --b-gold: oklch(70% 0.11 85);
-  --b-led-off: oklch(26% 0.006 250); --b-led-green: oklch(80% 0.17 150); --b-led-amber: oklch(80% 0.15 70); --b-you: oklch(77% 0.1 165); --b-broken: oklch(70% 0.15 28); --b-console: oklch(84% 0.06 215);
+/* Colours come in two themes, warm neutrals like Octet's own. Set
+   theme="light", "dark" or "auto" on the element, or override any --b-*
+   variable from the page: custom properties reach inside. The device
+   colours (metal, silk, LEDs) are the same in both, like real gear. */
+:host { --b-bench: oklch(21% 0.005 70); --b-pane: oklch(19.6% 0.005 70); --b-pop: oklch(23.5% 0.006 70); --b-dot: oklch(31% 0.006 70);
+  --b-line: oklch(28.5% 0.006 70); --b-edge: var(--b-line); --b-hover: oklch(26% 0.006 70); --b-sel: oklch(28.5% 0.007 70); --b-term: oklch(19.6% 0.005 70);
+  --b-ink: oklch(92% 0.006 80); --b-ink2: oklch(73% 0.008 80); --b-ink3: oklch(63% 0.008 80);
+  --b-you: oklch(77% 0.1 165); --b-on-you: oklch(20% 0.005 70); --b-broken: oklch(70% 0.15 28); --b-log: oklch(78% 0.08 75); --b-ok: oklch(73% 0.13 155);
+  --b-shadow: 0 1px 2px oklch(5% 0.01 70 / 0.4), 0 14px 34px -14px oklch(5% 0.01 70 / 0.7);
+  --b-edge2: oklch(42% 0.008 255); --b-metal-hi: oklch(36% 0.008 255); --b-metal: oklch(29% 0.008 255); --b-metal-lo: oklch(23% 0.008 255); --b-recess: oklch(13% 0.004 255); --b-silk: oklch(76% 0.01 250); --b-silk-hi: oklch(92% 0.006 250); --b-gold: oklch(70% 0.11 85);
+  --b-led-off: oklch(26% 0.006 250); --b-led-green: oklch(80% 0.17 150); --b-led-amber: oklch(80% 0.15 70); --b-console: oklch(84% 0.06 215);
   --b-ui: var(--f-ui, "Onest", system-ui, sans-serif); --b-mono: var(--f-ios, "Spline Sans Mono", ui-monospace, Consolas, monospace); --b-book: var(--f-book, "Newsreader", Georgia, serif);
-  --b-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --b-ease: cubic-bezier(0.23, 1, 0.32, 1); --b-pane-w: 300px; --b-con-w: 440px;
   display: block; position: relative; overflow: hidden; background: var(--b-bench); color: var(--b-ink); font: 400 14px/1.5 var(--b-ui); color-scheme: dark; user-select: none; -webkit-user-select: none; contain: strict; }
+:host([theme="light"]) { ${LIGHT} }
+@media (prefers-color-scheme: light) { :host([theme="auto"]) { ${LIGHT} } }
 * { box-sizing: border-box; }
 svg.board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 svg.board.panning { cursor: grabbing; }
@@ -33,7 +48,7 @@ canvas { position: absolute; inset: 0; pointer-events: none; }
 .dev.dragging .body { cursor: grabbing; }
 .silk { font: 500 7.2px var(--b-ui); fill: var(--b-silk); letter-spacing: .04em; }
 .silk.big { font: 600 9px var(--b-ui); letter-spacing: .06em; }
-.silk.name { font: 600 11px var(--b-ui); fill: var(--b-ink); }
+.silk.name { font: 600 11px var(--b-ui); fill: var(--b-silk-hi); }
 .tagname { font: 600 12.5px var(--b-ui); fill: var(--b-ink2); }
 .plab { font: 500 6.4px var(--b-mono); fill: var(--b-ink3); opacity: 0; transition: opacity 160ms ease; }
 .labels .plab { opacity: 1; }
@@ -60,13 +75,13 @@ canvas { position: absolute; inset: 0; pointer-events: none; }
 .face { transition: opacity 180ms ease; }
 .far .token { opacity: 1; pointer-events: auto; }
 .far .face { opacity: 0; pointer-events: none; }
-.token .tk-bg { fill: var(--b-glass2); stroke: var(--b-edge); }
+.token .tk-bg { fill: var(--b-pop); stroke: var(--b-line); }
 .token .g * { fill: none; stroke: var(--b-ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .token .g circle { fill: var(--b-ink); stroke: none; }
 .token text { font: 600 12px var(--b-ui); fill: var(--b-ink); }
 .off .face .body, .off .face .port { filter: saturate(.4) brightness(.8); }
 
-.panel { position: absolute; background: var(--b-glass); border: 1px solid var(--b-edge); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px -20px oklch(5% 0 0 / .8); }
+.panel { position: absolute; background: var(--b-pop); border: 1px solid var(--b-line); border-radius: 12px; box-shadow: var(--b-shadow); }
 .brief { left: 16px; top: 16px; width: 330px; max-width: calc(100% - 32px); padding: 14px 16px 12px; display: grid; gap: 10px; z-index: 5; }
 .brief header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .brief h1 { margin: 0; font: 450 21px/1.15 var(--b-book); letter-spacing: -0.01em; }
@@ -74,9 +89,9 @@ canvas { position: absolute; inset: 0; pointer-events: none; }
 .brief .sum { margin: 0; font-size: 13px; color: var(--b-ink2); }
 .brief ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; counter-reset: t; }
 .brief li { counter-increment: t; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; font-size: 13px; color: var(--b-ink2); line-height: 1.45; }
-.brief li::before { content: counter(t); width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 600 10.5px var(--b-ui); box-shadow: inset 0 0 0 1px var(--b-edge); color: var(--b-ink3); margin-top: 1px; }
+.brief li::before { content: counter(t); width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 600 10.5px var(--b-ui); box-shadow: inset 0 0 0 1px var(--b-line); color: var(--b-ink3); margin-top: 1px; }
 .brief li.done { color: var(--b-ink3); }
-.brief li.done::before { content: "✓"; background: var(--b-you); color: var(--b-bench); box-shadow: none; }
+.brief li.done::before { content: "✓"; background: var(--b-you); color: var(--b-on-you); box-shadow: none; }
 .brief li.next { color: var(--b-ink); }
 .brief li .hint { display: block; margin-top: 4px; color: var(--b-ink3); font-size: 12.5px; }
 .brief code { font: 400 12px var(--b-mono); color: var(--b-ink); }
@@ -86,16 +101,16 @@ canvas { position: absolute; inset: 0; pointer-events: none; }
 .brief.min ol, .brief.min .sum, .brief.min .hintbtn { display: none; }
 .tools { right: 16px; top: 16px; display: flex; gap: 2px; padding: 4px; z-index: 5; }
 .tb { border: 0; background: transparent; color: var(--b-ink2); font: 500 12.5px var(--b-ui); height: 30px; min-width: 30px; padding: 0 10px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-.tb:hover { background: oklch(100% 0 0 / .06); color: var(--b-ink); }
-.tb[aria-pressed="true"] { background: oklch(100% 0 0 / .1); color: var(--b-ink); }
+.tb:hover { background: var(--b-hover); color: var(--b-ink); }
+.tb[aria-pressed="true"] { background: var(--b-sel); color: var(--b-ink); }
 .tb .k { font: 500 10.5px var(--b-ui); color: var(--b-ink3); }
 .tb.zoom { font-variant-numeric: tabular-nums; min-width: 54px; justify-content: center; }
-.sep { width: 1px; background: var(--b-edge); margin: 5px 3px; }
+.sep { width: 1px; background: var(--b-line); margin: 5px 3px; }
 .tray { left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; max-width: calc(100% - 32px); overflow-x: auto; z-index: 5; }
 .cable { border: 0; background: transparent; color: var(--b-ink2); border-radius: 10px; padding: 6px 12px 7px 8px; display: grid; grid-template-columns: 34px auto; gap: 2px 8px; align-items: center; cursor: pointer; text-align: left; font: inherit; transition: background-color 120ms ease, transform 160ms var(--b-ease); }
-.cable:hover { background: oklch(100% 0 0 / .05); color: var(--b-ink); }
+.cable:hover { background: var(--b-hover); color: var(--b-ink); }
 .cable:active { transform: scale(0.97); }
-.cable[aria-pressed="true"] { background: oklch(100% 0 0 / .1); color: var(--b-ink); }
+.cable[aria-pressed="true"] { background: var(--b-sel); color: var(--b-ink); }
 .cable svg { grid-row: span 2; width: 34px; height: 28px; }
 .cable b { font-weight: 600; font-size: 12.5px; white-space: nowrap; }
 .cable span { font-size: 11px; color: var(--b-ink3); white-space: nowrap; }
@@ -113,35 +128,67 @@ canvas { position: absolute; inset: 0; pointer-events: none; }
 .menu { z-index: 40; min-width: 200px; padding: 5px; display: grid; }
 .menu[hidden] { display: none; }
 .menu button { border: 0; background: transparent; color: var(--b-ink); font: 450 13px var(--b-ui); text-align: left; padding: 7px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 18px; }
-.menu button:hover { background: oklch(100% 0 0 / .07); }
+.menu button:hover { background: var(--b-hover); }
 .menu button[disabled] { color: var(--b-ink3); cursor: default; background: none; }
 .menu button span { color: var(--b-ink3); font-size: 11.5px; }
-.menu hr { border: 0; border-top: 1px solid var(--b-edge); margin: 4px 6px; }
+.menu hr { border: 0; border-top: 1px solid var(--b-line); margin: 4px 6px; }
 .menu .h { font: 500 11px var(--b-ui); color: var(--b-ink3); padding: 6px 10px 2px; }
 .toast { left: 50%; bottom: 92px; transform: translate(-50%, 8px); padding: 10px 14px; max-width: min(520px, calc(100% - 32px)); font-size: 13px; opacity: 0; pointer-events: none; transition: opacity 160ms ease, transform 200ms var(--b-ease); z-index: 35; }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
-.con { right: 16px; top: 62px; bottom: 16px; width: 470px; max-width: calc(100% - 32px); display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; transform: translateX(calc(100% + 24px)); transition: transform 260ms var(--b-ease); z-index: 20; }
+.con { right: 16px; top: 62px; bottom: 16px; width: 470px; max-width: calc(100% - 32px); display: grid; grid-template-rows: auto auto minmax(0, 1fr); overflow: hidden; transform: translateX(calc(100% + 24px)); transition: transform 260ms var(--b-ease); z-index: 20; }
 .con.on { transform: none; }
 .tabs { display: flex; gap: 2px; padding: 6px 6px 0; overflow-x: auto; }
 .tab { border: 0; background: transparent; color: var(--b-ink3); font: 500 12.5px var(--b-ui); padding: 7px 10px; border-radius: 8px 8px 0 0; cursor: pointer; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
-.tab[aria-selected="true"] { background: var(--b-recess); color: var(--b-ink); }
+.tab[aria-selected="true"] { background: var(--b-term); color: var(--b-ink); }
 .tab .x { opacity: .5; font-size: 14px; line-height: 1; }
 .tab .x:hover { opacity: 1; }
-.via { padding: 7px 14px; font-size: 11.5px; color: var(--b-ink3); background: var(--b-recess); display: flex; justify-content: space-between; gap: 10px; }
+.via { padding: 7px 14px; font-size: 11.5px; color: var(--b-ink3); background: var(--b-term); display: flex; justify-content: space-between; gap: 10px; }
 .via button { border: 0; background: none; color: var(--b-ink3); font: inherit; cursor: pointer; padding: 0; }
 .via button:hover { color: var(--b-ink); }
-.cbody { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; }
-pre.out { margin: 0; padding: 8px 14px 4px; overflow: auto; background: var(--b-recess); font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); white-space: pre; user-select: text; -webkit-user-select: text; }
-.out .cmd { color: var(--b-ink); } .out .log { color: oklch(75% 0.07 70); } .out .err { color: var(--b-broken); } .out .ok { color: var(--b-led-green); }
-.line { display: flex; padding: 4px 14px 12px; background: var(--b-recess); font: 400 12.5px/1.6 var(--b-mono); align-items: baseline; }
+.cbody { display: grid; grid-template-rows: auto minmax(0, 1fr); min-height: 0; background: var(--b-term); }
+.term { overflow: auto; min-height: 0; padding: 8px 14px 14px; cursor: text; user-select: text; -webkit-user-select: text; }
+pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); white-space: pre; }
+.out .cmd { color: var(--b-ink); } .out .log { color: var(--b-log); } .out .err { color: var(--b-broken); } .out .ok { color: var(--b-ok); }
+.out .tip { display: block; white-space: normal; margin: 4px 0 2px; padding: 1px 0 1px 10px; border-left: 2px solid var(--b-you); font: 400 12.5px/1.5 var(--b-ui); color: var(--b-ink2); }
+.out .tip b { font-weight: 600; color: var(--b-ink); }
+.out .tip code { font: 400 12px var(--b-mono); color: var(--b-ink); }
+.line { display: flex; font: 400 12.5px/1.6 var(--b-mono); align-items: baseline; }
 .prompt { color: var(--b-ink); white-space: pre; }
 .line input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; color: var(--b-ink); font: inherit; caret-color: var(--b-you); padding: 0; }
-.pcset { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 8px; padding: 10px 14px; background: var(--b-recess); border-bottom: 1px solid var(--b-edge); align-items: end; }
+.line input:focus-visible { outline: none; }
+.pcset { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 8px; padding: 10px 14px; background: var(--b-term); border-bottom: 1px solid var(--b-line); align-items: end; }
 .pcset[hidden] { display: none; }
 .pcset label { display: grid; gap: 3px; font-size: 11px; color: var(--b-ink3); min-width: 0; }
-.pcset input { width: 100%; min-width: 0; border: 0; border-radius: 7px; background: oklch(100% 0 0 / .06); color: var(--b-ink); font: 400 12.5px var(--b-mono); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--b-edge); }
+.pcset input { width: 100%; min-width: 0; border: 0; border-radius: 7px; background: var(--b-bench); color: var(--b-ink); font: 400 12.5px var(--b-mono); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--b-line); }
 .pcset input:focus { box-shadow: inset 0 0 0 1.5px var(--b-you); }
 .pcset button { border: 0; border-radius: 7px; background: var(--b-ink); color: var(--b-bench); font: 600 12px var(--b-ui); padding: 7px 11px; cursor: pointer; }
+/* layout="docked": the brief and the console become panes beside the
+   board, the tools a bar along its top. For apps; the default floats. */
+.tb.brieftb { display: none; }
+:host([layout="docked"]) .tb.brieftb { display: inline-flex; }
+:host([layout="docked"]) .tb.brieftb svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
+:host([layout="docked"]) .brief { left: 0; top: 0; bottom: 0; width: var(--b-pane-w); max-width: none; overflow: hidden; grid-template-columns: minmax(0, 1fr); border: 0; border-right: 1px solid var(--b-line); border-radius: 0; box-shadow: none; background: var(--b-pane); padding: 0; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 0; align-content: start; }
+:host([layout="docked"]) .brief header { display: grid; gap: 2px; padding: 20px 20px 12px; border-bottom: 1px solid var(--b-line); }
+:host([layout="docked"]) .brief h1 { font: 500 22px/1.15 var(--b-book); }
+:host([layout="docked"]) .brief .count { font-size: 12.5px; white-space: normal; }
+:host([layout="docked"]) .brief .body { overflow-y: auto; padding: 14px 20px; display: grid; gap: 14px; align-content: start; }
+:host([layout="docked"]) .brief .sum { font-size: 13.5px; line-height: 1.5; }
+:host([layout="docked"]) .brief ol { gap: 2px; margin: 0 -8px; }
+:host([layout="docked"]) .brief li { padding: 8px; border-radius: 9px; font-size: 13.5px; }
+:host([layout="docked"]) .brief li.next { background: var(--b-sel); }
+:host([layout="docked"]) .brief .row { padding: 12px 20px 16px; border-top: 1px solid var(--b-line); }
+:host([layout="docked"]) .brief .minbtn { display: none; }
+:host([layout="docked"]) .brief.min { display: none; }
+:host([layout="docked"]) .tools { top: 0; left: var(--b-pane-w); right: 0; height: 48px; padding: 0 16px 0 12px; border: 0; border-radius: 0; box-shadow: none; background: var(--b-bench); align-items: center; gap: 4px; }
+:host([layout="docked"]) .brief.min ~ .tools { left: 0; }
+:host([layout="docked"]) .tools .back { margin-right: auto; }
+:host([layout="docked"]) .tools .back-sep { display: none; }
+:host([layout="docked"]) .tb { font-size: 13px; font-weight: 400; border-radius: 7px; }
+:host([layout="docked"]) .tray { left: calc(var(--b-pane-w) + (100% - var(--b-pane-w)) / 2); }
+:host([layout="docked"]) .brief.min ~ .tray { left: 50%; }
+:host([layout="docked"]) .toast { left: calc(var(--b-pane-w) + (100% - var(--b-pane-w)) / 2); }
+:host([layout="docked"]) .con { top: 0; right: 0; bottom: 0; width: var(--b-con-w); border: 0; border-left: 1px solid var(--b-line); border-radius: 0; box-shadow: none; background: var(--b-pane); }
+:host([layout="docked"]) .con .tabs { padding: 8px 8px 0; }
 :focus-visible { outline: 2px solid var(--b-you); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; animation-duration: 1ms !important; } }
 `;
@@ -151,9 +198,9 @@ const HTML = `
   <rect class="grid" x="-6000" y="-6000" width="12000" height="12000" fill="url(#b-dots)"/>
   <g class="cam"><g class="devs"></g></g></svg>
 <canvas></canvas>
-<section class="panel brief" aria-label="The brief"><header><h1></h1><span class="count"></span></header><p class="sum"></p><ol></ol><div class="row"><button class="more hintbtn" type="button">Show a hint</button><button class="more minbtn" type="button">Hide the brief</button></div></section>
+<section class="panel brief" aria-label="The brief"><header><h1></h1><span class="count"></span></header><div class="body"><p class="sum"></p><ol></ol></div><div class="row"><button class="more hintbtn" type="button">Show a hint</button><button class="more minbtn" type="button">Hide the brief</button></div></section>
 <div class="panel tools" role="toolbar" aria-label="Bench tools">
-  <button class="tb back" type="button" hidden></button><span class="sep back-sep" hidden></span>
+  <button class="tb brieftb" type="button" data-t="brief" aria-pressed="true" title="Show or hide the brief"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M3 8h10M3 11.5h6"/></svg>Brief</button><button class="tb back" type="button" hidden></button><span class="sep back-sep" hidden></span>
   <button class="tb" type="button" data-t="zout" aria-label="Zoom out">−</button><button class="tb zoom" type="button" data-t="fit" title="Fit everything">100%</button><button class="tb" type="button" data-t="zin" aria-label="Zoom in">+</button>
   <span class="sep"></span>
   <button class="tb" type="button" data-t="labels" aria-pressed="false" title="Show every port name">Labels <span class="k">Alt</span></button>
@@ -162,8 +209,7 @@ const HTML = `
 </div>
 <div class="panel tray" role="toolbar" aria-label="Cables"></div>
 <aside class="panel con" aria-label="Console"><div class="tabs" role="tablist"></div><div class="via"><span class="vtext"></span><button type="button" class="cclose">Close</button></div>
-  <div class="cbody"><form class="pcset" hidden><label>IPv4 address<input name="ip" spellcheck="false" autocomplete="off"></label><label>Subnet mask<input name="mask" spellcheck="false" autocomplete="off"></label><label>Default gateway<input name="gw" spellcheck="false" autocomplete="off"></label><button type="submit">Apply</button></form><pre class="out" aria-live="polite"></pre></div>
-  <label class="line"><span class="prompt"></span><input class="cin" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Command"></label></aside>
+  <div class="cbody"><form class="pcset" hidden><label>IPv4 address<input name="ip" spellcheck="false" autocomplete="off"></label><label>Subnet mask<input name="mask" spellcheck="false" autocomplete="off"></label><label>Default gateway<input name="gw" spellcheck="false" autocomplete="off"></label><button type="submit">Apply</button></form><div class="term"><pre class="out" aria-live="polite"></pre><label class="line"><span class="prompt"></span><input class="cin" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Command"></label></div></div></aside>
 <div class="panel card" role="status"></div>
 <div class="panel menu" role="menu" hidden></div>
 <div class="panel toast" role="status"></div>`;
@@ -198,6 +244,10 @@ export class OctetBench extends HTMLElement {
   }
   disconnectedCallback() { cancelAnimationFrame(this.raf); this.ro && this.ro.disconnect(); }
 
+  get docked() { return this.getAttribute('layout') === 'docked'; }
+  static get observedAttributes() { return ['context']; }
+  attributeChangedCallback() { if (this.net) this.renderBrief(); }
+
   /* ---------- public API ---------- */
   load(lab, { state } = {}) {
     this.lab = lab;
@@ -216,12 +266,14 @@ export class OctetBench extends HTMLElement {
     if (!state) setTimeout(() => this.toast('Drag from any port to start a cable. Right-click anything for more. Scroll to zoom.'), 2200);
     return this.net;
   }
+  paneW(v) { return parseFloat(getComputedStyle(this).getPropertyValue(v)) || 300; }
   snapshot() { const s = this.net.snapshot(); s.passed = this.passedOnce; return s; }
   fit() {
     const ds = this.net ? this.net.devices : []; if (!ds.length) return;
     const xs = ds.flatMap(d => [d.x - 20, d.x + d.m.w + 20]), ys = ds.flatMap(d => [d.y - 30, d.y + d.m.h + 20]);
     const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
-    const W = this.clientWidth, H = this.clientHeight, padT = 80, padB = 110, padL = W > 900 ? 360 : 24, padR = 24;
+    const W = this.clientWidth, H = this.clientHeight, dock = this.docked, briefOn = !this.$('.brief').classList.contains('min');
+    const padT = dock ? 64 : 80, padB = 110, padL = dock ? (briefOn ? this.paneW('--b-pane-w') + 24 : 24) : W > 900 ? 360 : 24, padR = 24;
     const z = Math.max(0.3, Math.min((W - padL - padR) / (maxx - minx), (H - padT - padB) / (maxy - miny), 1.25));
     this.view = { z, x: padL + (W - padL - padR - (maxx - minx) * z) / 2 - minx * z, y: padT + (H - padT - padB - (maxy - miny) * z) / 2 - miny * z };
     this.applyView();
@@ -358,7 +410,8 @@ export class OctetBench extends HTMLElement {
     const ts = this.net.tasks(); let next = -1;
     this.$('.brief ol').innerHTML = ts.map((t, i) => { if (!t.done && next < 0) next = i; return `<li class="${t.done ? 'done' : ''}${i === next ? ' next' : ''}"><span>${md(t.text)}${this.hints && i === next && t.hint ? `<span class="hint">${md(t.hint)}</span>` : ''}</span></li>`; }).join('');
     const n = ts.filter(t => t.done).length;
-    this.$('.brief .count').textContent = ts.length && n === ts.length ? 'All done' : `${n} of ${ts.length}`;
+    const ctx = this.getAttribute('context');
+    this.$('.brief .count').textContent = (ctx && this.docked ? ctx + '. ' : '') + (ts.length && n === ts.length ? 'All done' : this.docked ? `${n} of ${ts.length} done` : `${n} of ${ts.length}`);
     this.$('.hintbtn').hidden = next < 0 || !ts[next].hint;
     this.$('.hintbtn').textContent = this.hints ? 'Hide the hint' : 'Show a hint';
     if (ts.length && n === ts.length && !this.passedOnce) { this.passedOnce = true; this.toast('Every task is done. The lab is passed.'); this.dispatchEvent(new CustomEvent('bench-passed', { bubbles: true, composed: true, detail: { lab: this.lab.id, tasks: ts } })); }
@@ -491,9 +544,11 @@ export class OctetBench extends HTMLElement {
       else if (t === 'labels') { this.labelsOn = !this.labelsOn; b.setAttribute('aria-pressed', this.labelsOn); this.applyView(); }
       else if (t === 'fast') { this.setSpeed(this.speed === 1 ? 10 : 1); this.toast(this.speed === 1 ? 'Real time. Spanning tree takes 30 seconds again.' : 'Ten times faster. Spanning tree now finishes in 3 seconds.'); }
       else if (t === 'sound') { this.sound = !this.sound; b.setAttribute('aria-pressed', this.sound); }
+      else if (t === 'brief') { const br = this.$('.brief'); br.classList.toggle('min'); b.setAttribute('aria-pressed', !br.classList.contains('min')); }
     });
     this.$('.tray').addEventListener('click', e => { const b = e.target.closest('[data-cable]'); if (!b) return; this.arm(b.dataset.cable); this.toast(`${CABLES[this.armed].name}: drag from a port to another port, or click one port and then the other.`); });
     this.$('.minbtn').addEventListener('click', () => { const br = this.$('.brief'); br.classList.toggle('min'); this.$('.minbtn').textContent = br.classList.contains('min') ? 'Show the brief' : 'Hide the brief'; });
+    this.$('.term').addEventListener('click', () => { if (!String(this.shadowRoot.getSelection ? this.shadowRoot.getSelection() : getSelection())) this.$('.cin').focus(); });
     this.$('.hintbtn').addEventListener('click', () => { this.hints = !this.hints; this.renderBrief(); });
     // console
     this.$('.tabs').addEventListener('click', e => {
@@ -615,7 +670,7 @@ export class OctetBench extends HTMLElement {
     this.open = id; this.renderTabs(); this.renderOut();
     const con = this.$('.con');
     if (!con.classList.contains('on')) {
-      const room = this.clientWidth - Math.min(470, this.clientWidth - 32) - 40;
+      const room = this.clientWidth - (this.docked ? this.paneW('--b-con-w') : Math.min(470, this.clientWidth - 32)) - 40;
       const edge = Math.max(...this.net.devices.map(x => (x.x + x.m.w) * this.view.z + this.view.x));
       if (edge > room) { this.view.x -= Math.min(edge - room, Math.max(0, Math.min(...this.net.devices.map(x => x.x * this.view.z + this.view.x)) - 360)); this.applyView(); }
     }
@@ -631,8 +686,8 @@ export class OctetBench extends HTMLElement {
   renderOut() {
     if (!this.open) return;
     const out = this.$('.out');
-    out.innerHTML = this.net.session(this.open).lines.map(l => `<span class="${l.cls}">${esc(l.text)}</span>`).join('\n');
-    out.scrollTop = out.scrollHeight;
+    out.innerHTML = this.net.session(this.open).lines.map(l => `<span class="${l.cls}">${l.cls === 'tip' ? md(l.text) : esc(l.text)}</span>`).join('\n');
+    const term = this.$('.term'); term.scrollTop = term.scrollHeight;
     this.$('.prompt').textContent = this.net.prompt(this.open);
   }
   consoleKey(e) {

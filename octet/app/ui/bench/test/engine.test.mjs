@@ -95,4 +95,18 @@ const last = (net, dev) => net.session(dev).lines.slice(-1)[0].text;
   net.exec('R1', 'ping 10.0.0.2');
   assert.match(last(net, 'R1'), /Success rate is (80|100) percent/);
 }
+// A command in the wrong mode gets the IOS error, then a tip.
+{
+  const net = createNetwork(office, { booted: true });
+  net.exec('R1', 'conf t');
+  const ls = net.session('R1').lines.slice(-2);
+  assert.match(ls[0].text, /% Invalid input detected/);
+  assert.equal(ls[1].cls, 'tip');
+  assert.match(ls[1].text, /enable/);
+  run(net, 'R1', ['enable', 'conf t', 'show ip interface brief']);
+  assert.match(last(net, 'R1'), /`do show ip interface brief`/);
+  const quiet = createNetwork(office, { booted: true, tips: false });
+  quiet.exec('R1', 'conf t');
+  assert.match(last(quiet, 'R1'), /% Invalid input detected/);
+}
 console.log('engine: all checks passed');

@@ -52,6 +52,27 @@ bench.load(lab, { state: JSON.parse(localStorage.getItem(lab.id)) })
 - `back="Back to the lesson"`: shows a back button with that label.
 - `labels`: shows every port name from the start.
 - `fast`: starts the clock at ten times speed, so spanning tree finishes in 3 seconds.
+- `theme="light"`, `"dark"` or `"auto"`: the colours. `auto` follows the system. The default is dark.
+- `layout="docked"`: the brief and the console become panes beside the board, and the tools become a bar along its top. Use this inside an app. The default layout floats them over the board, for a page.
+- `context="Lab in chapter 2 of My course"`: a line under the title in the docked brief.
+
+### Match your site
+
+Every colour and font is a CSS custom property on the element, and custom properties reach inside it. Set any of them from your own stylesheet:
+
+```css
+octet-bench {
+  --b-bench: #fbfaf7;      /* the board */
+  --b-pane: #f6f4ef;       /* docked panes */
+  --b-pop: #fff;           /* hover cards, menus, the cable tray */
+  --b-line: #e6e2da;       /* hairlines */
+  --b-ink: #2b2723; --b-ink2: #5c5650; --b-ink3: #7a736c;
+  --b-you: #2f7a5f;        /* focus, done, the cable you're holding */
+  --b-ui: "Inter", sans-serif; --b-mono: "JetBrains Mono", monospace; --b-book: Georgia, serif;
+}
+```
+
+The fonts already follow `--f-ui`, `--f-ios` and `--f-book` if your page defines them. The device colours (metal, silk, LEDs) stay the same in every theme, like real gear.
 
 ### Methods
 
@@ -127,6 +148,7 @@ check = { address = { device = "R1", iface = "g0/0/0", ip = "192.168.10.1", mask
   - Modes, abbreviations, `?` help, Tab completion, `do`, and IOS errors with the caret.
   - Show commands: `show ip interface brief`, `show interfaces`, `show interfaces status`, `show interfaces trunk`, `show vlan brief`, `show running-config`, `show cdp neighbors`, `show mac address-table`, `show spanning-tree`, `show ip route`, `show arp`, `show controllers`.
   - PCs have a Windows command prompt: `ipconfig`, `ping`, `tracert`, `arp -a`.
+  - Tips for learners: when a real command is typed in the wrong mode, the IOS error is followed by a short tip, such as "Type `enable` first". Set `tips = false` in the lab, or pass `{ tips: false }` to `createNetwork`, to show only what IOS shows.
 
 It is a teaching network, not an emulator. A command it doesn't know gets a real IOS error rather than a made-up answer.
 

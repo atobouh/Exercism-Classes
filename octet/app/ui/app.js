@@ -21,7 +21,7 @@
 
   /* ---------- theme ---------- */
   const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } } };
-  const setTheme = t => { lb.dataset.theme = t; $$('.theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === t)); store.set('octet-theme', t); };
+  const setTheme = t => { lb.dataset.theme = t; $('#bench').setAttribute('theme', t); $$('.theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === t)); store.set('octet-theme', t); };
   setTheme(store.get('octet-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
   $$('.theme button').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.th)));
 
@@ -357,8 +357,14 @@
       await refresh(); renderSettings(ABOUT); return;
     }
     if (sw || pt) { if (sw) PICK.cloth = sw.dataset.cloth; if (pt) PICK.pattern = pt.dataset.pattern; renderCheck(); return; }
-    const a = e.target.closest('[data-set]'); if (!a) return;
+    const a = e.target.closest('[data-set]'); if (!a || a.disabled) return;
     const act = a.dataset.set;
+    // Checking or adding a whole book takes a moment; say so on the button.
+    const busy = { check: 'Checking…', import: 'Adding…' }[act];
+    if (busy) { a.disabled = true; a.dataset.was = a.textContent; a.textContent = busy; await new Promise(r => setTimeout(r, 30)); }
+    try { await settingsAct(a, act, mb); } finally { if (busy && a.isConnected) { a.disabled = false; a.textContent = a.dataset.was; } }
+  }));
+  const settingsAct = async (a, act, mb) => {
     if (act === 'copy-prompt') copy(await api('book_prompt'), 'Prompt copied. Paste it into your assistant with your PDF.');
     else if (act === 'show-prompt') { const pre = $('#promptText'); if (pre.hidden) pre.textContent = await api('book_prompt'); pre.hidden = !pre.hidden; a.textContent = pre.hidden ? 'Read it first' : 'Hide it'; }
     else if (act === 'clear') { $('#bkText').value = ''; CHECK = null; renderCheck(); }
@@ -380,7 +386,7 @@
       await api('book_remove', { id: b.id }); await refresh(); renderSettings(ABOUT);
       toast(b.yours ? `${b.title} is off your shelf. Your notes on it stay saved.` : `${b.title} is back to the shipped pages.`);
     }
-  }));
+  };
 
   /* ---------- hiding the sidebars ---------- */
   const panes = { side: store.get('octet-side') !== 'hidden', list: store.get('octet-list') !== 'hidden' };
@@ -393,7 +399,7 @@
   $('#tbSide').addEventListener('click', () => setPane('side', !panes.side));
   $('#listBtn').addEventListener('click', () => setPane('list', !panes.list));
   document.addEventListener('keydown', e => {
-    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'b' || labOn) return;
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'b' || (labOn && e.shiftKey)) return;
     e.preventDefault();
     if (e.shiftKey) setPane('list', !panes.list); else setPane('side', !panes.side);
   });
@@ -408,18 +414,24 @@
     const r = await api('lab_def', { id });
     LABID = id; labOn = true;
     labw.classList.add('on'); lb.classList.add('lab-open'); hideSel();
+    const at = allPages().find(p => p.lab === id), loc = at && findPage(at.id);
+    bench().setAttribute('context', loc ? `Lab in chapter ${loc.chapter.number} of ${loc.book.title}` : 'Lab');
     bench().load(r.lab, { state: r.state || undefined });
-    where('Lab', r.lab.title);
+    if (loc) where(loc.book.title, loc.chapter.title, r.lab.title); else where('Lab', r.lab.title);
     setTimeout(() => bench().focus({ preventScroll: true }), 60);
   });
-  const closeLab = async () => { labOn = false; LABID = null; labw.classList.remove('on'); lb.classList.remove('lab-open'); closeCtx(); await refresh(); if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
+  // Save on the way out too: the bench's own save waits a moment after each change.
+  const leaveLab = () => { if (LABID && bench().net) api('lab_save', { id: LABID, state: bench().snapshot() }).catch(() => {}); labOn = false; LABID = null; labw.classList.remove('on'); lb.classList.remove('lab-open'); closeCtx(); };
+  const closeLab = async () => { leaveLab(); await refresh(); if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
   labw.addEventListener('bench-back', closeLab);
-  labw.addEventListener('bench-change', e => { if (LABID && e.detail.lab === LABID) api('lab_save', { id: LABID, state: e.detail.state }).catch(() => {}); });
+  labw.addEventListener('bench-change', e => api('lab_save', { id: e.detail.lab, state: e.detail.state }).catch(() => {}));
   labw.addEventListener('bench-passed', safe(async e => { if (LABID && e.detail.lab === LABID) { await api('lab_pass', { id: LABID }); refresh(); } }));
 
   /* ---------- navigation ---------- */
   lb.addEventListener('click', safe(async e => {
     const t = e.target;
+    // The sidebar works during a lab too: going anywhere leaves it.
+    if (labOn && !t.closest('#labw') && t.closest('[data-go], [data-book], [data-col], [data-open]')) leaveLab();
     const go = t.closest('[data-go]');
     if (go) {
       const v = go.dataset.go;

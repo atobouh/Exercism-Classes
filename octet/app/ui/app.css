@@ -215,8 +215,10 @@ body { font: 400 14px/1.5 var(--f-ui); -webkit-font-smoothing: antialiased; }
 .toast.hide { opacity: 0; transform: translate(-50%, 10px); pointer-events: none; }
 
 /* LAB: a canvas you can build on, a panel per device */
-.labw { position: absolute; inset: 0; z-index: 40; background: oklch(17.5% 0.006 250); display: grid; opacity: 0; pointer-events: none; transform: scale(0.985); transition: opacity 200ms ease, transform 240ms var(--ease-out); }
-.labw.on { opacity: 1; pointer-events: auto; transform: none; }
+/* The lab sits where the page was: the sidebar stays, like anywhere else in Octet. */
+.labw { position: absolute; inset: 0 0 0 224px; z-index: 40; background: var(--bg); display: grid; opacity: 0; pointer-events: none; transition: opacity 160ms ease; }
+.labw.on { opacity: 1; pointer-events: auto; }
+.lb.no-side .labw, .lb.focus .labw { left: 0; }
 .lab-bar { grid-column: 1 / 3; display: flex; align-items: center; gap: 12px; padding: 0 16px 0 10px; border-bottom: 1px solid var(--line); }
 .iconbtn { width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--ink2); transition: background-color 100ms ease; }
 .iconbtn:hover { background: var(--hover); color: var(--ink); }
@@ -366,7 +368,7 @@ img, svg { -webkit-user-drag: none; }
 .ctx button[disabled] { color: var(--ink3); } .ctx button[disabled]:hover { background: transparent; }
 .ctx button span { color: var(--ink3); font-size: 12px; }
 .ctx hr { border: 0; border-top: 1px solid var(--line); margin: 4px 6px; }
-.lb.lab-open .main, .lb.lab-open .side { visibility: hidden; }
+.lb.lab-open .main { visibility: hidden; }
 
 /* ===================== CLOTHS ===================== */
 .c-teal { --cl: oklch(42% 0.07 200); --cl-ink: var(--cloth-light); }

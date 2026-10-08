@@ -402,6 +402,21 @@ export function createNetwork(lab, opts = {}) {
     if (d.kind === 'pc') return 'C:\\>';
     return { user: h + '>', priv: h + '#', conf: h + '(config)#', if: h + (s.ifc && s.ifc.includes('.') ? '(config-subif)#' : '(config-if)#'), vlan: h + '(config-vlan)#', line: h + '(config-line)#' }[s.mode];
   }
+  // When a command is real but typed in the wrong mode, IOS only says
+  // "Invalid input". A learner also gets a tip saying which mode it needs.
+  // Turn tips off with `tips = false` in the lab, or { tips: false }.
+  const tips = opts.tips ?? lab.tips ?? true;
+  function modeTip(d, mode, ws, line) {
+    const fits = to => { const m = match(d, to, ws); return !!(m.c || m.inc); };
+    const h = d.hostname, ex = d.kind === 'switch' ? 'interface f0/1' : 'interface g0/0/0';
+    if (mode === 'user' && fits('priv')) return `\`${ws[0]}\` works in privileged EXEC mode. Type \`enable\` first: the prompt changes from \`${h}>\` to \`${h}#\`.`;
+    if (mode === 'user' && fits('conf')) return `That's a configuration command. Type \`enable\`, then \`configure terminal\`, then try it again.`;
+    if (mode === 'priv' && fits('conf')) return `That's a configuration command. Type \`configure terminal\` first.`;
+    if ((mode === 'user' || mode === 'priv') && fits('if')) return `That command goes on an interface. Type \`configure terminal\`, then \`${ex}\`.`;
+    if (mode !== 'user' && mode !== 'priv' && fits('priv')) return `That runs in privileged EXEC mode. Put \`do\` in front to run it from here: \`do ${line.trim()}\`.`;
+    if (mode === 'conf' && fits('if')) return `That command goes on an interface. Choose one first, like \`${ex}\`.`;
+    return null;
+  }
   function exec(devId, line) {
     const d = D(devId); if (!d) throw new Error(`no device ${devId}`);
     const s = sess(d), pr = prompt(devId);
@@ -413,7 +428,7 @@ export function createNetwork(lab, opts = {}) {
     let ws = words(line, d), mode = s.mode, isDo = false;
     if (/^do$/i.test(ws[0]) && !['user', 'priv'].includes(mode)) { ws = ws.slice(1); mode = 'priv'; isDo = true; }
     const m = match(d, mode, ws);
-    if (m.bad !== undefined) { let col = pr.length, idx = 0; const raw = line.split(/(\s+)/); let wi = 0; for (const part of raw) { if (!part.trim()) { idx += part.length; continue; } if (wi === m.bad) break; idx += part.length; wi++; } col += idx; say(d, ' '.repeat(col) + '^\n% Invalid input detected at \'^\' marker.', 'err'); return; }
+    if (m.bad !== undefined) { let col = pr.length, idx = 0; const raw = line.split(/(\s+)/); let wi = 0; for (const part of raw) { if (!part.trim()) { idx += part.length; continue; } if (wi === m.bad) break; idx += part.length; wi++; } col += idx; say(d, ' '.repeat(col) + '^\n% Invalid input detected at \'^\' marker.', 'err'); const t = tips && modeTip(d, mode, ws, line); if (t) say(d, t, 'tip'); return; }
     if (m.amb) { say(d, `% Ambiguous command:  "${line.trim()}"`, 'err'); return; }
     if (m.inc) { say(d, '% Incomplete command.', 'err'); return; }
     const r = m.c.fn(d, isDo ? Object.assign({}, s, { mode: 'priv' }) : s, m.args);
