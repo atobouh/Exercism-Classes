@@ -34,7 +34,7 @@ The first line gives the two states. The `Full-duplex, 100Mb/s` line is what was
 
 ## Input errors
 
-The `input errors` figure is the total of the specific counters after it:
+The `input errors` figure totals the specific counters that sit beside it, including `no buffer` on the packets line above:
 
 - **Runts** are frames shorter than 64 bytes, the Ethernet minimum. Collisions and a duplex mismatch both produce them.
 - **Giants** are frames larger than the maximum, 1518 bytes for untagged Ethernet.
