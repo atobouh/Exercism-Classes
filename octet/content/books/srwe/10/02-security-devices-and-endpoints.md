@@ -37,7 +37,7 @@ These layer with each other. Antimalware looks at what a file is, the host firew
 
 ## Content security appliances
 
-Most malware arrives through two doors, email and the web. Cisco makes dedicated appliances for both.
+Most malware arrives through two doors, email and the web. Cisco sells dedicated appliances for both. Cisco now calls them the Secure Email Gateway and the Secure Web Appliance, but the course and most older documents still use the names ESA and WSA.
 
 - The Cisco *ESA* (Email Security Appliance) sits in the mail path. It filters spam, blocks phishing and malicious attachments, and can scan links before a user reaches them.
 - The Cisco *WSA* (Web Security Appliance) sits in the web path. It filters by site category and reputation, blocks sites known to host malware and scans downloads.
@@ -58,7 +58,7 @@ Both are available as hardware, as virtual machines, and as cloud services.
 | HIPS | Each host | Hostile program behavior |
 
 ```trap
-Host protection does not replace network protection, and the reverse is also true. A host firewall cannot stop a flood that saturates the link before it reaches the host, and a network firewall cannot see a malicious file already inside an encrypted download on a laptop.
+Host protection does not replace network protection, and the reverse is also true. A host firewall cannot stop a flood that saturates the link before it reaches the host, and a network firewall cannot look inside an encrypted download on a laptop unless it decrypts the traffic.
 ```
 
 ```recall
