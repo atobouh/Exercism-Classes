@@ -53,7 +53,7 @@ You would not enter all three; they are alternatives, and each one is a differen
 | Directly connected route | Exit interface only | Sends out that interface at once, with no extra lookup | Point-to-point links such as serial |
 | Fully specified route | Exit interface and next hop | Uses both, with no lookup and no guessing | Ethernet links, and IPv6 with a link-local next hop |
 
-The next-hop form is the easiest to read and works on any link, but it costs one extra table lookup per packet. The exit-interface form skips that lookup, yet on a multi-access network such as Ethernet it leaves the router without a next-hop address, which has a price covered two pages from now. The fully specified form removes both worries and costs only a longer command.
+The next-hop form is the clearest to read and works on any link, but it costs one extra table lookup per packet. The exit-interface form skips that lookup, yet on a multi-access network such as Ethernet it leaves the router without a next-hop address, which has a price covered two pages from now. The fully specified form removes both worries and costs only a longer command.
 
 Spend a moment on the word *recursive*. When you give only a next hop, the route in the table says "go via 172.16.12.2" and nothing about an interface. For each packet the router has to look up 172.16.12.2 as well, find the connected route that contains it, and take its interface from there. The next hop must therefore be reachable through a route the router already has, or the static route is not installed at all.
 
