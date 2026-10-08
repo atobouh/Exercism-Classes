@@ -63,7 +63,7 @@ Gi1/0/1                      connected    1          a-full a-1000 10/100/1000Ba
 Te1/1/1                      connected    trunk        full    10G SFP-10GBase-LR
 ```
 
-A fiber port on a switch usually holds a small pluggable module, an SFP or SFP+, so the same switch can use different fiber types by changing the module. In the output the Type column names the optic. `10GBase-LR` is a 10 Gbps optic for single-mode fiber. A module for multimode would show `SR`.
+On this Catalyst 9300, `Te1/1/1` is a port on an uplink module. A fiber port on a switch usually holds a small pluggable module, an SFP or SFP+, so the same switch can use different fiber types by changing the module. In the output the Type column names the optic. `10GBase-LR` is a 10 Gbps optic for single-mode fiber. A module for multimode would show `SR`.
 
 ## Fiber compared with copper
 
