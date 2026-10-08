@@ -11,9 +11,9 @@ Two of the five IPsec building blocks do the daily work on every packet. The con
 IPsec encrypts bulk data with a *symmetric* cipher: the same secret key locks and unlocks. Symmetric ciphers are fast enough to protect every packet at line speed. The options:
 
 - **DES** (Data Encryption Standard): a 56-bit key. It can be broken by brute force with modest equipment, and should not be used.
-- **3DES** (Triple DES): runs DES three times, with a longer effective key. It is slower and is considered legacy.
+- **3DES** (Triple DES): runs DES three times, for an effective key of 112 or 168 bits. It is slower and is considered legacy.
 - **AES** (Advanced Encryption Standard): 128, 192 or 256-bit keys. This is the recommended choice, fast in hardware and software.
-- **SEAL** (Software-Optimized Encryption Algorithm): a stream cipher with a 160-bit key, designed to be quick on processors without special hardware.
+- **SEAL** (Software-Optimized Encryption Algorithm): a stream cipher with a 160-bit key, designed for fast software encryption. It is an old option, and AES is the choice for new tunnels.
 
 A longer key means more possible keys. Every extra bit doubles the number a brute-force attacker has to try, so a 128-bit key is not merely twice as hard to break as a 64-bit one. It is vastly harder. That is why AES replaced DES, whose 56-bit key became too small as computers got faster, and 3DES, which is slow.
 
@@ -57,9 +57,9 @@ An attacker might record a valid packet and send it again later. The copy would 
 | Algorithm | Role | Size | Status |
 | --- | --- | --- | --- |
 | DES | Encryption | 56-bit key | Insecure |
-| 3DES | Encryption | Longer effective key | Legacy |
+| 3DES | Encryption | 112 or 168-bit effective key | Legacy |
 | AES | Encryption | 128, 192, 256-bit key | Recommended |
-| SEAL | Encryption | 160-bit key | Available |
+| SEAL | Encryption | 160-bit key | Legacy, avoid for new tunnels |
 | MD5 | Integrity | 128-bit digest | Weak, legacy |
 | SHA-1 | Integrity | 160-bit digest | Weak, legacy |
 | SHA-2 | Integrity | 256, 384, 512-bit digest | Recommended |

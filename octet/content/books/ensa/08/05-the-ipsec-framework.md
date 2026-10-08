@@ -33,7 +33,7 @@ The next three pages go deeper into each box. This page concentrates on the firs
 
 IPsec offers two protocols, each with its own IP protocol number.
 
-*AH* (Authentication Header) is IP protocol 51. It provides integrity and origin authentication, and it protects the packet including parts of the outer IP header. It does not encrypt, so it gives no confidentiality. Because its integrity check covers the IP header fields, including addresses, a router that rewrites the address with NAT breaks the check, and the packet is rejected. AH is incompatible with NAT for that reason.
+*AH* (Authentication Header) is IP protocol 51. It provides integrity and origin authentication, and it protects the packet including parts of the outer IP header. It does not encrypt, so it gives no confidentiality. Its integrity check covers the immutable fields of the outer IP header, including the source and destination addresses. A router that rewrites an address with NAT changes a covered field, so the check fails and the packet is rejected. AH is incompatible with NAT for that reason.
 
 *ESP* (Encapsulating Security Payload) is IP protocol 50. It encrypts the payload, and can also provide integrity and authentication. It does not cover the outer IP header, so NAT does not invalidate it. ESP is the protocol almost every real deployment uses.
 
@@ -54,7 +54,7 @@ In *tunnel mode*, the entire original packet, header included, is protected and 
 
 ```fields
 title = "ESP in tunnel mode"
-caption = "The original IP header, the data and the ESP trailer are encrypted. The authentication value covers the ESP header through the trailer."
+caption = "The ESP header stays in clear. The original IP header, the data and the ESP trailer are encrypted. The authentication value covers the ESP header, the encrypted part and the trailer, but not the new IP header."
 fields = [
   { name = "New IP header", span = 3 },
   { name = "ESP header", span = 2 },

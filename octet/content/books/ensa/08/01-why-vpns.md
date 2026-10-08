@@ -50,7 +50,7 @@ why = "A VPN lets the branch use ordinary broadband. It does not guarantee bandw
 
 ## From GRE to encryption
 
-Tunnels came before encryption was standard in them. Early VPNs often used *GRE* (generic routing encapsulation), which wraps one packet inside another so it can cross a network that would not otherwise carry it. GRE hides nothing: the inner packet travels as readable data inside the outer one. A tunnel without encryption is private only in the sense that the routing is separate, which is not much protection on the internet.
+Tunnels came before encryption was standard in them. Early VPNs often used *GRE* (generic routing encapsulation), which wraps one packet inside another so it can cross a network that would not otherwise carry it. GRE hides nothing: the inner packet travels as readable data inside the outer one. A tunnel without encryption keeps the traffic wrapped, but anyone on the path can still read the contents.
 
 Modern VPNs add the missing piece. They encrypt what goes through the tunnel, check that it was not changed, and verify who is at the other end. The most common set of rules for doing this at Layer 3 is IPsec, covered in this chapter, and the browser-based alternative uses TLS. GRE has not vanished: it still has a job in some designs, and you meet it again in [GRE, DMVPN and IPsec VTI](ensa/08/04-gre-dmvpn-and-vti).
 

@@ -8,7 +8,7 @@ A remote-access user has to be connected somehow, and two technologies do most o
 
 ## SSL (TLS) VPNs
 
-An *SSL VPN* uses the same security as an HTTPS website. The name is historical: *SSL* (Secure Sockets Layer) was replaced by *TLS* (Transport Layer Security), and modern VPNs use TLS, but the term "SSL VPN" stuck. It runs over TCP port 443, which firewalls almost always allow, so it works from hotel rooms and airports that block other traffic.
+An *SSL VPN* uses the same security as an HTTPS website. The name is historical: *SSL* (Secure Sockets Layer) was replaced by *TLS* (Transport Layer Security), and modern VPNs use TLS, but the term "SSL VPN" stuck. It runs over TCP port 443, which firewalls usually allow, so it works from hotel rooms and airports that block other traffic.
 
 There are two forms:
 

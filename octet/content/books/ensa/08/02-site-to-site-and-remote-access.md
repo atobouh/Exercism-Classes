@@ -66,7 +66,7 @@ Some companies instead buy a *service provider-managed VPN*. The provider builds
 - **Layer 3 MPLS VPN.** The provider's routers take part in the customer's routing. The customer sends IP packets and routes with the provider.
 - **Layer 2 MPLS VPN.** The provider carries Ethernet frames, so the sites look as if they share one LAN. One service of this kind is *VPLS* (Virtual Private LAN Service).
 
-Provider-managed VPNs are private by separation, which is not the same as encryption. A customer who needs encryption on top usually adds it. [Modern WAN](ensa/07/06-modern-wan) explains where they sit among WAN options.
+Provider-managed VPNs keep each customer's traffic separate from everyone else's, but they do not encrypt it. A customer who needs encryption has to add it, for example with IPsec. [Modern WAN](ensa/07/06-modern-wan) explains where they sit among WAN options.
 
 ```trap
 In a site-to-site VPN, the traffic is encrypted only between the two gateways. A packet is readable on the LAN at either end.

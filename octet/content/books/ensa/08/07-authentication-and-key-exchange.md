@@ -44,7 +44,7 @@ The size of the numbers used is called the *group*. Larger or stronger groups ar
 | 1, 2, 5 | Small modulus | No longer recommended |
 | 14, 15, 16 | 2048, 3072, 4096-bit modulus | Stronger |
 | 19, 20, 21 | Elliptic curve | Stronger |
-| 24 | Modulus with a prime-order subgroup | Also listed as stronger |
+| 24 | 2048-bit modulus with a 256-bit prime-order subgroup | Legacy, avoid for new designs |
 
 Both peers must pick the same group, or the exchange fails.
 
@@ -57,7 +57,7 @@ why = "Diffie-Hellman only creates the shared secret. The secret is then used to
 
 ## IKE and the security association
 
-The peers need a way to negotiate all these choices. The protocol that does it is *IKE* (Internet Key Exchange), which runs on UDP port 500, or UDP 4500 if NAT traversal is needed. Conceptually it works in two stages:
+The peers need a way to negotiate all these choices. The protocol that does it is *IKE* (Internet Key Exchange), which runs on UDP port 500. If a NAT device is detected on the path, IKE and the ESP packets move to UDP 4500 (NAT traversal, or NAT-T). Conceptually it works in two stages:
 
 1. **Phase 1.** The peers authenticate each other, agree on the algorithms to protect their own negotiation, and run Diffie-Hellman. The result is a secure management channel between them.
 2. **Phase 2.** Over that channel, they agree on how to protect the actual user traffic, including the protocol (ESP or AH), the mode, and the algorithms. They then derive the keys that the data will use.
@@ -70,12 +70,12 @@ Pre-shared keys are not sent across the link. Each side proves it knows the key,
 
 ```recall
 front = "PSK versus RSA signatures for IPsec authentication?"
-back = "PSK: one shared secret typed on both peers, easy but hard to scale and keep secret. RSA signatures: certificates and key pairs, more setup but scalable."
+back = "PSK: one shared secret typed on both peers. Quick to set up, but hard to scale and keep secret. RSA signatures: certificates and key pairs, more setup but scalable."
 ```
 
 ```recall
 front = "Which Diffie-Hellman groups are no longer recommended, and which are stronger?"
-back = "Groups 1, 2 and 5 are weak. Groups 14, 15, 16 (large modulus), 19, 20, 21 (elliptic curve) and 24 are stronger."
+back = "Groups 1, 2 and 5 are weak. Groups 14, 15, 16 (large modulus) and 19, 20, 21 (elliptic curve) are the stronger choices. Group 24 is legacy and best avoided for new designs."
 ```
 
 ```recall

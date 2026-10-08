@@ -92,7 +92,7 @@ why = "AES encrypts, so it is a confidentiality choice. SHA-2 is for integrity, 
 prompt = "Which Diffie-Hellman group is no longer recommended?"
 options = ["Group 14", "Group 19", "Group 5", "Group 21"]
 answer = 2
-why = "Groups 1, 2 and 5 are weak by current standards. 14, 15, 16, 19, 20, 21 and 24 are the stronger choices."
+why = "Groups 1, 2 and 5 are weak by current standards. 14, 15, 16, 19, 20 and 21 are the stronger choices, and 24 is legacy and best avoided."
 ```
 
 ```recall
@@ -107,5 +107,5 @@ back = "IKE on UDP 500, and NAT traversal on UDP 4500."
 
 ```recall
 front = "Which Diffie-Hellman groups are recommended today?"
-back = "14, 15, 16 (large modulus), 19, 20, 21 (elliptic curve) and 24. Groups 1, 2 and 5 are no longer recommended."
+back = "14, 15, 16 (large modulus), 19, 20 and 21 (elliptic curve). Groups 1, 2 and 5 are no longer recommended, and 24 is legacy."
 ```
