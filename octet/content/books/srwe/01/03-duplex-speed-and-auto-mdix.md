@@ -51,12 +51,12 @@ Setting one end by hand and leaving the other on auto often creates the mismatch
 prompt = "Fa0/5 is set to `duplex full`. The PC's NIC is left on auto at 100 Mbps. What is the likely result?"
 options = ["Both ends settle on full duplex", "The link stays down", "The PC falls back to half duplex, giving a mismatch", "The switch ignores the setting"]
 answer = 2
-why = "The switch no longer negotiates, so the PC sees no duplex advertisement and assumes half duplex at 100 Mbps."
+why = "A hand-set duplex stops the switch port from negotiating duplex. The PC cannot learn it, so it falls back to half duplex at 100 Mbps."
 ```
 
 ## Auto-MDIX
 
-Copper Ethernet uses two pairs for sending and two for receiving. A straight-through cable joins a PC to a switch because the transmit pins on one end line up with the receive pins on the other. Joining two switches used to require a crossover cable. *Auto-MDIX* removes that rule: the port detects the cable type and swaps its pins to suit.
+Fast Ethernet copper uses two of its four wire pairs: one pair transmits and the other receives. A straight-through cable joins a PC to a switch because the transmit pins on one end line up with the receive pins on the other. Joining two switches used to require a crossover cable. *Auto-MDIX* removes that rule: the port detects the cable type and swaps its pins to suit.
 
 It is on by default on current Catalyst switches. To set it explicitly:
 
@@ -80,10 +80,10 @@ FastEthernet0/1 is up, line protocol is up (connected)
   Full-duplex, 100Mb/s, media type is 10/100BaseTX
 ...
 S1# show controllers ethernet-controller fa0/1 phy | include MDIX
-Auto-MDIX : On   [AdminState=1 Flags=0x00052248]
+Auto-MDIX : On
 ```
 
-The second command reads the port's PHY chip. Its output varies between models, so look for the word `On`.
+The second command reads the port's PHY chip. Its output varies between models, so look for the word `On` on the `Auto-MDIX` line.
 
 ```recall
 front = "Which duplex modes can Gigabit copper ports use?"
