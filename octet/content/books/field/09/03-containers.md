@@ -4,7 +4,7 @@ summary = "Lighter than VMs: applications packaged with their dependencies, shar
 links = ["ensa/13/04-containers-and-vrfs", "field/09/02-hypervisors-and-virtual-machines", "field/09/04-virtual-network-functions"]
 +++
 
-A VM carries a whole operating system just to run one web server. A *container* carries only the web server and the files it needs. That makes it small, quick to start and easy to move between a laptop, a test rack and a cloud. [ENSA chapter 13](ensa/13/04-containers-and-vrfs) introduced the idea. This page shows how containers are built, run and connected.
+A VM carries a whole operating system just to run one web server. A *container* carries only the web server and the files it needs. That makes it small, quick to start and portable between a laptop, a test rack and a cloud. [ENSA chapter 13](ensa/13/04-containers-and-vrfs) introduced the idea. This page shows how containers are built, run and connected.
 
 ## What is shared, and what is not
 
@@ -18,7 +18,7 @@ Containers do not each run their own kernel. Ten containers on one host are ten 
 
 ## Image and container
 
-An *image* is a read-only template, built in layers: a base layer such as a minimal Linux file system, then the runtime, then your application. A *container* is a running instance of an image. You can start many containers from one image, just as you can run one program many times. Images are stored in a *registry*, a server such as Docker Hub or a company's private store, and are pulled to a host when needed.
+An *image* is a read-only template, built in layers: a base layer such as a minimal Linux file system, then the runtime, then your application. A *container* is a running instance of an image. You can start many containers from one image, as you can run one program many times. Images are stored in a *registry*, a server such as Docker Hub or a company's private store, and are pulled to a host when needed.
 
 *Docker* is the common engine that builds images and runs containers. These are its everyday commands:
 
@@ -49,7 +49,7 @@ Other network modes exist. With *host* networking the container shares the host'
 
 ## Many hosts: Kubernetes
 
-One host is easy. Hundreds of containers across dozens of hosts need something to place them, restart those that fail and add copies under load. That is an *orchestrator*, and the common one is *Kubernetes*. Its machines are *nodes*. Its smallest unit is a *pod*: one or more tightly coupled containers that share an IP address and are scheduled together. You tell Kubernetes what you want running, for example three copies of the web pod, and it keeps that true.
+One host needs little management. Hundreds of containers across dozens of hosts need something to place them, restart those that fail and add copies under load. That is an *orchestrator*, and the common one is *Kubernetes*. Its machines are *nodes*. Its smallest unit is a *pod*: one or more tightly coupled containers that share an IP address and are scheduled together. You tell Kubernetes what you want running, for example three copies of the web pod, and it keeps that true.
 
 ```question
 prompt = "In Kubernetes, what is a pod?"

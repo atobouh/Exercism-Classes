@@ -87,7 +87,7 @@ Both tables hold 10.1.1.0/24 with no conflict. A customer A host cannot reach cu
 
 ```question
 prompt = "You run ping 10.1.1.2 on R1, but the destination is behind an interface in VRF CUST-A. The ping fails. What is the best fix?"
-options = ["Add a default route to the global table", "Run ping vrf CUST-A 10.1.1.2", "Remove the interface from the VRF", "Use show vrf to repair the table"]
+options = ["Add a default route to the global table", "Run ping vrf CUST-A 10.1.1.2", "Remove the interface from the VRF", "Add the address 10.1.1.2 to the global table"]
 answer = 1
 why = "Without the vrf keyword the ping looks in the global table, which has no route to that network. Naming the VRF makes it use the right table."
 ```

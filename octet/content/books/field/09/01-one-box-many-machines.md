@@ -20,7 +20,7 @@ Nobody planned this waste. Different applications wanted different operating sys
 prompt = "Ten servers each run at about 10 percent CPU. Which statement describes what virtualization does for them?"
 options = ["It makes each server's processor ten times faster", "It lets the ten workloads run as isolated systems on one host's hardware", "It merges the ten operating systems into one shared OS", "It removes the need for a network"]
 answer = 1
-why = "Each workload keeps its own operating system, but they share the processor, memory and network ports of one physical host. Nothing gets faster; the idle capacity is simply used."
+why = "Each workload keeps its own operating system, but they share the processor, memory and network ports of one physical host. Nothing gets faster; the idle capacity gets used."
 ```
 
 ## What you gain
