@@ -85,7 +85,7 @@ Loading R1-backup.cfg from 192.168.1.20 (via GigabitEthernet0/0/1): !
 [OK - 1544 bytes]
 ```
 
-When the destination is `running-config`, the file is **merged** into what is already running. It is not a replacement. Lines in the file overwrite matching settings, but anything in the running configuration that the file does not mention stays. If you need an exact copy of the old state, copy to `startup-config` and reload instead, or erase first.
+When the destination is `running-config`, the file is **merged** into what is already running. It is not a replacement. Lines in the file overwrite matching settings, but anything in the running configuration that the file does not mention stays. If you need an exact copy of the old state, copy the file to `startup-config` and reload the router instead.
 
 ```question
 prompt = "R1 has three extra ACL lines that are not in a backup file. You run copy tftp: running-config with that file. What happens to the three ACL lines?"

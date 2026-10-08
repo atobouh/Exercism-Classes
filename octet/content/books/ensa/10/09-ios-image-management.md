@@ -54,6 +54,7 @@ R1# copy flash: tftp:
 Source filename []? isr4300-universalk9.16.09.04.SPA.bin
 Address or name of remote host []? 192.168.1.20
 Destination filename [isr4300-universalk9.16.09.04.SPA.bin]?
+Writing isr4300-universalk9.16.09.04.SPA.bin
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ...
 ```

@@ -8,7 +8,7 @@ Someone leaves the company, and nobody knows the enable secret on the branch rou
 
 ## Why this needs physical access
 
-The whole procedure is done at the console port, with the router powered off and on, and with a break signal sent while it boots. Someone who can reach the console cable can reset the passwords. That is why locked rooms and cabinets matter as much as strong passwords. The procedure is for equipment you are authorized to manage.
+The whole procedure is done at the console port, with the router powered off and on, and with a break signal sent while it boots. Someone who can reach the console cable can reset the passwords. That is why locked rooms and cabinets matter as much as strong passwords. The procedure is for equipment you are authorized to manage. It also works only while the router has `service password-recovery` configured. A router with `no service password-recovery` blocks this procedure, so that setting is worth checking on the routers you manage.
 
 ## The configuration register
 
@@ -66,7 +66,7 @@ R1# copy running-config startup-config
 R1# reload
 ```
 
-The `no shutdown` is needed on every interface that should be up. When you ran `copy startup-config running-config`, interfaces that were shut down by default stayed shut, so the router has them administratively down until you bring them up. Save before reloading, or the new secret is lost.
+After the copy, check the interfaces with `show ip interface brief`. An interface that shows administratively down needs `no shutdown` before it will carry traffic. Save before reloading, or the new secret is lost.
 
 ```command
 prompt = "Set the configuration register back to normal boot behavior."
