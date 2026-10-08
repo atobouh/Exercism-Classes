@@ -25,7 +25,7 @@ nodes = [
   { id = "NMS", kind = "server", x = 1.5, y = 1, label = "192.168.1.20" },
 ]
 links = [
-  { a = "R1", b = "S1", a_label = "G0/0/1", b_label = "G0/1" },
+  { a = "R1", b = "S1", a_label = "G0/0/1", b_label = "Gi0/1" },
   { a = "S1", b = "S2", a_label = "G0/2", b_label = "Gi0/1" },
   { a = "S1", b = "NMS" },
 ]
@@ -67,7 +67,7 @@ why = "The asterisk marks the selected peer, sys.peer. A tilde only says the pee
 prompt = "Which two are true of SNMPv2c?"
 options = ["Traps go to the manager on UDP 162", "Agents listen on UDP 161", "Messages are encrypted", "It authenticates each user by name"]
 answer = [0, 1]
-why = "SNMPv2c uses UDP 161 for requests to the agent and 162 for traps. It sends a community string in clear text and has no per-user authentication, which are SNMPv3 features."
+why = "SNMPv2c uses UDP 161 for requests to the agent and 162 for traps. Its community string travels in clear text, and per-user authentication with encryption comes only with SNMPv3."
 ```
 
 ```question
