@@ -10,7 +10,7 @@ An Ethernet frame names two machines: who sent it and who it is for. An 802.11 f
 
 ```fields
 title = "802.11 data frame"
-caption = "Address 4 is used only when frames pass between APs wirelessly, so most data frames omit it."
+caption = "Address 4 is used only when frames pass between APs wirelessly, so most data frames omit it. QoS Control appears in QoS data frames, the usual form on modern networks."
 fields = [
   { name = "Frame Control", span = 2, size = "2 bytes" },
   { name = "Duration", span = 2, size = "2 bytes" },
@@ -19,6 +19,7 @@ fields = [
   { name = "Address 3", span = 3, size = "6 bytes" },
   { name = "Sequence Control", span = 2, size = "2 bytes" },
   { name = "Address 4", span = 3, size = "6 bytes" },
+  { name = "QoS Control", span = 2, size = "2 bytes" },
   { name = "Payload", span = 6, size = "Variable" },
   { name = "FCS", span = 2, size = "4 bytes" },
 ]

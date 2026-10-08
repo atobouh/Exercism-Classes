@@ -8,7 +8,7 @@ Two colleagues in a meeting room want to swap a file. They could both connect to
 
 ## Ad hoc mode
 
-In *ad hoc* mode, devices connect directly to each other, with no AP. The group is called an *IBSS* (independent basic service set). It is quick to form and needs no infrastructure, but it does not scale, it offers no link to the wired network, and each device must handle its own part of the work. Using a phone's *tethering* is a related case: the phone becomes a small AP, a personal hotspot, and shares its cellular connection with laptops. Because the phone acts as an access point for the clients, tethering is closer to infrastructure mode than to a true peer-to-peer ad hoc network.
+In *ad hoc* mode, devices connect directly to each other, with no AP. The group is called an *IBSS* (independent basic service set). It is quick to form and needs no infrastructure, but it does not scale, it offers no link to the wired network, and each device must handle its own part of the work.
 
 ## Infrastructure mode
 
@@ -16,6 +16,8 @@ In *infrastructure mode*, clients never talk to each other directly. They associ
 
 - A *BSS* (basic service set) is one AP and the clients associated with it.
 - The *BSA* (basic service area) is the physical region the AP's signal covers, the footprint of the BSS.
+
+*Tethering* is a special case of infrastructure mode. When you share a phone's cellular connection as a personal hotspot, the phone acts as a small AP, and your laptop joins it like any other client. The phone and laptop form a BSS, even though only two devices are involved.
 
 Every BSS needs a name that a machine can match. The *BSSID* is that identifier: the MAC address of the AP's radio. Do not mix it up with the *SSID*, which is the human-readable network name. One AP can broadcast several SSIDs, such as "Staff" and "Guest", each with its own BSSID, but each BSSID belongs to one radio.
 
