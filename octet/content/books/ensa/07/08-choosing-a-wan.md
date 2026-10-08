@@ -88,6 +88,13 @@ why = "The demarcation point divides customer responsibility from provider respo
 ```
 
 ```question
+prompt = "Kestrel's branch router, its DSL modem and the cable from the modem to the wall jack all sit inside the branch. Which term covers this equipment, and what is the copper pair from the building to the provider's central office called?"
+options = ["Toll network equipment, and the backbone", "Customer premises equipment (CPE), and the local loop", "Point of presence, and the backhaul network", "Data communications equipment, and the toll network"]
+answer = 1
+why = "Equipment at the customer's site that takes part in the WAN link is CPE. The line from the demarc to the central office is the local loop, or last mile. The toll network and backbone are deep inside the provider."
+```
+
+```question
 prompt = "Which two devices are examples of DCE on a WAN link? (Choose two.)"
 options = ["A CSU/DSU", "The customer's edge router", "A DSL modem", "A PC on the branch LAN", "A LAN switch"]
 answer = [0, 2]

@@ -95,7 +95,7 @@ A WAN is a monthly cost, so a business needs reasons. The common ones are:
 
 ## What comes next
 
-The rest of the chapter asks the questions in order: how sites can be wired together ([WAN topologies](ensa/07/02-wan-topologies)), what the parts are called ([WAN terms and devices](ensa/07/03-wan-terminology)), how bits cross a WAN, and which services you can buy, old and new.
+Next come the shapes a WAN can take ([WAN topologies](ensa/07/02-wan-topologies)), the names of its parts ([WAN terms and devices](ensa/07/03-wan-terminology)), and the services you can buy.
 
 ```recall
 front = "What makes a link a WAN link rather than a LAN link?"

@@ -58,6 +58,13 @@ The consequence catches many people out. An ACL made only of deny entries blocks
 A list that reads "deny 192.168.20.0/24" and nothing else does not mean "block sales, allow the rest". It blocks sales by its first line and everyone else by the implicit deny.
 ```
 
+```question
+prompt = "An applied ACL has two entries: deny 192.168.20.0 0.0.0.255, then deny 192.168.30.0 0.0.0.255. A packet arrives from 172.16.1.1. What happens to it?"
+options = ["It is permitted, because no entry denies its source", "It is dropped by the implicit deny", "It is permitted, because an ACL ends with an implicit permit when every entry is a deny"]
+answer = 1
+why = "The packet matches neither entry, so it reaches the end of the list and the implicit deny drops it. The list needs a final permit to let other traffic through."
+```
+
 ## A worked trace
 
 Here is an ACL applied outbound on R1's G0/1/0, toward the server LAN. Each row is one ACE, written in plain words. The syntax comes later in the chapter.
