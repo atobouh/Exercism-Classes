@@ -105,7 +105,7 @@ Long output is easier to read when you filter it. Add a pipe and one of these.
 | `\| begin text` | Everything from the first line containing the text |
 | `\| section text` | Every configuration section whose header line contains the text |
 
-For example, `show ip interface brief | include up` lists only live interfaces, and `show running-config | section interface` prints just the interface blocks. The text is case sensitive.
+For example, `show ip interface brief | include up` lists only live interfaces, and `show running-config | section interface` prints only the interface blocks. The text is case sensitive.
 
 You can also narrow `show ip route` by asking for one source. This command prints only the connected routes:
 

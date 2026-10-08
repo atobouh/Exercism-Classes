@@ -21,7 +21,7 @@ Directly connected networks appear in the routing table on their own. Every othe
 Static routes earn their place in a few situations.
 
 - **A small network** with a handful of routes that rarely change.
-- **A stub network**, which has only one way out. A branch with a single link to headquarters needs just one route: everything not local goes that way.
+- **A stub network**, which has only one way out. A branch with a single link to headquarters needs one route: everything not local goes that way.
 - **A default route** pointing at the ISP, so inside routers need not learn the whole Internet.
 - **A backup route**, a floating static route with a high AD that only appears when the dynamic route fails. See [floating static routes](srwe/15/06-floating-static-routes).
 

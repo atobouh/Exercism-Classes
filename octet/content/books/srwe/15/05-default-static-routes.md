@@ -42,13 +42,13 @@ Gateway of last resort is 172.16.12.2 to network 0.0.0.0
 S*    0.0.0.0/0 [1/0] via 172.16.12.2
 ```
 
-Two things changed. The code is now `S*`: the `S` says static and the asterisk marks the route as a *candidate default*. And the line `Gateway of last resort is 172.16.12.2 to network 0.0.0.0` appeared. Before the default route it read `not set`. The wording "to network 0.0.0.0" is traditional and applies even though the route is the IPv6 one on its own table.
+Two things changed. The code is now `S*`: the `S` says static and the asterisk marks the route as a *candidate default*. And the line `Gateway of last resort is 172.16.12.2 to network 0.0.0.0` appeared. Before the default route it read `not set`. The text "to network 0.0.0.0" is always printed this way for an IPv4 default.
 
 IPv6 shows the same route with its own layout.
 
 ```console R1
 R1# show ipv6 route static
-IPv6 Routing Table - default - 5 entries
+IPv6 Routing Table - default - 6 entries
 Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
 ...
 S   ::/0 [1/0]
