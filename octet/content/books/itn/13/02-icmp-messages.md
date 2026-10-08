@@ -71,7 +71,7 @@ Five ICMPv6 messages replace ARP and parts of DHCP. They are covered in [IPv6 ne
 | Destination unreachable | 3 | 1 | No route, filtered, or nothing to receive the packet |
 | Time exceeded | 11 | 3 | TTL or hop limit reaching 0 |
 | Redirect | 5 | 137 | A better first hop on the same segment |
-| Packet too big | none | 2 | A packet larger than the next link's MTU |
+| Packet too big | 3, code 4 (fragmentation needed) | 2 | A packet larger than the next link's MTU |
 
 ```question
 prompt = "PC1 sends a packet to a network that R1 has no route to. Which message does R1 send back?"

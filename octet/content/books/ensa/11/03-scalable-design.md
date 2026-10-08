@@ -41,16 +41,16 @@ Adding desks adds cables and ports. *Wireless* extends the access layer without 
 
 ## Routing that scales
 
-Once routers carry hundreds of routes, every topology change makes every router recalculate. A routing protocol such as OSPF controls this with *areas*: the network is divided, each area keeps its own detailed database, and changes inside an area stay inside it. Areas join through a backbone area, area 0. See [one area or many](ensa/01/05-single-and-multiarea).
+In one large OSPF area, every topology change makes every router in that area run its shortest path calculation again. A routing protocol such as OSPF controls this with *areas*: the network is divided, each area keeps its own detailed database, and changes inside an area stay inside it. Areas join through a backbone area, area 0. See [one area or many](ensa/01/05-single-and-multiarea).
 
-*Summarization* helps in the same way. A distribution block can advertise one summary route for all its subnets instead of dozens of entries. Smaller tables mean faster lookups and a failure inside the block does not trigger updates across the core. Summaries work only if addresses are assigned in contiguous blocks, which brings us to planning.
+*Summarization* helps in the same way. A distribution block can advertise one summary route for all its subnets instead of dozens of entries. Smaller tables use less memory and need fewer updates, and a failure inside the block does not trigger updates across the core. Summaries work only if addresses are assigned in contiguous blocks, which brings us to planning.
 
 ## Plan for growth
 
 Redundancy and routing tricks fail if the basics run out. Before building, leave room for:
 
 - **Addressing.** Give each block a contiguous range larger than today's need, so you can summarize and grow.
-- **Port counts.** Buy access switches with spare ports, commonly 20 to 25 percent, and uplinks you are not using yet.
+- **Port counts.** Buy access switches with spare ports. A common rule of thumb is to leave 20 to 25 percent of ports free, plus uplinks you are not using yet. It is a planning habit, not a standard.
 - **Power.** Count the PoE budget, the wiring closet circuit and the cooling, not only the ports.
 
 ```question

@@ -55,7 +55,7 @@ why = "Forwarding rate measures processing capacity, usually in Mpps. Compare it
 | --- | --- | --- |
 | 802.3af | PoE | up to 15.4 W |
 | 802.3at | PoE+ | up to 30 W |
-| 802.3bt | PoE++ | up to 60 W or 90 W |
+| 802.3bt | Type 3 and Type 4 (often marketed as PoE++) | up to 60 W (Type 3) or 90 W (Type 4) |
 
 The device receives less than the port supplies, because the cable consumes some. A switch also has a total PoE budget, so it may power 48 ports at 15.4 W but not 48 at 30 W.
 

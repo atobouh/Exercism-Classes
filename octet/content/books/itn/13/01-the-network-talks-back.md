@@ -6,7 +6,7 @@ links = ["itn/13/02-icmp-messages", "itn/13/03-ping", "itn/13/05-traceroute", "i
 
 You type `ping 192.168.2.10` and wait. Nothing comes back. Is the host off? Is a cable out? Is a router in the middle refusing to forward? A plain IP packet cannot tell you. IP sends a packet and moves on, and if the packet dies on the way, the sender hears nothing.
 
-Sometimes, though, the network does answer. The ping may print "Destination host unreachable" and the name of a router that gave up. That answer is a message from a router, written in a protocol made for exactly this job.
+Sometimes, though, the network does answer. The ping may print "Destination host unreachable" and the address of a router that gave up. That answer is a message from a router, written in a protocol made for exactly this job.
 
 ## The problem ICMP solves
 
