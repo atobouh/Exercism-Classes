@@ -8,6 +8,8 @@ This page puts the chapter together. Answer each question before you open the ex
 
 ## Sublayers and links
 
+The data link layer exists to give each link its own wrapper. The top half, LLC, tells the receiver what kind of packet is inside and keeps the network layer unaware of the medium. The bottom half, MAC, does the physical-facing work: it builds the frame, adds the addresses, marks where the frame starts and stops, adds the check value, and controls access to a shared medium. LLC lives in software, and MAC lives in the NIC.
+
 ```question
 prompt = "Which two functions belong to the LLC sublayer? Choose two."
 options = ["Identifying the network layer protocol in a frame", "Detecting errors with a CRC", "Staying independent of the medium", "Deciding when to transmit on a shared medium"]
@@ -53,6 +55,8 @@ why = "All six possible pairs are linked, which defines a full mesh. A partial m
 
 ## Duplex and media access
 
+Half duplex means taking turns, and it applies to hubs and to wireless. Full duplex means sending and receiving at the same time, and it is what a switch port gives a single attached device. Shared half-duplex wires use CSMA/CD: listen, send, detect a collision, jam, back off, retry. Radios cannot detect collisions, so Wi-Fi uses CSMA/CA with random backoff and acknowledgments.
+
 ```question
 prompt = "Which pairing of technology and access method is correct?"
 options = ["Wi-Fi with CSMA/CD", "Hub-based Ethernet with CSMA/CD", "Full-duplex switch port with CSMA/CA", "Token Ring with CSMA/CD"]
@@ -79,7 +83,7 @@ why = "The FCS lets the receiver detect damage, not repair it. Ethernet drops th
 ## Recall
 
 ```recall
-front = "Which layer 2 address range applies: how far does a frame's destination MAC address reach?"
+front = "How far does a frame's Layer 2 destination address reach?"
 back = "One link. A router builds a new frame, with new Layer 2 addresses, for each link."
 ```
 

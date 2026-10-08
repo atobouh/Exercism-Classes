@@ -53,7 +53,7 @@ why = "A hub is a shared half-duplex wire, so it uses CSMA/CD. A full-duplex swi
 
 ## Why switches ended the problem
 
-A switch gives each port its own collision domain. With one device on a port, running full duplex, there is nobody to collide with. The device can send whenever it likes while receiving at the same time, so CSMA/CD is switched off. Two things are worth remembering:
+A switch gives each port its own collision domain. With one device on a port, running full duplex, there is nobody to collide with. The device can send whenever it likes while receiving at the same time, so CSMA/CD is switched off. Remember this:
 
 ```key
 Full-duplex switched Ethernet does not use CSMA/CD. Every switch port is its own collision domain, and each direction of the link has its own path.
