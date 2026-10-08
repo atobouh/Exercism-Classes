@@ -8,7 +8,7 @@ The first Wi-Fi security was designed in the 1990s, and it did not last. Researc
 
 ## The early methods
 
-The original 802.11 offered two authentication choices: *open system* (no check) and *shared key* using *WEP* (Wired Equivalent Privacy). WEP encrypts with a weak, short-keyed scheme and has flaws that let an attacker recover the key from captured traffic, in minutes. It is broken and must not be used.
+The original 802.11 offered two authentication choices: *open system* (no check) and *shared key* using *WEP* (Wired Equivalent Privacy). WEP encrypts with RC4 and short keys, and its design flaws let an attacker recover the key from captured traffic. It is broken and must not be used.
 
 ## The WPA family
 
@@ -49,7 +49,7 @@ why = "Both modes use AES. Enterprise replaces the single shared passphrase with
 
 - **SAE** (simultaneous authentication of equals) replaces the PSK handshake in WPA3 Personal. An attacker who captures the handshake cannot test password guesses offline, which was the way WPA2-PSK passphrases were cracked. Each session also gets unique keys.
 - **WPA3 Enterprise** offers an optional 192-bit security mode for sensitive environments.
-- **Enhanced Open (OWE)** encrypts traffic on open networks like a café, with no password, so the idle bystander cannot read it.
+- **Enhanced Open (OWE)** encrypts traffic on open networks like a café, with no password, so a nearby listener cannot read it.
 - **DPP** (Device Provisioning Protocol) onboards devices without screens, such as sensors, using a QR code or similar, in place of typing a passphrase.
 
 ```key

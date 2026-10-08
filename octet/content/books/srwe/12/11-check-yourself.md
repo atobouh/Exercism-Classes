@@ -36,6 +36,20 @@ why = "802.11n (Wi-Fi 4) is dual-band. 802.11ac (Wi-Fi 5) is 5 GHz only."
 ```
 
 ```question
+prompt = "Why does Wi-Fi use CSMA/CA instead of CSMA/CD?"
+options = ["Wi-Fi frames are too large to detect collisions", "Wi-Fi has no shared medium, so collisions cannot happen", "A radio cannot listen while it transmits, so it avoids collisions instead of detecting them", "Wi-Fi uses full duplex links with separate send and receive paths"]
+answer = 2
+why = "Wi-Fi is half duplex on a shared medium. A radio cannot hear a collision over its own signal, so CSMA/CA avoids collisions with random backoff and detects loss through a missing ACK."
+```
+
+```question
+prompt = "In passive discovery, which frame does an AP send regularly, without any client asking, to announce its SSID?"
+options = ["A probe request", "A probe response", "A beacon", "An association response"]
+answer = 2
+why = "Beacons go out about ten times a second. Probe responses answer one client's probe request, and association responses come after the client has chosen the AP."
+```
+
+```question
 prompt = "A lightweight AP and its WLC exchange client data in a CAPWAP tunnel. Which UDP port carries control messages, and which is encrypted by default?"
 options = ["5247 for control, and it is unencrypted", "5246 for control, and it is DTLS-encrypted by default", "5246 for data, and it is encrypted by default", "5247 for data, and it is DTLS-encrypted by default"]
 answer = 1

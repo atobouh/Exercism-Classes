@@ -21,7 +21,7 @@ A few signaling methods exist, and you only need the idea of each.
 
 ## 2.4 GHz channels
 
-The 2.4 GHz band is numbered in 5 MHz steps, 1 to 11 in North America (more elsewhere, up to 14). A transmission needs about 22 MHz, so neighboring channel numbers overlap. Only channels **1, 6 and 11** are far enough apart to avoid each other.
+The 2.4 GHz band is numbered in 5 MHz steps: 1 to 11 in North America, 1 to 13 in much of the world, and channel 14 only in Japan for 802.11b. A transmission needs about 22 MHz, so neighboring channel numbers overlap. In North America, only channels **1, 6 and 11** are far enough apart to avoid each other.
 
 ```diagram
 caption = "A 1, 6, 11 layout. Neighbors differ, and the next AP over can reuse a channel because it is too far away to disturb."
@@ -47,9 +47,9 @@ why = "Only 1, 6 and 11 are spaced far enough apart that their 22 MHz widths do 
 
 ## 5 GHz and channel bonding
 
-The 5 GHz band has far more channels that do not overlap, each 20 MHz wide, so it is much easier to plan. Some of them are shared with radar, and an AP must leave one if it detects radar.
+The 5 GHz band has far more channels that do not overlap, each 20 MHz wide, so it is much easier to plan. Some of them are also used by radar, so they are *DFS* channels (dynamic frequency selection). An AP must leave a DFS channel if it detects radar on it.
 
-*Channel bonding* joins adjacent 20 MHz channels into 40, 80 or even 160 MHz channels. A wider channel carries more data, which raises speed. The cost is that a bonded channel uses up several of the available ones. In a crowded building with many APs, wide channels leave fewer to hand out, and the APs begin to overlap again. In practice, 2.4 GHz is kept at 20 MHz, and 5 GHz uses 40 or 80 MHz where there is room.
+*Channel bonding* joins adjacent 20 MHz channels into 40, 80 or even 160 MHz channels. A wider channel carries more data, which raises speed. The cost is that a bonded channel uses up several of the available ones. In a crowded building with many APs, wide channels leave fewer to hand out, and the APs begin to overlap again. In practice, 2.4 GHz is usually kept at 20 MHz, and 5 GHz uses 40 or 80 MHz where there is room.
 
 ## Planning a WLAN
 
