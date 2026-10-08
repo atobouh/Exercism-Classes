@@ -49,7 +49,7 @@ Add the timers and you get the delay.
 - When a switch stops hearing BPDUs on a blocked port because an indirect link has failed, it first waits for max age, 20 seconds, to be sure. Then it adds the 30 seconds above, for **50 seconds** in total.
 - A failure that the switch can see directly on its own link skips the max age wait, which is why you see a range of 30 to 50 seconds in practice.
 
-Fifty seconds of outage is long enough for TCP sessions to time out and phone calls to drop.
+Fifty seconds is long enough to break many application sessions and voice calls.
 
 On a real switch you can watch this: unplug and replug a cable, then run `show spanning-tree` repeatedly, and the port's `Sts` changes from `LIS` to `LRN` to `FWD` over about 30 seconds.
 
