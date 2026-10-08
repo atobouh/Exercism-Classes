@@ -1,6 +1,6 @@
 +++
 title = "Locking down the access layer"
-summary = "Start with what's easy: shut what isn't used and fix every port's role."
+summary = "Start with the basics: shut what isn't used and fix every port's role."
 links = ["srwe/10/01-why-the-lan-needs-defending", "srwe/10/05-layer-2-attack-families", "srwe/11/02-enabling-port-security", "srwe/03/06-dynamic-trunking-protocol"]
 +++
 
