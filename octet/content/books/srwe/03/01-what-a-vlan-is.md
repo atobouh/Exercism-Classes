@@ -37,15 +37,15 @@ links = [
 
 ```question
 prompt = "PC1 is in VLAN 10 and PC2 is in VLAN 20. Both are plugged into the same switch, and there is no router. Can PC1 ping PC2?"
-options = ["Yes, they share a switch", "No, they are in different VLANs and different subnets, so something at layer 3 is needed", "Yes, but only if they use the same default gateway"]
-answer = 1
+options = ["No, they are in different VLANs and different subnets, so something at layer 3 is needed", "Yes, they share a switch", "Yes, but only if they use the same default gateway"]
+answer = 0
 why = "A switch never forwards a frame from one VLAN into another. Crossing between VLANs means routing between two subnets."
 ```
 
 ## Why bother
 
 - **Smaller broadcast domains.** Fewer devices hear each broadcast, so less bandwidth and less CPU time is spent on traffic that is not for them.
-- **Security.** Departments are separated at layer 2, so a host in one VLAN cannot sniff another VLAN's frames.
+- **Security.** Departments are separated at layer 2, so a host in one VLAN does not normally see another VLAN's frames. (Misconfigured ports can still leak, which is why port assignments need care.)
 - **Lower cost.** One switch does the job of several.
 - **Grouping by function.** A VLAN follows the team, not the wall jack. Move someone to another floor and you change one port assignment, not a cable.
 - **Simpler management.** Related devices share a subnet and a policy, so access lists and troubleshooting are organized around the same boundaries.

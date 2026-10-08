@@ -34,10 +34,15 @@ The configuration for S1 follows. S2 gets the same VLANs and the same trunk comm
 ```console S1
 S1(config)# vlan 10
 S1(config-vlan)# name SALES
-S1(config-vlan)# vlan 20
+S1(config-vlan)# exit
+S1(config)# vlan 20
 S1(config-vlan)# name ENGINEERING
-S1(config-vlan)# vlan 99
+S1(config-vlan)# exit
+S1(config)# vlan 99
 S1(config-vlan)# name NATIVE
+S1(config-vlan)# exit
+S1(config)# vlan 150
+S1(config-vlan)# name VOICE
 S1(config-vlan)# exit
 S1(config)# interface fa0/6
 S1(config-if)# switchport mode access
@@ -67,7 +72,7 @@ VLAN Name                             Status    Ports
 10   SALES                            active    Fa0/6
 20   ENGINEERING                      active    Fa0/18
 99   NATIVE                           active
-150  VLAN0150                         active    Fa0/18
+150  VOICE                            active
 1002 fddi-default                     act/unsup
 ...
 S1# show interfaces trunk
@@ -84,7 +89,7 @@ Port        Vlans in spanning tree forwarding state and not pruned
 Gi0/1       10,20,99
 ```
 
-Notice that VLAN 150 was created automatically when `switchport voice vlan 150` referred to it, and that Fa0/18 appears under both VLAN 20 and VLAN 150.
+Notice that Fa0/18 appears only under VLAN 20. The voice VLAN is not an access VLAN, so `show vlan brief` does not list the phone's port under VLAN 150. VLAN 150 still has to exist on S1, or the switch has no VLAN to put the phone's frames in, which is why the build defines it.
 
 ```command
 prompt = "On S1, allow VLAN 30 on the trunk as well, keeping the existing list."
@@ -97,43 +102,43 @@ why = "add extends the list. Without add, the command replaces it."
 
 ```question
 prompt = "Which VLAN range can be created without VTP being set to transparent or off, even on older switches?"
-options = ["1006 to 4094", "1 to 1005", "1002 to 1005 only"]
-answer = 1
+options = ["1 to 1005", "1006 to 4094", "1002 to 1005 only"]
+answer = 0
 why = "Normal-range VLANs 1 to 1005 are the ones every switch can create. The extended range 1006 to 4094 needs VTP transparent or off on older switches."
 ```
 
 ```question
 prompt = "You run no vlan 20 on S1. What happens to the access ports that were in VLAN 20?"
-options = ["They move to VLAN 1", "They become inactive and pass no traffic", "They become trunk ports"]
-answer = 1
+options = ["They move to VLAN 1", "They become trunk ports", "They become inactive and pass no traffic"]
+answer = 2
 why = "The ports keep their VLAN 20 assignment, and with no such VLAN they carry nothing until reassigned."
 ```
 
 ```question
 prompt = "How large is an 802.1Q tag, and where does it sit?"
-options = ["2 bytes, after the destination MAC", "4 bytes, after the source MAC", "4 bytes, before the FCS"]
-answer = 1
+options = ["2 bytes, after the destination MAC", "4 bytes, before the FCS", "4 bytes, after the source MAC"]
+answer = 2
 why = "The tag is 4 bytes, inserted between the source MAC address and the Type field."
 ```
 
 ```question
 prompt = "S1's trunk uses native VLAN 99 and S2's end of the same trunk uses VLAN 1. What do you see?"
-options = ["The trunk goes down", "A %CDP-4-NATIVE_VLAN_MISMATCH message, and untagged traffic lands in the wrong VLAN", "Nothing at all, on purpose"]
-answer = 1
+options = ["A %CDP-4-NATIVE_VLAN_MISMATCH message, and untagged traffic lands in the wrong VLAN", "The trunk goes down", "Nothing at all, on purpose"]
+answer = 0
 why = "The trunk stays up. CDP reports the disagreement, and untagged frames are put into whichever VLAN each receiving end calls native."
 ```
 
 ```question
 prompt = "Two Catalyst 2960 switches with default configuration are joined by a cable. What is the link?"
-options = ["A trunk", "An access link", "Down, until one side is configured"]
-answer = 1
+options = ["A trunk", "Down, until one side is configured", "An access link"]
+answer = 2
 why = "Both ports are dynamic auto, and neither asks the other to trunk."
 ```
 
 ```question
 prompt = "Read this output from a trunk. Which statement is true?\n\nPort        Vlans allowed on trunk\nGi0/1       10,20,99\n\nPort        Vlans allowed and active in management domain\nGi0/1       10,99"
-options = ["VLAN 20 is blocked by a pruning rule", "VLAN 20 is allowed on the trunk but is not defined on this switch", "VLAN 99 is the native VLAN, so VLAN 20 is untagged"]
-answer = 1
+options = ["VLAN 20 is blocked by a pruning rule", "VLAN 99 is the native VLAN, so VLAN 20 is untagged", "VLAN 20 is allowed on the trunk but is not defined on this switch"]
+answer = 2
 why = "The second section lists allowed VLANs that exist on the switch. VLAN 20 is allowed but missing, so the switch has no VLAN 20 to put its frames in."
 ```
 

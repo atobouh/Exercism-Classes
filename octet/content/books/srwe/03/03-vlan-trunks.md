@@ -38,8 +38,8 @@ fields = [
 
 ```question
 prompt = "A frame from VLAN 10 crosses a trunk whose native VLAN is 1. How does it travel?"
-options = ["Untagged", "Tagged with VLAN 10", "Tagged with VLAN 1"]
-answer = 1
+options = ["Untagged", "Tagged with VLAN 1", "Tagged with VLAN 10"]
+answer = 2
 why = "Only frames in the native VLAN cross untagged. This frame belongs to VLAN 10, so it carries a tag with VLAN ID 10."
 ```
 

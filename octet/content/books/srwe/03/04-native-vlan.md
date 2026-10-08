@@ -13,7 +13,7 @@ On a trunk, the switch follows two rules:
 1. A frame leaving in the native VLAN is sent without a tag.
 2. An untagged frame arriving on the trunk is placed in the native VLAN.
 
-The reason is compatibility. Early on, the link might have a hub, a device that does not understand tags, or an older switch on it. Such a device can still take part, because its untagged frames end up in a VLAN.
+The reason is compatibility. The link might connect to a hub, or to a device that does not understand tags. Such a device can still take part, because its untagged frames end up in a VLAN.
 
 The default native VLAN is VLAN 1. You change it per trunk port.
 
@@ -26,8 +26,8 @@ VLAN 99 should exist on the switch. Do the same on the other switch's end of the
 
 ```question
 prompt = "Which command sets the native VLAN of a trunk port to 99?"
-options = ["switchport native vlan 99", "switchport trunk native vlan 99", "vlan 99 native"]
-answer = 1
+options = ["switchport native vlan 99", "vlan 99 native", "switchport trunk native vlan 99"]
+answer = 2
 why = "The native VLAN is a trunk setting, so the command includes the trunk keyword."
 ```
 
@@ -45,8 +45,8 @@ The fix is to configure the same native VLAN on both ends. `show interfaces trun
 
 ```question
 prompt = "S1's trunk port uses native VLAN 99 and S2's end uses native VLAN 1. What is the result?"
-options = ["The trunk goes down", "Untagged frames from one native VLAN land in the other VLAN, and CDP logs a mismatch", "Both switches agree on VLAN 1 automatically"]
-answer = 1
+options = ["The trunk goes down", "Both switches agree on VLAN 1 automatically", "Untagged frames from one native VLAN land in the other VLAN, and CDP logs a mismatch"]
+answer = 2
 why = "The trunk stays up. Nothing negotiates the native VLAN, so the untagged frames are put into whatever VLAN the receiving end calls native."
 ```
 

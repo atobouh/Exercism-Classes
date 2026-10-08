@@ -84,8 +84,8 @@ why = "The add keyword extends the list. Without it, the command replaces the wh
 
 ```question
 prompt = "PCs in VLAN 20 on S1 and S2 can't reach each other, yet VLAN 10 works across the same trunk. What is the most likely cause?"
-options = ["The trunk is down", "VLAN 20 is not in the trunk's allowed list", "The PCs have no default gateway"]
-answer = 1
+options = ["VLAN 20 is not in the trunk's allowed list", "The trunk is down", "The PCs have no default gateway"]
+answer = 0
 why = "A down trunk would break VLAN 10 too. A gateway is only needed to leave the subnet. A missing allowed entry affects exactly one VLAN."
 ```
 

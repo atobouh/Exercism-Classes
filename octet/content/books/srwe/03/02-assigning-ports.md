@@ -112,7 +112,6 @@ Because VLANs live in `vlan.dat`, `erase startup-config` alone does not remove t
 
 ```console S1
 S1# delete flash:vlan.dat
-Delete filename [vlan.dat]?
 Delete flash:/vlan.dat? [confirm]
 S1# erase startup-config
 S1# reload

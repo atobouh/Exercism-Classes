@@ -14,7 +14,7 @@ DTP is Cisco proprietary. Each port sends DTP frames to its neighbor, and the tw
 
 Every switch port has an administrative mode:
 
-- `switchport mode access` makes the port an access port and does not negotiate.
+- `switchport mode access` makes the port an access port, so it never tries to become a trunk.
 - `switchport mode trunk` makes it a trunk and keeps sending DTP frames, so the neighbor can follow.
 - `switchport mode dynamic desirable` actively asks the neighbor to become a trunk.
 - `switchport mode dynamic auto` waits to be asked. It becomes a trunk only if the neighbor asks.
@@ -36,8 +36,8 @@ The last cell is the dangerous one. A trunk on one end and an access port on the
 
 ```question
 prompt = "Two new Catalyst 2960 switches are joined with a straight cable and no configuration. What kind of link do they form?"
-options = ["A trunk, because DTP negotiates one", "An access link in VLAN 1, because both ports are dynamic auto", "No link, because the modes are incompatible"]
-answer = 1
+options = ["An access link in VLAN 1, because both ports are dynamic auto", "A trunk, because DTP negotiates one", "No link, because the modes are incompatible"]
+answer = 0
 why = "Dynamic auto only becomes a trunk when the neighbor asks, and a neighbor in dynamic auto never asks."
 ```
 
