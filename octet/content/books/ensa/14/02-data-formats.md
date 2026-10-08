@@ -58,7 +58,7 @@ Read them against each other and the pattern appears. Each has a name for every 
 
 ## YAML
 
-*YAML* uses layout instead of punctuation. A key is followed by a colon and a space, then its value. Indentation shows nesting, and it must use spaces, never tabs. Items in a list each start with a dash and a space. There are no braces and quotes are usually optional. A file often starts with a line of three dashes (`---`), which marks the start of a document. YAML is easy on the eye, which is why configuration files, including Ansible playbooks, are written in it.
+*YAML* uses layout instead of punctuation. A key is followed by a colon and a space, then its value. Indentation shows nesting, and it must use spaces, never tabs. Items in a list each start with a dash and a space. There are no braces and quotes are usually optional. A file often starts with a line of three dashes (`---`), which marks the start of a document. YAML is pleasant to read, which is why configuration files, including Ansible playbooks, are written in it.
 
 ```trap
 In YAML, indentation is syntax. A line indented one space too far, or too few, changes the structure or breaks the file entirely. Use spaces, keep the same number for each level, and never mix in tabs.
