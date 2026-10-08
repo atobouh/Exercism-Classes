@@ -62,7 +62,7 @@ The entry shows both the next hop and the interface, and it carries the normal `
 
 ## IPv6 and link-local next hops
 
-IPv6 routers often use *link-local* addresses (the `fe80::/10` range) as next hops, because routing protocols do. Suppose R2's address on the R1 to R2 link is `fe80::2`. A link-local address is only meaningful on the one link where it lives, since every interface of every router can use the same `fe80::2`. Naming just the address leaves IOS asking: out of which link?
+IPv6 routers often use *link-local* addresses (the `fe80::/10` range) as next hops, because routing protocols do. Suppose R2's address on the R1 to R2 link is `fe80::2`. A link-local address is only meaningful on the one link where it lives, since every interface of every router can use the same `fe80::2`. Naming only the address leaves IOS asking: out of which link?
 
 ```console R1
 R1(config)# ipv6 route 2001:db8:acad:3::/64 fe80::2
