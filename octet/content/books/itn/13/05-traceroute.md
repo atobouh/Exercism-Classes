@@ -59,7 +59,7 @@ VRF info: (vrf in name/id, vrf out name/id)
   3 10.1.1.1 3 msec 2 msec 2 msec
 ```
 
-The `VRF info` line appears on newer IOS XE and says only that no VRF is in use here. Each hop line shows the address then three times in milliseconds.
+The `VRF info` line appears on many IOS releases. When no VRF is configured, it does not name one. Each hop line shows the address then three times in milliseconds.
 
 ```command
 prompt = "Trace the path from the router to 10.1.1.1."

@@ -49,7 +49,7 @@ why = "The first echo times out during ARP resolution. Once the MAC is cached, r
 
 ```question
 prompt = "A Windows tracert shows hops 1 to 3 answering, then Request timed out on hops 4 to 30. Which conclusion is best supported?"
-options = ["Hop 3 is probably where the path breaks, or a device after it filters the probes", "The destination host is working normally", "The DNS server is down", "Hop 1 is misconfigured"]
+options = ["The path breaks at or just past hop 3, or a device there filters the probes", "The destination host is working normally", "The DNS server is down", "Hop 1 is misconfigured"]
 answer = 0
 why = "Nothing after the last answering hop replied. The break, a missing route or a filter is at or just past hop 3."
 ```
@@ -61,6 +61,13 @@ answer = 2
 why = "IOS sends UDP probes to a high port. The destination has nothing listening, so it replies with port unreachable. Windows uses ICMP echo, so its final answer is an echo reply."
 ```
 
+```question
+prompt = "A traceroute probe leaves PC1 with a TTL of 2 and must cross two routers to reach the destination. Which device sends the time exceeded message?"
+options = ["PC1, the source", "R1, the first router", "R2, the second router", "The destination host"]
+answer = 2
+why = "R1 lowers the TTL to 1 and forwards the probe. R2 lowers it to 0, so it discards the probe and sends time exceeded back to PC1. The source never sends that message to itself."
+```
+
 ## The test sequence
 
 ```question
@@ -68,6 +75,15 @@ prompt = "A host cannot ping its default gateway but can ping 127.0.0.1 and its 
 options = ["A broken TCP/IP stack", "A wrong subnet mask or a problem on the local link", "A missing DNS server", "A routing loop"]
 answer = 1
 why = "The host itself is fine. The failure is at the local network: link, switch, VLAN, mask or gateway address."
+```
+
+A user reports that a web server cannot be reached by name. You run three tests from PC1. Ping 192.168.1.1, the gateway, replies. Ping 203.0.113.50 replies. Ping www.example.com returns "Ping request could not find host www.example.com." Each result narrows the fault, so read them in order.
+
+```question
+prompt = "Which conclusion do these three tests best support?"
+options = ["The routing between PC1 and the server is broken", "The default gateway is down", "The name does not resolve, so the fault is in DNS", "The PC's network card is faulty"]
+answer = 2
+why = "Pings by address work across the gateway, so the path and the local network are fine. The name fails to turn into an address, which is DNS's job."
 ```
 
 ## Recall

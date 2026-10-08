@@ -99,7 +99,7 @@ A ping needs a working path in both directions. If the request arrives but the t
 ```
 
 ```question
-prompt = "You want to test whether a remote router has a route back to R1's LAN, not just to R1's exit interface. What do you use?"
+prompt = "You want to test whether a remote router has a route back to R1's LAN, not only to R1's exit interface. What do you use?"
 options = ["A ping with the repeat count raised", "An extended ping with the source set to R1's LAN interface", "A ping with a larger datagram size", "ping 127.0.0.1"]
 answer = 1
 why = "The echo reply goes to the source address of the request. Setting the source to the LAN interface forces the reply to travel to the LAN's network."

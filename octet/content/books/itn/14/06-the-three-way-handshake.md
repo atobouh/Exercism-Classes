@@ -49,7 +49,7 @@ Often the second side has nothing more to send, so steps 2 and 3 are combined in
 A session can also end without the polite exchange. A segment with **RST** set says: this session is over, drop everything. It is sent when something has gone wrong, for example when a client connects to a port where nothing is listening, or when a host receives a segment for a session it does not know about. A reset needs no reply.
 
 ```trap
-A reset is not an error message that the user sees as a polite close. Data still in flight is thrown away. If a connection "resets" in the middle of a download, look for a firewall, a crashed server process or a timeout on the path.
+A reset is not a polite close. Data still in flight is thrown away. If a connection "resets" in the middle of a download, look for a firewall, a crashed server process or a timeout on the path.
 ```
 
 ## A preview of an attack
