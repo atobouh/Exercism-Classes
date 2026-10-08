@@ -60,18 +60,21 @@ R1(config)# interface gigabitethernet0/0/1
 R1(config-if)# description Building A LAN
 R1(config-if)# ip address 10.10.0.1 255.255.255.128
 R1(config-if)# no shutdown
-R1(config-if)# interface gigabitethernet0/0/0
+R1(config-if)# exit
+R1(config)# interface gigabitethernet0/0/0
 R1(config-if)# description Link to R2
 R1(config-if)# ip address 10.10.0.225 255.255.255.252
 R1(config-if)# no shutdown
 R1(config-if)# end
 R1# show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
+...
 GigabitEthernet0/0/0   10.10.0.225     YES manual up                    up
 GigabitEthernet0/0/1   10.10.0.1       YES manual up                    up
+...
 ```
 
-The switch in Building A takes a management address in the same subnet, and points at the router as its gateway.
+The switch in Building A takes a management address in the same subnet. It is not routing, so it has no routing table of its own. The `ip default-gateway` command tells it where to send traffic for other networks, which is the router's LAN address.
 
 ```console S1
 S1# configure terminal

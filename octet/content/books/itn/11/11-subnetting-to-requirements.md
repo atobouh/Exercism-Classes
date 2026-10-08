@@ -65,7 +65,7 @@ why = "20 subnets needs 5 borrowed bits (2^5 = 32), which leaves 3 host bits and
 
 ## Leave room to grow
 
-Design for tomorrow, not just today. A subnet sized exactly to today's 25 PCs will be full after one new hire, and renumbering a subnet is painful. If you can, pick the next size up, and leave some subnets unused. Since networks will use private addresses internally, with `10.0.0.0/8` available, being generous costs little. Only the addresses at the internet edge are scarce.
+Design for tomorrow, not only today. A subnet sized exactly to today's 25 PCs will be full after one new hire, and renumbering a subnet is painful. If you can, pick the next size up, and leave some subnets unused. Since networks will use private addresses internally, with `10.0.0.0/8` available, being generous costs little. Only the addresses at the internet edge are scarce.
 
 ```key
 For hosts, pick the smallest h with 2^h - 2 big enough. For subnets, pick the smallest n with 2^n big enough. If n + h is more than the available bits, you need a larger block or VLSM.

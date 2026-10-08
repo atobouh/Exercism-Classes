@@ -43,7 +43,7 @@ links = [
 
 There is no single right way. Networks are usually split along one of these lines, or a mixture.
 
-- **By location.** One subnet per floor, building or site. Traffic often stays local, and a fault is easy to place.
+- **By location.** One subnet per floor, building or site. Traffic often stays local, and a fault is quicker to locate.
 - **By group or function.** Staff, students and guests each get a subnet, so each can have different access rules.
 - **By device type.** Printers, servers, IP phones and cameras each have their own subnet. Phones, for instance, may need special handling for voice quality.
 

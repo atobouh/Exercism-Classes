@@ -4,7 +4,7 @@ summary = "Different subnets can have different sizes, so small links do not was
 links = ["itn/11/11-subnetting-to-requirements", "itn/11/13-structured-design", "itn/11/08-finding-the-subnet"]
 +++
 
-Using one prefix for every subnet is simple, and it wastes addresses. Suppose you chose /27, so every subnet holds 30 hosts. A link between two routers needs exactly two addresses, but it burns an entire /27, leaving 28 addresses unused. Multiply that across a dozen links and you have thrown away several subnets' worth of space. VLSM fixes this.
+Using one prefix for every subnet is simple, and it wastes addresses. Suppose you chose /27, so every subnet holds 30 hosts. A link between two routers needs exactly two addresses, but it burns an entire /27, leaving 28 of its 30 usable addresses unused. Multiply that across a dozen links and you have thrown away several subnets' worth of space. VLSM fixes this.
 
 ## One block, many sizes
 
@@ -17,7 +17,7 @@ Routing protocols that carry the mask with each route, which all modern ones do,
 A link joining two routers needs two addresses. The smallest ordinary subnet for that is a `/30`: two host bits, two usable hosts, one network and one broadcast address. Its mask is `255.255.255.252`.
 
 ```deeper
-RFC 3021 allows a /31 on a point-to-point link: two addresses, with no network or broadcast address reserved. Cisco IOS and IOS XE support it on routed point-to-point interfaces, for example `ip address 192.0.2.0 255.255.255.254`. It saves two addresses per link, but a /30 remains the form you will meet most often.
+RFC 3021 allows a /31 on a point-to-point link: two addresses, with no network or broadcast address reserved. Cisco IOS and IOS XE support it on routed point-to-point interfaces, for example `ip address 192.0.2.0 255.255.255.254`. IOS prints a warning if you apply it to any other kind of interface. It saves two addresses per link, but a /30 remains the form you will meet most often.
 ```
 
 ## The method

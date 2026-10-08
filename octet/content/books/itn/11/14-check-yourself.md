@@ -62,7 +62,7 @@ why = "172.32.100.1 is beyond the private block, which ends at 172.31.255.255, s
 prompt = "Which destination address will a router never forward off the local network?"
 options = ["224.0.1.1", "255.255.255.255", "10.255.255.255", "198.51.100.77"]
 answer = 1
-why = "255.255.255.255 is the limited broadcast. The routed multicast address and the ordinary host addresses can be forwarded, and a directed broadcast is dropped only because of an interface setting."
+why = "255.255.255.255 is the limited broadcast, and routers never forward it. The other options can be forwarded: 224.0.1.1 is multicast, 198.51.100.77 is an ordinary unicast host, and 10.255.255.255 is a directed broadcast, which a router routes toward its network."
 ```
 
 ## Design
