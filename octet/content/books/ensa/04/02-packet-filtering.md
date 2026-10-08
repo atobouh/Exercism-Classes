@@ -52,7 +52,7 @@ This makes the order of the entries part of their meaning. The same three lines 
 
 What happens when a packet reaches the bottom without matching anything? It is dropped. Every ACL ends with an *implicit deny*: an invisible final entry that denies all traffic. You never type it and it never appears in `show running-config`, but it is always there.
 
-The consequence is easy to miss. An ACL made only of deny entries blocks everything, because whatever the denies do not catch, the implicit deny does. Every useful ACL needs at least one permit. When the goal is to block a few things and allow the rest, the last line you type is a permit for all traffic.
+The consequence catches many people out. An ACL made only of deny entries blocks everything, because whatever the denies do not catch, the implicit deny does. Every useful ACL needs at least one permit. When the goal is to block a few things and allow the rest, the last line you type is a permit for all traffic.
 
 ```trap
 A list that reads "deny 192.168.20.0/24" and nothing else does not mean "block sales, allow the rest". It blocks sales by its first line and everyone else by the implicit deny.
@@ -71,7 +71,7 @@ Here is an ACL applied outbound on R1's G0/1/0, toward the server LAN. Each row 
 
 Run three packets through it:
 
-1. **192.168.10.5 to 192.168.30.10, TCP port 23.** Line 10 matches: the destination is the server and the port is 23. Denied. The packet is from HR, which line 20 would permit for web, but line 20 is never read.
+1. **192.168.10.5 to 192.168.30.10, TCP port 23.** Line 10 matches: the destination is the server and the port is 23. Denied. It makes no difference that the sender is in HR: line 10 matched first, so the router reads no further.
 2. **192.168.10.5 to 192.168.30.10, TCP port 80.** Line 10 does not match, because the port is 80. Line 20 matches. Permitted.
 3. **192.168.20.7 to 192.168.30.10, TCP port 80.** Line 10 does not match (port 80). Line 20 does not match (the source is sales, not HR). Line 30 matches the sales source. Denied.
 
