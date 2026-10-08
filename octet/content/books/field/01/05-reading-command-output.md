@@ -153,7 +153,7 @@ Gi0/1       10,20
 
 Counters are running totals since the last reload or `clear counters`. Most of them are noise, so know which few matter.
 
-- **Matter:** `input errors`, `CRC`, `runts`, `giants`, `collisions` (and `late collision` on a switch), `output drops` and `interface resets`. A frame that fails its CRC check was damaged on the wire, often by a bad cable or a duplex mismatch.
+- **Matter:** `input errors`, `CRC`, `runts`, `giants`, `collisions` (late collisions especially), `output drops` and `interface resets`. A frame that fails its CRC check was damaged on the wire, often by a bad cable or a duplex mismatch.
 - **Noise:** total packets, bytes, broadcasts and the five-minute rates. They say how busy the link is, not whether it is healthy.
 
 A big counter by itself proves little. Twelve CRC errors out of fifty million packets over a year is nothing. What matters is whether a counter is growing now. Clear the counters, wait, and look again:

@@ -77,7 +77,7 @@ That output names the pieces of storage you will use all through the course:
 | RAM | The running IOS and the *running configuration* you are editing now | No |
 | NVRAM | The *startup configuration* loaded at the next boot | Yes |
 
-When the switch boots, it copies the IOS image from flash into RAM and runs it. Every command you type changes the running configuration in RAM, and the change takes effect at once. If the power fails before you save, the switch boots with whatever was saved last. [Saving and restoring the configuration](itn/02/06-saving-the-configuration) covers this in full.
+When the switch powers on, a small piece of firmware called the boot loader runs first. It finds the IOS image in flash, copies it into RAM and starts it. Every command you type changes the running configuration in RAM, and the change takes effect at once. If the power fails before you save, the switch boots with whatever was saved last. [Saving and restoring the configuration](itn/02/06-saving-the-configuration) covers this in full.
 
 ```question
 prompt = "You change a switch's settings, and before you save, the building loses power. What configuration does the switch use when it boots again?"
