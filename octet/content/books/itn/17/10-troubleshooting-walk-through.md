@@ -35,16 +35,18 @@ You ask the user questions. Only PC1 is affected, and it worked last week. On ch
 ## Check the PC
 
 ```console PC1
-C:\> ipconfig
+C:\> ipconfig /all
 
 Windows IP Configuration
-
+...
 Ethernet adapter Ethernet0:
-
-   Connection-specific DNS Suffix  . :
-   IPv4 Address. . . . . . . . . . . : 192.168.10.50
+...
+   Physical Address. . . . . . . . . : 00-50-79-66-68-32
+   DHCP Enabled. . . . . . . . . . . : No
+   IPv4 Address. . . . . . . . . . . : 192.168.10.50(Preferred)
    Subnet Mask . . . . . . . . . . . : 255.255.255.0
    Default Gateway . . . . . . . . . : 192.168.10.254
+   DNS Servers . . . . . . . . . . . : 192.168.20.10
 
 C:\> ping 127.0.0.1
 Reply from 127.0.0.1: bytes=32 time<1ms TTL=128
@@ -68,13 +70,19 @@ Reply from 192.168.20.10: bytes=32 time=51ms TTL=127
 Reply from 192.168.20.10: bytes=32 time=2ms TTL=127
 ```
 
-It works now, but the numbers are far from the 1 or 2 ms the baseline shows, and packets are lost. The first fault is fixed and a second remains. Traffic crosses S1's uplink, so test that. A filter on the long `show interfaces` output keeps just the lines that matter.
+It works now, but the numbers are far from the 1 or 2 ms the baseline shows, and packets are lost. The first fault is fixed and a second remains. Traffic crosses S1's uplink, so test that. The output of `show interfaces` is long, so read the duplex line and the counters near the end.
 
 ```console S1
-S1# show interfaces fastEthernet 0/24 | include duplex|CRC|late
+S1# show interfaces fastEthernet 0/24
+FastEthernet0/24 is up, line protocol is up (connected)
+  ...
   Half-duplex, 100Mb/s, media type is 10/100BaseTX
+  ...
+     13 runts, 0 giants, 0 throttles
      21 input errors, 8 CRC, 0 frame, 0 overrun, 0 ignored
+  ...
      0 babbles, 114 late collision, 63 deferred
+  ...
 ```
 
 Half duplex with late collisions on a link between a switch and a router is wrong. The hint that this is a mismatch comes from R1, which logs the CDP message.
@@ -83,7 +91,7 @@ Half duplex with late collisions on a link between a switch and a router is wron
 %CDP-4-DUPLEX_MISMATCH: duplex mismatch discovered on GigabitEthernet0/0/0 (not half duplex), with S1 FastEthernet0/24 (half duplex).
 ```
 
-Someone had fixed R1's port at 100 Mb/s full duplex while S1 stayed on auto. Set R1's port back to auto:
+Someone had fixed R1's port at 100 Mb/s full duplex while S1 stayed on auto. Set R1's port back to auto. The exact keywords depend on the onboard port and the IOS XE release. If `speed` or `duplex` is not accepted on your router, use `negotiation auto` on the port instead.
 
 ```console R1
 R1# configure terminal

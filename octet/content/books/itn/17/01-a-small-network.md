@@ -31,7 +31,7 @@ links = [
 
 Every device has a price, and the cheapest one is rarely the right one. Four questions sort most choices.
 
-- **Cost.** Count the device, the licenses, support and the cabling it needs, not just the sticker price.
+- **Cost.** Count the device, the licenses, support and the cabling it needs, not only the sticker price.
 - **Ports.** How many do you need today, and how fast? A Catalyst 2960 with 24 Fast Ethernet ports and two Gigabit uplinks suits 20 desktops. A server or an uplink to the router deserves Gigabit.
 - **Expandability.** A *fixed* device has the ports it shipped with. A *modular* device has slots for extra line cards or modules. Fixed is cheaper and simpler. Modular costs more up front but lets you add ports or a new interface type without replacing the chassis.
 - **Features.** Does the operating system support what you will need next year: PoE for phones and access points, VLANs, QoS, security features? Does the vendor still ship updates?

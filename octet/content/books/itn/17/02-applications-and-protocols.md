@@ -51,7 +51,7 @@ why = "SMTP sends mail. IMAP and POP3 retrieve it from the server."
 
 Voice over IP (*VoIP*) carries phone calls as packets. *IP telephony* is the larger idea: IP phones, a call-control server and a gateway to the public phone network. Real-time video, such as a video meeting, works the same way.
 
-Both are *real-time* traffic, and they behave differently from a file copy. A late packet of a file is just a slightly slower copy. A late packet of a call is useless, because the moment it belonged to has passed. So these applications need:
+Both are *real-time* traffic, and they behave differently from a file copy. A late packet of a file is only a slightly slower copy. A late packet of a call is useless, because the moment it belonged to has passed. So these applications need:
 
 - **Low delay**, the time a packet takes to cross the network.
 - **Low jitter**, the variation in that delay. Even delay is easier to cope with than uneven delay.

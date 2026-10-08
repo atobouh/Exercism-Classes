@@ -63,7 +63,7 @@ Now the two ends disagree. The full-duplex end sends whenever it likes. The half
 
 The port above is the half-duplex end: the late collisions give it away.
 
-CDP can also notice, and logs a message on the device whose port is not half duplex.
+CDP can also notice the mismatch and log a message. The message can appear on either device, or on both. The first interface it names is the local one, and the rest describes the neighbor.
 
 ```console R1
 %CDP-4-DUPLEX_MISMATCH: duplex mismatch discovered on GigabitEthernet0/0/0 (not half duplex), with S1 FastEthernet0/5 (half duplex).

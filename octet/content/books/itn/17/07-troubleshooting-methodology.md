@@ -48,7 +48,7 @@ A guess that is wrong costs little if you then fall back on a structured approac
 
 ## When to escalate
 
-Escalate when you have exhausted your theories, when the fix needs access you do not have, or when company policy says a certain type of fault goes to a senior technician or to the vendor's support. Hand over what you found, not just the complaint: the symptoms, the tests you ran and the results. Escalating with notes is part of doing the job well.
+Escalate when you have exhausted your theories, when the fix needs access you do not have, or when company policy says a certain type of fault goes to a senior technician or to the vendor's support. Hand over what you found, not only the complaint: the symptoms, the tests you ran and the results. Escalating with notes is part of doing the job well.
 
 ## Watching events with debug
 
