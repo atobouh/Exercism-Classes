@@ -12,7 +12,7 @@ A small office building has 24 desks, each with an IP phone and a PC. A wireless
 
 | Link | Choice | Reason |
 | --- | --- | --- |
-| Desk PC to the wiring closet | UTP (Cat6 or Cat6a) | Under 100 m, cheap, easy to install and gigabit is plenty |
+| Desk PC to the wiring closet | UTP (Cat6 or Cat6a) | Under 100 m, cheap, simple to install and gigabit is plenty |
 | IP phone at each desk | UTP | The phone sits between the wall and the PC and takes its power from the cable |
 | Ceiling AP to the switch | UTP | The AP needs a wired uplink, and the same cable can power it |
 | Laptops and phones in meetings | Wireless | Users move, and no cable is practical |
@@ -25,7 +25,7 @@ The 400 m link is the interesting one. Copper cannot reach it. Multimode fiber c
 The same handful of questions settles most choices.
 
 1. **Distance.** Anything over 100 m rules out UTP. Beyond a few hundred meters, use single-mode fiber.
-2. **Environment.** Motors, welders, power cables and lifts add EMI. In a noisy plant, choose fiber or shielded cable. Between buildings, fiber also avoids ground-potential differences.
+2. **Environment.** Motors, welders, power cables and elevators add EMI. In a noisy plant, choose fiber or shielded cable. Between buildings, fiber also avoids ground-potential differences.
 3. **Bandwidth.** A user's PC needs 1 Gbps. A link between switches may need 10 Gbps or more, which suits fiber or Cat6a.
 4. **Cost.** UTP is the cheapest. Fiber is dearer in both optics and labor, and wireless saves the cable but costs APs and design work.
 5. **Installation.** Wireless is quickest to deploy and copper is simple. Fiber needs trained staff.
@@ -49,23 +49,23 @@ The power levels come from IEEE standards.
 | 802.3at | PoE+ | 30 W |
 | 802.3bt | PoE++ | 60 W and 90 W (two types) |
 
-The device receives a little less than the switch supplies, since some power is lost in the cable. A basic phone fits easily in 15.4 W, a modern AP often needs PoE+, and a camera with heaters or a pan-tilt motor can need 802.3bt.
+The device receives a little less than the switch supplies, since some power is lost in the cable. A basic phone fits comfortably in 15.4 W, a modern AP often needs PoE+, and a camera with heaters or a pan-tilt motor can need 802.3bt.
 
-A switch has a limited *PoE budget*, a total number of watts it can supply across all ports. A 24-port switch with a 370 W budget cannot give 30 W to every port at once, since that would need 720 W. In practice most devices draw less than the maximum, and the switch negotiates what each one needs. You can check the budget on a Catalyst switch.
+A switch has a limited *PoE budget*, a total number of watts it can supply across all ports. A 24-port switch with a 370 W budget cannot give 30 W to every port at once, since that would need 720 W. In practice most devices draw less than the maximum, and the switch negotiates what each one needs. You can check the budget on a Catalyst switch such as a 2960-X PoE model.
 
 ```console S1
 S1# show power inline
-Available:370.0(w)  Used:23.0(w)  Remaining:347.0(w)
+Available:370.0(w)  Used:21.7(w)  Remaining:348.3(w)
 
 Interface Admin  Oper       Power   Device              Class Max
                             (Watts)
 --------- ------ ---------- ------- ------------------- ----- ----
-Fa0/1     auto   on         6.3     IP Phone 7960       2     15.4
-Fa0/2     auto   on         16.7    AIR-CAP2702I-A-K9   4     30.0
-Fa0/3     auto   off        0.0     n/a                 n/a   30.0
+Gi1/0/1   auto   on         6.3     IP Phone 7960       n/a   30.0
+Gi1/0/2   auto   on         15.4    AIR-CAP2702I-A-K9   3     30.0
+Gi1/0/3   auto   off        0.0     n/a                 n/a   30.0
 ```
 
-The `Oper` column shows whether the port is powering a device, `Device` is what the switch detected, and the three totals on the first line show how much of the budget is gone. Ports default to `auto`, which means detect a PD and power it. `power inline never` in interface configuration mode turns PoE off for a port.
+The `Oper` column shows whether the port is powering a device, `Device` is what the switch detected (the older phone reports no class, so it shows `n/a`), `Max` is the most the port will allow a device to draw, and the three totals on the first line show how much of the budget is gone. Ports default to `auto`, which means detect a PD and power it. `power inline never` in interface configuration mode turns PoE off for a port.
 
 ```question
 prompt = "A switch has a 370 W PoE budget. Twelve ceiling APs each draw 25 W. How many more watts can it supply to other devices?"

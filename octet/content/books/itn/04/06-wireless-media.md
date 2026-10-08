@@ -12,7 +12,7 @@ Four properties set wireless apart from cable.
 
 - **Limited coverage.** Radio signal weakens with distance and is absorbed or reflected by walls, floors, metal and water. The range you get indoors is far less than the range in open air.
 - **Interference.** Many things transmit on the same frequencies: other Wi-Fi networks, Bluetooth devices, cordless phones, baby monitors and microwave ovens. Their signals collide with yours and slow the link.
-- **Security.** A cable is a physical path you can protect. A radio signal reaches anyone in range, including someone in the car park. Wireless networks therefore depend on encryption and authentication to keep traffic private.
+- **Security.** A cable is a physical path you can protect. A radio signal reaches anyone in range, including someone in the parking lot. Wireless networks therefore depend on encryption and authentication to keep traffic private.
 - **A shared medium.** All devices on one access point share the same channel, and only one can transmit at a time. Wireless LANs are *half duplex*: a device either sends or receives, not both at once. They use rules to take turns, the same idea that you will meet for shared Ethernet in [duplex and media access](itn/06/04-duplex-and-media-access).
 
 ```question
@@ -29,9 +29,9 @@ Different technologies suit different distances and purposes. Most of them come 
 | Technology | IEEE standard | What it is used for |
 | --- | --- | --- |
 | Wi-Fi | 802.11 | Wireless LANs: laptops, phones and tablets connecting to a network |
-| Bluetooth | 802.15 | Very short range links between devices: headsets, keyboards, speakers |
+| Bluetooth | 802.15.1 | Very short range links between devices: headsets, keyboards, speakers |
 | WiMAX | 802.16 | Wireless broadband over a wide area, used as an alternative to cable or DSL |
-| Zigbee | 802.15.4 | Low-power, low-data-rate links between sensors and smart-home devices |
+| Zigbee | 802.15.4 (a part of the 802.15 family) | Low-power, low-data-rate links between sensors and smart-home devices |
 
 The IEEE writes the technical standard, but it does not test products. The *Wi-Fi Alliance*, an industry group, certifies that products work together. A device with the Wi-Fi logo has passed the Alliance's tests, which is why a phone from one maker connects to an access point from another.
 
@@ -75,8 +75,8 @@ back = "Limited coverage, interference from other devices, security exposure (an
 ```
 
 ```recall
-front = "Match the IEEE standard to the technology: 802.11, 802.15, 802.16, 802.15.4."
-back = "802.11 is Wi-Fi, 802.15 is Bluetooth, 802.16 is WiMAX, 802.15.4 is Zigbee."
+front = "Match the IEEE standard to the technology: 802.11, 802.15.1, 802.16, 802.15.4."
+back = "802.11 is Wi-Fi, 802.15.1 is Bluetooth, 802.16 is WiMAX, 802.15.4 is Zigbee."
 ```
 
 ```recall

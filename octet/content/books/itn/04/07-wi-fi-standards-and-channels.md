@@ -4,7 +4,7 @@ summary = "Each 802.11 generation uses certain bands and speeds. Channels that d
 links = ["itn/04/06-wireless-media", "itn/04/08-choosing-media-and-poe"]
 +++
 
-Two neighbors in a block of flats each have a Wi-Fi router, and both networks crawl in the evening. Often the cause is not weak signal but a crowded channel: both routers are talking on overlapping frequencies and tripping over each other. To fix that, you need to know the radio bands Wi-Fi uses, the standards that define them, and how channels are laid out. This page covers all three, plus the network name clients see and how wireless traffic is protected.
+Two neighbors in an apartment building each have a Wi-Fi router, and both networks crawl in the evening. Often the cause is not weak signal but a crowded channel: both routers are talking on overlapping frequencies and tripping over each other. To fix that, you need to know the radio bands Wi-Fi uses, the standards that define them, and how channels are laid out. This page covers all three, plus the network name clients see and how wireless traffic is protected.
 
 ## The 802.11 family
 

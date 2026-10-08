@@ -58,11 +58,11 @@ The cable type is decided by how the two ends are wired.
 
 - **Straight-through.** Both ends use the same standard (usually T568B on both). Pin 1 goes to pin 1, and so on. Use it to connect different kinds of device: PC to switch, switch to router, router to a modem or AP. A host sends on 1 and 2, and the switch listens there.
 - **Crossover.** One end is T568A and the other T568B, so the transmit pins on one side land on the receive pins on the other. It was needed between like devices: switch to switch, router to router, PC to PC.
-- **Rollover.** Pin 1 to pin 8, 2 to 7, and so on, so the wiring is reversed end for end. It is a Cisco proprietary cable, usually flat and light blue, with an RJ-45 plug at one end and a serial or USB adapter at the other. It is not for data: it connects a laptop's terminal program to a device's console port.
+- **Rollover.** Pin 1 to pin 8, 2 to 7, and so on, so the wiring is reversed end for end. It is a Cisco proprietary cable, usually flat and light blue, with an RJ-45 plug at each end, and it is used with a serial or USB adapter on the computer. It is not for data: it connects a laptop's terminal program to a device's console port.
 
 ### Auto-MDIX
 
-Modern switch and router ports have *auto-MDIX* (automatic medium-dependent interface crossover). The port senses which pairs the far end transmits on and swaps its own transmit and receive pins to match. A straight-through cable therefore works between two switches, and you rarely need a crossover any more. It is on by default on current Catalyst switches, and [speed, duplex and auto-MDIX](itn/07/08-speed-duplex-and-auto-mdix) shows the commands. Older equipment without it still needs the correct cable.
+Modern switch ports, and many router ports, have *auto-MDIX* (automatic medium-dependent interface crossover). The port senses which pairs the far end transmits on and swaps its own transmit and receive pins to match. A straight-through cable therefore works between two switches, and you rarely need a crossover any more. It is on by default on current Catalyst switches, and [speed, duplex and auto-MDIX](itn/07/08-speed-duplex-and-auto-mdix) shows the commands. Older equipment without it still needs the correct cable.
 
 ```question
 prompt = "Two 2960 switches must be linked with an Ethernet cable. Both are old and have auto-MDIX disabled. Which cable do you use?"

@@ -59,8 +59,8 @@ Because a link needs two strands, connectors often come joined in pairs as a *du
 ```console S1
 S1# show interfaces status
 Port      Name               Status       Vlan       Duplex  Speed Type
-Gi0/1                        connected    1          a-full a-1000 10/100/1000BaseTX
-Te1/1/1                      connected    trunk        full  10G   SFP-10GBase-LR
+Gi1/0/1                      connected    1          a-full a-1000 10/100/1000BaseTX
+Te1/1/1                      connected    trunk        full    10G SFP-10GBase-LR
 ```
 
 A fiber port on a switch usually holds a small pluggable module, an SFP or SFP+, so the same switch can use different fiber types by changing the module. In the output the Type column names the optic. `10GBase-LR` is a 10 Gbps optic for single-mode fiber. A module for multimode would show `SR`.

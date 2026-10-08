@@ -1,10 +1,10 @@
 +++
 title = "Copper cabling"
-summary = "Copper is cheap and easy to install, but signals weaken with distance and pick up noise."
+summary = "Copper is cheap and simple to install, but signals weaken with distance and pick up noise."
 links = ["itn/04/02-encoding-signaling-bandwidth", "itn/04/04-utp-cabling", "itn/04/05-fiber-optic-cabling"]
 +++
 
-Walk into almost any office and the network that reaches your desk is copper: a thin cable with a plastic plug that carries electrical signals from the wall to a switch. Copper is the most common medium in a LAN because it is cheap, flexible and easy to work with. It also has two weaknesses that shape every design decision in this chapter. The signal gets weaker the further it travels, and it picks up electrical noise on the way. This page covers both problems, the tricks that keep them under control, and the three kinds of copper cable you will meet.
+Walk into almost any office and the network that reaches your desk is copper: a thin cable with a plastic plug that carries electrical signals from the wall to a switch. Copper is the most common medium in a LAN because it is cheap, flexible and straightforward to work with. It also has two weaknesses that shape every design decision in this chapter. The signal gets weaker the further it travels, and it picks up electrical noise on the way. This page covers both problems, the tricks that keep them under control, and the three kinds of copper cable you will meet.
 
 ## Why copper signals go wrong
 
@@ -23,7 +23,7 @@ Cable makers and installers use a short list of countermeasures.
 1. **Twist the pairs.** In a twisted pair, the two wires carry equal and opposite signals and wind around each other. A noise field hits both wires almost equally, so the receiver, which looks only at the difference between them, sees the noise cancel. Twisting also cancels the field a pair gives off, which reduces crosstalk. Each pair in a cable is twisted at a different rate so that neighboring pairs do not line up and leak into each other.
 2. **Shield the cable.** A layer of metal foil or braid around the pairs, or around the whole cable, blocks outside fields.
 3. **Respect the length limit.** Staying within the standard's maximum keeps attenuation acceptable.
-4. **Route away from noise.** Keep data cable off the same tray as power cable, and away from lift motors, lighting ballasts and heavy machinery. Cross a power cable at a right angle, not alongside it.
+4. **Route away from noise.** Keep data cable off the same tray as power cable, and away from elevator motors, lighting ballasts and heavy machinery. Cross a power cable at a right angle, not alongside it.
 5. **Terminate carefully.** Leave the pairs twisted right up to the connector. Untwisting a long stretch invites crosstalk.
 
 ```question
@@ -39,7 +39,7 @@ Network copper comes in three families.
 
 ### Unshielded twisted pair
 
-*Unshielded twisted pair* (UTP) is the cable behind nearly every Ethernet LAN. It has four pairs of twisted wires inside a plastic jacket, with no metal shield. It relies on twisting alone to fight noise. It is thin, cheap and easy to bend and terminate, which is why it won. The [next page](itn/04/04-utp-cabling) goes through its categories and wiring.
+*Unshielded twisted pair* (UTP) is the cable behind nearly every Ethernet LAN. It has four pairs of twisted wires inside a plastic jacket, with no metal shield. It relies on twisting alone to fight noise. It is thin, cheap and simple to bend and terminate, which is why it won. The [next page](itn/04/04-utp-cabling) goes through its categories and wiring.
 
 ### Shielded twisted pair
 
@@ -51,7 +51,7 @@ Network copper comes in three families.
 
 | Cable | Construction | Typical use | Strengths | Weaknesses |
 | --- | --- | --- | --- | --- |
-| UTP | Four twisted pairs, no shield | Office and home Ethernet | Cheap, thin, easy to install | Least protected from EMI |
+| UTP | Four twisted pairs, no shield | Office and home Ethernet | Cheap, thin, simple to install | Least protected from EMI |
 | STP | Twisted pairs plus foil or braid | Noisy industrial areas | Better noise protection | Costly, bulky, needs grounding |
 | Coax | One central conductor, insulation, shield | Cable internet, TV, satellite, antennas | Good shielding, longer runs | Bulky, not used for new LANs |
 
