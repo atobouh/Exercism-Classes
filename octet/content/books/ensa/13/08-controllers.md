@@ -43,7 +43,7 @@ links = [
 - **Nexus 9000 switches** running in ACI mode, wired as a spine-leaf fabric.
 - A **policy model** built around the application rather than the port. Devices that play the same role, such as all the web servers, are grouped into an *endpoint group* (EPG). An *application network profile* describes which EPGs may talk to which, and under what rules.
 
-You tell the APIC what the application needs ("web may reach app on this port; app may reach database") and it works out the configuration on each switch. That is intent expressed as policy.
+You tell the APIC what the application needs ("web may reach app on this port; app may reach database"). The APIC passes that policy to the switches, which apply it to their own configuration. That is intent expressed as policy.
 
 ```question
 prompt = "Which component is the central controller in a Cisco ACI fabric?"
@@ -58,18 +58,18 @@ Products differ in how much control moves to the controller.
 
 - **Device-based:** each device keeps its intelligence but offers APIs, so software can configure it.
 - **Controller-based:** a controller builds a view of the network and instructs the devices, usually through a southbound API.
-- **Policy-based:** the controller takes high-level policy and lets the devices work out the details. ACI is the classic example.
+- **Policy-based:** a controller-based design with a policy layer on top. You state what the business or application needs as policy, and the controller turns that policy into device configuration. Cisco DNA Center (Catalyst Center) and ACI are examples.
 
 ## Campus: Cisco DNA Center
 
-For campus and branch networks, Cisco's controller is Cisco DNA Center, now branded Cisco Catalyst Center. It manages Catalyst switches, routers and wireless, and supports design, provisioning, policy and assurance from one console. It is the heart of Cisco's intent-based networking, which the next chapter on automation touches on. Older material mentions *APIC-EM*, an earlier Cisco controller that has been replaced.
+For campus and branch networks, Cisco's controller is Cisco DNA Center, now branded Cisco Catalyst Center (the same product under its new name). It manages Catalyst switches, routers and wireless, and supports design, provisioning, policy and assurance from one console. It is the heart of Cisco's intent-based networking, which the next chapter on automation touches on. Older material mentions *APIC-EM*, an earlier Cisco enterprise controller. Cisco has retired it, and Catalyst Center is the product it points customers to.
 
 ## Other controllers
 
 | Controller | Where it fits |
 | --- | --- |
 | Wireless LAN controller | Manages lightweight access points |
-| Catalyst SD-WAN Manager | Manages an SD-WAN across branches and the internet |
+| Catalyst SD-WAN Manager | Manages an SD-WAN across branches and the internet (formerly vManage) |
 | Meraki dashboard | Cloud-hosted management of Meraki devices |
 
 The Field Guide chapter on controllers and software-defined networks goes deeper.

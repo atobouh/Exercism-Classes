@@ -24,6 +24,13 @@ why = "The company consumes a finished application, so this is SaaS. Community c
 ```
 
 ```question
+prompt = "Harbor Supply rents virtual servers, storage and networks from a public provider, then installs its own operating system and database on them. Which service model is this?"
+options = ["SaaS", "PaaS", "IaaS", "A hybrid cloud"]
+answer = 2
+why = "Renting virtual machines, storage and networks is IaaS, and the company manages the operating system and everything above it. PaaS would supply the operating system too. A hybrid cloud is a deployment model, not a service model."
+```
+
+```question
 prompt = "Which TWO statements about cloud deployment models are correct?"
 options = ["A hybrid cloud combines two or more deployment models", "A private cloud is open to anyone who signs up", "A community cloud is shared by organizations with common concerns", "A public cloud is always owned by the customer", "Deployment models decide whether you rent SaaS, PaaS or IaaS"]
 answer = [0, 2]
