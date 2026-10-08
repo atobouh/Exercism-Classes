@@ -54,7 +54,7 @@ S1(config-if)#
 S1(config-if)# exit
 ```
 
-The last command is the easiest to forget. On a switch, the VLAN 1 interface starts out shut down, so an address on it does nothing until `no shutdown` brings it up. The two log lines are the proof: the link came up, then the protocol did.
+The last command is the one people most often forget. On a switch, the VLAN 1 interface starts out shut down, so an address on it does nothing until `no shutdown` brings it up. The two log lines are the proof: the link came up, then the protocol did.
 
 ```command
 prompt = "Give the VLAN 1 interface the address 192.168.1.2 with mask 255.255.255.0."

@@ -134,7 +134,7 @@ S1(config)# no ip domain-lookup
 Now a typo fails at once. The cost is that the switch can no longer resolve names, which a lab switch never needs.
 
 ```deeper
-`no ip domain-lookup` also accepts the newer spelling `no ip domain lookup` on recent IOS and IOS XE releases. Either form ends up in the running configuration in the device's own preferred spelling.
+Cisco changed the command to `ip domain lookup` (with a space) years ago, and the hyphenated `no ip domain-lookup` is still accepted. Some IOS XE releases show the spaced form in the running configuration.
 ```
 
 ```recall

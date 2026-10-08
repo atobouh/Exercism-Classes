@@ -61,6 +61,13 @@ If both are configured, IOS uses the secret and ignores the password. In practic
 S1(config)# enable secret class
 ```
 
+```command
+prompt = "Protect privileged EXEC with a hashed password, class."
+mode = "S1(config)#"
+answer = ["enable secret class"]
+why = "`enable secret` stores a one-way hash. `enable password` would store the word as typed."
+```
+
 The VTY lines work like the console. A 2960 has sixteen of them, numbered 0 to 15, and each one holds one remote session. You configure them all together:
 
 ```console S1
@@ -120,14 +127,16 @@ Building configuration...
 Current configuration : 1596 bytes
 !
 version 15.0
+...
 service password-encryption
 !
 hostname S1
 !
 enable secret 5 $1$Xk4T$mx5LdKxxPSIYcSVEfQHcM.
 !
+...
 no ip domain-lookup
-!
+...
 banner motd ^CAuthorized access only. Activity is logged.^C
 !
 line con 0

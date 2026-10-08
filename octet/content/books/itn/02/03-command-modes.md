@@ -27,7 +27,7 @@ Switch> enable
 Switch#
 ```
 
-This is *privileged EXEC mode*, sometimes called enable mode. Every `show` command works here, along with the commands that act on the whole device: `copy` to save a configuration, `reload` to restart, `debug` to trace what a process is doing, and `erase` to wipe the saved configuration. Because these are powerful, privileged EXEC gets its own password once you configure one. To drop back to user EXEC, type `disable`.
+This is *privileged EXEC mode*, sometimes called enable mode. Every `show` command works here, along with the commands that act on the whole device: `copy` to save a configuration, `reload` to restart, `debug` to trace what a process is doing, and `erase` to wipe the saved configuration. Because these can do real damage, privileged EXEC gets its own password once you configure one. To drop back to user EXEC, type `disable`.
 
 ```command
 prompt = "You are at the Switch> prompt. Move to privileged EXEC mode."
