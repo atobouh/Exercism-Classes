@@ -37,7 +37,7 @@ links = [
 
 A plan like this earns its place. Notice what the table makes obvious before you touch a keyboard. The two LANs use different third octets, so they are different networks. The IPv6 prefixes differ in the fourth group, 10 against 11, for the same reason. Each gateway is the R1 address in the PC's own network, and S1 uses the same gateway as PC1 because it sits in LAN 1. If you can fill in the Gateway column from the interface addresses alone, you have understood the chapter.
 
-Work in the same order each time. Router first, because the interfaces must be up/up before anything else can succeed. Then the switch, then the PCs. When something fails, you can check from the inside out: R1's own interfaces, then R1 pinging each PC, then PC to PC.
+Work in the same order each time. Router first, because nothing crosses R1 until its interfaces are up/up. Then the switch, then the PCs. When something fails, you can check from the inside out: R1's own interfaces, then R1 pinging each PC, then PC to PC.
 
 ## Configuring R1
 
@@ -52,7 +52,8 @@ R1(config)# enable secret class
 R1(config)# line console 0
 R1(config-line)# password conpass1
 R1(config-line)# login
-R1(config-line)# line vty 0 4
+R1(config-line)# exit
+R1(config)# line vty 0 4
 R1(config-line)# password vtypass1
 R1(config-line)# login
 R1(config-line)# exit
@@ -128,13 +129,13 @@ C:\> ping 2001:db8:acad:11::10
 Reply from 2001:db8:acad:11::10: time=1ms
 ```
 
-A TTL of 127 means one router crossed on the way: the reply left PC2 with 128 and R1 took one off.
+Windows starts its replies at a TTL of 128. A TTL of 127 on arrival means one router crossed on the way, because R1 took one off as it forwarded the reply.
 
 ## A planted fault
 
 Suppose PC2 was set with gateway 192.168.11.2 by mistake. PC2 can ping R1 at 192.168.11.1 because that is on its own network. But a ping from PC1 to PC2 gets no reply, because PC2 sends its answers to an address where no router lives.
 
-The symptom is a one-way failure with local traffic fine. The fix is one field on PC2: change the gateway to 192.168.11.1. Compare with the table, find the mismatch, and the ping succeeds on the next try.
+The symptom is that PC1 cannot reach PC2, while PC2 can still reach R1 on its own LAN. The fix is one field on PC2: change the gateway to 192.168.11.1. Compare with the table, find the mismatch, and the ping succeeds on the next try.
 
 ```recall
 front = "In what order do you check a new router setup?"

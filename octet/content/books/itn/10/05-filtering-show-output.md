@@ -24,10 +24,9 @@ R1# show running-config | section line vty
 line vty 0 4
  password 7 021010421B071C321D
  login
- transport input ssh
 ```
 
-(The `transport input` line appears only if you set it.) Compare that with scrolling through the entire file looking for the right place.
+Compare that with scrolling through the entire file looking for the right place.
 
 ```command
 prompt = "Show only the part of the running configuration that starts at the first line containing the word interface."

@@ -28,7 +28,7 @@ why = "`enable secret` stores a one-way hash. `enable password` would keep the w
 
 ## The console and the VTY lines
 
-The *console line* is the cable on the front. The *VTY lines* take sessions that arrive over the network. Each gets a password and the `login` command that makes the router ask for it. On an ISR 4000 the VTY lines are numbered 0 to 4 by default, so `line vty 0 4` covers them all. You can confirm this with `show running-config | section line`, which the next pages teach.
+The *console line* is the cable on the front. The *VTY lines* take sessions that arrive over the network. Each gets a password and the `login` command that makes the router ask for it. VTY lines are numbered from 0 upward. This chapter configures lines 0 to 4, which is the usual first block. Some IOS XE releases also list `line vty 5 15` in the configuration, so you may see more lines than this; give those the same settings. Page 5 shows how to filter the configuration to see them.
 
 ```console R1
 R1(config)# line console 0
@@ -41,7 +41,7 @@ R1(config-line)# login
 R1(config-line)# exit
 ```
 
-A password without `login` is never asked for on the console, so type both. Remote sessions also need `enable secret` to be set, or a remote user cannot reach privileged mode. Telnet sends these passwords in clear text. SSH, covered in [enabling SSH](itn/16/08-enabling-ssh), is the proper way to protect remote access.
+A password without `login` is never asked for on the console, so type both. Without `enable secret`, a remote user can log in but cannot enter privileged mode. Telnet sends these passwords in clear text. SSH, covered in [enabling SSH](itn/16/08-enabling-ssh), is the proper way to protect remote access.
 
 ## Hiding passwords and warning visitors
 
@@ -68,7 +68,7 @@ Translating "shwo"...domain server (255.255.255.255)
 
 ```question
 prompt = "A mistyped command makes the router pause with `Translating \"shwo\"...`. Which command stops this?"
-options = ["no ip routing", "no ip domain-lookup", "no service dns", "logging synchronous"]
+options = ["no ip routing", "no ip domain-lookup", "no ip name-server", "logging synchronous"]
 answer = 1
 why = "IOS treats an unknown word as a hostname to look up. `no ip domain-lookup` disables that lookup. `logging synchronous` only keeps log messages from splitting your typing."
 ```

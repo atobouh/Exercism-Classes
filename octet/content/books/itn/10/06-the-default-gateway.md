@@ -21,7 +21,7 @@ why = "The gateway is the router interface on PC1's own network, 192.168.10.1. T
 
 ## IPv6 hosts
 
-An IPv6 host usually does not need its gateway typed in. With `ipv6 unicast-routing` on, R1 sends Router Advertisements, and the host takes the sender's address as its gateway. That address is the router's link-local address, such as `fe80::1`, not the global one. This is why setting a short, fixed link-local address on the router is worth doing: it appears in every host's configuration.
+An IPv6 host usually does not need its gateway typed in. With `ipv6 unicast-routing` on, R1 sends Router Advertisements, and the host takes the sender's address as its gateway. That address is the router's link-local address, not the global one. On page 3 you gave G0/0/0 the link-local address `fe80::1`, so that is what the PC receives as its gateway. Setting a short, fixed link-local address on the router is worth doing for this reason: it appears in every host's configuration. Without it, the router's automatically chosen address would be much harder to read.
 
 You can see it on a Windows PC with `ipconfig`:
 
@@ -36,6 +36,8 @@ C:\> ipconfig
                                        192.168.10.1
 ```
 
+The `%4` after an IPv6 address is a zone ID. It is the index of the PC's network adapter, and it tells Windows which link the link-local address belongs to.
+
 ## The switch's gateway
 
 A switch has an address too, on its management interface, and it needs a gateway for the same reason. Your management PC may sit in another network. When the PC sends a request to the switch, the switch has to reply, and it must know where to send a reply bound for a different network. Use `ip default-gateway` in global configuration:
@@ -47,7 +49,7 @@ answer = ["ip default-gateway 192.168.10.1"]
 why = "It is a global configuration command. The switch uses it for traffic it originates, such as replies to remote management sessions."
 ```
 
-The setting has no effect on the PCs' traffic. A switch forwards their frames by MAC address and never looks at its gateway. A switch with no gateway still switches perfectly. You lose only the ability to manage it from other networks. For the same reason, a switch that cannot be pinged from another LAN is a gateway problem, not a switching one.
+The setting has no effect on the PCs' traffic. A switch forwards their frames by MAC address and never looks at its gateway. A switch with no gateway still switches perfectly. You lose only the ability to manage it from other networks. A switch that cannot be pinged from another LAN usually has a gateway problem, not a switching one.
 
 ## Troubleshooting with the gateway
 

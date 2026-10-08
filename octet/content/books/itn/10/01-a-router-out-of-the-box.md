@@ -33,14 +33,13 @@ The left LAN is 192.168.10.0/24 and the right one is 192.168.11.0/24. Nothing in
 
 ## Naming the interfaces
 
-Switch ports are named by type and number, such as `FastEthernet0/6`. On the ISR 4000 series the name has three numbers: slot, subslot and port. The two built-in Gigabit Ethernet ports are `GigabitEthernet0/0/0` and `GigabitEthernet0/0/1`. Serial interfaces on an added module look like `Serial0/1/0`.
+Switch ports are named by type and number, such as `FastEthernet0/6`. On the ISR 4000 series the name has three numbers: slot, subslot and port. The two built-in Gigabit Ethernet ports are `GigabitEthernet0/0/0` and `GigabitEthernet0/0/1`.
 
 ```console R1
 R1# show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
 GigabitEthernet0/0/0   unassigned      YES unset  administratively down down
 GigabitEthernet0/0/1   unassigned      YES unset  administratively down down
-Serial0/1/0            unassigned      YES unset  administratively down down
 ...
 ```
 

@@ -15,7 +15,6 @@ R1# show ip interface brief
 Interface              IP-Address      OK? Method Status                Protocol
 GigabitEthernet0/0/0   192.168.10.1    YES manual up                    up
 GigabitEthernet0/0/1   192.168.11.1    YES manual up                    up
-Serial0/1/0            unassigned      YES unset  administratively down down
 ...
 ```
 
@@ -29,7 +28,6 @@ GigabitEthernet0/0/0   [up/up]
 GigabitEthernet0/0/1   [up/up]
     FE80::1
     2001:DB8:ACAD:11::1
-Serial0/1/0            [administratively down/down]
 ...
 ```
 
@@ -50,7 +48,7 @@ Two columns, Status and Protocol, carry the diagnosis. Status is the physical la
 prompt = "An interface shows `down` for Status and `down` for Protocol, and it has `no shutdown` configured. What is the most likely cause?"
 options = ["The interface has no IP address", "No working link: the cable is missing or the far end is off or shut", "The interface was shut down by an administrator", "An encapsulation mismatch"]
 answer = 1
-why = "Administrators' shutdowns show as `administratively down`. A down/down interface that is enabled has no link signal. An encapsulation mismatch gives up/down."
+why = "An administrative shutdown shows as `administratively down`, so this interface is not shut down. A down/down interface that is enabled has no link signal. An encapsulation mismatch gives up/down."
 ```
 
 ## Looking closer
@@ -89,7 +87,7 @@ An interface that is not up/up leaves no entry here. `show ipv6 route` does the 
 
 ## One interface at a time
 
-To see just what you configured on one interface, read it back from the running configuration:
+To see only what you configured on one interface, read it back from the running configuration:
 
 ```console R1
 R1# show running-config interface gigabitethernet 0/0/0
@@ -118,7 +116,7 @@ Sending 5, 100-byte ICMP Echos to 192.168.10.10, timeout is 2 seconds:
 Success rate is 100 percent (5/5), round-trip min/avg/max = 1/1/2 ms
 ```
 
-The first ping after a restart sometimes loses a packet (shown as `.`) while ARP finds the host's MAC. Run it again before worrying. A ping that works proves the interface, the cable, the switch between and the host's address are all fine. See [ping](itn/13/03-ping) for how to read other results.
+Repeat the test on G0/0/1 with `ping 192.168.11.10` to check the second LAN. The first ping after a restart sometimes loses a packet (shown as `.`) while ARP finds the host's MAC. Run it again before worrying. A ping that works proves the interface, the cable, the switch between and the host's address are all fine. See [ping](itn/13/03-ping) for how to read other results.
 
 ```recall
 front = "What do Status up and Protocol down on an interface suggest?"
