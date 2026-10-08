@@ -20,7 +20,7 @@ Knowing which is which is also a safety tool. If a change goes wrong, you can th
 
 Every command you type changes the running configuration immediately. The new setting is live the moment you press Enter. Nothing writes to NVRAM until you ask. When the device boots, it reads the startup configuration from NVRAM and copies it into RAM, and that copy becomes the running configuration.
 
-A brand-new switch has nothing in NVRAM. In that case `show startup-config` says so:
+On a switch with nothing saved, `show startup-config` says so:
 
 ```console Switch
 Switch# show startup-config
@@ -97,10 +97,11 @@ Erasing the nvram filesystem will remove all configuration files! Continue? [con
 [OK]
 Erase of nvram: complete
 S1# reload
+System configuration has been modified. Save? [yes/no]: no
 Proceed with reload? [confirm]
 ```
 
-Since the running configuration is gone on restart too, the switch boots with its original name and no passwords. The `reload` does not ask to save here because the startup file is already empty.
+Answer `no` to the save prompt. The running configuration still differs from the now-empty startup file, so IOS asks, and saying `yes` would write everything back. After the restart the switch has its original name and no passwords.
 
 A switch has one more file to remember. VLAN definitions are not part of the configuration text. They live in a file named `vlan.dat` in flash, so they survive an `erase startup-config`. For a full reset, delete it as well, before you reload:
 
@@ -110,7 +111,7 @@ Delete filename [vlan.dat]?
 Delete flash:/vlan.dat? [confirm]
 ```
 
-Press Enter at each prompt. Skip this step on a switch that has never had VLANs created, because the file does not exist and the command reports an error. The VLANs chapters explain how they are stored.
+Press Enter at each prompt. Skip this step on a switch that has never had VLANs created, because the file does not exist and the command reports an error. A later chapter explains how VLANs are stored.
 
 ```trap
 `erase startup-config` does not erase the running configuration. Until you reload, the switch keeps running as before, and a later `copy run start` would write the old settings straight back.

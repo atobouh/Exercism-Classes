@@ -10,7 +10,7 @@ NAT faults have a useful property: the router keeps a table of what it is doing,
 
 ## The scenario
 
-PC1 at 192.168.10.10 sits behind R2's G0/0/0. R2's G0/0/1 holds 203.0.113.1, and the ISP router at 203.0.113.2 is its next hop. A web server at 198.51.100.10 is the target. This is what R2 was supposed to have, and what a user reports.
+PC1 at 192.168.10.10 sits behind R2's G0/0/0. R2's G0/0/1 holds 203.0.113.1, and the ISP router at 203.0.113.2 is its next hop. A web server at 198.51.100.10 is the target. A user's ping shows the symptom.
 
 ```console PC1
 C:\> ping 198.51.100.10
@@ -90,7 +90,7 @@ Now PC1 pings again. Turn on NAT debugging, test, and turn it off at once.
 ```console R2
 R2# debug ip nat
 IP NAT debugging is on
-NAT*: s=192.168.10.10->203.0.113.1, d=198.51.100.10 [212]
+NAT: s=192.168.10.10->203.0.113.1, d=198.51.100.10 [212]
 NAT*: s=198.51.100.10, d=203.0.113.1->192.168.10.10 [305]
 NAT*: s=192.168.10.10->203.0.113.1, d=198.51.100.10 [213]
 NAT*: s=198.51.100.10, d=203.0.113.1->192.168.10.10 [306]
@@ -98,7 +98,7 @@ R2# undebug all
 All possible debugging has been turned off
 ```
 
-Read the lines by their `s=` and `d=` fields. An arrow shows the field that was rewritten. In the first line the source changed from 192.168.10.10 to 203.0.113.1, an outbound packet. In the second line the destination changed from 203.0.113.1 back to 192.168.10.10, a reply. The number in brackets is the packet's IP identification value. The asterisk means the packet took the fast path through the router, since the first packet of a flow is processed without it.
+Read the lines by their `s=` and `d=` fields. An arrow shows the field that was rewritten. In the first line the source changed from 192.168.10.10 to 203.0.113.1, an outbound packet. In the second line the destination changed from 203.0.113.1 back to 192.168.10.10, a reply. The number in brackets is the packet's IP identification value. An asterisk after NAT marks a packet translated on the router's fast path. The first packet of a flow, which has to create the table entry, usually shows no asterisk.
 
 On a busy production router, debug output can arrive faster than the console can print it, and can slow the router. Use `debug ip nat` briefly, ideally when traffic is light, and never leave it on.
 
@@ -128,10 +128,10 @@ The ping from PC1 now succeeds, and the table has its entry.
 | Translations exist, but no replies | `show ip route` | No route to the ISP or no default route; ISP lacks a route back to the public addresses |
 
 ```question
-prompt = "show ip nat statistics on R2 lists GigabitEthernet0/0/0 under both Inside interfaces and Outside interfaces. Users cannot get out. What is wrong?"
-options = ["The pool is exhausted", "G0/0/1 has the wrong role and G0/0/0 is marked as both", "overload is missing", "The ACL uses the wrong wildcard"]
+prompt = "show ip nat statistics on R2 lists GigabitEthernet0/0/0 (the LAN) under Outside interfaces and GigabitEthernet0/0/1 (the ISP link) under Inside interfaces. Users cannot get out. What is wrong?"
+options = ["The pool is exhausted", "The inside and outside roles are swapped between the two interfaces", "The overload keyword is missing", "The ACL uses a subnet mask instead of a wildcard"]
 answer = 1
-why = "An interface should be inside or outside, not both. The ISP-facing G0/0/1 lacks ip nat outside, and the LAN interface has had both commands applied, so no packet crosses between roles."
+why = "NAT treats traffic arriving on the LAN as coming from the outside, so the inside-source rule never applies to it. Swap the two ip nat commands."
 ```
 
 ```recall

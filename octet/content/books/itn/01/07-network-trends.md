@@ -56,7 +56,7 @@ why = "Several organizations with shared needs use it, and no one else may. That
 
 ## Data centers, virtual machines and containers
 
-A *data center* is a building (or a floor) full of servers, storage and the switches and routers that connect them, with power, cooling and security to match. Cloud providers run huge ones. A company can also keep its own, which is *on-premises*: it controls everything, and it pays for everything and must staff it. The cloud trades some of that control for lower upfront cost and the ability to grow quickly.
+A *data center* is a building (or a floor) full of servers, storage and the switches and routers that connect them, with power, cooling and security to match. Cloud providers run huge ones. A company can also keep its own, which is *on-premises*: it controls everything, but it also pays for everything and is responsible for power, patching and replacing failed hardware. The cloud trades some of that control for lower upfront cost, shared responsibility and the ability to grow quickly.
 
 Servers in a data center rarely run one job each any more. *Server virtualization* lets one physical server run many *virtual machines* (VMs). Each VM acts like a separate computer with its own operating system, but they all share the same hardware, so the hardware does not sit idle.
 

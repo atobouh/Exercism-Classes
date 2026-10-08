@@ -66,7 +66,7 @@ Gi0/0/1      10    0               10.1.1.5/30        10    P2P   1/1
 Gi0/0/0      10    0               10.1.1.1/30        10    P2P   1/1
 ```
 
-`show ip ospf interface` prints the same value on its `Cost:` field, and `show ip protocols` shows the reference bandwidth in effect on newer images.
+`show ip ospf interface` prints the same value on its `Cost:` field, and `show ip ospf` has a line, `Reference bandwidth unit is 100 mbps`, that reports the reference in effect.
 
 ## Overriding the calculation
 
@@ -84,7 +84,7 @@ R1(config-if)# ip ospf cost 100
 
 The cost of a route is the sum of the costs of the interfaces the packets leave on, router by router, along the path. The last term is the cost of the interface that owns the destination network, such as the destination router's LAN port.
 
-Suppose the R1 to R3 cable is the 100 Mbps link just configured with cost 100, and the rest are gigabit at 10. R1 compares two paths to R3's LAN, 192.168.30.0/24:
+Suppose the R1 to R3 cable is the link just given cost 100 (on both ends, so each direction agrees), and the rest are gigabit at 10. R1 compares two paths to R3's LAN, 192.168.30.0/24:
 
 | Path | Interfaces and costs | Total |
 | --- | --- | --- |
