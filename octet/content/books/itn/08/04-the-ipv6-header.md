@@ -16,7 +16,7 @@ IPv4 served well for decades, but it has three problems that patches only partly
 
 ```fields
 title = "IPv6 header"
-caption = "Forty bytes, always. Compared with IPv4, the two address fields are four times as long."
+caption = "Forty bytes, always. Compared with IPv4, each address takes four rows of 32 bits."
 unit = "bits"
 row = 32
 fields = [
@@ -26,8 +26,14 @@ fields = [
   { name = "Payload Length", span = 16 },
   { name = "Next Header", span = 8 },
   { name = "Hop Limit", span = 8 },
-  { name = "Source Address", span = 128 },
-  { name = "Destination Address", span = 128 },
+  { name = "Source Address (part 1 of 4)", span = 32 },
+  { name = "Source Address (part 2 of 4)", span = 32 },
+  { name = "Source Address (part 3 of 4)", span = 32 },
+  { name = "Source Address (part 4 of 4)", span = 32 },
+  { name = "Destination Address (part 1 of 4)", span = 32 },
+  { name = "Destination Address (part 2 of 4)", span = 32 },
+  { name = "Destination Address (part 3 of 4)", span = 32 },
+  { name = "Destination Address (part 4 of 4)", span = 32 },
 ]
 ```
 

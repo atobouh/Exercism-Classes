@@ -80,7 +80,7 @@ IPv6 routing works the same way, with its own table.
 
 ```console R1
 R1# show ipv6 route
-IPv6 Routing Table - default - 5 entries
+IPv6 Routing Table - default - 4 entries
 Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
 ...
 S   ::/0 [1/0]

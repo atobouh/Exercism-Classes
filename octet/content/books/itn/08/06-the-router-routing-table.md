@@ -52,7 +52,7 @@ Now take apart the OSPF line `O 10.3.3.0/24 [110/3] via 10.1.1.2, 00:04:12, Giga
 | `00:04:12` | How long ago the route was learned |
 | `GigabitEthernet0/0/0` | Interface to send the packet out of |
 
-The administrative distance ranks how much the router trusts the source of a route, and the metric measures how good the path is within that source. Static and connected routes have no age or exit interface in this style of listing when they are static with a next hop. The static lines above show only `via`, because the router works out the exit interface from the next hop.
+The administrative distance ranks how much the router trusts the source of a route, and the metric measures how good the path is within that source. Static routes that name only a next hop, like the two `S` lines above, show no age or exit interface. The router works out the exit interface from the next hop when it forwards.
 
 ## The gateway of last resort
 
