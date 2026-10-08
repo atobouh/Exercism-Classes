@@ -50,7 +50,7 @@ Do not mix up the two numbering schemes. Time exceeded is type 11 in ICMPv4 but 
 
 ## Other messages worth knowing
 
-ICMPv4 type 5 is *redirect*. A router sends it to tell a host that a better first hop exists on the same segment. ICMPv6 has the same idea as type 137. ICMPv6 also defines type 2, *packet too big*, which a router sends when a packet exceeds the next link's MTU. IPv6 routers never fragment packets, so this message is how the sender learns it must send smaller ones.
+ICMPv4 type 5 is *redirect*. A router sends it to tell a host that a better first hop exists on the same segment. ICMPv6 has the same idea as type 137. ICMPv6 also defines type 2, *packet too big*, which a router sends when a packet exceeds the next link's MTU. IPv6 routers never fragment packets, so this message is how the sender learns it must send smaller ones. IPv4 has no separate packet too big message. The same job falls to type 3 code 4, fragmentation needed, which a router sends when a packet with the DF bit set is too large for the next link.
 
 ## ICMPv6 Neighbor Discovery messages
 
