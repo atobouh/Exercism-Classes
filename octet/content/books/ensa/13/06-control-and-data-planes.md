@@ -1,7 +1,7 @@
 +++
 title = "Control, data and management planes"
 summary = "Every network device thinks, forwards and is managed; SDN moves the thinking to a central controller."
-links = ["ensa/13/05-virtual-network-infrastructure", "ensa/13/07-sdn-architecture"]
+links = ["ensa/13/05-virtual-network-infrastructure", "ensa/13/07-sdn-architecture", "field/10/02-data-control-management-planes"]
 +++
 
 Look at a router at work and you can split its activity into three jobs. It works out where traffic should go. It actually sends traffic that way, millions of times a second. And an administrator logs in to configure and watch it. Networking calls these jobs *planes*. Knowing which plane something belongs to is the key to understanding software-defined networking, because SDN is mostly a decision about where each plane lives.

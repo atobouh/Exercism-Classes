@@ -1,7 +1,7 @@
 +++
 title = "Containers and VRFs"
 summary = "Two more kinds of virtualization: containers share one OS kernel, and VRFs give one router several routing tables."
-links = ["ensa/13/03-virtualization", "ensa/13/05-virtual-network-infrastructure"]
+links = ["ensa/13/03-virtualization", "ensa/13/05-virtual-network-infrastructure", "field/09/03-containers", "field/09/06-vrfs"]
 +++
 
 A virtual machine carries a whole operating system, which is a lot of baggage when all you want is to run one application. And a single router sometimes needs to behave like several routers. Two techniques answer these needs. *Containers* virtualize the application environment. *VRFs* virtualize the routing table. Both are worth understanding properly.

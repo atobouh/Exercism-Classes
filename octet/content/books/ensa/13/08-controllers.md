@@ -1,7 +1,7 @@
 +++
 title = "Controllers in practice"
 summary = "Cisco ACI's APIC in the data center, Catalyst Center in the campus, and other controllers you will meet."
-links = ["ensa/13/07-sdn-architecture", "ensa/13/05-virtual-network-infrastructure"]
+links = ["ensa/13/07-sdn-architecture", "ensa/13/05-virtual-network-infrastructure", "field/10/06-catalyst-center", "field/10/07-other-controllers"]
 +++
 
 SDN is an architecture, and Cisco ships it as products. Which one you meet depends on where the network is: one controller is built for data centers, another for campus and branch networks. This page names them and shows what each controls. It begins with the data center, where the topology itself is part of the design.
