@@ -96,7 +96,7 @@ That leaves the problem of getting a shared key to both sides. *Diffie-Hellman* 
 
 ## Certificates and PKI
 
-A public key is just a number. If someone hands you one and says it belongs to your bank, how do you know? A *digital certificate* binds a public key to a named owner, and it is signed by a *certificate authority* (CA) that you already trust. Your browser or device comes with a list of trusted CAs. Together, the CAs, the certificates and the processes for issuing and revoking them form a *public key infrastructure* (PKI).
+A public key is only a long number. If someone hands you one and says it belongs to your bank, how do you know? A *digital certificate* binds a public key to a named owner, and it is signed by a *certificate authority* (CA) that you already trust. Your browser or device comes with a list of trusted CAs. Together, the CAs, the certificates and the processes for issuing and revoking them form a *public key infrastructure* (PKI).
 
 When you connect to a secure website, the server presents its certificate. Your browser checks the CA's signature, the name and the dates. Then the browser and server use asymmetric methods to agree on a symmetric key, and the rest of the session uses fast symmetric encryption. VPN protocols such as IPsec follow the same shape, as the [IPsec framework](ensa/08/05-the-ipsec-framework) shows.
 

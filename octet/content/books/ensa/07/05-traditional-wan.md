@@ -80,7 +80,7 @@ Both have now been replaced by MPLS and Ethernet WANs, which do the same jobs wi
 | --- | --- | --- | --- |
 | Leased line (T1/E1, T3/E3) | Dedicated circuit | 1.544 Mbps to 44.736 Mbps | Still sold, losing ground to Ethernet |
 | Dial-up | Circuit-switched | Up to 56 kbps | Obsolete |
-| ISDN | Circuit-switched | 128 kbps (BRI) to E1 rate (PRI) | Largely retired |
+| ISDN | Circuit-switched | 128 kbps (BRI) up to the T1 or E1 rate (PRI) | Largely retired |
 | Frame Relay | Packet-switched, virtual circuits | Up to T3 rates, often far less | Retired |
 | ATM | Packet-switched, 53-byte cells | Up to hundreds of Mbps | Retired |
 

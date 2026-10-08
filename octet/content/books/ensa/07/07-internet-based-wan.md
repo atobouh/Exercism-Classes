@@ -24,7 +24,7 @@ Cable is fast, but the coax segment is *shared*: every home on the same node sha
 
 ```question
 prompt = "A teleworker's speed is fine at 8 a.m. but falls every evening, while the neighbors' usage peaks. Which access technology is the likeliest cause?"
-options = ["DSL, because DSL speed depends on the time of day", "Cable, because homes on the same node share the coax capacity", "A leased line, because its bandwidth is reserved", "Fiber to the home, because fiber is shared by every user"]
+options = ["DSL, because DSL speed depends on the time of day", "Cable, because homes on the same node share the coax capacity", "A leased line, because its bandwidth is reserved", "Fiber to the home, because light signals weaken when many people are online"]
 answer = 1
 why = "Cable bandwidth is shared among everyone on the node, so heavy use nearby slows each user. DSL speed depends mainly on distance to the DSLAM, not on the neighbors."
 ```

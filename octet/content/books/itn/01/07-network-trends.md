@@ -4,9 +4,9 @@ summary = "BYOD, collaboration tools, video and the cloud change what a network 
 links = ["itn/01/06-reliable-networks", "itn/01/08-network-security-basics", "ensa/13/02-cloud-computing", "ensa/13/03-virtualization", "ensa/13/04-containers-and-vrfs", "field/09/07-cloud-computing"]
 +++
 
-Ten years ago an office network mostly joined company PCs to company servers. Today the same office has staff on personal phones, a video meeting running in every room, and half the software living in someone else's data center. None of this changes the basic job of moving packets. It changes how much traffic there is, what kind, and who can be trusted to send it.
+Ten years ago an office network mostly joined company PCs to company servers. Today the same office has staff on personal phones, a video meeting running in every room, and half the software living in someone else's data center. None of this changes the basic job of moving packets. It changes how much traffic there is, what kind, and who sends it.
 
-This page covers the trends that shape the networks you will build. Each one adds a demand, and each demand maps back to the four properties from the last page.
+This page covers the trends that shape the networks you will build. Each adds a demand that maps back to the four properties from the last page.
 
 ## Bring your own device
 
@@ -21,7 +21,7 @@ Networks answer with wireless controllers that manage many access points, and wi
 
 ## Collaboration and video
 
-*Collaboration tools* let people work on the same thing at the same time: shared documents, team chat and meetings. Many of them are cloud services that people reach from any device. *Video communication* has moved from the meeting room to every desk and phone, and companies now run interviews, training and sales calls over it.
+*Collaboration tools* let people work on the same thing at the same time: shared documents, team chat and meetings. Many are cloud services reached from any device. *Video communication* has moved from the meeting room to every desk and phone, and companies run interviews, training and sales calls over it.
 
 Real-time video and voice are the hardest traffic to carry. They send a steady stream, and a late packet is a wasted packet. A file download can slow down for a second and no one minds, but a video call that stalls for a second is unusable. That is why [quality of service](itn/01/06-reliable-networks) matters, and why switches and routers need rules for who goes first when a link is busy.
 
@@ -71,7 +71,7 @@ A virtual machine and a container are not the same. A VM carries its own full gu
 The same changes reach the home network.
 
 - **Smart home devices** such as thermostats, lights, door locks, cameras and appliances join the home Wi-Fi. They are small and cheap, and many ship with weak default passwords, so each one is a possible way in.
-- **Powerline networking** sends data over the electrical wiring that is already in the walls. You plug an adapter into one outlet near the router and another where you need a connection. It helps in a room that Wi-Fi reaches poorly, but it works only on wiring in the same home, and old or noisy wiring slows it.
+- **Powerline networking** sends data over the electrical wiring that is already in the walls. You plug an adapter into one outlet near the router and another where you need a connection. It helps in a room that Wi-Fi reaches poorly, but old or noisy wiring slows it.
 - **Wireless broadband** brings internet access where cable and DSL don't reach. A *wireless internet service provider* (WISP) uses a rooftop antenna aimed at a tower. Cellular providers offer home internet over 4G or 5G in the same way.
 
 ```recall

@@ -21,7 +21,7 @@ The managers want branch A to keep working if any single link fails, the small b
 
 Start with what each site needs, not with a technology.
 
-Branch A moves a lot of data and carries voice, which needs low, steady delay. That points to a private service with an SLA. Both sites are in one city, so a Metro Ethernet service fits well: high bandwidth, an Ethernet handoff the routers already understand, and a price below MPLS for a single link. If Kestrel had many sites across the country, an MPLS service would be the stronger choice, because each site connects once to its PE and reaches all the others.
+Branch A moves a lot of data and carries voice, which needs low, steady delay. That points to a private service with an SLA. Both sites are in one city, so a Metro Ethernet service fits well: high bandwidth, an Ethernet handoff the routers already understand, and often a price below MPLS for a single link. If Kestrel had many sites across the country, an MPLS service would be the stronger choice, because each site connects once to its PE and reaches all the others.
 
 Branches B and C need modest bandwidth and are far from head office. A private circuit to each would cost a lot for six people. Business broadband with a site-to-site VPN to head office gives them private access over the internet for a fraction of the price. The towns have cable TV, so cable is the first choice, with DSL where cable is missing.
 
@@ -40,7 +40,7 @@ Almost all traffic goes to head office, so a hub-and-spoke shape is natural, wit
 
 The hub is now a single point of failure, so head office gets the most protection. It buys internet access from two different ISPs, one link to each. That is *multihomed*: an outage at either ISP leaves the other working. Every VPN still has a path in.
 
-Branch A must survive a single link failure. Kestrel adds a business broadband line at branch A as a second path. If the Metro Ethernet circuit fails, a VPN over the internet takes over. Because the broadband comes from a different provider than the Metro Ethernet service, the design is also dual-carrier for that branch.
+Branch A must survive a single link failure. Kestrel adds a business broadband line at branch A as a second path. If the Metro Ethernet circuit fails, a VPN over the internet takes over. Because Kestrel buys the broadband from a different provider than the Metro Ethernet service, the design is also dual-carrier for that branch.
 
 For branches B and C, a cellular router acts as backup. If the broadband fails, the VPN comes back up over 4G or 5G. It is slower, but email and accounting keep working.
 
@@ -95,7 +95,7 @@ why = "Equipment at the customer's site that takes part in the WAN link is CPE. 
 ```
 
 ```question
-prompt = "Which two devices are examples of DCE on a WAN link? (Choose two.)"
+prompt = "Which two devices are normally the DCE when a branch connects to a provider? (Choose two.)"
 options = ["A CSU/DSU", "The customer's edge router", "A DSL modem", "A PC on the branch LAN", "A LAN switch"]
 answer = [0, 2]
 why = "DCE devices put data onto the provider's line, such as a CSU/DSU or a modem. The router is the DTE, and the PC and switch are LAN devices."

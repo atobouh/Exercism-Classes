@@ -45,7 +45,7 @@ why = "PPP is an open standard, so it works between vendors. Cisco HDLC is the d
 
 Inside a computer, data often moves in *parallel*: many wires side by side, each carrying one bit of a byte at the same instant. That is fast over a few centimeters. Over longer distances it falls apart. The bits on different wires arrive at slightly different times, called *clock skew*, and signals on neighboring wires interfere with each other, called *crosstalk*. The longer the cable, the worse both get.
 
-*Serial* communication sends one bit at a time over a single channel. The bits arrive in order, so there is nothing to keep in step across wires, and the link can be pushed to very high bit rates. Every WAN link is serial in this sense. A T1 circuit, a fiber carrying 100 Gbps and a DSL line all send a single stream of bits in each direction.
+*Serial* communication sends one bit at a time over a single channel. The bits arrive in order, so there is nothing to keep in step across wires, and the link can be pushed to very high bit rates. Every WAN link is serial in this sense. A T1 circuit, a 100 Gbps fiber wavelength and a DSL line each carry one logical stream of bits in each direction.
 
 ```question
 prompt = "Why do WAN links send data serially rather than in parallel?"
@@ -62,7 +62,7 @@ A provider network must decide how your traffic shares its links with everyone e
 
 *Packet switching* breaks traffic into packets or frames and sends each one across shared links. Nothing is reserved. Each switch along the way reads the packet's address or label and sends it on. Many customers share the same links, and a link that one customer is not using is free for others. This is far more efficient, and it is how the internet, Ethernet WANs and MPLS all work. Older packet-switched services, Frame Relay and ATM, worked this way too.
 
-Some packet-switched services still set up a fixed path in advance, called a *virtual circuit*. The path is decided once, but the bandwidth along it is shared, not reserved.
+Some packet-switched services still set up a fixed path in advance, called a *virtual circuit*. The path is decided once, but the bandwidth along it is shared rather than reserved the way a circuit-switched channel is.
 
 ```question
 prompt = "A service reserves a fixed channel between two sites for the whole session, even when no data is flowing. What kind of network is this?"
