@@ -8,7 +8,7 @@ Think about a city. The roads, junctions and traffic lights move vehicles from p
 
 ## Underlay
 
-The underlay is the physical network: switches, routers, cables and the IP addressing and routing between them. Its job is narrow. Every device must be able to reach every other device's address. It usually runs a routing protocol such as OSPF or IS-IS (SD-Access uses IS-IS when Catalyst Center builds it), with routed point-to-point links in place of big Layer 2 domains. That means no spanning tree to block links, and equal-cost paths can all carry traffic. The underlay does not know about users, VLANs or policies. It just carries IP packets.
+The underlay is the physical network: switches, routers, cables and the IP addressing and routing between them. Its job is narrow. Every device must be able to reach every other device's address. It usually runs a routing protocol such as OSPF or IS-IS (SD-Access uses IS-IS when Catalyst Center builds it), with routed point-to-point links in place of big Layer 2 domains. That means no spanning tree to block links, and equal-cost paths can all carry traffic. The underlay does not know about users, VLANs or policies. It carries IP packets and nothing more.
 
 ## Overlay
 

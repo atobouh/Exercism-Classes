@@ -73,9 +73,6 @@ GigabitEthernet0/0/0   [up/up]
     2001:DB8:ACAD:1::1
 GigabitEthernet0/0/1   [administratively down/down]
     unassigned
-Loopback0              [up/up]
-    FE80::2EE:8CFF:FE12:3A00
-    2001:DB8:ACAD:FFFF::1
 ```
 
 Each interface that has IPv6 shows its link-local address first, then its global addresses, and `unassigned` where none exists. The status in brackets is the same pair of words you read in IPv4. Notice what you did not type: the link-local appears by itself.

@@ -16,7 +16,7 @@ Catalyst Center organizes its work into four steps, and a fifth area exposes the
 4. **Assurance.** Monitor how the network is actually doing, as described below.
 5. **Platform.** The APIs and integrations that let other tools drive Catalyst Center.
 
-This is *intent-based networking* in practice: you state the outcome ("this site uses these servers, this pool and this policy"), the controller translates it into device configuration, and assurance checks the result stays true. The previous idea is introduced in [Intent-based networking](ensa/14/07-intent-based-networking).
+This is *intent-based networking* in practice: you state the outcome ("this site uses these servers, this pool and this policy"), the controller translates it into device configuration, and assurance checks the result stays true. The idea is introduced in [Intent-based networking](ensa/14/07-intent-based-networking).
 
 ## Features worth knowing
 
@@ -27,7 +27,7 @@ This is *intent-based networking* in practice: you state the outcome ("this site
 
 ```question
 prompt = "A new access switch arrives at a branch with a blank configuration. Which Catalyst Center feature can configure it with no one logging in locally?"
-options = ["Assurance", "Plug and Play", "Platform", "Template-based CoPP"]
+options = ["Assurance", "Plug and Play", "Platform", "Software image management"]
 answer = 1
 why = "Plug and Play lets a device with no configuration contact the controller and receive its image and settings. Assurance monitors, and Platform provides APIs."
 ```

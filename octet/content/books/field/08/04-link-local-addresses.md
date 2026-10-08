@@ -60,7 +60,7 @@ GigabitEthernet0/0/1   [up/up]
     FE80::2EE:8CFF:FE12:3A02
 ```
 
-Routers whose links carry only link-locals, and whose loopbacks carry the global addresses, save a lot of address space and configuration. The links still route correctly. Note that the interface also needs `ipv6 unicast-routing` on the router for it to forward, as always.
+Routers whose links carry only link-locals, and whose loopbacks carry the global addresses, save a lot of address space and configuration. The links still route correctly. The router still needs `ipv6 unicast-routing` in global configuration before it forwards IPv6, as always.
 
 ```question
 prompt = "A route in the table reads 'via FE80::2' and the router has three interfaces. What extra information is needed to know which neighbor this is?"

@@ -20,14 +20,14 @@ That design suits network access, where a decision is made once when a client jo
 
 *TACACS+* is a Cisco-developed protocol, since documented as RFC 8907. It was designed for device administration.
 
-- It runs over TCP port 49, so the device learns quickly when a server is not there.
-- It encrypts the whole body of each packet, not only the password. The header stays readable.
+- It runs over TCP port 49, so the connection is reliable and lost packets are retransmitted.
+- It scrambles the whole body of each packet, not only the password. The header stays readable.
 - It keeps authentication, authorization and accounting as separate exchanges.
 
 The separation is the reason administrators like it. After you log in, the device can ask the server, command by command, "may this user type `reload`?" and get a yes or no each time. The accounting records can list every command typed, with the user's name. RADIUS has no equivalent that works the same way across vendors.
 
 ```deeper
-TACACS+ encryption is an obfuscation using a shared key, and RFC 8907 itself says the protocol is meant for trusted management networks. Treat the key as important, and do not send TACACS+ across an untrusted link.
+RFC 8907 calls the body protection *obfuscation*, not encryption. It uses the shared key, but it gives no strong guarantee of privacy or integrity, and it assumes an attacker on the path can read the traffic. Keep TACACS+ on management networks you control. A newer RFC, 9887, defines TACACS+ over TLS 1.3 for platforms that support it.
 ```
 
 ## Side by side
@@ -37,7 +37,7 @@ TACACS+ encryption is an obfuscation using a shared key, and RFC 8907 itself say
 | Origin | Open standard | Cisco-developed, now RFC 8907 |
 | Transport | UDP | TCP |
 | Port | 1812 auth, 1813 accounting (older 1645, 1646) | 49 |
-| Encryption | Password only | Entire packet body |
+| Encryption | Password only | Entire packet body (obfuscated, per RFC 8907) |
 | AAA separation | Authentication and authorization combined | All three separate |
 | Command authorization | Not natively | Yes, per command |
 | Typical use | Network access: 802.1X, Wi-Fi, VPN | Device administration |
@@ -69,7 +69,7 @@ back = "RADIUS: UDP 1812 (authentication) and 1813 (accounting); older 1645 and 
 
 ```recall
 front = "Why is TACACS+ preferred for device administration?"
-back = "It separates authentication, authorization and accounting, so each command can be authorized and logged, and it encrypts the whole packet body."
+back = "It separates authentication, authorization and accounting, so each command can be authorized and logged, and it scrambles the whole packet body."
 ```
 
 ```recall

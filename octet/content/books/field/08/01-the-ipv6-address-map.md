@@ -31,7 +31,7 @@ The first digits of an address tell you its type. This is the table to know by h
 
 Think of reach in rings. A link-local address works only on the cable segment it was created for. A ULA works across the routers of your own network. A GUA works across the whole internet. A router never forwards a packet whose source or destination is link-local, and your border should never pass ULAs outward.
 
-Two ranges you may meet in documents are not on this map because nothing real uses them: `2001:db8::/32` is reserved for examples (every address in this book comes from it), and `fec0::/10`, the old site-local block, is deprecated.
+Two ranges you may meet in documents are not on this map because nothing real uses them: `2001:db8::/32` is reserved for examples (the global addresses in this book come from it), and `fec0::/10`, the old site-local block, is deprecated.
 
 ```key
 Read the first hextet. `2xxx` or `3xxx` is global, `fdxx` is unique local, `fe80` is link-local, `ffxx` is multicast. The last digits of an address never decide its type.
@@ -63,7 +63,7 @@ Try these on your own before reading the answers.
 
 | Address | Type | Why |
 | --- | --- | --- |
-| `::1` | Loopback | The one special address that ends in 1 |
+| `::1` | Loopback | Every bit is zero except the last, so the device talks to itself |
 | `::` | Unspecified | Used as a source while a host has no address yet |
 | `ff05::2` | Multicast, site scope | `ff`, then scope digit 5 |
 | `fd9c:58a7:3e1b::1` | Unique local | `fd` prefix |

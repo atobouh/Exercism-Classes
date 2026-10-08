@@ -55,7 +55,7 @@ why = "The controller sets policy and configuration. Packet forwarding stays in 
 
 ## What does not go away
 
-A controller is not magic. The cables are still cables. Switches still forward frames, routers still need reachability, and in most products the devices still run routing protocols such as OSPF or IS-IS underneath. When something breaks, you still need to understand VLANs, trunks and routes, because the controller's configuration ends up as ordinary configuration on ordinary devices. The controller removes repetition. It does not remove the need to understand the network, and a wrong intent is applied just as quickly as a right one.
+A controller is not magic. The cables are still cables. Switches still forward frames, routers still need reachability, and in most products the devices still run routing protocols such as OSPF or IS-IS underneath. When something breaks, you still need to understand VLANs, trunks and routes, because the controller's configuration ends up as ordinary configuration on ordinary devices. The controller removes repetition. It does not remove the need to understand the network, and a wrong intent is applied as quickly as a right one.
 
 ## Side by side
 
