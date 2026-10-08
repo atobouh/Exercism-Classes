@@ -33,6 +33,12 @@ links = [
 | PC1 | NIC | 192.168.10.10/24 | 2001:db8:acad:10::10/64 | 192.168.10.1, fe80::1 |
 | PC2 | NIC | 192.168.11.10/24 | 2001:db8:acad:11::10/64 | 192.168.11.1, fe80::1 |
 
+## Reading the plan before typing
+
+A plan like this earns its place. Notice what the table makes obvious before you touch a keyboard. The two LANs use different third octets, so they are different networks. The IPv6 prefixes differ in the fourth group, 10 against 11, for the same reason. Each gateway is the R1 address in the PC's own network, and S1 uses the same gateway as PC1 because it sits in LAN 1. If you can fill in the Gateway column from the interface addresses alone, you have understood the chapter.
+
+Work in the same order each time. Router first, because the interfaces must be up/up before anything else can succeed. Then the switch, then the PCs. When something fails, you can check from the inside out: R1's own interfaces, then R1 pinging each PC, then PC to PC.
+
 ## Configuring R1
 
 Everything below is the earlier pages in one pass: initial settings, then both interfaces dual stack, then `ipv6 unicast-routing`, then a save.
