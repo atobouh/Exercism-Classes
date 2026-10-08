@@ -20,7 +20,7 @@ One conflict does not stop other clients from getting addresses, so it rarely ca
 
 ## Check 2: the physical path and the switch port
 
-Is the link lit? Is the client's port up, and in the right VLAN? A port that has just come up in spanning tree sits in the listening and learning states before it forwards, and the client's DHCP attempts can run out of time while it waits. The PC then gives up and picks a 169.254 address, even though the network is fine a few seconds later. Release and renew, and it works. The fix for access ports is PortFast, covered in [RSTP, PortFast and BPDU guard](srwe/05/08-rstp-portfast-and-bpdu-guard).
+Is the link lit? Is the client's port up, and in the right VLAN? A port that has recently come up in spanning tree sits in the listening and learning states before it forwards, and the client's DHCP attempts can run out of time while it waits. The PC then gives up and picks a 169.254 address, even though the network is fine a few seconds later. Release and renew, and it works. The fix for access ports is PortFast, covered in [RSTP, PortFast and BPDU guard](srwe/05/08-rstp-portfast-and-bpdu-guard).
 
 ## Check 3: a static address
 
@@ -47,7 +47,7 @@ why = "The Discovers are arriving, so the relay and ports are fine. A server tha
 
 ## A worked fault
 
-A new VLAN 30 has just been added to the office, using router-on-a-stick. The DHCP server is at 192.168.11.6, and VLAN 10 and 20 work normally. Laptops in VLAN 30 all show 169.254 addresses.
+A new VLAN 30 was added to the office, using router-on-a-stick. The DHCP server is at 192.168.11.6, and VLAN 10 and 20 work normally. Laptops in VLAN 30 all show 169.254 addresses.
 
 The static-address test passes: a laptop with a hand-typed address can ping its gateway, so the VLAN and trunk are fine. The server has a pool for 192.168.30.0/24. Check 4 asks about the relay. Looking at the router:
 
@@ -75,6 +75,11 @@ why = "T1 is 50 percent of the lease (12 hours), and T2 is 87.5 percent (21 hour
 ```recall
 front = "A client has a 169.254.x.x address. What is the quickest test to split connectivity from DHCP problems?"
 back = "Give the PC a static address in the right subnet and ping the gateway. If it works, the network is fine and the fault is in DHCP."
+```
+
+```recall
+front = "Which UDP ports does DORA use, and which message starts the exchange?"
+back = "The client sends DHCPDISCOVER from UDP 68 to UDP 67. The server listens on 67 and replies to the client on 68."
 ```
 
 ```recall

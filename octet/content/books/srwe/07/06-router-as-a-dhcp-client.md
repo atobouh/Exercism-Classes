@@ -61,20 +61,7 @@ GigabitEthernet0/0/0   192.168.10.1    YES manual up                    up
 GigabitEthernet0/0/1   203.0.113.25    YES DHCP   up                    up
 ```
 
-`show dhcp lease` goes deeper. It lists the lease the router holds, the server that gave it, and the timers:
-
-```console R1
-R1# show dhcp lease
-Temp IP addr: 203.0.113.25  for peer on Interface: GigabitEthernet0/0/1
-Temp  sub net mask: 255.255.255.0
-   DHCP Lease server: 203.0.113.1, state: 5 Bound
-   ...
-   Lease: 86400 secs,  Renewal: 43200 secs,  Rebind: 75600 secs
-Temp default-gateway addr: 203.0.113.1
-   ...
-```
-
-The renewal and rebind values are the T1 and T2 timers from the DORA page: 43,200 seconds is half of a day, and 75,600 seconds is 87.5 percent of it.
+For more detail on the router's own DHCP client, the `show dhcp lease` command is the one to try. It is meant to show the lease the router holds, including the server, the mask and the gateway. Its exact layout varies by IOS release, so check the output on your own router rather than relying on a sample. The gateway is also visible in `show ip route`, as the default route described below.
 
 ```question
 prompt = "In show ip interface brief, the Method column for G0/0/1 reads DHCP. What does it mean?"

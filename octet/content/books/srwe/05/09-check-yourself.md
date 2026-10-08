@@ -114,6 +114,13 @@ answer = 0
 why = "Alternate ports lead to the root via another switch. A backup port is a second port on the same switch attached to the same segment."
 ```
 
+```question
+prompt = "A classic 802.1D switch loses its path to the root through a failure it cannot see on its own link. About how long until its blocked port forwards?"
+options = ["About 2 seconds, one hello time", "About 30 seconds, listening plus learning", "About 50 seconds, max age plus two forward delays"]
+answer = 2
+why = "Without a direct signal, the switch waits out max age (20 seconds) before it trusts the loss, then spends 15 seconds in listening and 15 in learning."
+```
+
 ```recall
 front = "What are the default short-method STP port costs for 100 Mbps and 1 Gbps?"
 back = "19 for 100 Mbps and 4 for 1 Gbps."

@@ -4,7 +4,7 @@ summary = "Discover, Offer, Request, Acknowledge: four messages turn a host with
 links = ["itn/15/06-dhcp", "itn/14/05-port-numbers", "srwe/07/03-configuring-an-ios-dhcp-server"]
 +++
 
-A host that has just plugged in is in an odd position. It has no IP address, so it cannot be anyone's destination, and it does not know where the DHCP server is. The four-message exchange known as *DORA* is built for exactly that situation. You met the names already; here you will see who sends what to whom, and why each choice matters.
+A host that has only recently been plugged in is in an odd position. It has no IP address, so it cannot be anyone's destination, and it does not know where the DHCP server is. The four-message exchange known as *DORA* is built for exactly that situation. You met the names already; here you will see who sends what to whom, and why each choice matters.
 
 ## Discover
 

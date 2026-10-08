@@ -86,11 +86,10 @@ Pool LAN-POOL-1 :
  Subnet size (first/next)       : 0 / 0
  Total addresses                : 254
  Leased addresses               : 2
- Excluded addresses             : 9
  Pending event                  : none
  1 subnet is currently in the pool :
- Current index        IP address range                    Leased/Excluded/Total
- 192.168.10.12        192.168.10.1     - 192.168.10.254    2    / 9    / 254
+ Current index        IP address range                    Leased addresses
+ 192.168.10.12        192.168.10.1     - 192.168.10.254  2
 ```
 
 If Discovers go up but Offers stay at zero, the server is hearing the clients but has nothing to give. If Discovers stay at zero, the requests never arrive.
@@ -118,7 +117,7 @@ C:\> ipconfig /renew
 
 ```question
 prompt = "A PC shows the address 169.254.37.8. What does that tell you?"
-options = ["The DHCP server assigned it from a special pool", "The PC is using a static address", "The PC got no answer from any DHCP server and gave itself an address", "The lease has just been renewed"]
+options = ["The DHCP server assigned it from a special pool", "The PC is using a static address", "The PC got no answer from any DHCP server and gave itself an address", "The lease was renewed on schedule"]
 answer = 2
 why = "169.254.0.0/16 is the automatic private address range that Windows picks when DHCP fails."
 ```
