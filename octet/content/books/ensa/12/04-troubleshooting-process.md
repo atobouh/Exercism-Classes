@@ -39,7 +39,7 @@ The answer to the last one shortcuts a lot of work. One user points toward a hos
 
 ## Gathering information
 
-Combine what people tell you with what the devices say. Check `show` output for interface state and counters, read the [syslog](ensa/10/06-syslog) messages around the time the trouble began, and compare the readings with your [baseline](ensa/12/03-baselines). Be careful, because collecting data costs something. Some commands, such as debugging, load a busy device. The next page of tools covers that.
+Combine what people tell you with what the devices say. Check `show` output for interface state and counters, read the [syslog](ensa/10/06-syslog) messages around the time the trouble began, and compare the readings with your [baseline](ensa/12/03-baselines). Be careful, because collecting data costs something. Some commands, such as debugging, load a busy device. The [tools](ensa/12/06-troubleshooting-tools) page covers that.
 
 ## One change at a time
 
