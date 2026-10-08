@@ -1,0 +1,85 @@
+id = "srwe-03-router-on-a-stick"
+title = "Router-on-a-stick"
+course = "srwe"
+chapter = 3
+summary = "Give VLAN 10 and VLAN 20 a gateway on one router port, so Sales and Engineering can reach each other."
+
+[[device]]
+name = "R1"
+kind = "router"
+model = "ISR4321"
+x = 486
+y = 96
+config = """
+interface g0/0/1
+ no shutdown
+interface g0/0/1.10
+ encapsulation dot1q 10
+ ip address 192.168.10.1 255.255.255.0
+interface g0/0/1.20
+ encapsulation dot1q 30
+ ip address 192.168.20.1 255.255.255.0
+"""
+
+[[device]]
+name = "S1"
+kind = "switch"
+model = "2960"
+x = 486
+y = 330
+config = """
+vlan 10
+ name SALES
+vlan 20
+ name ENG
+interface fa0/5
+ switchport mode access
+ switchport access vlan 10
+interface fa0/6
+ switchport mode access
+ switchport access vlan 20
+interface g0/1
+ switchport mode trunk
+"""
+
+[[device]]
+name = "PC-SALES"
+kind = "pc"
+x = 336
+y = 560
+ip = "192.168.10.10/24"
+gateway = "192.168.10.1"
+
+[[device]]
+name = "PC-ENG"
+kind = "pc"
+x = 640
+y = 560
+ip = "192.168.20.10/24"
+gateway = "192.168.20.1"
+
+[[link]]
+a = "R1 g0/0/1"
+b = "S1 g0/1"
+
+[[link]]
+a = "PC-SALES eth0"
+b = "S1 fa0/5"
+
+[[link]]
+a = "PC-ENG eth0"
+b = "S1 fa0/6"
+
+[[task]]
+text = "Create VLANs 10 and 20 on S1"
+check = { kind = "vlan_exists", device = "S1", vlans = [10, 20] }
+
+[[task]]
+text = "Trunk Gi0/1 between S1 and R1"
+check = { kind = "trunk", device = "S1", iface = "g0/1" }
+
+[[task]]
+text = "Give VLAN 20 a gateway on R1"
+detail = "Engineering can't reach Sales. The map shows where traffic stops."
+hint = "Open R1 and compare the VLAN on G0/0/1.20 with VLAN 20 on S1. show running-config interface g0/0/1.20 shows it."
+check = { kind = "ping", from = "PC-ENG", to = "192.168.10.10" }

@@ -1,6 +1,6 @@
 use octet_sim::Lab;
 
-const LAB: &str = include_str!("../../../content/labs/srwe-03-router-on-a-stick.toml");
+const LAB: &str = include_str!("labs/router-on-a-stick.toml");
 
 fn run(lab: &mut Lab, dev: &str, lines: &[&str]) {
     for l in lines {
