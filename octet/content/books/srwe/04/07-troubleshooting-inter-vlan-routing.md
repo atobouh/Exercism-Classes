@@ -36,7 +36,7 @@ R1# show interfaces g0/0/1.20
 GigabitEthernet0/0/1.20 is up, line protocol is up
   Internet address is 192.168.20.1/24
   ...
-  Encapsulation 802.1Q Virtual LAN, Vlan ID 30.
+  Encapsulation 802.1Q Virtual LAN, Vlan ID  30.
   ...
 ```
 
