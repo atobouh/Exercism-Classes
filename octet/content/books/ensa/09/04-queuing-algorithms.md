@@ -8,7 +8,7 @@ When a link is busy, packets wait. The only real question is which waiting packe
 
 ## FIFO
 
-*FIFO* (first in, first out) uses a single queue. Packets leave in the order they arrived. There are no classes, no priorities and nothing to configure, and it is the default on many interfaces. It works well when the link is rarely busy. When it is busy, a burst of bulk traffic delays everyone behind it, voice included.
+*FIFO* (first in, first out) uses a single queue. Packets leave in the order they arrived. There are no classes, no priorities and nothing to configure. On Cisco routers it is the default on faster interfaces, while slow serial links default to WFQ. It works well when the link is rarely busy. When it is busy, a burst of bulk traffic delays everyone behind it, voice included.
 
 ## Weighted fair queuing
 
@@ -46,7 +46,7 @@ why = "LLQ adds a strict priority queue for voice to CBWFQ. CBWFQ alone guarante
 
 ## When the queue is full
 
-Whatever the algorithm, each queue has a limit. By default, a full queue drops the packet that has just arrived. This is *tail drop*: the newest packet is discarded, whatever it is. Tail drop treats all traffic alike, and it has a nasty side effect on TCP that [a later page](ensa/09/07-trust-and-congestion-avoidance) explains.
+Whatever the algorithm, each queue has a limit. By default, a full queue drops the packet that is arriving. This is *tail drop*: the newest packet is discarded, whatever it is. Tail drop treats all traffic alike, and it has a nasty side effect on TCP that [a later page](ensa/09/07-trust-and-congestion-avoidance) explains.
 
 ```trap
 A priority queue is not a free pass. If voice is policed to 10 Mbps and the phones send 12, the extra 2 Mbps is dropped during congestion, and every call suffers.

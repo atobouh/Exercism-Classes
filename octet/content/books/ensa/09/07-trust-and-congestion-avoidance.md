@@ -8,7 +8,7 @@ Marking only helps if the marks can be believed. If any PC can stamp its own pac
 
 ## Trust boundaries
 
-The best place to mark is as close to the source as possible, so the rest of the path can simply read the result. But devices are not equally reliable. A company-managed IP phone sets its own voice marking correctly. A user's laptop might set anything.
+The best place to mark is as close to the source as possible, so the rest of the path can read the result. But devices are not equally reliable. A company-managed IP phone sets its own voice marking correctly. A user's laptop might set anything.
 
 The *trust boundary* is the point in the network where markings start being believed. On the near side, a device re-marks or ignores whatever it receives. On the far side, markings are accepted and used for queuing.
 
@@ -35,7 +35,7 @@ links = [
 ]
 ```
 
-With a phone, the switch can trust the phone's markings for voice packets, while the phone re-marks or resets whatever comes from the PC behind it. The switch will trust the phone's markings only if it detects a phone on the port.
+With a phone, the switch can trust the phone's markings for voice packets, while the phone re-marks or resets whatever comes from the PC behind it. On a Cisco switch, the port trusts the phone's markings only when the switch detects a Cisco IP phone on it, using CDP.
 
 ```question
 prompt = "A user plugs a PC into the back of an IP phone, and the phone connects to an access switch. Where should the trust boundary be?"
@@ -48,11 +48,11 @@ why = "The phone is a controlled device that marks voice correctly and can reset
 
 Queuing algorithms manage congestion that has already happened. *Congestion avoidance* tries to prevent a queue from filling.
 
-Recall tail drop: a full queue discards everything new. For TCP this causes a pattern called *global synchronization*. Many TCP flows lose packets at the same moment, all slow down together, and the link goes quiet. Then they all speed up together, the queue fills again, and the cycle repeats. The link swings between overloaded and underused.
+Recall tail drop: a full queue discards everything new. For TCP this causes a pattern called *global synchronization*. Many TCP flows lose packets at the same moment, all slow down together, and the link is left underused. Then they all speed up together, the queue fills again, and the cycle repeats. The link swings between overloaded and underused.
 
 *WRED* (weighted random early detection) breaks the cycle. As the queue starts to fill, but before it is full, WRED begins dropping a few packets at random. Lower-priority traffic, meaning higher drop probability markings like AF13, is dropped first and at a greater rate. Different TCP flows lose packets at different times and slow down at different times, so the link stays well used. AF marking from the previous page is what WRED reads.
 
-WRED helps TCP because TCP reacts to loss by slowing down. It does not help UDP voice. A voice stream does not slow down when a packet is dropped, so early drops simply damage the call. Voice belongs in its priority queue, protected from WRED.
+WRED helps TCP because TCP reacts to loss by slowing down. It does not help UDP voice. A voice stream does not slow down when a packet is dropped, so early drops damage the call. Voice belongs in its priority queue, protected from WRED.
 
 ```key
 WRED drops some lower-priority packets before the queue is full, so TCP flows slow down at different times instead of all at once. It works on TCP, not on UDP voice.
@@ -70,5 +70,5 @@ back = "Tail drop makes many TCP flows lose packets and slow down together, then
 
 ```recall
 front = "Why does WRED help TCP but not voice?"
-back = "TCP slows down when it sees loss. UDP voice does not, so early drops just damage the call."
+back = "TCP slows down when it sees loss. UDP voice does not, so early drops damage the call."
 ```

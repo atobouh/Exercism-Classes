@@ -75,6 +75,20 @@ answer = 0
 why = "AF41 is 8 x 4 + 2 x 1 = 34. EF is 46 (binary 101110). The numbers are labels for behaviors, not a simple ranking."
 ```
 
+```question
+prompt = "Which set matches the usual guideline for interactive video?"
+options = ["Latency 1 s, jitter 0 ms, loss 0%", "Latency 150 ms or less, jitter 30 ms or less, loss 1% or less", "Latency 2 s, jitter 500 ms, loss 10%", "Latency 200 to 400 ms, jitter 30 to 50 ms, loss 0.1 to 1%"]
+answer = 3
+why = "These are guideline limits for interactive video: a looser latency budget than voice, with a tight loss target. The second set is the voice guideline, and the others are far too loose or unrealistic."
+```
+
+```question
+prompt = "A router has no QoS policy, and one large backup fills its queue. Which algorithm lets a small voice flow get through ahead of the backup without any classes being configured?"
+options = ["FIFO", "Tail drop", "WFQ", "CBWFQ with a guaranteed share for voice"]
+answer = 2
+why = "WFQ sorts traffic into flows automatically and favors low-volume flows, so the voice flow is served first. FIFO serves in arrival order, and CBWFQ needs the classes you define."
+```
+
 ```recall
 front = "What are the DSCP value and the one-way latency budget for voice?"
 back = "EF is DSCP 46 (101110). The guideline latency is 150 ms or less one way."

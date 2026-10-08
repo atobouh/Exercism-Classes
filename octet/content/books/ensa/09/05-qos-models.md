@@ -10,7 +10,7 @@ The tools so far, queues and priorities, are the means. A *QoS model* is the ove
 
 *Best effort* is the default. The network tries to deliver every packet but promises nothing about speed, delay or loss. All packets are treated alike, and there is nothing to configure. This is how the internet works, and it is why the first page's call went choppy.
 
-It is simple and scales to any size, because no device tracks anything. It also offers no guarantees and no way to protect important traffic.
+It is simple and scales well, because no device tracks anything. It also offers no guarantees and no way to protect important traffic.
 
 ## IntServ
 
@@ -26,7 +26,7 @@ Routers keep no per-flow state, so DiffServ scales well. The trade is the lack o
 
 | Model | How it works | Benefits | Drawbacks |
 | --- | --- | --- | --- |
-| Best effort | No special treatment | Simple, scales to any size | No guarantees at all |
+| Best effort | No special treatment | Simple, scales well | No guarantees at all |
 | IntServ | Per-flow reservation with RSVP at every hop | Firm guarantees per flow | Poor scalability, heavy state |
 | DiffServ | Mark by class, apply a PHB at each hop | Scales well, flexible | No hard guarantee |
 

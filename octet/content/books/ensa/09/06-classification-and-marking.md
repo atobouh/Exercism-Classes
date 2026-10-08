@@ -19,7 +19,7 @@ A router cannot give voice priority until it knows which packets are voice. Work
 
 ## Layer 2: class of service
 
-An 802.1Q trunk frame carries a 4-byte tag, and three bits of it are the *PCP* (Priority Code Point), defined in 802.1p. These three bits hold the *CoS* (class of service) value, from 0 to 7. Voice traffic from a phone is usually marked CoS 5. The default is 0.
+An 802.1Q trunk frame carries a 4-byte tag, and three bits of it are the *PCP* (Priority Code Point), defined in 802.1p. These three bits hold the *CoS* (class of service) value, from 0 to 7. Voice traffic from a phone is usually marked CoS 5. Traffic with no marking is treated as CoS 0.
 
 The catch is that the tag exists only on trunks. When the frame crosses a router and loses its Layer 2 header, the CoS value is gone. For a mark that survives the whole path, you use Layer 3.
 
@@ -29,7 +29,7 @@ Every IPv4 packet has a one-byte *Type of Service* field, and IPv6 has the same 
 
 ```fields
 title = "ToS byte (IPv4) and Traffic Class byte (IPv6)"
-caption = "DSCP takes the first 6 bits. IP Precedence is just its first 3."
+caption = "DSCP takes the first 6 bits. IP Precedence uses only the first 3."
 unit = "bits"
 row = 8
 fields = [
@@ -75,7 +75,7 @@ binary
 ```
 
 ```trap
-Do not read the DSCP number as a priority rank. AF41 (34) is not "higher than" EF (46) in any meaningful way, and AF drop probability only decides what is dropped first inside one class.
+Do not read the DSCP number as a priority rank. EF (46) and AF41 (34) are different kinds of treatment, not points on one scale, and AF drop probability only decides what is dropped first inside one class.
 ```
 
 ```recall

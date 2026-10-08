@@ -22,7 +22,7 @@ Because over-rate packets are cut off, the output of a policer looks like a grap
 
 *Shaping* is patient. Traffic over the rate is placed in a buffer and sent later, when the traffic has dropped below the rate. Peaks are flattened and used to fill the gaps that follow. The output is smooth and never exceeds the rate.
 
-The price is delay, since buffered packets wait, and a long burst can still fill the buffer and cause drops. Shaping can be applied only to outbound traffic, because a device cannot hold back packets that have already arrived on the wire.
+The price is delay, since buffered packets wait, and a long burst can still fill the buffer and cause drops. Shaping works only on outbound traffic. The router controls the timing of what it sends, but it cannot control what other devices send to it.
 
 Picture a graph of bits per second against time, with a flat line at the allowed rate. Traffic comes in as spikes that poke above the line. Policing cuts the spikes off at the line. Shaping takes what poked above it and spreads it into the valleys between spikes, so the line is hugged but not crossed.
 
@@ -45,10 +45,10 @@ why = "Shaping buffers the excess and sends it later, and it can act only on tra
 
 Suppose the provider polices your connection to 50 Mbps. If your router sends a burst at 1 Gbps, the provider drops everything over the limit. The drops are random as far as your applications are concerned, and they hit voice as readily as backups.
 
-So you shape your own traffic to 50 Mbps before it leaves. The router, which knows your priorities, buffers the excess and decides what goes first, using the queuing from earlier pages. The provider's policer then sees only traffic within the contract, and nothing is dropped at their edge. You choose what waits, instead of them choosing what is lost.
+So you shape your own traffic to 50 Mbps before it leaves. The router, which knows your priorities, buffers the excess and decides what goes first, using the queuing from earlier pages. The provider's policer then sees traffic within the contract, so there is little or nothing for it to drop at their edge. You choose what waits, instead of them choosing what is lost.
 
 ```key
-Shape to the contracted rate on your own router, so the provider's policer has nothing to drop.
+Shape to the contracted rate on your own router, so the provider's policer has little or nothing to drop.
 ```
 
 ## Avoidance and management
