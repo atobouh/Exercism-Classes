@@ -8,7 +8,7 @@ Normally an operating system owns the hardware under it. It talks to the process
 
 ## What a VM sees
 
-A VM sees a virtual processor, virtual memory, a virtual disk (often just a file on the host) and a virtual network card. The software that creates these and shares the real hardware among them is the *hypervisor*. It decides how much processing time and memory each VM gets, and it keeps the VMs apart so that one cannot read another's memory.
+A VM sees a virtual processor, virtual memory, a virtual disk (often a single file on the host) and a virtual network card. The software that creates these and shares the real hardware among them is the *hypervisor*. It decides how much processing time and memory each VM gets, and it keeps the VMs apart so that one cannot read another's memory.
 
 Because the VM depends on virtual hardware instead of real hardware, it can be copied, paused, saved and moved. That single fact explains most of the benefits.
 
