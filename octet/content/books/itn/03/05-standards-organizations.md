@@ -32,8 +32,8 @@ The internet's protocols are looked after by a group of linked organizations.
 
 Addresses and names have to be unique across the whole world, so someone must hand them out.
 
-- *ICANN* (Internet Corporation for Assigned Names and Numbers) coordinates IP address allocation and the domain name system, such as who runs `.com`.
-- *IANA* (Internet Assigned Numbers Authority) is the function that manages the lists: IP address blocks given to regional registries, top-level domain names, and protocol numbers such as port numbers. ICANN carries out the IANA functions.
+- *ICANN* (Internet Corporation for Assigned Names and Numbers) coordinates IP address allocation and the domain name system, such as which organizations may run top-level domains like `.com`.
+- *IANA* (Internet Assigned Numbers Authority) is the function that manages the lists: IP address blocks given to regional registries, top-level domain names, and protocol numbers such as port numbers. ICANN carries out the IANA functions through its affiliate, PTI (Public Technical Identifiers).
 
 When you later see that a given port number or range belongs to a certain service, the reference is IANA's list.
 
@@ -42,7 +42,7 @@ When you later see that a given port number or range belongs to a certain servic
 These organizations write the standards for the physical and link layers, the part you can touch.
 
 - The *IEEE* (Institute of Electrical and Electronics Engineers) writes the LAN standards, identified by number: 802.3 is Ethernet and 802.11 is Wi-Fi.
-- The *EIA* (Electronic Industries Alliance) and *TIA* (Telecommunications Industry Association) write standards for cabling and connectors, including the T568A and T568B wiring patterns for UTP cable. The EIA ceased operations in 2011, but its name still appears in standards like TIA/EIA-568.
+- The *EIA* (Electronic Industries Alliance) and *TIA* (Telecommunications Industry Association) write standards for cabling and connectors, including the T568A and T568B wiring patterns for UTP cable. The EIA dissolved in 2011, but its name survives in older editions and in everyday usage such as "TIA/EIA-568".
 - The *ITU-T* (International Telecommunication Union, Telecommunication Standardization Sector) writes standards for telecommunications and video, including those used for digital subscriber lines and video compression.
 
 ## The organizations at a glance

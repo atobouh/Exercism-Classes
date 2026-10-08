@@ -12,7 +12,7 @@ In the 1980s and 1990s several suites competed.
 
 | Suite | Origin | Fate |
 | --- | --- | --- |
-| AppleTalk | Apple, for its Macintosh computers | Retired in the 2000s |
+| AppleTalk | Apple, for its Macintosh computers | Dropped by Apple in 2009 |
 | IPX/SPX | Novell, for NetWare file servers | Faded as TCP/IP took over |
 | OSI protocol suite | ISO and ITU, as an international standard | Rarely deployed; its model lived on |
 | TCP/IP | US research networks, defined by the IETF | Now the standard everywhere |
