@@ -29,7 +29,7 @@ R1# show ip interface g0/0/0 | include access list
   Inbound  access list is not set
 ```
 
-There is the first fault. STAFF-WEB is bound outbound on the staff LAN interface. Outbound means packets leaving R1 toward the staff PCs, which is the reply direction. The web requests the staff send arrive inbound, where no ACL is set, so they pass. But the replies come back with TCP source port 80 and a destination in the staff LAN, and the ACL, which only has entries for a destination port of 80 and 443, drops them with the implicit deny.
+There is the first fault. STAFF-WEB is bound outbound on the staff LAN interface. Outbound means packets leaving R1 toward the staff PCs, which is the reply direction. The web requests the staff send arrive inbound, where no ACL is set, so they pass. But the replies come back with TCP source port 80 and a destination in the staff LAN, and the ACL, which only has entries for a staff source and a destination port of 80 or 443, drops them with the implicit deny.
 
 ## Step 2: which line is matching
 
@@ -83,7 +83,7 @@ Most ACL problems come from a short list. Match the symptom to the clue in the o
 | Wrong direction | Counters at zero; `show ip interface` shows the ACL on the other direction | Remove and apply with `in` or `out` as needed |
 | Wrong interface | Counters at zero; the ACL sits on a different interface | Remove, then apply on the interface the traffic passes |
 | Wrong wildcard | Too many or too few hosts match; a subnet mask typed where a wildcard belongs | Retype the entry with the wildcard |
-| No permit | Everything is blocked, `deny` lines count up | Add a `permit` or `permit ip any any` at the end |
+| No permit | Everything is blocked and no line counts, because the implicit deny keeps no counter | Add a `permit` or `permit ip any any` at the end |
 | Source and destination swapped | Counters at zero, or wrong direction of effect | Swap them in the entry |
 | Port on the wrong side | `eq 80` after the source never matches a request | Move the port after the destination |
 

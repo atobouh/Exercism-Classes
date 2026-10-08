@@ -31,6 +31,7 @@ R1# show running-config | section access-list
 ip access-list extended STAFF-IN
  deny tcp 192.168.10.0 0.0.0.255 host 192.168.30.10 eq telnet
  permit ip any any
+...
 ```
 
 ## Is it attached
@@ -93,7 +94,7 @@ Success rate is 0 percent (0/5)
 
 Each `U` means a router answered with an ICMP "destination unreachable". That is what a router sends when an ACL drops a packet: the message is "administratively prohibited". Here R2's GUEST-FILTER refused a packet whose source is the guest gateway. The dots in between mean no answer came back for that probe: the router limits how fast it sends unreachable messages, so not every dropped probe gets a `U`. See [reading ping results](itn/13/03-ping) for the other symbols.
 
-One limit on this test: a router doesn't filter packets it creates itself with an ACL applied on its own interfaces. To test an inbound ACL such as STAFF-IN on R1's G0/0/0, send from a real PC on that LAN, not from R1.
+One limit on this test: a router doesn't filter packets it creates itself with an ACL applied on its own interfaces. To test an inbound ACL such as STAFF-IN on R1's G0/0/0, send from a real PC on that LAN, not from R1. For TCP tests, `telnet 192.168.30.10 /source-interface g0/0/1` works the same way as `ping ... source`; the counters on the port 23 line should rise.
 
 ```trap
 The implicit deny at the end of an ACL has no counter and sends no log message. If packets are being dropped and no line shows matches, add `deny ip any any` as a real last entry. It counts, and with `log` it reports.

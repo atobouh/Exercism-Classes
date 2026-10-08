@@ -98,7 +98,7 @@ A firewall that tracks each conversation in a table, a *stateful* firewall, clos
 
 ## Two ACLs, two directions
 
-Look at what the router now holds. Policy rules 3 and 4 filter what users send, on R1, pointing inward. Rule 5 filters what the internet sends back, on R2, inbound from the outside. One is an outbound policy and the other a reply filter. Together they cover both halves of each conversation.
+Look at what the router now holds. Policy rules 3 and 4 filter what users send, on R1, pointing inward. Rule 5 filters what the internet sends back, on R2, inbound from the outside. One limits what users send out and the other filters the replies. Together they cover both halves of each conversation. On a single router with an inside and an outside interface, you would put the policy ACL inbound on the inside interface and the reply ACL inbound on the outside one.
 
 A note on addresses. The example treats the staff and guest LANs as visible from the internet, which keeps the entries readable. On a real network, those private addresses are translated at the edge (see [PAT](ensa/06/07-pat)), and an inbound ACL on the outside interface is checked before the router translates the destination address back. In that case the entries name the router's public address, not the private ones.
 

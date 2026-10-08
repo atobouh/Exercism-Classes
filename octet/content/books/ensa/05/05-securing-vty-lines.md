@@ -95,7 +95,7 @@ R1#
 
 Three matches on line 10 are three successful logins from the admin PC. Two matches on line 20 are two refused attempts, and the `%SEC-6-IPACCESSLOGS` message names the address that was turned away. Standard ACLs log with this `IPACCESSLOGS` message; extended ACLs use a longer form you will meet later.
 
-Rule 1 also covers R2, so repeat the work there with the same ACL. The admin PC's packets reach R2 across the serial link with the source address 192.168.10.10 unchanged, so the same `permit host 192.168.10.10` works. Remember that R1 itself is no longer allowed in: if you start an SSH session from R1 to R2, R2 sees source 10.1.1.1 and refuses it.
+Rule 1 also covers R2, so repeat the work there with the same ACL. The admin PC's packets reach R2 across the serial link with the source address 192.168.10.10 unchanged, so the same `permit host 192.168.10.10` works. Remember that R1 is not allowed into R2 either: if you start an SSH session from R1 to R2, R2 sees source 10.1.1.1 and refuses it.
 
 ```question
 prompt = "A router has VTY lines 0 to 15. You apply `access-class ADMIN-HOST in` under `line vty 0 4` only. What is the result?"

@@ -84,8 +84,6 @@ ip access-list standard GUEST-FILTER
  permit any
 ```
 
-Some releases, mostly IOS XE, also print a sequence number at the start of each line inside the block.
-
 ## Why names are worth it
 
 Named and numbered ACLs filter in exactly the same way. The router doesn't care which you use. You do, for three reasons.
