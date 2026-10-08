@@ -1,0 +1,23 @@
+[package]
+name = "octet-api"
+description = "The commands Octet's interface calls, shared by the desktop app and the dev server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+octet-sim = { path = "../octet-sim" }
+octet-core = { path = "../octet-core" }
+tiny_http = { version = "0.12", optional = true }
+
+[features]
+dev-server = ["dep:tiny_http"]
+
+[[bin]]
+name = "octet-dev"
+required-features = ["dev-server"]
+
+[dev-dependencies]
+tempfile = "3"

@@ -12,8 +12,8 @@ use std::path::{Path, PathBuf};
 pub struct Highlight {
     pub page: String,
     pub block: usize,
-    pub start: usize,
-    pub end: usize,
+    /// The exact words you marked inside that block.
+    pub text: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -245,7 +245,7 @@ mod tests {
         let path = dir.path().join("octet.json");
         let mut s = Store::open(&path).unwrap();
         s.add_note("srwe/03/04", 0, "every frame", "The tag is the lane.", 10).unwrap();
-        s.highlight(Highlight { page: "srwe/03/04".into(), block: 0, start: 3, end: 9 }).unwrap();
+        s.highlight(Highlight { page: "srwe/03/04".into(), block: 0, text: "every frame".into() }).unwrap();
         s.answer("srwe/03/04#3", false, Some(Piece { kind: PieceKind::Note, text: "I said untagged".into(), source: "VLAN trunks".into(), created: 10 }), 10).unwrap();
         s.set_ribbon("srwe/03/04", 2).unwrap();
         let again = Store::open(&path).unwrap();

@@ -433,7 +433,11 @@ impl Session {
         for p in &live {
             match p.slots.get(pos) {
                 Some(s) => {
-                    let (word, desc) = slot_help(*s);
+                    let (word, mut desc) = slot_help(*s);
+                    let prev = done.last().map(|t| t.1.to_ascii_lowercase()).unwrap_or_default();
+                    if *s == K("interface") && ctx == Ctx::Exec {
+                        desc = if "ip".starts_with(&prev) && !prev.is_empty() { "IP interface status and configuration" } else { "Show one interface's configuration" };
+                    }
                     let keep = match (partial, s) {
                         (Some(pt), K(k)) => k.starts_with(&pt.to_ascii_lowercase()),
                         (Some(_), _) => false,

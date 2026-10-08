@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Octet</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="lb" id="lb" tabindex="0" data-theme="light">
+  <aside class="side">
+    <div class="brand"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="3" width="4" height="14" rx="1" fill="var(--cloth-itn)"/><rect x="8" y="3" width="4" height="14" rx="1" fill="var(--cloth-srwe)"/><rect x="13.6" y="3.4" width="4" height="14" rx="1" transform="rotate(8 15.6 10.4)" fill="var(--cloth-ensa)"/></svg><b>Octet</b></div>
+    <nav aria-label="Main" id="nav">
+      <button class="si" type="button" data-go="library"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5v11M6 2.5v11M9.5 3.2l3.6 10.3"/></svg>Library</button>
+      <button class="si" type="button" data-go="reading"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6.5 7.5h4M6.5 10h3"/></svg>Reading now</button>
+      <button class="si" type="button" data-go="review"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.8v2.4h2.4"/></svg>Review<span class="n" id="dueN"></span></button>
+      <span class="grp">Books</span>
+      <div id="navBooks"></div>
+      <span class="grp">Collections</span>
+      <div id="navCols"></div>
+    </nav>
+    <div class="side-foot">
+      <div class="theme" role="group" aria-label="Theme"><button type="button" data-th="light" aria-pressed="true">Light</button><button type="button" data-th="dark" aria-pressed="false">Dark</button></div>
+      <span>Stored on this computer</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <section class="view library" data-view="library"><div class="lib-in" id="libIn"></div></section>
+    <section class="view book-view" data-view="book"><div class="book-in" id="bookIn"></div></section>
+    <section class="view notes-v" data-view="reading">
+      <div class="list"><div class="list-head"><h2 id="chTitle"></h2><span id="chSub"></span></div><div class="items" id="items"></div></div>
+      <div class="ed">
+        <div class="ed-bar">
+          <span class="crumbs" id="crumbs"></span>
+          <div class="ed-tools"><button class="tool" type="button" id="focusBtn" aria-pressed="false">Focus <span class="k">Ctrl .</span></button></div>
+        </div>
+        <div class="ed-scroll" id="edScroll"><article class="doc" id="doc"></article></div>
+        <div class="selbar" id="selbar" role="toolbar" aria-label="Selection"><button type="button" data-act="mark">Highlight</button><button type="button" data-act="note">Add a note</button><button type="button" data-act="collect">Collect</button></div>
+        <div class="collect-menu" id="colMenu" hidden></div>
+      </div>
+    </section>
+    <section class="view collection" data-view="collection"><div class="col-in"><div class="lib-head"><h1 id="colTitle"></h1><p id="colSub"></p></div><div class="blocks" id="colBlocks"></div></div></section>
+    <section class="view review" data-view="review"><div class="card" id="card"></div></section>
+    <div class="toast hide" id="toast" role="status"></div>
+  </div>
+
+  <div class="labw" id="labw" role="region" aria-label="Lab">
+    <div class="lab-bar">
+      <button class="iconbtn" type="button" id="labBack" aria-label="Back to reading"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg></button>
+      <div class="lab-title"><b id="labTitle"></b><span id="labSub"></span></div>
+      <span class="sp"></span>
+      <div class="checks"><span class="dots" id="chkDots"></span><span id="chkText"></span></div>
+      <button class="btn pri" type="button" id="runChk">Run checks <span class="k">Ctrl Enter</span></button>
+    </div>
+    <div class="cv" id="cv">
+      <svg id="cvLinks" aria-hidden="true"></svg>
+      <span class="cv-hint" id="cvHint">Drag anything. Click a device to open it.</span>
+      <section class="ncard" id="briefCard" style="left:24px;top:22px" aria-label="The brief"><header data-drag="briefCard">The brief</header><div class="nb" id="brief"></div></section>
+      <section class="ncard mine-card" id="mineCard" style="left:24px;top:auto;bottom:90px" aria-label="My notes"><header data-drag="mineCard">My notes</header><div class="nb"><textarea id="labNotes" aria-label="My notes" placeholder="Write what you tried and what you learned. It is saved with the lab when you pass."></textarea></div></section>
+      <div class="cvtools" role="toolbar" aria-label="Canvas tools">
+        <button type="button" data-tool="move" aria-pressed="true"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5l8 5.5-3.6.9 2 3.8-1.6.8-2-3.8L4 12z"/></svg>Move</button>
+        <button type="button" data-tool="add" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add device</button>
+        <button type="button" data-tool="connect" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.8" cy="11.5" r="1.8"/><circle cx="12.2" cy="4.5" r="1.8"/><path d="M5.3 10.2l5.4-4.4"/></svg>Connect</button>
+        <button type="button" data-tool="note" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h9v7l-3 4h-6z"/><path d="M9.5 13.5v-4h3"/></svg>Note</button>
+      </div>
+      <div class="addmenu" id="addMenu" hidden><button type="button" data-add="pc">PC</button><button type="button" data-add="switch">Switch</button><button type="button" data-add="router">Router</button></div>
+    </div>
+    <aside class="lp">
+      <div class="lp-tabs" role="tablist" id="lpTabs"></div>
+      <div class="lp-head"><div><b id="lpName"></b><span id="lpSub"></span></div><div class="seg" role="tablist" id="lpSeg"><button type="button" data-pane="console" aria-selected="true">Console</button><button type="button" data-pane="ports" aria-selected="false">Ports</button><button type="button" data-pane="changes" aria-selected="false">Changes</button></div></div>
+      <div class="lp-body" id="lpBody"></div>
+    </aside>
+  </div>
+</div>
+<script src="figures.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

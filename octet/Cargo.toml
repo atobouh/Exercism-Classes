@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["crates/octet-sim", "crates/octet-core"]
-default-members = ["crates/octet-sim", "crates/octet-core"]
+members = ["crates/octet-sim", "crates/octet-core", "crates/octet-api", "app/src-tauri"]
+default-members = ["crates/octet-sim", "crates/octet-core", "crates/octet-api"]
 
 [workspace.package]
 edition = "2021"
