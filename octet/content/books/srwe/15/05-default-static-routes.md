@@ -40,18 +40,21 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 Gateway of last resort is 172.16.12.2 to network 0.0.0.0
 
 S*    0.0.0.0/0 [1/0] via 172.16.12.2
+S        192.168.3.0/24 [1/0] via 172.16.12.2
 ```
 
-Two things changed. The code is now `S*`: the `S` says static and the asterisk marks the route as a *candidate default*. And the line `Gateway of last resort is 172.16.12.2 to network 0.0.0.0` appeared. Before the default route it read `not set`. The text "to network 0.0.0.0" is always printed this way for an IPv4 default.
+Two things changed. The code is now `S*`: the `S` says static and the asterisk marks the route as a *candidate default*. And the line `Gateway of last resort is 172.16.12.2 to network 0.0.0.0` appeared. Before the default route it read `not set`. The text "to network 0.0.0.0" is always printed this way for an IPv4 default. The route to 192.168.3.0/24 from the last page is still configured, so it stays in the list.
 
 IPv6 shows the same route with its own layout.
 
 ```console R1
 R1# show ipv6 route static
-IPv6 Routing Table - default - 6 entries
+IPv6 Routing Table - default - 7 entries
 Codes: C - Connected, L - Local, S - Static, U - Per-user Static route
 ...
 S   ::/0 [1/0]
+     via 2001:DB8:ACAD:12::2
+S   2001:DB8:ACAD:3::/64 [1/0]
      via 2001:DB8:ACAD:12::2
 ```
 
@@ -80,7 +83,7 @@ why = "Both routes match, and the router chooses the longest prefix. The /24 bea
 ```
 
 ```trap
-A default route sends every unknown destination to one neighbor. If that neighbor has no route onward, the packet bounces or loops. Make sure the next router has a path, or a default of its own.
+A default route sends every unknown destination to one neighbor. If that neighbor has no route onward, it drops the packet. If the neighbor's own default points back at you, the packet loops between the two routers. Make sure the next router has a path, or a default that leads somewhere new.
 ```
 
 ```recall
