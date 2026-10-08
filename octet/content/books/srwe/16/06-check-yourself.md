@@ -83,11 +83,13 @@ caption = "The request reaches the far end."
 nodes = [
   { id = "PC1", kind = "pc", x = 0, y = 0 },
   { id = "R1", kind = "router", x = 1, y = 0 },
-  { id = "R3", kind = "router", x = 2, y = 0 },
+  { id = "R2", kind = "router", x = 2, y = 0 },
+  { id = "R3", kind = "router", x = 3, y = 0 },
 ]
 links = [
   { a = "PC1", b = "R1" },
-  { a = "R1", b = "R3", label = "via R2" },
+  { a = "R1", b = "R2", label = "172.16.12.0/30" },
+  { a = "R2", b = "R3", label = "172.16.23.0/30" },
 ]
 ```
 
@@ -114,7 +116,7 @@ why = "R1 and R2 forwarded the probes, so their routes forward. R3 received them
 ```console R1
 R1# show running-config | include ip route
 ip route 192.168.3.0 255.255.255.0 172.16.12.2
-ip route 192.168.3.0 255.255.255.0 172.16.13.2
+ip route 192.168.3.0 255.255.255.0 10.10.10.2
 ```
 
 ```question
