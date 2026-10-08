@@ -1257,7 +1257,7 @@ teaches = [
   "Usable hosts = 2^h - 2, where h is the number of host bits",
   "Worked examples: 192.168.10.0/24 (hosts .1 to .254, broadcast .255) and 10.1.1.0/25 (hosts .1 to .126, broadcast .127)",
   "Conventions for assigning addresses: gateway often the first usable (.1) or the last usable, servers and printers static, clients from DHCP",
-  "Misconception: the network and broadcast addresses can not be assigned to hosts",
+  "Misconception to correct: the network address and the broadcast address of a subnet cannot be assigned to hosts",
   "`question` blocks giving network, first, last and broadcast",
   "A `drill` of kind hosts",
 ]
