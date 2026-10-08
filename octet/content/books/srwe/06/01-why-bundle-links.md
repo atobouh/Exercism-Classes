@@ -4,7 +4,7 @@ summary = "Two uplinks should give you twice the bandwidth, but spanning tree bl
 links = ["ensa/11/03-scalable-design", "srwe/05/02-how-stp-breaks-the-loop", "srwe/06/02-rules-for-a-bundle"]
 +++
 
-An access switch on a busy floor has two gigabit cables running up to the distribution switch. The second cable was meant to double the capacity. Instead, one of the two ports sits dark and does nothing. This page explains why that happens and how *EtherChannel* fixes it by turning several cables into one link.
+An access switch on a busy floor has two cables running up to the distribution switch. The second cable was meant to double the capacity. Instead, one of the two ports sits dark and does nothing. This page explains why that happens and how *EtherChannel* fixes it by turning several cables into one link.
 
 ## The problem: STP blocks the spare
 
@@ -22,8 +22,8 @@ nodes = [
 ]
 links = [
   { a = "PC1", b = "S1", b_label = "F0/3" },
-  { a = "S1", b = "S2", a_label = "Gi0/1", b_label = "Gi0/1", style = "trunk" },
-  { a = "S1", b = "S2", a_label = "Gi0/2", b_label = "Gi0/2", style = "trunk" },
+  { a = "S1", b = "S2", a_label = "Fa0/1", b_label = "Fa0/1", style = "trunk" },
+  { a = "S1", b = "S2", a_label = "Fa0/2", b_label = "Fa0/2", style = "trunk" },
   { a = "S2", b = "S3" },
 ]
 ```

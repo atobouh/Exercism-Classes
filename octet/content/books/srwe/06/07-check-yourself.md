@@ -90,7 +90,22 @@ S1(config)# interface range fa0/1 - 2
 S1(config-if-range)# no shutdown
 ```
 
-S2 is a multilayer switch, so it may need `switchport trunk encapsulation dot1q` before the trunk command, and its mode is `passive` or `active`. Check the result with `show etherchannel summary` and look for `Po1(SU)` with both ports `(P)`.
+S2 is the other end of the bundle, so it needs its own group. Here it uses `passive`, which pairs with S1's `active`. Its trunk settings go on its own port-channel, with the same allowed VLANs.
+
+```console S2
+S2(config)# interface range gi1/0/1 - 2
+S2(config-if-range)# shutdown
+S2(config-if-range)# channel-group 1 mode passive
+S2(config-if-range)# exit
+S2(config)# interface port-channel 1
+S2(config-if)# switchport mode trunk
+S2(config-if)# switchport trunk allowed vlan 10,20
+S2(config-if)# exit
+S2(config)# interface range gi1/0/1 - 2
+S2(config-if-range)# no shutdown
+```
+
+Some older multilayer switches need `switchport trunk encapsulation dot1q` before the trunk command, so add it there if the switch asks for it. Check the result on both switches with `show etherchannel summary`. You want `Po1(SU)` with both ports `(P)` on each side. If the far end shows `(s)` on one port, compare that member's allowed VLANs and native VLAN with the other member first. Once the bundle is up, spanning tree on both switches sees `Po1` as one link, so neither member port is blocked.
 
 ```recall
 front = "List the PAgP and LACP mode names."

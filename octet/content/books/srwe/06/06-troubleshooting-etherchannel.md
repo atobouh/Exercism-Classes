@@ -15,7 +15,7 @@ Start with the summary on both switches. If the port-channel is `SD` and the por
 | auto with auto, or passive with passive | No bundle; ports stand-alone `(I)` or the port-channel `(SD)` |
 | PAgP on one end, LACP on the other | No bundle |
 | `on` on one end, a protocol on the other | No bundle, or a loop |
-| Speed or duplex differs on a member | That port not bundled |
+| Speed or duplex differs on a member | That port is not bundled |
 | Trunk on some members, access on one | The odd port suspended `(s)` |
 | Allowed VLANs or native VLAN differ | The mismatched port suspended `(s)` |
 | Different access VLANs | The mismatched port suspended `(s)` |
@@ -81,18 +81,20 @@ interface FastEthernet0/2
  channel-group 1 mode active
 ```
 
-Fa0/2 is an access port, while the port-channel is a trunk. Fix it by shutting the port-channel, removing the odd line on the member and bringing the bundle back.
+Fa0/2 is an access port, while the port-channel is a trunk. Make the member match the bundle. Shut the port-channel, set Fa0/2 to trunk mode, then bring the bundle back.
 
 ```console S1
 S1(config)# interface port-channel 1
 S1(config-if)# shutdown
 S1(config-if)# exit
 S1(config)# interface fa0/2
-S1(config-if)# no switchport mode access
+S1(config-if)# switchport mode trunk
 S1(config-if)# exit
 S1(config)# interface port-channel 1
 S1(config-if)# no shutdown
 ```
+
+Do not remove the `switchport mode access` line on its own. That returns the port to the platform default, which on a 2960 is dynamic auto, not the trunk the bundle uses. Then check the member's allowed VLANs and native VLAN against Fa0/1 as well, because a matching mode alone is not enough.
 
 Then run the summary again. Both ports should show `(P)`.
 
