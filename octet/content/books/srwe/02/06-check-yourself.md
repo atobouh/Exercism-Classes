@@ -4,7 +4,7 @@ summary = "Trace frames through a two-switch network and count its domains."
 links = ["srwe/02/03-forward-flood-or-filter", "srwe/02/05-collision-and-broadcast-domains", "srwe/03/01-what-a-vlan-is"]
 +++
 
-Switching is easiest to learn by tracing frames by hand. This page gives you one small network and four frames to follow, then mixed questions on everything in the chapter. Work the trace on paper first, then read the tables.
+Switching is best learned by tracing frames by hand. This page gives you one small network and four frames to follow, then mixed questions on everything in the chapter. Work the trace on paper first, then read the tables.
 
 ## The network
 
@@ -62,7 +62,7 @@ Total Mac Addresses for this criterion: 4
 ```
 
 ```question
-prompt = "After frame 4, PC4 is unplugged and moved to S2 Fa0/3 within a minute. S2's entry for 6803 still says Fa0/2. What happens to a frame sent to PC4 before PC4 transmits?"
+prompt = "After frame 4, PC4 is moved from S2 Fa0/2 to Fa0/3. It has not sent a frame from its new port, and S2's entry for 6803 has not aged out yet. What happens to a frame sent to PC4 now?"
 options = ["S2 detects the move and updates the entry at once", "S2 sends it out Fa0/2, where nothing is listening, until PC4 sends a frame or the entry ages out", "S2 floods it, because the link on Fa0/2 went down", "S2 drops it and S1 floods it instead"]
 answer = 1
 why = "The switch trusts its table until a frame from 6803 arrives on a different port, which makes it rewrite the entry. Until then, or until 300 seconds pass, frames go to the old port."

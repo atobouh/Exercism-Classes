@@ -86,10 +86,10 @@ why = "SSH sends a username, and plain `login` checks only a line password."
 ```
 
 ```question
-prompt = "PCs behind R1 get IPv6 addresses but no default gateway. What did you forget?"
+prompt = "R1's interfaces are addressed and up, but IPv6 traffic from LAN 2 never reaches LAN 1. What did you forget?"
 options = ["ipv6 unicast-routing", "mdix auto", "boot system", "terminal length 0"]
 answer = 0
-why = "Without it R1 sends no router advertisements."
+why = "An IPv6 router forwards packets only after `ipv6 unicast-routing`. Without it, R1 also sends no router advertisements."
 ```
 
 ```question

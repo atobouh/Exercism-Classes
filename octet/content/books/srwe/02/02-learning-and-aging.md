@@ -28,7 +28,7 @@ Vlan    Mac Address       Type        Ports
 Total Mac Addresses for this criterion: 2
 ```
 
-PC2 and PC4 are missing because neither has sent a frame yet. A switch never learns from the destination address, and a silent host stays unknown until it transmits. Nothing is wrong with it; the switch has simply had no reason to hear from it.
+PC2 and PC4 are missing because neither has sent a frame yet. A switch never learns from the destination address, and a silent host stays unknown until it transmits. Nothing is wrong with them. The switch has had no reason to hear from them.
 
 ```question
 prompt = "PC4 is powered on and connected to Fa0/4 but has never sent a frame. Is its MAC address in the table?"
@@ -81,7 +81,7 @@ Vlan    Mac Address       Type        Ports
 Total Mac Addresses for this criterion: 1
 ```
 
-After `clear mac address-table dynamic`, the switch behaves as if it had just been powered on and relearns from the next frames. That is a handy way to test a theory, because you can watch the table fill.
+After `clear mac address-table dynamic`, the switch behaves as if it had been freshly powered on and relearns from the next frames. That is a handy way to test a theory, because you can watch the table fill.
 
 ```command
 prompt = "Empty all learned entries from the MAC address table."

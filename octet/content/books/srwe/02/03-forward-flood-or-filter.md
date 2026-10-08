@@ -15,13 +15,15 @@ After learning from the source, the switch looks up the destination. What it fin
 | Broadcast (`ffff.ffff.ffff`) | Flood | Every port in the VLAN except the ingress port |
 | Known, but on the ingress port | Filter | None, the frame is dropped |
 
-Most multicast frames are flooded in the same way as broadcasts, since a switch has no group knowledge unless extra features are configured. *Flooding* is not a malfunction. It is how the switch deals with a destination it has never heard from, and the reply will teach it.
+Multicast depends on *IGMP snooping*. On Catalyst 2960 and 9000 series switches, snooping is on by default. With snooping, the switch forwards a multicast frame only to the ports where hosts have joined that group. Without snooping, or with no IGMP state for the group, the switch floods multicast within the VLAN, the same as a broadcast.
+
+*Flooding* is not a malfunction. It is how the switch deals with a unicast destination it has never heard from, and the reply will teach it.
 
 *Filtering* happens when the destination is on the same port the frame arrived on. That occurs when a hub, or another switch, hangs off a port and several hosts sit behind it. The destination already received the frame on that shared segment, so sending it back would only waste bandwidth.
 
 ## A worked exchange
 
-S1 has just been cleared. PC1 (`0050.7966.6800`, Fa0/1) pings PC3 (`0050.7966.6802`, Fa0/3), and neither knows the other's MAC address yet.
+S1 has been cleared. PC1 (`0050.7966.6800`, Fa0/1) pings PC3 (`0050.7966.6802`, Fa0/3), and neither knows the other's MAC address yet.
 
 **Step 1: PC1 sends an ARP request.** PC1 needs PC3's MAC, so it broadcasts. The destination is `ffff.ffff.ffff`. S1 learns `6800` on Fa0/1, then floods the frame out Fa0/2, Fa0/3 and Fa0/4.
 

@@ -21,15 +21,12 @@ Add `|` after any `show` command, then a filter and some text.
 
 ```console S1
 S1# show running-config | section line vty
-line vty 0 4
- password 7 02050D480809
- login
-line vty 5 15
+line vty 0 15
  login local
  transport input ssh
 ```
 
-That output also reveals a problem: lines 0 to 4 still use a shared password and the default transport. The filter found it in two lines, where scrolling would have taken a page.
+The output is the whole VTY configuration from the SSH setup, and nothing else. The console line and the interface commands above it are gone, so you can check how remote logins are set up without scrolling past the rest of the file.
 
 ```command
 prompt = "Show only the VTY line blocks from the running configuration."
@@ -57,7 +54,7 @@ answer = ["show ip interface brief | include up"]
 why = "`include` prints matching lines only. Lines for ports that are down contain no `up`, so they are left out."
 ```
 
-Filters are case sensitive and match a *regular expression*, a pattern language. `include Up` finds nothing where the output says `up`. For plain words that is all you need to know; `|` inside the pattern means "or", so `include Gig|Fast` matches either.
+Filters are case sensitive and match a *regular expression*, a pattern language. `include Up` finds nothing where the output says `up`. For plain words, the text you type is the whole pattern, and that is all you need for now.
 
 ```question
 prompt = "`show ip interface brief | include up` shows 3 lines. You type `show ip interface brief | include Up`. What happens?"

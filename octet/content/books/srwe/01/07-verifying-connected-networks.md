@@ -24,7 +24,7 @@ GigabitEthernet0/0/1   [up/up]
     2001:DB8:ACAD:11::1
 ```
 
-The columns are the interface name, its address, whether the address was read from memory (`OK?`), how it was set (`Method`), and the pair of states. `manual` means you typed it. `up/up` is the healthy pair. The IPv6 command shows each state in brackets and lists every address, link-local first.
+The columns are the interface name, its address, whether the entry is valid (`OK?`, where YES means valid), how the address was set (`Method`), and the pair of states. `manual` means you typed it. `up/up` is the healthy pair. The IPv6 command shows each state in brackets and lists every address, link-local first.
 
 ## The routing table
 

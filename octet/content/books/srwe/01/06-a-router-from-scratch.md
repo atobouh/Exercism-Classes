@@ -67,10 +67,10 @@ why = "Without it the router answers pings to its own addresses but does not for
 That second part matters to hosts. A PC learns its IPv6 default gateway from a router advertisement, and the router sends them only after `ipv6 unicast-routing`.
 
 ```question
-prompt = "R1's G0/0/0 has 2001:db8:acad:10::1/64 and is up/up. PCs on the LAN get an IPv6 address by SLAAC but no default gateway. What is missing?"
-options = ["The interface needs ip address as well", "ipv6 unicast-routing", "A longer prefix length", "service password-encryption"]
+prompt = "R1's G0/0/0 has 2001:db8:acad:10::1/64 and is up/up. IPv6 packets from LAN 1 to LAN 2 reach R1 but are never forwarded. What is missing?"
+options = ["The interface needs an ip address as well", "ipv6 unicast-routing", "A longer prefix length", "service password-encryption"]
 answer = 1
-why = "Router advertisements, which carry the gateway information, are sent only when IPv6 routing is enabled."
+why = "An IPv6 router forwards packets between interfaces only after `ipv6 unicast-routing`. Interface addresses alone do not route."
 ```
 
 ## Loopback interfaces
@@ -84,7 +84,7 @@ R1(config-if)# ip address 10.0.0.1 255.255.255.255
 
 Loopbacks are used to test routing when no real link exists and later as a stable identity for the router, because the address stays up as long as the router does.
 
-A router carries a second, separate setting for addresses: the loopback address in this example uses a /32 mask because nothing else will ever share that "link". Real interfaces use the mask of the network they sit on.
+The loopback here uses a /32 mask. Nothing else shares that "link", so there is no network to size. A real interface uses the mask of the network it sits on.
 
 ## Save it
 
