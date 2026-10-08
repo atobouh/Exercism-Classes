@@ -4,7 +4,7 @@ summary = "A /8 has 24 host bits, enough for thousands of subnets with thousands
 links = ["itn/11/09-subnetting-a-slash-16", "itn/11/11-subnetting-to-requirements", "itn/11/05-public-private-and-special"]
 +++
 
-The private block `10.0.0.0/8` is the largest an organization can use. It has 24 host bits, so over 16 million addresses. Few networks need one subnet that big, and large companies often carve it into thousands of smaller ones. The method does not change. You only have more octets to watch.
+The private block `10.0.0.0/8` is the largest private range an organization can use. It has 24 host bits, so over 16 million addresses. Few networks need one subnet that big, and large companies often carve it into thousands of smaller ones. The method does not change. You only have more octets to watch.
 
 ## Where the borrowed bits fall
 
@@ -23,7 +23,7 @@ The interesting octet is whichever one holds the boundary. The numbers get big q
 | /20 | 255.255.240.0 | 4,096 | 4,094 |
 | /24 | 255.255.255.0 | 65,536 | 254 |
 
-The subnet count is 2 to the power of (prefix - 8). The hosts are 2^(32 - prefix) - 2. At `/24` you get 2^16 = 65,536 subnets, each exactly the size of a typical LAN.
+The subnet count is 2 to the power of (prefix - 8). The hosts are 2^(32 - prefix) - 2. At `/24` you get 2^16 = 65,536 subnets, each with 254 usable hosts, a common size for a LAN.
 
 ## Worked example: 10.0.0.0/8 into /12
 

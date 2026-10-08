@@ -32,7 +32,7 @@ Nobody can flip the whole internet to IPv6 on one day. For years the two protoco
 | Tunneling | IPv6 packets are wrapped inside IPv4 packets to cross a part of the network that only understands IPv4 |
 | Translation | A device such as a NAT64 gateway converts between IPv6 and IPv4 so an IPv6-only host can talk to an IPv4-only server |
 
-With dual stack, a host with both kinds of address picks IPv6 when the destination offers it, and falls back to IPv4 otherwise. It is the recommended approach wherever you can use it, because it needs no conversion and no wrapping, and each protocol works natively. Tunneling and translation are tools for the gaps: tunneling for crossing an IPv4-only stretch, translation for an IPv6-only network that must still reach old IPv4 services.
+With dual stack, a host with both kinds of address usually tries IPv6 first when the destination offers it, and falls back to IPv4 when it does not. It is the recommended approach wherever you can use it, because it needs no conversion and no wrapping, and each protocol works natively. Tunneling and translation are tools for the gaps: tunneling for crossing an IPv4-only stretch, translation for an IPv6-only network that must still reach old IPv4 services.
 
 ```question
 prompt = "A site's internal network is IPv6 only, but users must reach a server that only has an IPv4 address. Which coexistence method fits?"
