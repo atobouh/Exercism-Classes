@@ -14,7 +14,7 @@ An IPv4 address is 32 bits, so there are 2^32, about 4.3 billion, possible addre
 
 ## What IPv6 changes
 
-An IPv6 address is 128 bits, giving 2^128 addresses, roughly 3.4 followed by 38 zeros. The aim is not just a bigger number. It is enough that every device can have its own globally unique address, so NAT is no longer needed to save space.
+An IPv6 address is 128 bits, giving 2^128 addresses, roughly 3.4 followed by 38 zeros. The aim is not only a bigger number. It is enough that every device can have its own globally unique address, so NAT is no longer needed to save space.
 
 The designers also tidied up. The IPv6 header has a fixed size of 40 bytes, so routers do not have to cope with variable options. Hosts can configure their own addresses automatically, which the later pages cover. And there is no broadcast: other mechanisms, mostly multicast, take over those jobs.
 

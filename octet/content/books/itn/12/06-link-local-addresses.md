@@ -31,7 +31,7 @@ That last point surprises people, so it is worth stating plainly. If a router ha
 
 A host usually forms its LLA from `fe80::` followed by a 64-bit interface ID, either made from its MAC address or generated at random. A later page shows exactly how. On a router the default behavior is to build it from the interface's MAC address, which gives a long address that is hard to read and remember.
 
-You can set a router's LLA by hand instead. A common practice is to use something simple like `fe80::1` on every interface. That works because an LLA only has to be unique on its own link. Two different interfaces on different links can both use `fe80::1` without conflict, and the number is easy to spot in output. The configuration is on the next page.
+You can set a router's LLA by hand instead. A common practice is to use something simple like `fe80::1` on every interface. That works because an LLA only has to be unique on its own link. Two different interfaces on different links can both use `fe80::1` without conflict, and the number stands out in output. The configuration is on the next page.
 
 ## The zone index on Windows
 

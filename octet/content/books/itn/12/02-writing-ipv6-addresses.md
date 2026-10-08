@@ -89,7 +89,7 @@ back = "Omit leading zeros in each hextet, and replace one run of consecutive al
 
 ```recall
 front = "If an address has two equal-length runs of zero hextets, which one gets the ::?"
-back = "The first (leftmost) one. Also, :: should not stand for just one zero hextet."
+back = "The first (leftmost) one. Also, :: should not stand for a single zero hextet."
 ```
 
 ```recall

@@ -70,9 +70,9 @@ C:\> ipconfig
 Ethernet adapter Ethernet:
 
    Connection-specific DNS Suffix  . :
-   IPv6 Address. . . . . . . . . . . : 2001:db8:acad:1:250:79ff:fe66:6800
+   IPv6 Address. . . . . . . . . . . : 2001:db8:acad:1:5d3e:9a1c:f27:b8e4
    Temporary IPv6 Address. . . . . . : 2001:db8:acad:1:a4c1:6d0e:3b92:77f5
-   Link-local IPv6 Address . . . . . : fe80::250:79ff:fe66:6800%11
+   Link-local IPv6 Address . . . . . : fe80::3c1a:9e4f:27d0:61b5%11
    Default Gateway . . . . . . . . . : fe80::1%11
 ```
 
@@ -107,7 +107,7 @@ why = "SLAAC needs router advertisements. Without ipv6 unicast-routing the route
 
 ```question
 prompt = "In the output below, why can R1 not ping 2001:db8:acad:2::10? R1# show ipv6 interface brief shows GigabitEthernet0/0/1 [administratively down/down] with the address 2001:DB8:ACAD:2::1."
-options = ["The address has a typo", "The interface is shut down and needs no shutdown", "IPv6 routing is off", "The prefix is /48"]
+options = ["The address has a typo", "The interface is shut down, and `no shutdown` is needed", "IPv6 routing is off", "The prefix is /48"]
 answer = 1
 why = "administratively down means someone shut the interface or never enabled it. The address is present, but the interface is not forwarding."
 ```

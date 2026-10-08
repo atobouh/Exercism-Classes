@@ -21,7 +21,7 @@ There is no host-count arithmetic. A /64 holds 2^64 interface IDs, far more than
 
 ## One /64 for every network
 
-In a simple design every LAN gets its own /64, and every point-to-point router link does as well, even though a link has only two devices. That keeps things regular, with the same prefix length everywhere and SLAAC working wherever it is needed. Some designs use /127 on router links to save address space, but that is an extra topic. This book keeps the /64.
+In a simple design every LAN gets its own /64, and every point-to-point router link does as well, even though a link has only two devices. That keeps things regular, with the same prefix length everywhere and SLAAC working wherever it is needed. Some designs use /127 on router links instead (RFC 6164), mainly to stop packets bouncing back and forth between the two routers and to avoid filling neighbor caches with unused addresses, but that is an extra topic. This book keeps the /64.
 
 ## A worked plan
 

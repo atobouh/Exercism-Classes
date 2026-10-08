@@ -114,7 +114,7 @@ If `show cdp neighbors` is empty on a port you know has a Cisco device on it, `s
 
 ## A worked map
 
-On S1 you see R1 on Gi0/1 and S2 on Gi0/2. Logging in to S2 and running the same command shows S1 on Gi0/2 and a second router, R2, on Gi0/3. Three commands on three devices give you this map.
+On S1 you see R1 on Gi0/1 and S2 on Gi0/2. Logging in to S2 and running the same command shows S1 on Gi0/2 and a second router, R2, on Gi0/3. Two `show cdp neighbors` commands, typed on two switches, give you this map.
 
 ```diagram
 caption = "A map built from CDP output on S1, then S2."

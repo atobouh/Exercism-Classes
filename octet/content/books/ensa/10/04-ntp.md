@@ -4,7 +4,7 @@ summary = "Network Time Protocol gives every device the same clock, from authori
 links = ["ensa/10/06-syslog", "ensa/10/01-knowing-your-network"]
 +++
 
-A router can tell you the time, but only the time it believes. Set by hand, it drifts, and after a power loss it may start from a default date. Two routers set by hand a week apart will never agree. *NTP* (Network Time Protocol) solves this by letting each device ask a more trusted clock, and adjusting itself to match. It runs over UDP port 123.
+A router can tell you the time, but only the time it believes. Set by hand, it drifts, and after a power loss it may start from a default date. Two routers set by hand will slowly drift apart. *NTP* (Network Time Protocol) solves this by letting each device ask a more trusted clock, and adjusting itself to match. It runs over UDP port 123.
 
 ## Setting the clock by hand
 

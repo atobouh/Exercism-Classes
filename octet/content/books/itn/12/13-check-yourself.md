@@ -51,7 +51,7 @@ why = ":: is the unspecified address. ::1 is the loopback, the IPv6 version of 1
 
 ```question
 prompt = "A router advertisement has A = 1, M = 0 and O = 0. How does a host get its address and its DNS server?"
-options = ["Both from a DHCPv6 server", "Address by SLAAC, no DNS from the RA", "Address from DHCPv6, DNS from the RA", "Both by manual setup only"]
+options = ["Both from a DHCPv6 server", "Address by SLAAC, with no DHCPv6 involved", "Address from DHCPv6, DNS from the RA", "Both by manual setup only"]
 answer = 1
 why = "With only the A flag set, the host builds its address with SLAAC. Nothing tells it to ask DHCPv6 for more."
 ```

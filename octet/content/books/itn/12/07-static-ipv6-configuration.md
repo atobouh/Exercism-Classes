@@ -4,7 +4,7 @@ summary = "Type in a GUA and a memorable link-local address on each router inter
 links = ["itn/12/06-link-local-addresses", "itn/12/12-verifying-ipv6", "itn/10/03-configuring-router-interfaces"]
 +++
 
-You already know how to give a router interface an IPv4 address. IPv6 needs the same steps with a few additions: a global command to turn IPv6 routing on, a global address and, if you want it, a short link-local address that is easy to read. This page walks through the router side, then the host side.
+You already know how to give a router interface an IPv4 address. IPv6 needs the same steps with a few additions: a global command to turn IPv6 routing on, a global address and, if you want it, a short link-local address that is simple to read. This page walks through the router side, then the host side.
 
 ## Turn on IPv6 routing first
 
@@ -78,7 +78,7 @@ A host needs four things, the same as in IPv4 with slightly different names.
 | Default gateway | `fe80::1` |
 | DNS server | an IPv6 address of your DNS server |
 
-On Windows these are in the adapter's properties, under Internet Protocol Version 6. The gateway is usually the router's link-local address, which is the reason for making it easy to remember. A global address such as `2001:db8:acad:1::1` also works, and many static setups use it.
+On Windows these are in the adapter's properties, under Internet Protocol Version 6. The gateway is usually the router's link-local address, which is why a short, memorable address is worth setting. A global address such as `2001:db8:acad:1::1` also works, and many static setups use it.
 
 ```question
 prompt = "A student types ipv6 address 2001:db8:acad:1::1 on an interface and gets an error. What is missing?"
