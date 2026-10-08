@@ -44,6 +44,7 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
   --shadow: 0 1px 2px oklch(25% 0.02 60 / 0.06), 0 12px 32px -14px oklch(25% 0.02 60 / 0.25);
   --cover-shadow: 0 1px 0 oklch(100% 0 0 / 0.08) inset, 0 2px 3px oklch(25% 0.02 60 / 0.12), 0 22px 30px -18px oklch(25% 0.03 60 / 0.45);
   --edge: oklch(25% 0.02 60 / 0.1); --drop: oklch(20% 0.03 60 / 0.4);
+  --ok: oklch(55% 0.12 155); --dot: oklch(82% 0.006 70); --card-lift: 0 6px 16px -10px oklch(25% 0.02 60 / 0.32);
   width: 1280px; height: 800px; display: grid; grid-template-columns: 224px 1fr; background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--f-ui); border-radius: 14px; overflow: hidden; position: relative; outline: none;
   box-shadow: 0 0 0 1px var(--edge), 0 40px 80px -40px var(--drop);
 }
@@ -56,6 +57,7 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
   --shadow: 0 1px 2px oklch(5% 0.01 70 / 0.4), 0 14px 34px -14px oklch(5% 0.01 70 / 0.7);
   --cover-shadow: 0 1px 0 oklch(100% 0 0 / 0.06) inset, 0 2px 3px oklch(5% 0.01 70 / 0.4), 0 22px 30px -18px oklch(2% 0.01 70 / 0.8);
   --edge: oklch(100% 0 0 / 0.07); --drop: oklch(2% 0.01 70 / 0.6);
+  --ok: oklch(73% 0.13 155); --dot: oklch(33% 0.006 70); --card-lift: 0 8px 18px -10px oklch(2% 0.01 70 / 0.7);
 }
 .lb ::selection { background: color-mix(in oklch, var(--you) 22%, transparent); }
 .lb button { font: inherit; color: inherit; cursor: pointer; }
@@ -244,8 +246,99 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
 .toast { position: absolute; left: 50%; bottom: 22px; transform: translate(-50%, 0); background: var(--pri); color: var(--on-pri); padding: 9px 15px; border-radius: 10px; font-size: 13.5px; font-weight: 500; z-index: 30; box-shadow: var(--shadow); transition: transform 240ms var(--ease-out), opacity 180ms ease; }
 .toast.hide { opacity: 0; transform: translate(-50%, 10px); pointer-events: none; }
 
+/* LAB: a canvas you can build on, a panel per device */
+.labw { position: absolute; inset: 0; z-index: 40; background: var(--bg); display: grid; grid-template-columns: minmax(0, 1fr) 440px; grid-template-rows: 54px minmax(0, 1fr); opacity: 0; pointer-events: none; transform: scale(0.985); transition: opacity 200ms ease, transform 240ms var(--ease-out); }
+.labw.on { opacity: 1; pointer-events: auto; transform: none; }
+.lab-bar { grid-column: 1 / 3; display: flex; align-items: center; gap: 12px; padding: 0 16px 0 10px; border-bottom: 1px solid var(--line); }
+.iconbtn { width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 8px; background: transparent; color: var(--ink2); transition: background-color 100ms ease; }
+.iconbtn:hover { background: var(--hover); color: var(--ink); }
+.iconbtn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.lab-title { display: flex; align-items: baseline; gap: 10px; }
+.lab-title b { font: 500 21px/1 var(--f-book); letter-spacing: -0.01em; }
+.lab-title span { font-size: 13px; color: var(--ink3); }
+.lab-bar .sp { flex: 1; }
+.checks { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink2); font-variant-numeric: tabular-nums; }
+.checks .dots { display: flex; gap: 5px; }
+.checks .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--ok); transition: background-color 300ms ease, box-shadow 300ms ease; }
+.checks .dots i.bad { background: transparent; box-shadow: inset 0 0 0 1.5px var(--wrong); }
+.cv { position: relative; overflow: hidden; background-color: var(--list); background-image: radial-gradient(var(--dot) 1px, transparent 1.2px); background-size: 20px 20px; }
+.cv > svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.lnk { fill: none; stroke: var(--ink3); stroke-width: 1.6; }
+.lnk.trunk { stroke: var(--ink2); stroke-width: 6; stroke-linecap: round; }
+.lnk.trunk-in { stroke: var(--list); stroke-width: 2; }
+.lnk.new { stroke-dasharray: 4 4; }
+.plab { font: 400 10.5px var(--f-ios); fill: var(--ink3); paint-order: stroke; stroke: var(--list); stroke-width: 5px; stroke-linejoin: round; }
+.vpill rect { fill: var(--bg); stroke: var(--line2); } .vpill text { font: 600 11px var(--f-ui); fill: var(--ink2); }
+.cutx { transition: opacity 300ms ease; }
+.cutx circle { fill: var(--bg); stroke: var(--wrong); stroke-width: 1.6; } .cutx path { stroke: var(--wrong); stroke-width: 1.6; stroke-linecap: round; }
+.cutx text { font: 500 12.5px var(--f-ui); fill: var(--wrong); paint-order: stroke; stroke: var(--list); stroke-width: 5px; stroke-linejoin: round; }
+.dcard { position: absolute; width: 168px; height: 58px; border-radius: 12px; background: var(--bg); box-shadow: 0 0 0 1px var(--line2), var(--card-lift); display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: center; padding: 0 12px 0 10px; cursor: grab; user-select: none; touch-action: none; border: 0; text-align: left; transition: box-shadow 120ms ease; }
+.dcard:hover { box-shadow: 0 0 0 1px var(--ink3), var(--card-lift); }
+.dcard.sel { box-shadow: 0 0 0 2px var(--you), var(--card-lift); }
+.dcard.pending { outline: 2px dashed var(--you); outline-offset: 4px; }
+.dcard.dragging { cursor: grabbing; }
+.dcard .ic { width: 34px; height: 34px; border-radius: 9px; background: var(--list); display: grid; place-items: center; color: var(--ink2); }
+.dcard .ic svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.dcard b { font-weight: 600; font-size: 13.5px; display: flex; align-items: center; gap: 7px; }
+.dcard b i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex: none; transition: background-color 300ms ease; }
+.dcard b i.warn { background: var(--wrong); } .dcard b i.off { background: var(--line2); }
+.dcard .sb { font: 400 11px var(--f-ios); color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+.ncard { position: absolute; width: 268px; border-radius: 12px; background: var(--bg); box-shadow: 0 0 0 1px var(--line2), var(--card-lift); display: grid; }
+.ncard header { padding: 13px 16px 6px; cursor: grab; font: 500 18px/1.2 var(--f-book); touch-action: none; user-select: none; }
+.ncard .nb { padding: 0 16px 14px; display: grid; gap: 10px; font-size: 13.5px; }
+.task { display: grid; grid-template-columns: 16px 1fr; gap: 9px; align-items: start; color: var(--ink2); }
+.task .st { width: 14px; height: 14px; border-radius: 50%; margin-top: 3px; background: var(--ok); transition: background-color 300ms ease, box-shadow 300ms ease; }
+.task.open { color: var(--ink); } .task.open b { font-weight: 600; }
+.task.open .st { background: transparent; box-shadow: inset 0 0 0 1.5px var(--wrong); }
+.task small { display: block; color: var(--ink3); font-size: 12.5px; margin-top: 2px; }
+.ncard .lk { border: 0; background: none; padding: 0; color: var(--you); font-size: 13px; text-align: left; justify-self: start; }
+.ncard .lk:hover { text-decoration: underline; text-underline-offset: 3px; }
+.ncard.mine-card textarea { width: 100%; border: 0; background: transparent; resize: none; outline: none; padding: 0; font: 450 14.5px/1.5 var(--f-ui); color: var(--you); caret-color: var(--you); field-sizing: content; min-height: 3em; }
+.ncard.mine-card textarea::placeholder { color: color-mix(in oklch, var(--you) 55%, transparent); }
+.cvtools { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; gap: 2px; padding: 4px; border-radius: 12px; background: var(--bg); box-shadow: 0 0 0 1px var(--line2), var(--shadow); z-index: 3; }
+.cvtools button { border: 0; background: transparent; padding: 7px 12px; border-radius: 8px; font-size: 13px; color: var(--ink2); display: inline-flex; gap: 7px; align-items: center; white-space: nowrap; transition: background-color 100ms ease; }
+.cvtools button:hover { background: var(--hover); color: var(--ink); }
+.cvtools button[aria-pressed="true"] { background: var(--sel); color: var(--ink); }
+.cvtools svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.addmenu { position: absolute; left: 50%; bottom: 66px; transform: translateX(-50%); display: grid; padding: 4px; border-radius: 10px; background: var(--bg); box-shadow: 0 0 0 1px var(--line2), var(--shadow); z-index: 4; min-width: 180px; }
+.addmenu button { border: 0; background: transparent; text-align: left; padding: 7px 10px; border-radius: 7px; font-size: 13.5px; }
+.addmenu button:hover { background: var(--hover); }
+.cv-hint { position: absolute; top: 14px; right: 16px; font-size: 12.5px; color: var(--ink3); z-index: 2; }
+.lp { border-left: 1px solid var(--line); display: grid; grid-template-rows: 40px auto minmax(0, 1fr); min-height: 0; }
+.lp-tabs { display: flex; border-bottom: 1px solid var(--line); padding: 0 8px; gap: 2px; overflow: hidden; }
+.lp-tabs button { border: 0; background: transparent; padding: 0 13px; font: 500 13px var(--f-ui); color: var(--ink3); box-shadow: inset 0 -2px 0 transparent; white-space: nowrap; }
+.lp-tabs button:hover { color: var(--ink); }
+.lp-tabs button[aria-selected="true"] { color: var(--ink); box-shadow: inset 0 -2px 0 var(--ink); }
+.lp-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; gap: 12px; }
+.lp-head b { display: block; font: 500 21px/1.1 var(--f-book); }
+.lp-head span { font-size: 12.5px; color: var(--ink3); }
+.seg { display: flex; padding: 3px; border-radius: 9px; background: var(--hover); gap: 2px; }
+.seg button { border: 0; background: transparent; padding: 5px 11px; border-radius: 7px; font-size: 12.5px; color: var(--ink2); white-space: nowrap; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-selected="true"] { background: var(--bg); color: var(--ink); box-shadow: 0 1px 2px oklch(25% 0.02 60 / 0.14); }
+.lp-body { min-height: 0; overflow: auto; border-top: 1px solid var(--line); background: var(--list); }
+.con { font: 400 12.5px/1.65 var(--f-ios); padding: 12px 18px 24px; white-space: pre; color: var(--ink2); }
+.con .c { color: var(--ink); } .con .e { color: var(--wrong); } .con .g { color: var(--ok); }
+.con-line input:focus-visible { outline: none; }
+.con-line { display: flex; } .con-line input { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; font: inherit; color: var(--ink); caret-color: var(--you); padding: 0 0 0 8px; }
+.ports { width: 100%; border-collapse: collapse; font-size: 13px; }
+.ports th { text-align: left; font-weight: 500; color: var(--ink3); padding: 10px 18px 6px; font-size: 12px; }
+.ports td { padding: 9px 18px; border-top: 1px solid var(--line); color: var(--ink); white-space: nowrap; }
+.ports td.m { font: 400 12px var(--f-ios); }
+.ports td.w { color: var(--wrong); }
+.ports .sd { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); margin-right: 8px; vertical-align: 1px; }
+.ports .sd.warn { background: var(--wrong); }
+.diff { font: 400 12.5px/1.75 var(--f-ios); padding: 12px 0 24px; }
+.diff div { padding: 0 18px 0 30px; white-space: pre; position: relative; color: var(--ink2); }
+.diff div::before { position: absolute; left: 14px; color: var(--ink3); }
+.diff .add { background: color-mix(in oklch, var(--ok) 15%, transparent); color: var(--ink); } .diff .add::before { content: "+"; color: var(--ok); }
+.diff .del { background: color-mix(in oklch, var(--wrong) 11%, transparent); } .diff .del::before { content: "-"; color: var(--wrong); }
+.diff .hd { color: var(--ink3); padding-bottom: 6px; font-family: var(--f-ui); font-size: 12.5px; }
+.empty-note { padding: 18px; color: var(--ink3); font-size: 13.5px; margin: 0; }
+.it.lab-it b i { color: var(--you); }
+
 @media (prefers-reduced-motion: reduce) {
-  .cover, .fg .frame, .toast, .btn, .opt, .grades button, .course mark.new { transition: opacity 150ms ease !important; animation: none !important; }
+  .labw, .cutx, .cover, .fg .frame, .toast, .btn, .opt, .grades button, .course mark.new { transition: opacity 150ms ease !important; animation: none !important; }
 }
 </style>
 
@@ -330,7 +423,7 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
                 </div>
                 <p>Next you will give each VLAN a door into the router, on one physical port. That is router-on-a-stick, and it is the lab at the end of this chapter.</p>
               </div>
-              <div class="linked"><h3>Linked pages</h3><div class="chips"><button class="chip" type="button">What a VLAN is</button><button class="chip" type="button">Native VLAN</button><button class="chip" type="button">802.1Q tag</button><button class="chip empty" type="button">Router-on-a-stick, not read yet</button></div></div>
+              <div class="linked"><h3>Linked pages</h3><div class="chips"><button class="chip" type="button">What a VLAN is</button><button class="chip" type="button">Native VLAN</button><button class="chip" type="button">802.1Q tag</button><button class="chip empty" type="button" data-lab id="labChip">Lab: Router-on-a-stick</button></div></div>
             </article>
           </div>
           <div class="selbar" id="selbar" role="toolbar" aria-label="Selection"><button type="button" data-act="mark">Highlight</button><button type="button" data-act="note">Add a note</button><button type="button" data-act="collect">Collect</button></div>
@@ -346,6 +439,46 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
 
       <div class="toast hide" id="toast" role="status"></div>
     </div>
+
+    <!-- LAB -->
+    <div class="labw" id="labw" role="region" aria-label="Lab: Router-on-a-stick">
+      <div class="lab-bar">
+        <button class="iconbtn" type="button" id="labBack" aria-label="Back to VLANs"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg></button>
+        <div class="lab-title"><b>Router-on-a-stick</b><span>Lab at the end of VLANs</span></div>
+        <span class="sp"></span>
+        <div class="checks"><span class="dots" id="chkDots"><i></i><i></i><i class="bad"></i></span><span id="chkText">2 of 3 checks</span></div>
+        <button class="btn pri" type="button" id="runChk">Run checks <span class="k">Ctrl Enter</span></button>
+      </div>
+      <div class="cv" id="cv">
+        <svg id="cvLinks" aria-hidden="true"></svg>
+        <span class="cv-hint" id="cvHint">Drag anything. Click a device to open it.</span>
+        <section class="ncard" id="briefCard" style="left:24px;top:22px" aria-label="The brief">
+          <header data-drag="briefCard">The brief</header>
+          <div class="nb">
+            <div class="task"><span class="st"></span><div>Create VLANs 10 and 20 on S1</div></div>
+            <div class="task"><span class="st"></span><div>Trunk Gi0/1 between S1 and R1</div></div>
+            <div class="task open" id="task3"><span class="st"></span><div><b>Give VLAN 20 a gateway on R1</b><small>Engineering can't reach Sales. The map shows where traffic stops.</small></div></div>
+            <button class="lk" type="button" id="hintBtn">Show a hint</button>
+          </div>
+        </section>
+        <section class="ncard mine-card" id="mineCard" style="left:24px;top:560px" aria-label="My notes">
+          <header data-drag="mineCard">My notes</header>
+          <div class="nb"><textarea aria-label="My notes" placeholder="Write what you tried and what you learned. It goes back into your VLANs chapter."></textarea></div>
+        </section>
+        <div class="cvtools" role="toolbar" aria-label="Canvas tools">
+          <button type="button" data-tool="move" aria-pressed="true"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5l8 5.5-3.6.9 2 3.8-1.6.8-2-3.8L4 12z"/></svg>Move</button>
+          <button type="button" data-tool="add" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>Add device</button>
+          <button type="button" data-tool="connect" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.8" cy="11.5" r="1.8"/><circle cx="12.2" cy="4.5" r="1.8"/><path d="M5.3 10.2l5.4-4.4"/></svg>Connect</button>
+          <button type="button" data-tool="note" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 2.5h9v7l-3 4h-6z"/><path d="M9.5 13.5v-4h3"/></svg>Note</button>
+        </div>
+        <div class="addmenu" id="addMenu" hidden><button type="button" data-add="pc">PC</button><button type="button" data-add="sw">Switch</button><button type="button" data-add="rt">Router</button></div>
+      </div>
+      <aside class="lp">
+        <div class="lp-tabs" role="tablist" id="lpTabs"></div>
+        <div class="lp-head"><div><b id="lpName">R1</b><span id="lpSub">ISR 4321</span></div><div class="seg" role="tablist" id="lpSeg"><button type="button" data-pane="console" aria-selected="true">Console</button><button type="button" data-pane="ports" aria-selected="false">Ports</button><button type="button" data-pane="changes" aria-selected="false">Changes</button></div></div>
+        <div class="lp-body" id="lpBody"></div>
+      </aside>
+    </div>
   </div>
   </div></div>
 
@@ -353,7 +486,8 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
     <div><h2>The books</h2><p>Each course is a cloth-bound book with its own cover. Ownership is the point: it sits on your shelf, the ribbon shows where you stopped, and nothing counts points.</p></div>
     <div><h2>The page</h2><p>Course text is set like a printed book. Your own words are in green, in the app's sans, so you can always tell the book from you. Focus mode dims everything but the paragraph you are on, the way iA Writer does.</p></div>
     <div><h2>Collections</h2><p>Select any sentence, command or diagram and collect it, the way Are.na works. Over months they become your own reference: your commands, your mistakes, your diagrams.</p></div>
-    <div><h2>Practice stays inside</h2><p>The live diagram and the question are part of the page, not a separate screen. Labs open from the chapter's last page. Review keeps the plain card you already liked.</p></div>
+    <div><h2>Practice stays inside</h2><p>The live diagram and the question are part of the page. Review keeps the plain card you already liked.</p></div>
+    <div><h2>The lab</h2><p>Opened from the chapter, it takes the whole window: a calm map of your network you can drag, add to and connect, like UniFi on an Obsidian canvas. Each device has its console, its ports, and a Zed-style diff of what your commands changed. A failed check marks the spot where traffic stops.</p></div>
   </section>
 </div>
 
@@ -408,9 +542,9 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
     { t: 'VLAN trunks', p: 'An access port carries one VLAN. A trunk carries all of them on the same cable.', y: '1 note', st: 'cur' },
     { t: 'Native VLAN', p: 'One VLAN crosses a trunk untagged. Both ends have to agree on which one.', y: '', st: 'unread' },
     { t: 'Troubleshooting VLANs', p: 'Most problems are a port in the wrong VLAN or a VLAN missing from the trunk.', y: '', st: 'unread' },
-    { t: 'Lab: Router-on-a-stick', p: 'Give VLAN 10 and 20 a gateway on one router port. 2 of 3 checks passing.', y: '', st: 'unread' },
+    { t: 'Lab: Router-on-a-stick', p: 'Give VLAN 10 and 20 a gateway on one router port. 2 of 3 checks passing.', y: '', st: 'unread', lab: true },
   ];
-  const renderItems = () => { $('#items').innerHTML = ITEMS.map(i => `<button class="it${i.st === 'unread' ? ' unread' : ''}" type="button" aria-current="${i.st === 'cur'}"><b>${i.t}<i>${i.st === 'unread' ? 'not read' : i.st === 'cur' ? 'reading' : 'read'}</i></b><p>${i.p}</p>${i.y ? `<span class="yours">${i.y} of yours</span>` : ''}</button>`).join(''); };
+  const renderItems = () => { $('#items').innerHTML = ITEMS.map(i => `<button class="it${i.st === 'unread' ? ' unread' : ''}${i.lab ? ' lab-it' : ''}" type="button" aria-current="${i.st === 'cur'}"${i.lab ? ' data-lab' : ''}><b>${i.t}<i>${i.lab ? (i.st === 'read' ? 'passed' : 'open lab') : i.st === 'unread' ? 'not read' : i.st === 'cur' ? 'reading' : 'read'}</i></b><p>${i.p}</p>${i.y ? `<span class="yours">${i.y} of yours</span>` : ''}</button>`).join(''); };
   renderItems();
 
   /* navigation */
@@ -512,9 +646,217 @@ kbd { font: 500 .78rem/1 var(--f-ui); border: 1px solid var(--pg-line); border-r
   $('#card').addEventListener('click', e => { if (e.target.closest('#rv')) reveal(); if (e.target.closest('[data-g]')) { ci++; renderCard(); } });
   renderCard();
 
+  /* ---------- LAB ---------- */
+  const labw = $('#labw'), cv = $('#cv'), cvLinks = $('#cvLinks');
+  let labOn = false;
+  const L = { tag20: 30, fixed: false, start30: true };
+  const W = 168, H = 58;
+  const DEV = {
+    'R1': { kind: 'rt', sub: 'ISR 4321', x: 486, y: 96 },
+    'S1': { kind: 'sw', sub: 'Catalyst 2960', x: 486, y: 330 },
+    'PC-SALES': { kind: 'pc', sub: '192.168.10.10', x: 336, y: 560 },
+    'PC-ENG': { kind: 'pc', sub: '192.168.20.10', x: 640, y: 560 },
+  };
+  const LINKS = [
+    { a: 'PC-SALES', b: 'S1', pb: 'Fa0/5' }, { a: 'PC-ENG', b: 'S1', pb: 'Fa0/6' },
+    { a: 'R1', b: 'S1', pa: 'G0/0/1', pb: 'Gi0/1', trunk: true },
+  ];
+  const ICON = {
+    pc: '<svg viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1.8"/><path d="M7 17h6M10 13.5V17"/></svg>',
+    sw: '<svg viewBox="0 0 20 20"><rect x="2" y="5.5" width="16" height="9" rx="2"/><path d="M5 10h1.5M8.5 10H10M12.5 10H14"/></svg>',
+    rt: '<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 5.5v9M5.5 10h9M7.5 7.5L10 5.5l2.5 2M7.5 12.5l2.5 2 2.5-2"/></svg>',
+  };
+  const status = n => n === 'R1' ? (L.tag20 === 20 ? '' : 'warn') : DEV[n].fresh ? 'off' : '';
+  const renderCards = () => {
+    cv.querySelectorAll('.dcard').forEach(x => x.remove());
+    Object.entries(DEV).forEach(([n, d]) => {
+      const el = document.createElement('button'); el.type = 'button'; el.className = 'dcard' + (n === curDev ? ' sel' : ''); el.dataset.dev = n;
+      el.style.left = d.x + 'px'; el.style.top = d.y + 'px';
+      el.innerHTML = `<span class="ic">${ICON[d.kind]}</span><span><b>${n}<i class="${status(n)}"></i></b><span class="sb">${d.sub}</span></span>`;
+      cv.insertBefore(el, cv.querySelector('.cvtools'));
+    });
+  };
+  const ctr = n => [DEV[n].x + W / 2, DEV[n].y + H / 2];
+  const inside = (pt, n, pad = 8) => pt.x > DEV[n].x - pad && pt.x < DEV[n].x + W + pad && pt.y > DEV[n].y - pad && pt.y < DEV[n].y + H + pad;
+  const renderLinks = () => {
+    const NSs = 'http://www.w3.org/2000/svg';
+    cvLinks.innerHTML = '';
+    LINKS.forEach(l => {
+      const [ax, ay] = ctr(l.a), [bx, by] = ctr(l.b), dx = (bx - ax) * 0.5, dy = (by - ay) * 0.5, vert = Math.abs(by - ay) > Math.abs(bx - ax);
+      const d = vert ? `M${ax} ${ay} C ${ax} ${ay + dy}, ${bx} ${by - dy}, ${bx} ${by}` : `M${ax} ${ay} C ${ax + dx} ${ay}, ${bx - dx} ${by}, ${bx} ${by}`;
+      const mk = (cls) => { const p = document.createElementNS(NSs, 'path'); p.setAttribute('d', d); p.setAttribute('class', cls); cvLinks.appendChild(p); return p; };
+      const path = mk('lnk' + (l.trunk ? ' trunk' : '') + (l.fresh ? ' new' : '')); if (l.trunk) mk('lnk trunk-in');
+      const len = path.getTotalLength();
+      let sA = 0; while (sA < len && inside(path.getPointAtLength(sA), l.a)) sA += 3;
+      let sB = len; while (sB > 0 && inside(path.getPointAtLength(sB), l.b)) sB -= 3;
+      const lab = (t, at, side) => { if (!t) return; const p = path.getPointAtLength(at); const tx = document.createElementNS(NSs, 'text'); tx.setAttribute('class', 'plab'); const left = vert && side < -4; tx.setAttribute('x', vert ? p.x + (left ? -10 : 10) : p.x); tx.setAttribute('y', vert ? p.y + 4 : p.y - 9); tx.setAttribute('text-anchor', vert ? (left ? 'end' : 'start') : 'middle'); tx.textContent = t; cvLinks.appendChild(tx); };
+      lab(l.pa, Math.min(sA + 22, len / 2), bx - ax); lab(l.pb, Math.max(sB - 22, len / 2), ax - bx);
+      if (l.trunk) {
+        const m = path.getPointAtLength(len / 2), w = 92;
+        const g = document.createElementNS(NSs, 'g'); g.setAttribute('class', 'vpill'); g.setAttribute('transform', vert ? `translate(${m.x - 62} ${m.y})` : `translate(${m.x} ${m.y + 22})`);
+        g.innerHTML = `<rect x="${-w / 2}" y="-11" width="${w}" height="22" rx="11"/><text x="0" y="4" text-anchor="middle">VLAN 10, 20</text>`; cvLinks.appendChild(g);
+        if (L.tag20 !== 20) {
+          const c = path.getPointAtLength(l.a === 'R1' ? Math.min(sA + 52, len / 2 - 10) : Math.max(sB - 10, len / 2 + 30));
+          const x = document.createElementNS(NSs, 'g'); x.setAttribute('class', 'cutx'); x.setAttribute('transform', `translate(${c.x} ${c.y})`);
+          x.innerHTML = vert ? '<circle r="10"/><path d="M-4 -4l8 8M4 -4l-8 8"/><text x="18" y="5">VLAN 20 stops here</text>' : '<circle r="10"/><path d="M-4 -4l8 8M4 -4l-8 8"/><text x="0" y="-20" text-anchor="end" dx="10">VLAN 20 stops here</text>'; cvLinks.appendChild(x);
+        }
+      }
+    });
+  };
+
+  /* panel */
+  let curDev = 'R1', pane = 'console', openTabs = ['R1', 'S1', 'PC-ENG'];
+  const VOCAB = ['configure', 'terminal', 'interface', 'encapsulation', 'dot1q', 'ip', 'address', 'end', 'exit', 'show', 'brief', 'running-config', 'ping', 'vlan', 'interfaces', 'trunk', 'no', 'shutdown'];
+  const expand = line => { const out = []; line.trim().toLowerCase().split(/\s+/).forEach(w => {
+    const prev = out[out.length - 1];
+    if (/^g[a-z]*\d/.test(w)) return out.push(w.replace(/^g[a-z]*/, 'gigabitethernet'));
+    if (/^[\d.,/]+$/.test(w) || w === '?') return out.push(w);
+    if (prev === 'ip' && 'address'.startsWith(w)) return out.push('address');
+    if (prev === 'show' && w.length >= 3 && 'running-config'.startsWith(w)) return out.push('running-config');
+    if (prev === 'show' && w.length >= 3 && 'interfaces'.startsWith(w) && w !== 'int') return out.push('interfaces');
+    const m = VOCAB.filter(v => v.startsWith(w)); out.push(m.includes(w) ? w : (m[0] || w)); }); return out.join(' '); };
+  const MODE = {}, HIST = { R1: [['R1#', 'show ip interface brief', null]] }; let ifc = null;
+  const isPC = n => DEV[n].kind === 'pc';
+  const prompt = n => isPC(n) ? 'C:\\>' : n + ({ exec: '#', config: '(config)#', subif: '(config-subif)#', if: '(config-if)#' })[MODE[n] || 'exec'];
+  const brief = () => `Interface              IP-Address      OK? Method Status    Protocol
+GigabitEthernet0/0/1   unassigned      YES unset  up        up
+Gi0/0/1.10             192.168.10.1    YES manual up        up
+Gi0/0/1.20             192.168.20.1    YES manual up        up`;
+  const HELP = { exec: 'configure terminal\nping <address>\nshow ip interface brief\nshow running-config interface <name>', config: 'interface <name>      for example interface g0/0/1.20\nend', subif: 'encapsulation dot1Q <vlan>\nip address <address> <mask>\nexit\nend', if: 'exit\nend' };
+  const run = (n, raw) => {
+    let x = expand(raw); if (x.startsWith('do ')) x = x.slice(3);
+    const m = MODE[n] || 'exec';
+    if (x === '?') return isPC(n) ? 'ping <address>\nipconfig' : HELP[m];
+    if (isPC(n)) {
+      if (x === 'ipconfig') return DEV[n].fresh ? 'No address set yet.' : `IPv4 Address. . . : ${DEV[n].sub}\nDefault Gateway . : ${DEV[n].sub.replace(/\.\d+$/, '.1')}`;
+      if (/^ping [\d.]+$/.test(x)) return n === 'PC-ENG' && x === 'ping 192.168.10.10' ? (L.tag20 === 20 ? 'Reply from 192.168.10.10: bytes=32 time<1ms TTL=127\nReply from 192.168.10.10: bytes=32 time<1ms TTL=127' : 'Request timed out.\nRequest timed out.') : 'Request timed out.';
+      return null;
+    }
+    if (x === 'configure terminal' && m === 'exec') { MODE[n] = 'config'; return 'Enter configuration commands, one per line.  End with CNTL/Z.'; }
+    if (x === 'end') { MODE[n] = 'exec'; ifc = null; return ''; }
+    if (x === 'exit') { MODE[n] = m === 'config' || m === 'exec' ? 'exec' : 'config'; return ''; }
+    if (/^interface /.test(x) && m !== 'exec') { ifc = x.slice(10); MODE[n] = ifc.includes('.') ? 'subif' : 'if'; return ''; }
+    if (n === 'R1') {
+      if (m === 'exec' && x === 'show ip interface brief') return brief();
+      if (m === 'exec' && /^show running-config/.test(x)) return `interface GigabitEthernet0/0/1.20\n encapsulation dot1Q ${L.tag20}\n ip address 192.168.20.1 255.255.255.0`;
+      if (m === 'exec' && x === 'ping 192.168.10.10') return 'Type escape sequence to abort.\n<span class="g">!!!!!</span>\nSuccess rate is 100 percent (5/5)';
+      if (m === 'subif' && ifc === 'gigabitethernet0/0/1.20') { const mm = x.match(/^encapsulation dot1q (\d+)$/); if (mm) { L.tag20 = +mm[1]; refreshLab(); return ''; } }
+      if (m === 'subif' && /^(encapsulation dot1q \d+|ip address [\d.]+ [\d.]+)$/.test(x)) return '';
+    }
+    if (n === 'S1' && m === 'exec') {
+      if (x === 'show vlan brief') return 'VLAN Name     Status    Ports\n10   SALES    active    Fa0/5\n20   ENG      active    Fa0/6';
+      if (x === 'show interfaces trunk') return 'Port    Mode  Encapsulation  Status    Native vlan\nGi0/1   on    802.1q         trunking  1\nPort    Vlans allowed on trunk\nGi0/1   10,20';
+    }
+    if (m !== 'exec' && /^(no )?shutdown$/.test(x)) return '';
+    return null;
+  };
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const PORTS = n => {
+    if (n === 'R1') return [['G0/0/1', 'up', 'Trunk to S1', '', ''], ['G0/0/1.10', 'up', 'VLAN 10', '192.168.10.1', ''], ['G0/0/1.20', L.tag20 === 20 ? 'up' : 'up', `VLAN ${L.tag20}`, '192.168.20.1', L.tag20 === 20 ? '' : 'w']];
+    if (n === 'S1') return [['Fa0/5', 'up', 'Access, VLAN 10', '', ''], ['Fa0/6', 'up', 'Access, VLAN 20', '', ''], ['Gi0/1', 'up', 'Trunk, VLAN 10 and 20', '', '']];
+    if (isPC(n) && !DEV[n].fresh) return [['NIC', 'up', n === 'PC-SALES' ? 'VLAN 10' : 'VLAN 20', DEV[n].sub, '']];
+    return [];
+  };
+  const renderPanel = () => {
+    $('#lpTabs').innerHTML = openTabs.map(t => `<button type="button" role="tab" data-tab="${t}" aria-selected="${t === curDev}">${t}</button>`).join('');
+    $('#lpName').textContent = curDev; $('#lpSub').textContent = DEV[curDev].sub;
+    $$('#lpSeg button').forEach(b => b.setAttribute('aria-selected', b.dataset.pane === pane));
+    const body = $('#lpBody');
+    if (pane === 'console') {
+      const h = HIST[curDev] || (HIST[curDev] = []);
+      body.innerHTML = `<div class="con">${h.map(([pr, c, o, cls]) => `<div class="c">${esc(pr)} ${esc(c)}</div>${o === null && c === 'show ip interface brief' ? `<div>${brief()}</div>` : o ? `<div class="${cls || ''}">${o}</div>` : ''}`).join('')}<div class="con-line"><span class="c">${esc(prompt(curDev))}</span><input id="conIn" aria-label="${curDev} console" spellcheck="false" autocomplete="off"></div></div>`;
+      body.scrollTop = body.scrollHeight;
+    } else if (pane === 'ports') {
+      const ps = PORTS(curDev);
+      body.innerHTML = ps.length ? `<table class="ports"><thead><tr><th>Port</th><th>Carries</th><th>Address</th></tr></thead><tbody>${ps.map(([p, st, c, ip, w]) => `<tr><td class="m"><span class="sd${w ? ' warn' : ''}"></span>${p}</td><td class="${w}">${c}${w ? ', expected 20' : ''}</td><td class="m">${ip}</td></tr>`).join('')}</tbody></table>` : '<p class="empty-note">No ports configured yet. Connect it on the canvas, then set it up in its console.</p>';
+    } else {
+      body.innerHTML = curDev === 'R1' && L.tag20 !== 30
+        ? `<div class="diff"><div class="hd">Running config, compared with when you opened the lab</div><div>interface GigabitEthernet0/0/1.20</div><div class="del"> encapsulation dot1Q 30</div><div class="add"> encapsulation dot1Q ${L.tag20}</div><div>  ip address 192.168.20.1 255.255.255.0</div></div>`
+        : '<p class="empty-note">No changes yet. Everything you configure on this device shows up here, line by line.</p>';
+    }
+  };
+  const openDev = n => { curDev = n; if (!openTabs.includes(n)) openTabs.push(n); if (openTabs.length > 5) openTabs.shift(); cv.querySelectorAll('.dcard').forEach(x => x.classList.toggle('sel', x.dataset.dev === n)); renderPanel(); };
+  $('#lpTabs').addEventListener('click', e => { const t = e.target.closest('[data-tab]'); if (t) openDev(t.dataset.tab); });
+  $('#lpSeg').addEventListener('click', e => { const b = e.target.closest('[data-pane]'); if (b) { pane = b.dataset.pane; renderPanel(); } });
+  $('#lpBody').addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.ctrlKey || e.metaKey || e.target.id !== 'conIn') return;
+    e.stopPropagation(); const raw = e.target.value, pr = prompt(curDev);
+    let out = raw.trim() ? run(curDev, raw) : '', cls = '';
+    if (out === null) { out = `${' '.repeat(pr.length + 1)}^\n% Invalid input detected at '^' marker. Type ? for help.`; cls = 'e'; }
+    (HIST[curDev] = HIST[curDev] || []).push([pr, raw, out, cls]); renderPanel(); $('#conIn').focus();
+  });
+  const refreshLab = () => { renderCards(); renderLinks(); };
+
+  /* canvas: drag, select, add, connect, note */
+  let tool = 'move', pendingA = null, drag = null, nid = 1;
+  const setTool = t => { tool = t; $$('.cvtools [data-tool]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === t)); $('#addMenu').hidden = t !== 'add'; if (t !== 'connect') { pendingA = null; cv.querySelectorAll('.pending').forEach(x => x.classList.remove('pending')); }
+    $('#cvHint').textContent = t === 'connect' ? 'Click one device, then another, to cable them.' : t === 'add' ? 'Pick what to add.' : 'Drag anything. Click a device to open it.'; };
+  $('.cvtools').addEventListener('click', e => { const b = e.target.closest('[data-tool]'); if (!b) return; const t = b.dataset.tool;
+    if (t === 'note') { addNote(); setTool('move'); return; }
+    setTool(tool === t && t !== 'move' ? 'move' : t); });
+  $('#addMenu').addEventListener('click', e => { const b = e.target.closest('[data-add]'); if (!b) return; const k = b.dataset.add;
+    const base = { pc: 'PC', sw: 'S', rt: 'R' }[k]; let n = base + (k === 'pc' ? '-' : '') + (k === 'pc' ? nid++ : Object.keys(DEV).filter(x => x.startsWith(base) && /\d$/.test(x)).length + 1);
+    while (DEV[n]) n += 'b';
+    DEV[n] = { kind: k, sub: k === 'pc' ? 'no address yet' : 'not configured', x: 640, y: 210, fresh: true };
+    setTool('move'); refreshLab(); openDev(n); toast(`Added ${n}. Use Connect to cable it.`); });
+  const scaleK = () => lb.getBoundingClientRect().width / 1280;
+  cv.addEventListener('pointerdown', e => {
+    const card = e.target.closest('.dcard'), head = e.target.closest('[data-drag]');
+    if (!card && !head) return;
+    const el = card || document.getElementById(head.dataset.drag);
+    drag = { el, card: !!card, sx: e.clientX, sy: e.clientY, ox: parseFloat(el.style.left), oy: parseFloat(el.style.top), moved: false };
+    el.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener('pointermove', e => {
+    if (!drag) return; const k = scaleK(), dx = (e.clientX - drag.sx) / k, dy = (e.clientY - drag.sy) / k;
+    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
+    drag.moved = true; drag.el.classList.add('dragging');
+    const nx = Math.max(8, Math.min(cv.clientWidth - drag.el.offsetWidth - 8, drag.ox + dx)), ny = Math.max(8, Math.min(cv.clientHeight - drag.el.offsetHeight - 8, drag.oy + dy));
+    drag.el.style.left = nx + 'px'; drag.el.style.top = ny + 'px';
+    if (drag.card) { const d = DEV[drag.el.dataset.dev]; d.x = nx; d.y = ny; renderLinks(); }
+  });
+  cv.addEventListener('pointerup', e => {
+    if (!drag) return; const d = drag; drag = null; d.el.classList.remove('dragging');
+    if (d.moved || !d.card) return;
+    const n = d.el.dataset.dev;
+    if (tool === 'connect') {
+      if (!pendingA) { pendingA = n; d.el.classList.add('pending'); return; }
+      if (pendingA !== n) { LINKS.push({ a: pendingA, b: n, fresh: true }); toast(`Cabled ${pendingA} to ${n}.`); }
+      setTool('move'); refreshLab(); return;
+    }
+    openDev(n);
+  });
+  const addNote = () => {
+    const id = 'note' + Date.now(), el = document.createElement('section'); el.className = 'ncard mine-card'; el.id = id; el.style.left = '300px'; el.style.top = '40px';
+    el.innerHTML = `<header data-drag="${id}">Note</header><div class="nb"><textarea aria-label="Note" placeholder="Anything you want to remember"></textarea></div>`;
+    cv.insertBefore(el, cv.querySelector('.cvtools')); el.querySelector('textarea').focus({ preventScroll: true });
+  };
+  $('#hintBtn').addEventListener('click', e => { e.target.outerHTML = '<small style="color:var(--ink2)">Open R1, then look at Changes and Ports. Compare the VLAN number on G0/0/1.20 with VLAN 20 on S1. <span style="font-family:var(--f-ios);font-size:12px">show running-config interface g0/0/1.20</span> shows it too.</small>'; });
+
+  /* checks */
+  const runChecks = () => {
+    const ok = L.tag20 === 20;
+    $('#chkDots').lastElementChild.classList.toggle('bad', !ok); $('#chkText').textContent = ok ? '3 of 3 checks' : '2 of 3 checks';
+    $('#task3').classList.toggle('open', !ok); refreshLab();
+    if (ok && !L.fixed) {
+      L.fixed = true; const it = ITEMS.find(i => i.lab); it.st = 'read'; it.p = 'Passed. VLAN 20 has its gateway, and both PCs can reach each other.'; renderItems();
+      $('#labChip').textContent = 'Lab: Router-on-a-stick, passed'; $('#labChip').classList.remove('empty');
+      toast('All 3 checks pass. The lab is marked passed in your VLANs chapter.');
+    } else if (!ok) toast('PC-ENG still can\'t reach PC-SALES. Traffic stops at R1.');
+  };
+  $('#runChk').addEventListener('click', runChecks);
+  const openLab = () => { labOn = true; labw.classList.add('on'); hideSel(); refreshLab(); renderPanel(); setTimeout(() => $('#runChk').focus({ preventScroll: true }), 50); };
+  const closeLab = () => { labOn = false; labw.classList.remove('on'); show('notes'); };
+  $('#labBack').addEventListener('click', closeLab);
+  lb.addEventListener('click', e => { if (e.target.closest('[data-lab]')) openLab(); });
+  labw.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); runChecks(); return; }
+    if (e.key === 'Escape') { e.stopPropagation(); setTool('move'); }
+  });
+
   /* keys */
   lb.addEventListener('keydown', e => {
-    if (e.target.tagName === 'TEXTAREA') return;
+    if (labOn || e.target.tagName === 'TEXTAREA') return;
     if ((e.ctrlKey || e.metaKey) && e.key === '.') { e.preventDefault(); if (cur === 'notes') setFocus(!lb.classList.contains('focus')); return; }
     if (e.key === 'Escape') { hideSel(); setFocus(false); }
     if (cur === 'library' && e.key === 'Enter' && e.target === lb) show('notes');
