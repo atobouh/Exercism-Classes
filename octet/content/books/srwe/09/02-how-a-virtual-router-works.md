@@ -23,7 +23,7 @@ nodes = [
   { id = "S1", kind = "switch", x = 1, y = 0.5 },
   { id = "R1", kind = "router", x = 2, y = 0, label = "real 192.168.10.1" },
   { id = "R2", kind = "router", x = 2, y = 1, label = "real 192.168.10.2" },
-  { id = "ISP", kind = "internet", x = 3, y = 0.5, label = "virtual 192.168.10.254" },
+  { id = "ISP", kind = "internet", x = 3, y = 0.5 },
 ]
 links = [
   { a = "PC1", b = "S1" },
@@ -48,7 +48,7 @@ The routers exchange small hello messages so each knows the other is alive. The 
 1. R1 is active. PCs send off-subnet frames to the virtual MAC, and R1 forwards them.
 2. R1 fails. Its hellos stop.
 3. R2 waits for a hold time to pass without a hello. Then it decides R1 is gone.
-4. R2 becomes the active router. It starts answering for the virtual IP address and the virtual MAC, and sends a frame from the virtual MAC so switches relearn which port it is on.
+4. R2 becomes the active router. It starts answering for the virtual IP address and the virtual MAC. Its hellos carry the virtual MAC as their source, and it sends a gratuitous ARP for the virtual IP. Together these tell the switch that the virtual MAC is now behind R2's port.
 5. The PCs send the next frame to the same virtual MAC. It now arrives at R2, which forwards it.
 
 The PCs never changed anything. Their gateway is the same IP address, and their ARP entry holds the same MAC. At worst a few packets are lost while R2 waits out the hold time.
@@ -62,7 +62,7 @@ why = "The virtual MAC moves to R2. Nothing in the ARP entry is wrong, so the ho
 
 ## Why the virtual MAC matters
 
-The MAC address is what makes the takeover invisible. If hosts had to learn R2's real MAC, their ARP caches would have to expire first, which takes minutes. Because the active router always answers for the same virtual MAC, the cached entry stays correct. Only the switch's MAC table changes, and the new active router's frame fixes that quickly.
+The MAC address is what makes the takeover invisible. If hosts had to learn R2's real MAC, their ARP caches would have to expire first, which can take minutes. Because the active router always answers for the same virtual MAC, the cached entry stays correct. The only table that has to change is the switch's MAC address table, and R2's traffic updates it as soon as R2 starts sending.
 
 ```recall
 front = "What is the purpose of the virtual MAC address in an FHRP?"

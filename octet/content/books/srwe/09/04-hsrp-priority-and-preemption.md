@@ -14,12 +14,12 @@ To make R1 the router you prefer, raise its priority above R2's. You do not need
 
 ## Preemption is off by default
 
-Suppose R1 has priority 150 and R2 has 100. R1 is active. R1 fails, and R2 becomes active. R1 comes back with its higher priority. By default, nothing happens: R2 stays active and R1 becomes standby. A router that is already active does not give way just because a better candidate appears.
+Suppose R1 has priority 150 and R2 has 100. R1 is active. R1 fails, and R2 becomes active. R1 comes back with its higher priority. By default, nothing happens: R2 stays active and R1 becomes standby. A router that is already active does not give way merely because a better candidate appears.
 
-That is stable but may not be what you want. If R1 is the router with the better uplink, you want it back in charge. The `standby preempt` command lets a router with a higher priority take over the active role.
+That is stable but may not be what you want. If R1 is the router with the better uplink, you want it back in charge. The `standby 1 preempt` command, given with the group number, lets a router with a higher priority take over the active role.
 
 ```trap
-Setting a higher priority on its own does not make a router active once another router already holds the role. Without `preempt`, the higher-priority router waits until the active router fails. This is also why a router that has just booted often does not take over from a neighbor.
+Setting a higher priority on its own does not make a router active once another router already holds the role. Without `preempt`, the higher-priority router waits until the active router fails. This is also why a router that has recently booted does not take over from a neighbor.
 ```
 
 ## Configuring it

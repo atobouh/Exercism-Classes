@@ -8,7 +8,7 @@ You have the pieces: a virtual gateway, an active and a standby router, priority
 
 ## A failover from start to finish
 
-R1 (192.168.10.1) has priority 150 and `preempt`. R2 (192.168.10.2) has the default priority of 100. Both use group 1, version 2, virtual IP 192.168.10.254. The hosts use 192.168.10.254 as their gateway.
+R1 (192.168.10.1) has priority 150 and `preempt`. R2 (192.168.10.2) has the default priority of 100 and also has `preempt`. Both use group 1, version 2, virtual IP 192.168.10.254. The hosts use 192.168.10.254 as their gateway.
 
 1. At the start, R1 is active and R2 is standby. Hellos pass every 3 seconds.
 2. R1 loses power. The hellos stop.
@@ -35,11 +35,11 @@ Interface   Grp  Pri P State   Active          Standby         Virtual IP
 Gi0/0/1     1    100 P Active  local           unknown         192.168.10.254
 ```
 
-R2 is now active and has no standby, so that column reads `unknown`. This output assumes R2 also has preempt configured, which is why the `P` is shown. Without it, the `P` column is blank, and R2 still becomes active.
+R2 is now active and has no standby router, so the Standby column reads `unknown`. The `P` shows because R2 has preempt configured. Without it, the `P` column is blank in both outputs, and R2 still becomes active.
 
 ## Reading the timeline
 
-Notice what the hosts did through all four steps: nothing. They kept the same gateway and the same ARP entry. The only visible effect is a pause of about ten seconds while R2 waits out the hold time, during which off-subnet packets are lost. Step 4 causes a second, shorter interruption when the active role moves back. That is why some designs leave preemption off, or add a delay before it, so a router that has only just booted does not take the role before its routes are ready.
+Notice what the hosts did through all four steps: nothing. They kept the same gateway and the same ARP entry. The only visible effect is a pause of about ten seconds while R2 waits out the hold time, during which off-subnet packets are lost. Step 4 can cause a second, short interruption when the active role moves back. That is why some designs leave preemption off, or add a delay before it, so a router that has recently booted does not take the role before its routes are ready.
 
 ```question
 prompt = "Which address must the hosts use as their default gateway in this design?"

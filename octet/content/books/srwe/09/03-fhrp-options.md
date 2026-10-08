@@ -12,11 +12,11 @@ The *Hot Standby Router Protocol* is Cisco proprietary and the one the CCNA conc
 
 ## VRRP
 
-The *Virtual Router Redundancy Protocol* is an open standard, so it works between Cisco and other vendors' devices. The working router is the *master* and the others are *backups*. VRRPv2 covers IPv4 only. VRRPv3 supports both IPv4 and IPv6. One difference from HSRP: VRRP lets the master use its real interface address as the virtual IP address, in which case that router always wins the master role.
+The *Virtual Router Redundancy Protocol* is an open standard, so it works between Cisco and other vendors' devices. The working router is the *master* and the others are *backups*. VRRPv2 covers IPv4 only. VRRPv3 supports both IPv4 and IPv6. One difference from HSRP: VRRP lets the master use its real interface address as the virtual IP address. The router that owns that address becomes master with priority 255.
 
 ## GLBP
 
-The *Gateway Load Balancing Protocol* is Cisco proprietary. HSRP and VRRP keep one router idle as a spare. GLBP uses all of them. One router is the *active virtual gateway* (AVG). It hands out several virtual MAC addresses in its ARP replies, up to four, and each router that owns one is an *active virtual forwarder* (AVF). Different hosts get different MACs, so traffic is shared out while the same virtual IP address is the gateway for everybody. If a forwarder fails, another takes over its MAC. GLBP also exists for IPv6.
+The *Gateway Load Balancing Protocol* is Cisco proprietary. HSRP and VRRP keep one router idle as a spare. GLBP uses all of them. One router is the *active virtual gateway* (AVG). It answers ARP requests for the shared virtual IP address and hands out different virtual MAC addresses in those replies, up to four. Each router that holds one of these MACs is an *active virtual forwarder* (AVF), and the AVG can be one too. Different hosts get different MACs, so traffic is shared out while the same virtual IP address is the gateway for everybody. If a forwarder fails, another takes over its MAC. GLBP also exists for IPv6.
 
 ## IRDP
 
@@ -31,7 +31,7 @@ The *ICMP Router Discovery Protocol* lets hosts learn gateways from router adver
 | Waiting router | Standby | Backup | Other group members |
 | Load balancing | One path per group | One path per group | Yes, across forwarders |
 | IPv6 | HSRP for IPv6 | VRRPv3 | GLBP for IPv6 |
-| Preemption by default | Off | On | Off for the AVG |
+| Preemption by default | Off | On | AVG: off. AVF: on, with a delay |
 
 Details such as exact virtual MAC formats, multicast addresses and configuration are covered in the Field Guide chapter on [first hop redundancy in practice](field/06/01-the-gateway-problem).
 

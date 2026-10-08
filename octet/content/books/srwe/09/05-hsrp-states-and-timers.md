@@ -22,7 +22,7 @@ An HSRP interface moves through these states as it joins a group. Most of the ti
 Learn applies only when the virtual IP address was not configured on that router and must be learned from the active one. Any further routers in the group stay in Listen.
 
 ```question
-prompt = "A group has three routers. Which states can a router be in when it is the active router or the standby router?"
+prompt = "A group has three routers. Which pair of states do the active and standby routers hold?"
 options = ["Active or Listen", "Speak or Learn", "Standby or Active", "Initial or Standby"]
 answer = 2
 why = "Only one router holds Active and one holds Standby. A third router stays in Listen, hearing hellos but not taking part."
@@ -43,9 +43,9 @@ why = "The command takes the hello and then the hold time, both in seconds. Shor
 
 ## How hellos travel
 
-Hellos are multicast so only routers in the group process them. In HSRP version 1 they go to 224.0.0.2, the all-routers address. Version 2 uses 224.0.0.102. Both use UDP port 1985. Hosts ignore these packets, which is why they never notice the exchange. The routers on a segment must use the same version. A version 1 router does not understand a version 2 hello, so each side would believe it is alone and both would claim to be active.
+Hellos are multicast so only routers in the group process them. In HSRP version 1 they go to 224.0.0.2, the all-routers address. Version 2 uses 224.0.0.102. Both use UDP port 1985. Hosts ignore these packets, which is why they never notice the exchange. The routers on a segment must use the same version. Version 1 and version 2 use different multicast addresses and different virtual MAC formats, so they never hear each other's hellos. Each side believes it is alone, and both can end up claiming the active role for the same virtual IP address.
 
-You can also see the states change in real time when logging is on. A router logs lines such as `%STANDBY-6-STATECHANGE` when it moves between Speak, Standby and Active.
+You can also see the states change in the log. When a standby router takes over, IOS logs a line such as `%HSRP-5-STATECHANGE: GigabitEthernet0/0/1 Grp 1 state Standby -> Active`. Older releases log the same event at severity 6.
 
 ```recall
 front = "What are the default HSRP hello and hold times?"
