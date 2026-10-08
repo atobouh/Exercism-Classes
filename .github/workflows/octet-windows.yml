@@ -44,17 +44,31 @@ jobs:
             octet/target/release/bundle/nsis/*.exe
             octet/target/release/bundle/msi/*.msi
 
+      - name: Read the version
+        id: ver
+        shell: bash
+        run: |
+          v=$(node -p "require('./octet/app/src-tauri/tauri.conf.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/octet-v$v" >/dev/null; then
+            echo "new=false" >> "$GITHUB_OUTPUT"
+            echo "octet-v$v is already published. Bump the version to publish a new download; this build is kept with the run."
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish the download
+        if: steps.ver.outputs.new == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: octet-v0.2.0
-          name: Octet 0.2.0 for Windows
+          tag_name: octet-v${{ steps.ver.outputs.version }}
+          name: Octet ${{ steps.ver.outputs.version }} for Windows
           target_commitish: ${{ github.sha }}
           prerelease: true
           body: |
             Octet, your offline CCNA library and lab.
 
-            Download **Octet_0.2.0_x64-setup.exe** and run it. Windows may say it protected your PC because the app isn't signed yet: click **More info**, then **Run anyway**.
+            Download **Octet_${{ steps.ver.outputs.version }}_x64-setup.exe** and run it. Windows may say it protected your PC because the app isn't signed yet: click **More info**, then **Run anyway**.
           files: |
             octet/target/release/bundle/nsis/*.exe
             octet/target/release/bundle/msi/*.msi
