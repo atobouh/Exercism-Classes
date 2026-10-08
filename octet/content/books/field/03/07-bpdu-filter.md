@@ -33,7 +33,7 @@ why = "The global filter steps aside when a BPDU arrives. It is BPDU guard, not 
 S1(config-if)# spanning-tree bpdufilter enable
 ```
 
-Here the port neither sends BPDUs nor processes any it receives. A neighbor switch never learns about the other, so each treats its port as a designated edge facing no one. Spanning tree is effectively turned off on that port.
+Here the port neither sends BPDUs nor processes any it receives. A switch on the other end never hears from this one, so each side behaves as if it were alone on the link. Spanning tree is effectively turned off on that port.
 
 Consider two such ports on the same switch cabled together by mistake, or the filter set on both ends of a link between two switches. Neither side sees a BPDU, neither blocks, and every broadcast circles until the switches stop responding. Nothing in the logs says why, because the protection that would have complained is the thing you disabled.
 
@@ -73,11 +73,11 @@ Portfast BPDU Filter Default is enabled
 ...
 ```
 
-The Portfast BPDU Filter Default line shows the global setting. For one port, `show spanning-tree interface gigabitethernet 0/5 detail` lists the per-port settings, and the BPDU counters at the bottom are the evidence: on a filtered port the sent count stays at zero (or at the link-up burst), and the received count stays at zero.
+The Portfast BPDU Filter Default line shows the global setting. For one port, `show spanning-tree interface fastethernet 0/5 detail` lists the per-port settings, and the BPDU counters at the bottom are the evidence: on a filtered port the sent count stays at zero (or at the link-up burst), and the received count stays at zero.
 
 ```console S1
-S1# show spanning-tree interface gigabitethernet 0/5 detail
- Port 5 (GigabitEthernet0/5) of VLAN0010 is designated forwarding
+S1# show spanning-tree interface fastethernet 0/5 detail
+ Port 5 (FastEthernet0/5) of VLAN0010 is designated forwarding
 ...
    The port is in the portfast mode
    Link type is point-to-point by default
