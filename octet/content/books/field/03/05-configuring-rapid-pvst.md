@@ -21,7 +21,7 @@ answer = ["spanning-tree mode rapid-pvst"]
 why = "The mode is global. Every VLAN then runs its own RSTP instance."
 ```
 
-Changing mode restarts the spanning tree process, so the switch re-evaluates its ports and may drop traffic briefly. Do it in a maintenance window, and do it on the edge switches before the core if you can, so each change reaches a switch that has fewer dependents.
+Changing mode restarts the spanning tree process, so the switch re-evaluates its ports and may drop traffic briefly. Do it in a maintenance window.
 
 ## Placing the roots
 

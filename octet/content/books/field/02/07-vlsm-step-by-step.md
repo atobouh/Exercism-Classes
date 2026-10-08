@@ -4,7 +4,7 @@ summary = "Carving one block into subnets of different sizes without overlap or 
 links = ["field/02/06-subnetting-to-requirements", "field/02/08-wildcard-masks", "itn/11/12-vlsm", "itn/11/13-structured-design"]
 +++
 
-Equal-size subnets are tidy, and wasteful. Split a /24 into four /26s, and a link between two routers still burns 62 addresses it will never use. *Variable length subnet masking* (VLSM) fixes this by giving each subnet the prefix its own size needs. You have already met the idea in [Variable length subnet masks](itn/11/12-vlsm). Here is a repeatable method and a full example you can check line by line.
+Equal-size subnets are tidy, and wasteful. Split a /24 into four /26s, and a link between two routers still takes a whole /26, with 62 usable addresses of which it uses two. *Variable length subnet masking* (VLSM) fixes this by giving each subnet the prefix its own size needs. You have already met the idea in [Variable length subnet masks](itn/11/12-vlsm). Here is a repeatable method and a full example you can check line by line.
 
 ## The method
 
@@ -39,7 +39,7 @@ why = "LAN C is 192.168.50.192/27. 192.168.50.192 is the network address, so the
 
 ## Why largest first
 
-Block sizes in a /24 are all powers of two: 128, 64, 32, 4. A smaller block always divides evenly into a bigger one, so a small subnet always starts cleanly after a big one. The reverse is not true. Suppose you placed the three /30 links first. They would end at 192.168.50.11, and the next free address would be 192.168.50.12. A /25 must start on a multiple of 128, so it would have to skip ahead to 192.168.50.128 and waste 116 addresses between. Largest first leaves no such gaps.
+Block sizes are all powers of two, such as the 128, 64, 32 and 4 used here. A smaller block always divides evenly into a bigger one, so a small subnet always starts cleanly after a big one. The reverse is not true. Suppose you placed the three /30 links first. They would end at 192.168.50.11, and the next free address would be 192.168.50.12. A /25 must start on a multiple of 128, so it would have to skip ahead to 192.168.50.128 and waste 116 addresses between. Largest first leaves no such gaps.
 
 ```drill
 subnet
