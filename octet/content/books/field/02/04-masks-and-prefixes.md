@@ -42,7 +42,7 @@ Do it backward. Count 8 for every 255 octet. Then look up the first octet that i
 prompt = "Which prefix length matches the mask 255.255.255.248?"
 options = ["/27", "/28", "/29", "/30"]
 answer = 2
-why = "Three 255 octets give 24 bits, and 248 is five ones in an octet? No: 248 is 11111000, which is 5 ones, but only 3 of them are host bits. 24 + 5 = 29."
+why = "Three 255 octets give 24 bits. 248 is 11111000, which has 5 ones. 24 + 5 = 29. /27 would need 224 and /28 would need 240."
 ```
 
 ```drill
@@ -51,7 +51,7 @@ mask
 
 ## Masks that are not masks
 
-Any dotted number that is not a run of ones then zeros is invalid. `255.255.255.100` fails because 100 is `01100100`, and a 0 comes before a 1. `255.0.255.0` fails because ones return after a zero octet. IOS refuses both with `% Invalid input detected` or a similar message when you type them in an `ip address` command. Those are not masks, even though they look like them. (A wildcard mask, covered later, is allowed to be like that. A subnet mask is not.)
+Any dotted number that is not a run of ones then zeros is invalid. `255.255.255.100` fails because 100 is `01100100`, and a 0 comes before a 1. `255.0.255.0` fails because ones return after a zero octet. IOS refuses both with a bad mask error when you type them in an `ip address` command. (A wildcard mask, covered later, is allowed to have gaps like that. A subnet mask is not.)
 
 ## The table you will use most
 

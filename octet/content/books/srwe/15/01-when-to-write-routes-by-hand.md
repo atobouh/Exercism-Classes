@@ -69,7 +69,7 @@ Reply from 192.168.1.1: Destination host unreachable.
 Reply from 192.168.1.1: Destination host unreachable.
 
 Ping statistics for 192.168.3.10:
-    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
 ```
 
 The reply comes from 192.168.1.1, which is R1 itself. The router answered, so the failure is routing, not the cable.

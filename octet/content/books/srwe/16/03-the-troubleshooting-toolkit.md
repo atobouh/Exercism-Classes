@@ -134,7 +134,7 @@ L   FF00::/8 [0/0]
 
 ```question
 prompt = "A traceroute prints one answering hop, then `* * *` on every later line. What does that tell you?"
-options = ["The destination is working but ignores ICMP", "The last answering router is fine, and the problem lies at or just beyond the next device", "The first router has no route to the destination", "The TTL value was set too high"]
+options = ["The destination is working but ignores ICMP", "The last answering router is fine, and the problem lies at or right after the next device", "The first router has no route to the destination", "The TTL value was set too high"]
 answer = 1
 why = "A hop that answers is forwarding correctly. The silence starts at the next device, which is either down or has no route back to the probe's source. The first router must have a route, or the second hop would never be reached."
 ```
