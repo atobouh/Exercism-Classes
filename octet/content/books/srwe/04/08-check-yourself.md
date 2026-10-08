@@ -58,21 +58,23 @@ why = "This removes the port from Layer 2 and lets you give it an IP address."
 
 ```question
 prompt = "R1 has G0/0/1.10 and G0/0/1.20 configured correctly, but only VLAN 10 works. On S1, show interfaces trunk shows the router port with allowed VLANs 1,10,99. What is the fault?"
-options = ["VLAN 20 is missing from the trunk's allowed list", "R1 needs encapsulation dot1Q 99 native", "The router port should be an access port"]
-answer = 0
+options = ["R1 needs encapsulation dot1Q 99 native", "The router port should be an access port", "VLAN 20 is missing from the trunk's allowed list"]
+answer = 2
 why = "Frames for VLAN 20 are blocked on the trunk. Fix it with switchport trunk allowed vlan add 20."
 ```
 
 ```question
-prompt = "Which command line proves that G0/0/1.30 serves VLAN 30?"
-options = ["Encapsulation 802.1Q Virtual LAN, Vlan ID 30. in show interfaces g0/0/1.30", "The name G0/0/1.30 in show ip interface brief", "A C route in show ip route"]
-answer = 0
+prompt = "Which output proves that G0/0/1.30 serves VLAN 30?"
+options = ["The name G0/0/1.30 in show ip interface brief", "A C route in show ip route", "Encapsulation 802.1Q Virtual LAN, Vlan ID  30. in show interfaces g0/0/1.30"]
+answer = 2
 why = "The subinterface name is only a label. The Vlan ID line in show interfaces reports the tag it really uses."
 ```
 
+An SVI is up/up only when its VLAN exists, at least one port in that VLAN is up, and the SVI is not shut down. Being up does not make it route between VLANs, which is the point of the next question.
+
 ```question
 prompt = "A Layer 3 switch has SVIs for VLANs 10 and 20, both up/up, and hosts reach their own gateway. They cannot reach each other. What is missing?"
-options = ["A native VLAN", "ip routing", "A trunk to the printer"]
+options = ["A native VLAN", "ip routing", "A static route on each host"]
 answer = 1
 why = "SVIs that are up still need ip routing to be forwarded between them."
 ```

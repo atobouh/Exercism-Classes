@@ -51,7 +51,7 @@ R1(config-subif)# encapsulation dot1Q 20
 prompt = "A PC in VLAN 20 has IP 192.168.20.10/24 but its default gateway is 192.168.10.1. What happens?"
 options = ["It reaches VLAN 20 hosts but cannot reach other VLANs", "It reaches nothing, including VLAN 20 hosts", "It reaches every VLAN through the router"]
 answer = 0
-why = "Same-subnet traffic never uses the gateway, so VLAN 20 neighbors still work. Off-subnet traffic goes to an address that is not on its subnet, so the PC cannot even ARP for it."
+why = "Same-subnet traffic never uses the gateway, so VLAN 20 neighbors still work. The gateway 192.168.10.1 is not on 192.168.20.0/24, so the PC's ARP for it gets no reply and off-subnet traffic fails."
 ```
 
 ## Worked fault 2: the router on an access port
@@ -59,17 +59,17 @@ why = "Same-subnet traffic never uses the gateway, so VLAN 20 neighbors still wo
 Nothing routes at all. All subinterfaces show up/up, yet no host replies from its gateway. The switch side:
 
 ```console S1
-S1# show interfaces trunk
 S1# show interfaces g0/1 switchport
 Name: Gi0/1
 Switchport: Enabled
-Administrative Mode: static access
+Administrative Mode: dynamic auto
 Operational Mode: static access
 ...
 Access Mode VLAN: 1 (default)
+...
 ```
 
-`show interfaces trunk` printed nothing, so there are no trunks, and the router's port is an access port in VLAN 1. Tagged frames never get through. Configure it as a trunk.
+The port is still at its factory setting, `dynamic auto`. A router never sends the negotiation that would turn it into a trunk, so the port stays an access port in VLAN 1. `show interfaces trunk` lists no port for Gi0/1, so no trunk exists on it. Tagged frames from the router never get through. Configure the port as a trunk.
 
 ```command
 prompt = "Make the router-facing port G0/1 a trunk."
