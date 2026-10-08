@@ -52,7 +52,7 @@ R1 uptime is 3 days, 4 hours, 12 minutes
 ...
 System image file is "bootflash:packages.conf"
 ...
-Cisco ISR4321/K9 (1RU) processor with 1795979K/6147K bytes of memory.
+Cisco ISR4321/K9 (1RU) processor with ... bytes of memory.
 ...
 2 Gigabit Ethernet interfaces
 ...
@@ -79,7 +79,7 @@ Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge
                   D - Remote, C - CVTA, M - Two-port Mac Relay
 
 Device ID        Local Intrfce     Holdtme    Capability  Platform  Port ID
-S1               Gig 0/0/0         143              S I   WS-C2960- Fas 0/5
+S1               Gig 0/0/0         143              S I   WS-C2960- Gig 0/1
 ```
 
 The columns say who the neighbor is (Device ID), which of your ports it is on (Local Intrfce), how long you will keep the entry without a fresh announcement (Holdtme), what it does (Capability), its hardware (Platform) and the port at its end (Port ID). Add `detail` for the neighbor's IP address and software version.
@@ -91,7 +91,7 @@ Device ID: S1
 Entry address(es):
   IP address: 192.168.1.2
 Platform: cisco WS-C2960-24TT-L,  Capabilities: Switch IGMP
-Interface: GigabitEthernet0/0/0,  Port ID (outgoing port): FastEthernet0/5
+Interface: GigabitEthernet0/0/0,  Port ID (outgoing port): GigabitEthernet0/1
 Holdtime : 143 sec
 ...
 ```

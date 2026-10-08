@@ -12,8 +12,8 @@ SSH needs an IOS image that includes cryptography. On a 2960 the image name show
 
 ```console S1
 S1# show ip ssh
-SSH Disabled - version 2.0
-%Please create RSA keys (of at least 768 bits size) to enable SSH v2.
+SSH Disabled - version 1.99
+%Please create RSA keys to enable SSH (and of atleast 768 bits for SSH v2).
 Authentication timeout: 120 secs; Authentication retries: 3
 ```
 
@@ -48,7 +48,7 @@ SSH version 2 needs a key of at least 768 bits. The course uses 1024; a longer k
 prompt = "Allow only SSH on the VTY lines."
 mode = "S1(config-line)#"
 answer = ["transport input ssh"]
-why = "The default, `transport input all`, still accepts Telnet. Naming `ssh` alone closes it."
+why = "The default also accepts Telnet on the VTY lines. Naming `ssh` alone closes that path."
 ```
 
 ```command
@@ -60,7 +60,7 @@ why = "Without it, the line ignores the username created with `username admin se
 
 ## Why login local, not login
 
-On the earlier pages, VTY lines used `password` and `login`. That pair checks one shared line password and takes no username. SSH sends a username, so the line must check a list of users: `login local` does that against the local database (or an AAA server, in larger networks). Configure `password` and plain `login` on a line and then try SSH, and you will be refused, because there is nothing for the username to match.
+Many first setups put `password` and `login` on the VTY lines. That pair checks one shared line password and takes no username. SSH sends a username, so the line must check a list of users: `login local` does that against the local database (or an AAA server, in larger networks). Configure `password` and plain `login` on a line and then try SSH, and you will be refused, because there is nothing for the username to match.
 
 ```question
 prompt = "SSH is enabled on S1 and the VTY lines accept SSH. The line has `password cisco` and `login`, and a user account `admin` exists. The client's login is rejected. What fixes it?"
