@@ -16,7 +16,7 @@ Every device on the subnet receives it, and every DHCP server that is listening 
 
 A server picks a free address from its pool and answers with a DHCPOFFER. A careful server first checks that the address is really unused. An IOS server sends ICMP echo requests (pings) to the candidate address, and if something replies, it drops that address from consideration and records a *conflict*. Only then does it offer.
 
-The offer holds the proposed address, the mask, and the other options (gateway, DNS, lease time). It is addressed to the client's MAC address, since the client still has no IP address.
+The offer holds the proposed address, the mask, and the other options (gateway, DNS, lease time). The server sends it to the client's MAC address. Whether the IP packet is a broadcast or a unicast to the offered address depends on the client's broadcast flag. Either way, the client has no IP address yet, so the server cannot rely on one.
 
 ## Request
 

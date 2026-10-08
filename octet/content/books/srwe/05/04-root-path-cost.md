@@ -19,7 +19,7 @@ So only the receiving side of each hop is counted. The cost of a port on the far
 
 ## Default port costs
 
-Two sets of numbers exist. The older *short* method comes from 802.1D-1998. The *long* method (802.1t) was added because the short values run out of range at 10 Gbps and above.
+Two sets of numbers exist. The older *short* method comes from 802.1D-1998. The *long* method (802.1t) uses a 32-bit range instead of the short method's 16-bit range, which leaves room for links faster than 10 Gbps.
 
 | Link speed | Short method | Long method |
 | --- | --- | --- |
@@ -28,7 +28,7 @@ Two sets of numbers exist. The older *short* method comes from 802.1D-1998. The 
 | 1 Gbps | 4 | 20,000 |
 | 10 Gbps | 2 | 2,000 |
 
-A Catalyst 2960 uses the short method by default, and that is the one used in this book. Rapid spanning tree is normally paired with the long method. Do not mix the two in one network, or the sums will not compare properly. Pick one and use it on every switch.
+A Catalyst 2960 uses the short method by default, and that is the one used in this book. Some newer Cisco platforms use the long method by default, and Cisco's guides disagree about the default on some models, so check your own switch with `show spanning-tree summary`. Do not mix the two in one network, or the sums will not compare properly. Pick one and use it on every switch.
 
 ## A worked example
 

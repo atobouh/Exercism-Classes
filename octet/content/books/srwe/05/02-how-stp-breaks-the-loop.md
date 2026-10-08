@@ -24,7 +24,7 @@ The result of that exchange is always the same four decisions, in this order.
 4. **Block the rest.** A port that is neither root nor designated becomes an *alternate port*, and it blocks.
 
 ```diagram
-caption = "The triangle after STP. S1 is the root. The dashed link is the one blocked port, on S3's Fa0/2."
+caption = "The triangle after STP, assuming S1 has the lowest bridge ID. The dashed link is the one blocked port, on S3's Fa0/2."
 nodes = [
   { id = "S1", kind = "switch", x = 1, y = 0, label = "Root" },
   { id = "S2", kind = "switch", x = 2, y = 0 },
@@ -37,7 +37,7 @@ links = [
 ]
 ```
 
-Look at what the tree does. S2 and S3 each reach S1 directly. The S2 to S3 cable is still plugged in and the link is up, but S3 holds its end in a blocking state, so no frame can complete the circle. A broadcast from S1 goes out to S2 and S3 and stops there. The next pages cover how each election is decided.
+Look at what the tree does. S2 and S3 each reach S1 directly, at the same cost. That tie is settled on the S2 to S3 cable by the lower bridge ID, and here that is S2, so S2 keeps its end forwarding. The S2 to S3 cable is still plugged in and the link is up, but S3 holds its end in a blocking state, so no frame can complete the circle. A broadcast from S1 goes out to S2 and S3 and stops there. The next pages cover how each election is decided.
 
 ```question
 prompt = "Which is the correct order of the STP decisions?"
