@@ -83,7 +83,7 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 ...
 Gateway of last resort is not set
 
-S     192.168.3.0/24 [1/0] via 172.16.12.2
+S        192.168.3.0/24 [1/0] via 172.16.12.2
 ```
 
 The `S` marks a static route and `[1/0]` is administrative distance 1 with metric 0. Its IPv6 counterpart is `show ipv6 route static`.

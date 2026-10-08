@@ -18,7 +18,7 @@ Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
 ...
 Gateway of last resort is not set
 
-S     192.168.2.0/24 is directly connected, Serial0/1/0
+S        192.168.2.0/24 is directly connected, Serial0/1/0
 ```
 
 The entry says `is directly connected`, even though 192.168.2.0/24 is two hops away. IOS treats a route that names only an interface as if the destination were attached to it. The table holds the interface itself, so there is no recursive lookup. The packet goes straight out.
@@ -55,7 +55,7 @@ R1(config)# ip route 192.168.3.0 255.255.255.0 g0/0/1 172.16.12.2
 R1(config)# end
 R1# show ip route static
 ...
-S     192.168.3.0/24 [1/0] via 172.16.12.2, GigabitEthernet0/0/1
+S        192.168.3.0/24 [1/0] via 172.16.12.2, GigabitEthernet0/0/1
 ```
 
 The entry shows both the next hop and the interface, and it carries the normal `[1/0]`. Use this form for Ethernet routes you want to be explicit about.
