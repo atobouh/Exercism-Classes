@@ -49,6 +49,37 @@ export function createNetwork(lab, opts = {}) {
     return d;
   }
   const D = id => devs.find(d => d.id === id);
+  // an open lab adds and removes devices while it runs
+  const PREFIX = { router: 'R', switch: 'S', pc: 'PC-' };
+  function freeId(model) {
+    const pre = PREFIX[CATALOG[model].kind] || 'D';
+    for (let n = 1; ; n++) if (!D(pre + n)) return pre + n;
+  }
+  function add(def) {
+    if (!CATALOG[def.model]) throw new Error(`unknown model ${def.model}`);
+    const id = def.id || freeId(def.model);
+    if (!/^[A-Za-z][\w-]{0,23}$/.test(id)) throw new Error(`bad name ${id}`);
+    if (D(id)) throw new Error(`${id} is already on the bench`);
+    const d = addDevice({ ...def, id });
+    evalLinks(); emit('change');
+    return d;
+  }
+  function removeDevice(id) {
+    const d = D(id); if (!d) return;
+    for (let i = cables.length - 1; i >= 0; i--) { const c = cables[i]; if ([c.a, c.b].some(e => e && e.dev === id)) cables.splice(i, 1); }
+    devs.splice(devs.indexOf(d), 1);
+    delete sessions[id];
+    evalLinks(); emit('change');
+  }
+  function renameDevice(id, to) {
+    const d = D(id); if (!d || id === to) return;
+    if (!/^[A-Za-z][\w-]{0,23}$/.test(to)) throw new Error(`bad name ${to}`);
+    if (D(to)) throw new Error(`${to} is already on the bench`);
+    d.id = to; if (d.hostname === id) d.hostname = to;
+    for (const c of cables) for (const e of [c.a, c.b, c.dce]) if (e && e.dev === id) e.dev = to;
+    if (sessions[id]) { sessions[to] = sessions[id]; delete sessions[id]; }
+    emit('change');
+  }
   const portOf = end => end && D(end.dev) && D(end.dev).m.ports.find(p => p.key === end.port);
 
   /* ---------- cables ---------- */
@@ -646,7 +677,7 @@ export function createNetwork(lab, opts = {}) {
 
   function snapshot() {
     return {
-      clock, devices: devs.map(d => ({ id: d.id, x: d.x, y: d.y, hostname: d.hostname, power: d.power, ip: d.ip, mask: d.mask, pcgw: d.pcgw, routes: d.routes, vlans: d.vlans, gw: d.gw, secret: d.secret, ifs: Object.fromEntries(Object.entries(d.ifs).map(([n, f]) => [n, { shutdown: f.shutdown, ip: f.ip, mask: f.mask, mode: f.mode, vlan: f.vlan, native: f.native, portfast: f.portfast, clock: f.clock, desc: f.desc, encap: f.encap, sub: f.sub, parent: f.parent, svi: f.svi, mac: f.mac, nativeTag: f.nativeTag }])) })),
+      clock, devices: devs.map(d => ({ id: d.id, model: d.model, x: d.x, y: d.y, hostname: d.hostname, power: d.power, ip: d.ip, mask: d.mask, pcgw: d.pcgw, routes: d.routes, vlans: d.vlans, gw: d.gw, secret: d.secret, ifs: Object.fromEntries(Object.entries(d.ifs).map(([n, f]) => [n, { shutdown: f.shutdown, ip: f.ip, mask: f.mask, mode: f.mode, vlan: f.vlan, native: f.native, portfast: f.portfast, clock: f.clock, desc: f.desc, encap: f.encap, sub: f.sub, parent: f.parent, svi: f.svi, mac: f.mac, nativeTag: f.nativeTag }])) })),
       cables: cables.filter(c => c.a && c.b).map(c => ({ id: c.id, type: c.type, a: c.a, b: c.b, dce: c.dce })),
       opened: [...opened], pinged: [...pinged], tried: [...tried],
     };
@@ -654,7 +685,8 @@ export function createNetwork(lab, opts = {}) {
   function restore(s) {
     if (!s || !Array.isArray(s.devices)) return;
     for (const sd of s.devices) {
-      const d = D(sd.id); if (!d) continue;
+      let d = D(sd.id);
+      if (!d) { if (!CATALOG[sd.model]) continue; d = addDevice({ id: sd.id, model: sd.model }); } // added on an open bench
       Object.assign(d, { x: sd.x, y: sd.y, hostname: sd.hostname, power: sd.power !== false, ip: sd.ip, mask: sd.mask, pcgw: sd.pcgw, routes: sd.routes || [], vlans: sd.vlans || d.vlans, gw: sd.gw || '', secret: sd.secret || '' });
       for (const [n, f] of Object.entries(sd.ifs || {})) d.ifs[n] = Object.assign(d.ifs[n] || iface({}), f, { phys: false, proto: false, upSince: clock });
     }
@@ -667,6 +699,7 @@ export function createNetwork(lab, opts = {}) {
   return {
     lab, devices: devs, cables, catalog: CATALOG, cableTypes: CABLES,
     device: D, portOf, peerOf, segment,
+    addDevice: add, removeDevice, renameDevice,
     get clock() { return clock; }, tick,
     plug, attach, detach, remove, canPlug, fits, occupied,
     exec, prompt, help, session: id => sess(D(id)), configure, setPC,

@@ -109,4 +109,34 @@ const last = (net, dev) => net.session(dev).lines.slice(-1)[0].text;
   quiet.exec('R1', 'conf t');
   assert.match(last(quiet, 'R1'), /% Invalid input detected/);
 }
+// An open lab: devices come and go, and a saved bench brings them back.
+{
+  const net = createNetwork({ booted: true, devices: [] });
+  const a = net.addDevice({ model: 'PC', x: 100, y: 100 }), b = net.addDevice({ model: 'PC' }), s = net.addDevice({ model: 'WS-C2960+24TC-L' });
+  assert.deepEqual([a.id, b.id, s.id], ['PC-1', 'PC-2', 'S1']);
+  assert.throws(() => net.addDevice({ id: 'S1', model: 'PC' }), /already/);
+  assert.throws(() => net.addDevice({ model: 'Nope' }), /unknown model/);
+  net.plug('straight', 'PC-1 NIC', 'S1 F0/1');
+  net.plug('straight', 'PC-2 NIC', 'S1 F0/2');
+  net.setPC('PC-1', { ip: '10.0.0.1', mask: '255.255.255.0' });
+  net.setPC('PC-2', { ip: '10.0.0.2', mask: '255.255.255.0' });
+  net.tick(3000); net.tick(31000); // the new switch boots, then spanning tree
+  net.exec('PC-1', 'ping 10.0.0.2');
+  assert.match(last(net, 'PC-1'), /Reply from 10\.0\.0\.2/);
+  net.renameDevice('PC-2', 'LAPTOP');
+  assert.equal(net.device('LAPTOP').hostname, 'LAPTOP');
+  assert.equal(net.cables.filter(c => c.a.dev === 'LAPTOP' || c.b.dev === 'LAPTOP').length, 1, 'cables follow a rename');
+  assert.equal(net.addDevice({ model: 'PC' }).id, 'PC-2', 'a freed name is reused');
+  const saved = net.snapshot();
+  assert.equal(saved.devices.find(d => d.id === 'S1').model, 'WS-C2960+24TC-L');
+  net.removeDevice('S1');
+  assert.equal(net.device('S1'), undefined);
+  assert.equal(net.cables.length, 0, 'removing a device unplugs it');
+  net.exec('PC-1', 'ping 10.0.0.1');
+  const again = createNetwork({ booted: true, devices: [] });
+  again.restore(saved); again.tick(3000); again.tick(31000);
+  assert.deepEqual(again.devices.map(d => d.id), ['PC-1', 'LAPTOP', 'S1', 'PC-2']);
+  again.exec('PC-1', 'ping 10.0.0.2');
+  assert.match(last(again, 'PC-1'), /Reply from 10\.0\.0\.2/);
+}
 console.log('engine: all checks passed');
