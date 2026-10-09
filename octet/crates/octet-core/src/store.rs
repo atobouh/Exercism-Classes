@@ -238,6 +238,12 @@ impl Store {
         self.save()
     }
 
+    /// Forgets your progress on a lab, for when the lab itself is deleted.
+    pub fn lab_forget(&mut self, lab: &str) -> Result<(), StoreError> {
+        self.data.labs.retain(|l| l.lab != lab);
+        self.save()
+    }
+
     pub fn lab_passed(&mut self, lab: &str, notes: &str) -> Result<(), StoreError> {
         match self.data.labs.iter_mut().find(|l| l.lab == lab) {
             Some(l) => {

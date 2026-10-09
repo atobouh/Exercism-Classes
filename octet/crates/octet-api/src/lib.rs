@@ -2,6 +2,8 @@
 //! `App::call(name, args)`. The desktop app forwards Tauri invokes here, and
 //! the dev server forwards HTTP requests here, so both behave the same.
 
+mod labs;
+
 use octet_core::bundle;
 use octet_core::content::{load_book, load_library, sort_shelf, Blueprint, Block, Book, Command, Question, Recall};
 use octet_core::review::{describe, Grade};
@@ -21,6 +23,8 @@ pub struct App {
     pub broken: Vec<String>,
     blueprints: Vec<Blueprint>,
     labs_dir: PathBuf,
+    /// Labs you built or opened from a file, next to your data file.
+    mine: labs::Mine,
     clock: Option<i64>,
 }
 
@@ -77,6 +81,15 @@ pub fn command_matches(typed: &str, accepted: &str) -> bool {
         })
 }
 
+/// Your progress on a lab: course labs by id, your own as `mine/<id>`.
+fn lab_key(args: &Value) -> Result<String, String> {
+    let id: String = arg(args, "id")?;
+    if !octet_core::content::valid_id(&id) {
+        return Err("bad lab id".into());
+    }
+    Ok(if args["mine"].as_bool() == Some(true) { format!("mine/{id}") } else { id })
+}
+
 impl App {
     /// `content` holds `books/`, `labs/`, `exam/` and `prompts/`; `data` is
     /// the user's JSON file. Books added in Settings live in a `books`
@@ -85,7 +98,7 @@ impl App {
         let store = Store::open(data).map_err(|e| e.to_string())?;
         let user_books = data.parent().map(|d| d.join("books")).unwrap_or_else(|| PathBuf::from("books"));
         let blueprints = Blueprint::load_dir(&content.join("exam")).map_err(|e| e.to_string())?;
-        let mut app = Self { books: vec![], store, content: content.to_path_buf(), user_books, broken: vec![], blueprints, labs_dir: content.join("labs"), clock: None };
+        let mut app = Self { books: vec![], store, content: content.to_path_buf(), user_books, broken: vec![], blueprints, labs_dir: content.join("labs"), mine: labs::Mine::new(labs::dir_for(data)), clock: None };
         app.reload()?;
         Ok(app)
     }
@@ -436,6 +449,13 @@ impl App {
             }
             "about" => Ok(json!({ "data": self.store.path().display().to_string(), "books": self.user_books.display().to_string(), "version": env!("CARGO_PKG_VERSION") })),
             // A bench lab, as JSON for <octet-bench>, with your saved bench if any.
+            "lab_def" if args["mine"].as_bool() == Some(true) => {
+                let id: String = arg(args, "id")?;
+                let v = self.mine.get(&id)?;
+                let rec = self.store.data.labs.iter().find(|l| l.lab == format!("mine/{id}"));
+                let lab = json!({ "format": 1, "id": id, "title": v["title"], "summary": v["summary"], "task": v["task"], "device": [], "mine": true, "from": v["from"] });
+                Ok(json!({ "lab": lab, "board": v["board"], "start": v["start"], "state": rec.and_then(|r| r.state.clone()), "passed": rec.is_some_and(|r| r.passed), "notes": rec.map(|r| r.notes.clone()).unwrap_or_default() }))
+            }
             "lab_def" => {
                 let id: String = arg(args, "id")?;
                 if !octet_core::content::valid_id(&id) {
@@ -446,15 +466,91 @@ impl App {
                 Ok(json!({ "lab": lab, "state": rec.and_then(|r| r.state.clone()), "passed": rec.is_some_and(|r| r.passed), "notes": rec.map(|r| r.notes.clone()).unwrap_or_default() }))
             }
             "lab_save" => {
-                let id: String = arg(args, "id")?;
+                let id: String = lab_key(args)?;
                 let state: Value = arg(args, "state")?;
                 self.store.lab_save(&id, state).map_err(s)?;
                 Ok(Value::Null)
             }
             "lab_pass" => {
-                let id: String = arg(args, "id")?;
+                let id: String = lab_key(args)?;
                 self.store.lab_passed(&id, &arg::<String>(args, "notes").unwrap_or_default()).map_err(s)?;
                 Ok(Value::Null)
+            }
+            // Every lab: the ones in your books, then yours.
+            "lab_list" => {
+                let d = &self.store.data;
+                let progress = |key: &str| match d.labs.iter().find(|l| l.lab == key) {
+                    Some(r) if r.passed => "passed",
+                    Some(_) => "started",
+                    None => "new",
+                };
+                let mut books = Vec::new();
+                for b in &self.books {
+                    let labs: Vec<Value> = b
+                        .pages()
+                        .filter_map(|p| p.meta.lab.as_ref().map(|l| (p, l)))
+                        .map(|(p, l)| {
+                            let title = octet_core::content::read_lab(&self.labs_dir.join(format!("{l}.toml"))).ok().and_then(|v| v["title"].as_str().map(String::from)).unwrap_or_else(|| p.meta.title.clone());
+                            json!({ "id": l, "title": title, "page": p.id, "state": progress(l) })
+                        })
+                        .collect();
+                    if !labs.is_empty() {
+                        books.push(json!({ "id": b.id, "title": b.title, "short": b.short, "labs": labs }));
+                    }
+                }
+                let mine: Vec<Value> = self
+                    .mine
+                    .list()
+                    .into_iter()
+                    .map(|v| {
+                        let id = v["id"].as_str().unwrap_or("").to_string();
+                        let bench = if v["board"].is_null() { &v["start"] } else { &v["board"] };
+                        json!({
+                            "id": id, "title": v["title"], "summary": v["summary"], "from": v["from"], "updated": v["updated"],
+                            "devices": bench["devices"].as_array().map_or(0, |a| a.len()),
+                            "tasks": v["task"].as_array().map_or(0, |a| a.len()),
+                            "state": progress(&format!("mine/{id}")),
+                        })
+                    })
+                    .collect();
+                Ok(json!({ "books": books, "mine": mine }))
+            }
+            "lab_new" => {
+                let title: String = arg(args, "title").unwrap_or_default();
+                let id = self.mine.create(&title, self.now())?;
+                Ok(json!({ "id": id }))
+            }
+            "lab_rename" => {
+                let id: String = arg(args, "id")?;
+                let title: String = arg(args, "title")?;
+                self.mine.update(&id, &json!({ "title": title.trim() }).as_object().unwrap().clone(), self.now())?;
+                Ok(Value::Null)
+            }
+            // Saves what you change in build mode: board, start, summary, tasks.
+            "lab_update" => {
+                let id: String = arg(args, "id")?;
+                let mut fields = args.as_object().cloned().unwrap_or_default();
+                fields.remove("id");
+                self.mine.update(&id, &fields, self.now())?;
+                if fields.contains_key("start") {
+                    // A new starting point starts your own try over.
+                    self.store.lab_forget(&format!("mine/{id}")).map_err(s)?;
+                }
+                Ok(Value::Null)
+            }
+            "lab_delete" => {
+                let id: String = arg(args, "id")?;
+                self.mine.delete(&id)?;
+                self.store.lab_forget(&format!("mine/{id}")).map_err(s)?;
+                Ok(Value::Null)
+            }
+            "lab_export" => Ok(json!(self.mine.export(&arg::<String>(args, "id")?)?)),
+            "lab_import" => {
+                let text: String = arg(args, "text")?;
+                Ok(match self.mine.import(&text, self.now()) {
+                    Ok(id) => json!({ "ok": true, "id": id }),
+                    Err(problems) => json!({ "ok": false, "problems": problems }),
+                })
             }
             other => Err(format!("unknown command {other}")),
         }
@@ -574,5 +670,45 @@ mod tests {
         let ch = &lib["books"][1]["chapters"][2]["pages"];
         assert_eq!(ch.as_array().unwrap().last().unwrap()["passed"], true);
         assert!(a.call("lab_def", &json!({ "id": "../secrets" })).is_err());
+    }
+
+    #[test]
+    fn a_lab_you_build_exports_and_comes_back_the_same() {
+        let (mut a, d) = app();
+        let id = a.call("lab_new", &json!({ "title": "Two PCs" })).unwrap()["id"].as_str().unwrap().to_string();
+        assert_eq!(id, "two-pcs");
+        assert_eq!(a.call("lab_new", &json!({ "title": "Two PCs" })).unwrap()["id"], "two-pcs-2");
+        let board = json!({ "devices": [{ "id": "PC-1", "model": "PC", "x": 0, "y": 0 }, { "id": "PC-2", "model": "PC", "x": 200, "y": 0 }], "cables": [{ "id": 1, "type": "cross", "a": { "dev": "PC-1", "port": "NIC" }, "b": { "dev": "PC-2", "port": "NIC" } }] });
+        let task = json!([{ "text": "Ping PC-2", "check": { "pinged": { "from": "PC-1", "to": "10.0.0.2" } } }]);
+        a.call("lab_update", &json!({ "id": id, "board": board, "task": task, "summary": "Cable two PCs." })).unwrap();
+        assert!(d.path().join("labs/two-pcs.json").is_file());
+        a.call("lab_save", &json!({ "id": id, "mine": true, "state": board })).unwrap();
+        a.call("lab_pass", &json!({ "id": id, "mine": true, "notes": "" })).unwrap();
+        let list = a.call("lab_list", &Value::Null).unwrap();
+        let mine = list["mine"].as_array().unwrap().iter().find(|l| l["id"] == "two-pcs").unwrap().clone();
+        assert_eq!((mine["devices"].as_i64(), mine["tasks"].as_i64(), mine["state"].as_str()), (Some(2), Some(1), Some("passed")));
+        assert!(list["books"].as_array().unwrap().iter().any(|b| b["labs"].as_array().unwrap().iter().any(|l| l["id"] == "srwe-03-router-on-a-stick")));
+
+        let file = a.call("lab_export", &json!({ "id": id })).unwrap();
+        let file = file.as_str().unwrap();
+        assert!(!file.contains("\"board\""), "your board stays yours");
+        let r = a.call("lab_import", &json!({ "text": file })).unwrap();
+        assert_eq!(r["ok"], true);
+        let def = a.call("lab_def", &json!({ "id": r["id"], "mine": true })).unwrap();
+        assert_eq!((def["lab"]["title"].as_str(), def["lab"]["from"].as_str()), (Some("Two PCs"), Some("file")));
+        assert_eq!(def["lab"]["task"], task);
+        assert_eq!(def["start"], board);
+        assert!(def["state"].is_null() && def["passed"] == false, "progress doesn't travel with the file");
+
+        let bad = a.call("lab_import", &json!({ "text": "{\"format\": 1, \"title\": \"x\", \"start\": {\"devices\": [{\"id\": \"R1\", \"model\": \"C9300\"}]}}" })).unwrap();
+        assert_eq!(bad["ok"], false);
+        assert!(bad["problems"][0].as_str().unwrap().contains("C9300"));
+
+        a.call("lab_rename", &json!({ "id": id, "title": "Two PCs, crossed" })).unwrap();
+        assert!(a.call("lab_rename", &json!({ "id": id, "title": " " })).is_err());
+        a.call("lab_delete", &json!({ "id": id })).unwrap();
+        assert!(a.call("lab_def", &json!({ "id": id, "mine": true })).is_err());
+        assert!(a.store.data.labs.iter().all(|l| l.lab != "mine/two-pcs"), "deleting a lab forgets your progress on it");
+        assert!(a.call("lab_def", &json!({ "id": "../x", "mine": true })).is_err());
     }
 }
