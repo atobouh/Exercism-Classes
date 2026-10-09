@@ -96,10 +96,22 @@ pub fn parse_bundle(text: &str) -> Result<Bundle, Vec<String>> {
     let lines: Vec<&str> = text.lines().collect();
     let mut sections: Vec<(usize, String, Vec<&str>)> = Vec::new();
     let mut problems = Vec::new();
+    // A run of "=" inside console output is not a header, and nothing
+    // inside a code block is.
+    let mut fence: Option<&str> = None;
     for (i, l) in lines.iter().enumerate() {
         let t = l.trim();
-        if t.starts_with("===") && t.ends_with("===") && t.len() > 6 {
-            sections.push((i + 1 + shift, t.trim_matches('=').trim().to_string(), Vec::new()));
+        let mark = if t.starts_with("```") { Some("```") } else if t.starts_with("~~~") { Some("~~~") } else { None };
+        if let Some(m) = mark {
+            match fence {
+                None => fence = Some(m),
+                Some(open) if open == m && t.trim_start_matches(m.chars().next().unwrap()).trim().is_empty() => fence = None,
+                _ => {}
+            }
+        }
+        let head = t.trim_matches('=').trim();
+        if fence.is_none() && mark.is_none() && t.starts_with("=== ") && t.ends_with(" ===") && !head.is_empty() {
+            sections.push((i + 1 + shift, head.to_string(), Vec::new()));
         } else if let Some(s) = sections.last_mut() {
             s.2.push(l);
         } else if !t.is_empty() {
@@ -314,6 +326,17 @@ pub fn export_layered(base: &Path, overlay: &Path) -> Result<String, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn every_shipped_book_comes_back_in() {
+        let books = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../content/books");
+        for id in ["itn", "srwe", "ensa", "field"] {
+            let text = export(&books.join(id)).unwrap();
+            if let Err(p) = parse_bundle(&text) {
+                panic!("{id} doesn't read back in:\n{}", p.join("\n"));
+            }
+        }
+    }
 
     const TEXT: &str = "```text\n=== book ===\nid = \"notes\"\ntitle = \"My notes\"\nshort = \"Mine\"\ncloth = \"moss\"\npattern = \"waves\"\n\n[[chapter]]\nnumber = 1\ntitle = \"One\"\n\n[[chapter]]\nnumber = 2\ntitle = \"Two\"\n\n=== page 1 01-first ===\n+++\ntitle = \"First\"\n+++\n\nHello.\n\n~~~question\nprompt = \"p\"\noptions = [\"a\", \"b\"]\nanswer = 0\nwhy = \"w\"\n~~~\n\n=== page 2 01-second ===\n+++\ntitle = \"Second\"\n+++\n\nBye.\n```";
 

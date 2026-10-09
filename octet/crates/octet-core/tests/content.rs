@@ -1,5 +1,5 @@
 use octet_core::content::{check_references, Blueprint};
-use octet_core::{load_library, Block};
+use octet_core::load_library;
 use std::path::Path;
 
 #[test]
@@ -21,14 +21,7 @@ fn the_shipped_library_loads() {
     let blueprints = Blueprint::load_dir(&root.join("exam")).expect("exam topic lists parse");
     let problems = check_references(&books, &blueprints, Some(&root.join("labs")));
     assert!(problems.is_empty(), "{}", problems.join("\n"));
-    for p in books.iter().flat_map(|b| b.pages()) {
-        for blk in &p.blocks {
-            if let Block::Lab { id } = blk {
-                let src = std::fs::read_to_string(root.join("labs").join(format!("{id}.toml"))).unwrap();
-                octet_sim::Lab::from_toml(&src).expect("lab parses");
-            }
-        }
-    }
+
 }
 
 #[test]

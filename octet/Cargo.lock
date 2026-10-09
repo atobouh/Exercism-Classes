@@ -2114,7 +2114,7 @@ dependencies = [
 
 [[package]]
 name = "octet"
-version = "0.2.0"
+version = "0.3.1"
 dependencies = [
  "octet-api",
  "serde_json",
@@ -2124,7 +2124,7 @@ dependencies = [
 
 [[package]]
 name = "octet-api"
-version = "0.2.0"
+version = "0.3.1"
 dependencies = [
  "octet-core",
  "octet-sim",
@@ -2136,7 +2136,7 @@ dependencies = [
 
 [[package]]
 name = "octet-core"
-version = "0.2.0"
+version = "0.3.1"
 dependencies = [
  "octet-sim",
  "serde",
@@ -2148,7 +2148,7 @@ dependencies = [
 
 [[package]]
 name = "octet-sim"
-version = "0.2.0"
+version = "0.3.1"
 dependencies = [
  "serde",
  "serde_json",

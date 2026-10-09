@@ -32,6 +32,10 @@ jobs:
         working-directory: octet
         run: cargo test
 
+      - name: Test the bench engine
+        working-directory: octet/app/ui/bench
+        run: node test/engine.test.mjs
+
       - name: Build the installers
         working-directory: octet/app/src-tauri
         run: tauri build

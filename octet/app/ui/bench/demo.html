@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Octet Bench demo</title>
+<style>html, body { margin: 0; height: 100%; background: #16181c; } octet-bench { position: fixed; inset: 0; }</style>
+<script type="module" src="index.js"></script>
+</head>
+<body>
+<octet-bench></octet-bench>
+<script type="module">
+  const bench = document.querySelector('octet-bench');
+  const lab = await (await fetch('labs/office-online.json')).json();
+  let state = null;
+  try { state = JSON.parse(localStorage.getItem('bench:' + lab.id)); } catch {}
+  bench.load(lab, { state });
+  bench.addEventListener('bench-change', e => { try { localStorage.setItem('bench:' + lab.id, JSON.stringify(e.detail.state)); } catch {} });
+  bench.addEventListener('bench-passed', e => console.log('passed', e.detail.lab));
+</script>
+</body>
+</html>

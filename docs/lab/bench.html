@@ -1,0 +1,1260 @@
+<title>Octet Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Onest:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one full-bleed workbench. The board is quiet at rest; the brief, the cable tray and the console float over it and only grow when used. */
+:root {
+  color-scheme: dark;
+  --bench: oklch(17.5% 0.006 250); --bench-dot: oklch(27% 0.008 250);
+  --glass: oklch(21% 0.007 250 / 0.92); --glass2: oklch(25% 0.008 250 / 0.96); --edge: oklch(34% 0.01 250);
+  --ink: oklch(92% 0.006 250); --ink2: oklch(72% 0.01 250); --ink3: oklch(56% 0.01 250);
+  --metal-hi: oklch(36% 0.008 255); --metal: oklch(29% 0.008 255); --metal-lo: oklch(23% 0.008 255); --recess: oklch(13% 0.004 255); --silk: oklch(76% 0.01 250);
+  --led-off: oklch(26% 0.006 250); --led-green: oklch(80% 0.17 150); --led-amber: oklch(80% 0.15 70);
+  --you: oklch(77% 0.1 165); --broken: oklch(70% 0.15 28);
+  --c-straight: oklch(70% 0.1 245); --c-cross: oklch(78% 0.12 85); --c-console: oklch(84% 0.06 215); --c-fiber: oklch(74% 0.14 50); --c-serial: oklch(48% 0.02 260);
+  --f-book: "Newsreader", Georgia, serif; --f-ui: "Onest", system-ui, sans-serif; --f-mono: "Spline Sans Mono", ui-monospace, Consolas, monospace;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bench); color: var(--ink); font: 400 14px/1.5 var(--f-ui); overflow: hidden; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
+#stage { position: fixed; inset: 0; }
+#board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: default; }
+#board.panning { cursor: grabbing; }
+#wires { position: absolute; inset: 0; pointer-events: none; }
+.hand #board { cursor: crosshair; }
+
+/* faceplates */
+.dev .body { cursor: grab; }
+.dev.dragging .body { cursor: grabbing; }
+.silk { font: 500 7.2px var(--f-ui); fill: var(--silk); letter-spacing: .04em; }
+.silk.big { font: 600 9px var(--f-ui); letter-spacing: .06em; }
+.silk.name { font: 600 11px var(--f-ui); fill: var(--ink); letter-spacing: .01em; }
+.tagname { font: 600 12.5px var(--f-ui) !important; fill: var(--ink2) !important; }
+.plab { font: 500 6.4px var(--f-mono); fill: var(--ink3); opacity: 0; transition: opacity 160ms ease; }
+.labels .plab, .near .plab { opacity: 1; }
+.port { cursor: pointer; }
+.port .hl { fill: none; stroke: var(--you); stroke-width: 1.4; opacity: 0; transition: opacity 120ms ease; }
+.port:hover .hl { opacity: .9; }
+.port.fits .hl { opacity: .75; stroke-dasharray: 2 2; }
+.port.fits.hot .hl { opacity: 1; stroke-dasharray: none; stroke-width: 2; }
+.dim-other .port:not(.fits) { opacity: .35; }
+.led { transition: fill 120ms ease; }
+.led.green { fill: var(--led-green); filter: drop-shadow(0 0 2.5px oklch(80% 0.17 150 / .8)); }
+.led.amber { fill: var(--led-amber); filter: drop-shadow(0 0 2.5px oklch(80% 0.15 70 / .8)); }
+.led.blink { animation: blink 1s steps(2, jump-none) infinite; }
+.led.act { animation: act 90ms steps(2, jump-none) 6; }
+@keyframes blink { 50% { opacity: .25; } }
+@keyframes act { 50% { opacity: .2; } }
+.token { opacity: 0; pointer-events: none; transition: opacity 180ms ease; }
+.face { transition: opacity 180ms ease; }
+.far .token { opacity: 1; pointer-events: auto; }
+.far .face { opacity: 0; pointer-events: none; }
+.token .tk-bg { fill: var(--glass2); stroke: var(--edge); }
+.token .g * { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.token .g circle { fill: var(--ink); stroke: none; }
+.token text { font: 600 12px var(--f-ui); fill: var(--ink); }
+
+/* floating chrome */
+.panel { position: fixed; background: var(--glass); border: 1px solid var(--edge); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 18px 40px -20px oklch(5% 0 0 / .8); }
+#brief { left: 16px; top: 16px; width: 330px; max-width: calc(100vw - 32px); padding: 14px 16px 12px; display: grid; gap: 10px; }
+#brief header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+#brief h1 { margin: 0; font: 450 21px/1.15 var(--f-book); letter-spacing: -0.01em; }
+#brief .count { font-size: 12px; color: var(--ink3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+#brief ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; counter-reset: t; }
+#brief li { counter-increment: t; display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; font-size: 13px; color: var(--ink2); line-height: 1.45; }
+#brief li::before { content: counter(t); width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 600 10.5px var(--f-ui); box-shadow: inset 0 0 0 1px var(--edge); color: var(--ink3); margin-top: 1px; }
+#brief li.done { color: var(--ink3); }
+#brief li.done::before { content: "✓"; background: var(--you); color: var(--bench); box-shadow: none; }
+#brief li.next { color: var(--ink); }
+#brief code { font: 400 12px var(--f-mono); color: var(--ink); }
+#brief .more { border: 0; background: none; color: var(--ink3); font: inherit; font-size: 12.5px; padding: 0; text-align: left; cursor: pointer; }
+#brief .more:hover { color: var(--ink); }
+#brief.min ol, #brief.min .more { display: none; }
+
+#tools { right: 16px; top: 16px; display: flex; gap: 2px; padding: 4px; }
+.tb { border: 0; background: transparent; color: var(--ink2); font: 500 12.5px var(--f-ui); height: 30px; min-width: 30px; padding: 0 10px; border-radius: 9px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.tb:hover { background: oklch(100% 0 0 / .06); color: var(--ink); }
+.tb[aria-pressed="true"] { background: oklch(100% 0 0 / .1); color: var(--ink); }
+.tb .k { font: 500 10.5px var(--f-ui); color: var(--ink3); }
+.tb.zoom { font-variant-numeric: tabular-nums; min-width: 54px; justify-content: center; }
+.sep { width: 1px; background: var(--edge); margin: 5px 3px; }
+
+#tray { left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; max-width: calc(100vw - 32px); overflow-x: auto; }
+.cable { border: 0; background: transparent; color: var(--ink2); border-radius: 10px; padding: 6px 12px 7px 8px; display: grid; grid-template-columns: 34px auto; gap: 2px 8px; align-items: center; cursor: pointer; text-align: left; transition: background-color 120ms ease, transform 160ms var(--ease); }
+.cable:hover { background: oklch(100% 0 0 / .05); color: var(--ink); }
+.cable:active { transform: scale(0.97); }
+.cable[aria-pressed="true"] { background: oklch(100% 0 0 / .1); color: var(--ink); }
+.cable svg { grid-row: span 2; width: 34px; height: 28px; }
+.cable b { font-weight: 600; font-size: 12.5px; white-space: nowrap; }
+.cable span { font-size: 11px; color: var(--ink3); white-space: nowrap; }
+
+#card { position: fixed; z-index: 30; pointer-events: none; min-width: 210px; max-width: 290px; padding: 11px 13px; opacity: 0; transform: translateY(4px); transition: opacity 120ms ease, transform 160ms var(--ease); }
+#card.on { opacity: 1; transform: none; }
+#card h3 { margin: 0 0 6px; font: 600 13px var(--f-ui); display: flex; justify-content: space-between; gap: 10px; }
+#card h3 i { font: 400 11.5px var(--f-mono); color: var(--ink3); font-style: normal; }
+#card dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 12px; font-size: 12.5px; }
+#card dt { color: var(--ink3); }
+#card dd { margin: 0; color: var(--ink); }
+#card dd.mono { font: 400 11.5px/1.6 var(--f-mono); }
+#card p { margin: 8px 0 0; font-size: 12px; color: var(--ink2); line-height: 1.45; }
+.dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; background: var(--led-off); }
+.dot.green { background: var(--led-green); } .dot.amber { background: var(--led-amber); }
+
+#menu { position: fixed; z-index: 40; min-width: 200px; padding: 5px; display: grid; }
+#menu[hidden] { display: none; }
+#menu button { border: 0; background: transparent; color: var(--ink); font: 450 13px var(--f-ui); text-align: left; padding: 7px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 18px; }
+#menu button:hover { background: oklch(100% 0 0 / .07); }
+#menu button[disabled] { color: var(--ink3); cursor: default; background: none; }
+#menu button span { color: var(--ink3); font-size: 11.5px; }
+#menu hr { border: 0; border-top: 1px solid var(--edge); margin: 4px 6px; }
+#menu .h { font: 500 11px var(--f-ui); color: var(--ink3); padding: 6px 10px 2px; }
+
+#toast { left: 50%; bottom: 92px; transform: translate(-50%, 8px); padding: 10px 14px; max-width: min(520px, calc(100vw - 32px)); font-size: 13px; color: var(--ink); opacity: 0; pointer-events: none; transition: opacity 160ms ease, transform 200ms var(--ease); z-index: 35; }
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+#con { right: 16px; top: 62px; bottom: 16px; width: 470px; max-width: calc(100vw - 32px); display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; transform: translateX(calc(100% + 24px)); transition: transform 260ms var(--ease); z-index: 20; }
+#con.on { transform: none; }
+#con .tabs { display: flex; gap: 2px; padding: 6px 6px 0; overflow-x: auto; }
+#con .tab { border: 0; background: transparent; color: var(--ink3); font: 500 12.5px var(--f-ui); padding: 7px 10px; border-radius: 8px 8px 0 0; cursor: pointer; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+#con .tab[aria-selected="true"] { background: var(--recess); color: var(--ink); }
+#con .tab .x { opacity: .5; font-size: 14px; line-height: 1; }
+#con .tab .x:hover { opacity: 1; }
+#con .via { padding: 7px 14px; font-size: 11.5px; color: var(--ink3); background: var(--recess); display: flex; justify-content: space-between; gap: 10px; }
+#con .via button { border: 0; background: none; color: var(--ink3); font: inherit; cursor: pointer; padding: 0; }
+#con .via button:hover { color: var(--ink); }
+#out { margin: 0; padding: 8px 14px 4px; overflow: auto; background: var(--recess); font: 400 12.5px/1.6 var(--f-mono); color: var(--ink2); white-space: pre; user-select: text; -webkit-user-select: text; }
+#out .cmd { color: var(--ink); }
+#out .log { color: oklch(75% 0.07 70); }
+#out .err { color: var(--broken); }
+#out .ok { color: var(--led-green); }
+#line { display: flex; gap: 0; padding: 4px 14px 12px; background: var(--recess); font: 400 12.5px/1.6 var(--f-mono); align-items: baseline; }
+#prompt { color: var(--ink); white-space: pre; }
+#in { flex: 1; min-width: 0; border: 0; outline: none; background: transparent; color: var(--ink); font: inherit; caret-color: var(--you); padding: 0; }
+#pcset { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 8px; padding: 10px 14px; background: var(--recess); border-bottom: 1px solid var(--edge); align-items: end; }
+#pcset[hidden] { display: none; }
+#pcset label { display: grid; gap: 3px; font-size: 11px; color: var(--ink3); min-width: 0; }
+#pcset input { width: 100%; min-width: 0; border: 0; border-radius: 7px; background: oklch(100% 0 0 / .06); color: var(--ink); font: 400 12.5px var(--f-mono); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--edge); }
+#pcset input:focus { box-shadow: inset 0 0 0 1.5px var(--you); }
+#pcset button { border: 0; border-radius: 7px; background: var(--ink); color: var(--bench); font: 600 12px var(--f-ui); padding: 7px 11px; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--you); outline-offset: 2px; }
+@media (max-width: 700px) { #brief { width: auto; right: 16px; } #brief.min { right: auto; } #tools { top: auto; bottom: 86px; } .cable span { display: none; } }
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; animation-duration: 1ms !important; } }
+</style>
+
+<div id="stage">
+  <svg id="board" aria-label="Lab bench">
+    <defs>
+      <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="var(--bench-dot)"/></pattern>
+      <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--metal-hi)"/><stop offset=".12" stop-color="var(--metal)"/><stop offset="1" stop-color="var(--metal-lo)"/></linearGradient>
+      <linearGradient id="ear" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--metal-lo)"/><stop offset="1" stop-color="var(--metal)"/></linearGradient>
+      <linearGradient id="sfp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="oklch(55% 0.01 250)"/><stop offset="1" stop-color="oklch(38% 0.01 250)"/></linearGradient>
+      <filter id="shadow" x="-10%" y="-30%" width="120%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="black" flood-opacity=".45"/></filter>
+    </defs>
+    <rect id="grid" x="-5000" y="-5000" width="10000" height="10000" fill="url(#dots)"/>
+    <g id="cam"><rect x="-5000" y="-5000" width="10000" height="10000" fill="url(#dots)" opacity="0"/><g id="devs"></g></g>
+  </svg>
+  <canvas id="wires"></canvas>
+</div>
+
+<section id="brief" class="panel" aria-label="The brief">
+  <header><h1>Bring the office online</h1><span class="count" id="count">0 of 5</span></header>
+  <ol id="tasks"></ol>
+  <button class="more" type="button" id="hideBrief">Hide the brief</button>
+</section>
+
+<div id="tools" class="panel" role="toolbar" aria-label="Bench tools">
+  <button class="tb" type="button" id="zout" aria-label="Zoom out">−</button>
+  <button class="tb zoom" type="button" id="zfit" title="Fit everything">100%</button>
+  <button class="tb" type="button" id="zin" aria-label="Zoom in">+</button>
+  <span class="sep"></span>
+  <button class="tb" type="button" id="labels" aria-pressed="false" title="Show every port name">Labels <span class="k">Alt</span></button>
+  <button class="tb" type="button" id="fast" aria-pressed="false" title="Run the clock ten times faster, so spanning tree finishes in 3 seconds">Time ×10</button>
+  <button class="tb" type="button" id="sound" aria-pressed="true">Sound</button>
+</div>
+
+<div id="tray" class="panel" role="toolbar" aria-label="Cables"></div>
+
+<aside id="con" class="panel" aria-label="Console">
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="via"><span id="via"></span><button type="button" id="conClose">Close</button></div>
+  <div style="display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0">
+    <form id="pcset" hidden>
+      <label>IPv4 address<input id="pcIp" spellcheck="false" autocomplete="off"></label>
+      <label>Subnet mask<input id="pcMask" spellcheck="false" autocomplete="off"></label>
+      <label>Default gateway<input id="pcGw" spellcheck="false" autocomplete="off"></label>
+      <button type="submit">Apply</button>
+    </form>
+    <pre id="out" aria-live="polite"></pre>
+  </div>
+  <label id="line"><span id="prompt"></span><input id="in" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Command"></label>
+</aside>
+
+<div id="card" class="panel" role="status"></div>
+<div id="menu" class="panel" role="menu" hidden></div>
+<div id="toast" class="panel" role="status"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const board = $('#board'), cam = $('#cam'), devsG = $('#devs'), wires = $('#wires'), ctx = wires.getContext('2d');
+let speed = 1, simT = 0, lastReal = performance.now();
+const now = () => simT;
+
+/* ================= devices ================= */
+const CABLES = {
+  straight: { name: 'Straight-through', hint: 'copper, most links', color: '--c-straight', w: 4.2, fits: ['eth'] },
+  cross: { name: 'Crossover', hint: 'like to like', color: '--c-cross', w: 4.2, fits: ['eth'] },
+  console: { name: 'Console', hint: 'rollover, PC to CONSOLE', color: '--c-console', w: 3.4, fits: ['con', 'com'] },
+  fiber: { name: 'Fiber LC', hint: 'SFP to SFP', color: '--c-fiber', w: 3, fits: ['sfp'] },
+  serial: { name: 'Serial DCE/DTE', hint: 'router to router WAN', color: '--c-serial', w: 5.6, fits: ['serial'] },
+};
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+let macN = 0x10;
+const mac = (oui) => { macN++; const h = (oui + macN.toString(16).padStart(6, '0')); return `${h.slice(0, 4)}.${h.slice(4, 8)}.${h.slice(8, 12)}`; };
+
+function iface(over) { return Object.assign({ shutdown: false, ip: '', mask: '', mode: 'access', vlan: 1, portfast: false, clock: 0, desc: '', phys: false, proto: false, upSince: 0, medium: '', act: 0 }, over); }
+
+function makeRouter(id, x, y) {
+  const d = { id, name: id, kind: 'router', model: 'ISR4321/K9', x, y, w: 560, h: 66, ports: [], ifs: {}, routes: [], arp: {}, hostname: id, secret: '', boot: 0 };
+  const P = (o) => d.ports.push(o);
+  // NIM slot 1 with a NIM-2T serial card
+  P({ key: 'S0/1/0', iface: 'Serial0/1/0', type: 'serial', x: 46, y: 26, w: 26, h: 13, label: '0' });
+  P({ key: 'S0/1/1', iface: 'Serial0/1/1', type: 'serial', x: 108, y: 26, w: 26, h: 13, label: '1' });
+  P({ key: 'G0/0/0', iface: 'GigabitEthernet0/0/0', type: 'eth', x: 232, y: 24, w: 22, h: 17, label: 'GE 0/0/0', led: true });
+  P({ key: 'G0/0/1', iface: 'GigabitEthernet0/0/1', type: 'eth', x: 286, y: 24, w: 22, h: 17, label: 'GE 0/0/1', led: true });
+  P({ key: 'G0/0/1s', iface: 'GigabitEthernet0/0/1', type: 'sfp', x: 316, y: 26, w: 24, h: 13, label: 'SFP', led: true });
+  P({ key: 'CON', iface: 'console', type: 'con', x: 378, y: 24, w: 22, h: 17, label: 'CON' });
+  P({ key: 'AUX', iface: 'aux', type: 'decor', x: 410, y: 24, w: 22, h: 17, label: 'AUX' });
+  for (const n of ['GigabitEthernet0/0/0', 'GigabitEthernet0/0/1', 'Serial0/1/0', 'Serial0/1/1']) d.ifs[n] = iface({ shutdown: true, mac: mac('00d097') });
+  return d;
+}
+function makeSwitch(id, x, y) {
+  const d = { id, name: id, kind: 'switch', model: 'WS-C2960+24TC-L', x, y, w: 720, h: 66, ports: [], ifs: {}, vlans: { 1: 'default' }, macs: {}, arp: {}, hostname: id, gw: '', boot: 0 };
+  const x0 = 172;
+  for (let n = 1; n <= 24; n++) {
+    const c = Math.floor((n - 1) / 2), top = n % 2 === 1;
+    const x = x0 + c * 24 + Math.floor(c / 4) * 10;
+    d.ports.push({ key: 'F0/' + n, iface: 'FastEthernet0/' + n, type: 'eth', x, y: top ? 13 : 36, w: 20, h: 15, row: top ? 0 : 1, label: String(n), led: true });
+    d.ifs['FastEthernet0/' + n] = iface({ mac: mac('0019e8') });
+  }
+  for (const n of [1, 2]) {
+    const y = n === 1 ? 13 : 36;
+    d.ports.push({ key: 'G0/' + n, iface: 'GigabitEthernet0/' + n, type: 'eth', x: 500, y, w: 20, h: 15, row: n - 1, label: 'G' + n, led: true });
+    d.ports.push({ key: 'G0/' + n + 's', iface: 'GigabitEthernet0/' + n, type: 'sfp', x: 528, y: y + 1, w: 24, h: 13, row: n - 1, label: 'SFP', led: false });
+    d.ifs['GigabitEthernet0/' + n] = iface({ mac: mac('0019e8') });
+  }
+  d.ports.push({ key: 'CON', iface: 'console', type: 'con', x: 640, y: 24, w: 22, h: 17, label: 'CONSOLE' });
+  d.ifs.Vlan1 = iface({ shutdown: true, mac: mac('0019e8'), svi: true });
+  return d;
+}
+function makePC(id, x, y, ip = '', mask = '', gw = '') {
+  const d = { id, name: id, kind: 'pc', model: 'Desktop PC', x, y, w: 228, h: 84, ports: [], ifs: {}, arp: {}, hostname: id, ip, mask, gw, buf: [] };
+  d.ports.push({ key: 'COM1', iface: 'com', type: 'com', x: 30, y: 50, w: 30, h: 14, label: 'COM1' });
+  d.ports.push({ key: 'NIC', iface: 'FastEthernet0', type: 'eth', x: 168, y: 46, w: 22, h: 17, label: 'LAN', led: true });
+  d.ifs.FastEthernet0 = iface({ mac: mac('005079') });
+  return d;
+}
+
+const devs = [
+  makeRouter('R1', -280, -250),
+  makeRouter('ISP', -280, -470),
+  makeSwitch('S1', -360, -40),
+  makePC('PC-A', -330, 180, '192.168.10.10', '255.255.255.0', '192.168.10.1'),
+  makePC('PC-B', 140, 180),
+];
+devs.find(d => d.id === 'ISP').ifs['Serial0/1/0'] = iface({ shutdown: false, ip: '10.0.0.2', mask: '255.255.255.252', mac: 'n/a' });
+devs.find(d => d.id === 'ISP').preset = true;
+const D = id => devs.find(d => d.id === id);
+
+/* ================= faceplate drawing ================= */
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+function rj45(g, p, flip) {
+  // a recessed jack with its latch notch and eight gold contacts
+  const { x, y, w, h } = p;
+  el('rect', { x: x - 1, y: y - 1, width: w + 2, height: h + 2, rx: 1.6, fill: 'var(--metal-lo)' }, g);
+  el('rect', { x, y, width: w, height: h, rx: 1, fill: 'var(--recess)' }, g);
+  const ny = flip ? y + h - 4 : y; el('rect', { x: x + w / 2 - 3.5, y: ny, width: 7, height: 4, fill: 'var(--metal-lo)' }, g);
+  const cy = flip ? y + 2 : y + h - 4.5;
+  for (let i = 0; i < 8; i++) el('rect', { x: x + 3 + i * ((w - 6) / 8), y: cy, width: 1, height: 2.6, fill: 'oklch(70% 0.11 85)', opacity: .7 }, g);
+}
+function sfpCage(g, p) {
+  el('rect', { x: p.x - 1, y: p.y - 1, width: p.w + 2, height: p.h + 2, rx: 1.4, fill: 'url(#sfp)' }, g);
+  el('rect', { x: p.x + 2, y: p.y + 2, width: p.w - 4, height: p.h - 4, rx: .8, fill: 'var(--recess)' }, g);
+}
+function smartSerial(g, p) {
+  const { x, y, w, h } = p;
+  el('path', { d: `M${x} ${y}h${w}l-2 ${h}h${-(w - 4)}z`, fill: 'var(--metal-lo)', stroke: 'oklch(45% 0.008 255)', 'stroke-width': .6 }, g);
+  el('path', { d: `M${x + 3} ${y + 3}h${w - 6}l-1.4 ${h - 6}h${-(w - 8.8)}z`, fill: 'var(--recess)' }, g);
+  el('circle', { cx: x - 4, cy: y + h / 2, r: 1.6, fill: 'var(--metal-hi)' }, g); el('circle', { cx: x + w + 4, cy: y + h / 2, r: 1.6, fill: 'var(--metal-hi)' }, g);
+}
+function db9(g, p) {
+  const { x, y, w, h } = p;
+  el('path', { d: `M${x} ${y}h${w}l-3 ${h}h${-(w - 6)}z`, fill: 'var(--recess)', stroke: 'oklch(42% 0.008 255)', 'stroke-width': .8 }, g);
+  for (let i = 0; i < 5; i++) el('circle', { cx: x + 6 + i * 4.5, cy: y + 4.5, r: .9, fill: 'oklch(70% 0.11 85)', opacity: .7 }, g);
+  for (let i = 0; i < 4; i++) el('circle', { cx: x + 8.2 + i * 4.5, cy: y + 9.5, r: .9, fill: 'oklch(70% 0.11 85)', opacity: .7 }, g);
+}
+function ears(g, d) {
+  for (const ex of [-16, d.w]) {
+    el('rect', { x: ex, y: 4, width: 16, height: d.h - 8, rx: 2, fill: 'url(#ear)', stroke: 'oklch(40% 0.008 255)', 'stroke-width': .6 }, g);
+    el('circle', { cx: ex + 8, cy: 14, r: 2.6, fill: 'var(--recess)' }, g); el('circle', { cx: ex + 8, cy: d.h - 14, r: 2.6, fill: 'var(--recess)' }, g);
+  }
+}
+function chassis(g, d) {
+  el('rect', { x: 0, y: 0, width: d.w, height: d.h, rx: 3, fill: 'url(#metal)', stroke: 'oklch(42% 0.008 255)', 'stroke-width': .8, class: 'body' }, g);
+  el('rect', { x: 1, y: 1, width: d.w - 2, height: 1.2, fill: 'oklch(100% 0 0 / .08)' }, g);
+}
+const GLYPH = {
+  router: '<path d="M8.6 16h5.4M18 14.8l4.6-2.8M18 17.2l4.6 2.8M20.6 11.5l2 .5-.6 2M20.6 20.5l2-.5-.6-2"/><rect x="5" y="8.5" width="22" height="15" rx="2.2"/><circle cx="16" cy="16" r="2.3" fill="currentColor"/>',
+  switch: '<rect x="5" y="9.5" width="22" height="13" rx="2.2"/><path d="M9 13.4h6M13.6 12.1l1.4 1.3-1.4 1.3M23 13.4h-6M18.4 12.1L17 13.4l1.4 1.3"/><path d="M8 18.2h16" stroke-dasharray="2.4 1.2"/>',
+  pc: '<rect x="4.5" y="5.5" width="23" height="15.5" rx="2.2"/><path d="M12.5 26h7M16 21v5M9.5 10.6l2.7 2.3-2.7 2.3M14.3 15.5h4.5"/>',
+};
+
+function draw(d) {
+  const g = el('g', { class: 'dev', 'data-dev': d.id }, devsG);
+  d.g = g;
+  const face = el('g', { class: 'face', filter: 'url(#shadow)' }, g);
+  if (d.kind !== 'pc') ears(face, d);
+  chassis(face, d);
+  if (d.kind === 'router') {
+    el('rect', { x: 18, y: 10, width: 150, height: 46, rx: 2, fill: 'var(--metal-lo)', stroke: 'oklch(40% 0.008 255)', 'stroke-width': .6 }, face);
+    el('text', { x: 24, y: 19, class: 'silk' }, face).textContent = 'NIM-2T';
+    el('text', { x: 24, y: 51, class: 'silk' }, face).textContent = 'NIM 1   SERIAL';
+    el('circle', { cx: 160, cy: 15, r: 1.6, fill: 'var(--metal-hi)' }, face);
+    el('text', { x: 198, y: 18, class: 'silk' }, face).textContent = '';
+    el('text', { x: 456, y: 22, class: 'silk big' }, face).textContent = 'ISR 4321';
+    for (const [i, t] of ['PWR', 'SYS', 'ACT'].entries()) { el('circle', { cx: 462 + i * 18, cy: 36, r: 2.3, class: 'led', fill: 'var(--led-off)', 'data-sys': t }, face); el('text', { x: 456 + i * 18, y: 47, class: 'silk' }, face).textContent = t; }
+    el('circle', { cx: 538, cy: 33, r: 6, fill: 'var(--metal-lo)', stroke: 'oklch(45% 0.008 255)', 'stroke-width': .8 }, face);
+    el('path', { d: 'M538 29.6v3.6M535.6 31.2a3.4 3.4 0 1 0 4.8 0', fill: 'none', stroke: 'var(--silk)', 'stroke-width': .9, 'stroke-linecap': 'round' }, face);
+  } else if (d.kind === 'switch') {
+    el('text', { x: 18, y: 18, class: 'silk big' }, face).textContent = 'CATALYST 2960-Plus';
+    for (const [i, t] of ['SYST', 'RPS', 'STAT', 'DUPLX', 'SPEED'].entries()) { el('circle', { cx: 22 + i * 25, cy: 34, r: 2.1, class: 'led', fill: 'var(--led-off)', 'data-sys': t }, face); el('text', { x: 22 + i * 25, y: 45, class: 'silk', 'text-anchor': 'middle' }, face).textContent = t; }
+    el('circle', { cx: 150, cy: 34, r: 4.4, fill: 'var(--metal-lo)', stroke: 'oklch(45% 0.008 255)', 'stroke-width': .8 }, face);
+    el('text', { x: 150, y: 47, class: 'silk', 'text-anchor': 'middle' }, face).textContent = 'MODE';
+    el('text', { x: 604, y: 18, class: 'silk' }, face).textContent = '';
+  } else {
+    el('rect', { x: 12, y: 10, width: d.w - 24, height: 26, rx: 4, fill: 'var(--recess)' }, face);
+    d.screen = el('text', { x: 22, y: 27, class: 'silk name' }, face);
+    el('text', { x: d.w - 22, y: 27, class: 'silk', 'text-anchor': 'end', 'data-pcip': 1 }, face);
+    el('rect', { x: 92, y: 50, width: 9, height: 13, rx: 1.4, fill: 'var(--recess)' }, face);
+    el('rect', { x: 108, y: 50, width: 9, height: 13, rx: 1.4, fill: 'var(--recess)' }, face);
+    el('text', { x: 104, y: 73, class: 'silk', 'text-anchor': 'middle' }, face).textContent = 'USB';
+  }
+  if (d.kind !== 'pc') el('text', { x: d.kind === 'switch' ? 600 : 198, y: d.kind === 'switch' ? 58 : 58, class: 'silk name' }, face).textContent = '';
+  // ports
+  for (const p of d.ports) {
+    const pg = el('g', { class: 'port' + (p.type === 'decor' ? ' decor' : ''), 'data-dev': d.id, 'data-port': p.key }, face);
+    if (p.type === 'eth' || p.type === 'con' || p.type === 'decor') rj45(pg, p, p.row === 1);
+    else if (p.type === 'sfp') sfpCage(pg, p);
+    else if (p.type === 'serial') smartSerial(pg, p);
+    else if (p.type === 'com') db9(pg, p);
+    if (p.type === 'con') el('rect', { x: p.x - 1, y: p.y - 1, width: p.w + 2, height: p.h + 2, rx: 1.6, fill: 'none', stroke: 'var(--c-console)', 'stroke-width': .9, opacity: .7 }, pg);
+    el('rect', { x: p.x - 3, y: p.y - 3, width: p.w + 6, height: p.h + 6, rx: 3, class: 'hl' }, pg);
+    if (p.led) {
+      const ly = d.kind === 'switch' ? (p.row === 1 ? p.y + p.h + 3.5 : p.y - 6) : p.y - 7;
+      p.ledEl = el('rect', { x: p.x + p.w / 2 - 3, y: ly, width: 6, height: 2.6, rx: .8, class: 'led', fill: 'var(--led-off)' }, pg);
+    }
+    const ty = d.kind === 'switch' ? (p.row === 1 ? p.y + p.h + 11 : p.y - 8.5) : p.y + p.h + 9;
+    if (d.kind === 'switch' && p.type === 'eth' && p.row !== undefined) el('text', { x: p.x + p.w / 2, y: ty, class: 'plab', 'text-anchor': 'middle' }, pg).textContent = p.label;
+    else if (p.label) el('text', { x: p.x + p.w / 2, y: ty, class: d.kind === 'switch' ? 'plab' : 'silk', 'text-anchor': 'middle' }, pg).textContent = p.label;
+  }
+  el('text', { x: 0, y: -10, class: 'silk name tagname' }, face).textContent = d.hostname;
+  // the far-zoom token
+  const tk = el('g', { class: 'token', 'data-dev': d.id }, g);
+  d.token = tk;
+  el('rect', { x: -62, y: -24, width: 124, height: 48, rx: 14, class: 'body tk-bg' }, tk);
+  const gl = el('g', { class: 'g', transform: 'translate(-54 -16)' }, tk); gl.innerHTML = GLYPH[d.kind];
+  el('text', { x: -14, y: 5 }, tk).textContent = d.name;
+  place(d);
+}
+function place(d) {
+  d.g.setAttribute('transform', `translate(${d.x} ${d.y})`);
+  const s = Math.min(2.6, 0.85 / view.z);
+  d.token.setAttribute('transform', `translate(${d.w / 2} ${d.h / 2}) scale(${s})`);
+}
+
+/* ================= camera ================= */
+const view = { x: 0, y: 0, z: 1 };
+let labelsOn = false;
+function applyView() {
+  cam.setAttribute('transform', `translate(${view.x} ${view.y}) scale(${view.z})`);
+  $('#grid').setAttribute('transform', `translate(${view.x % (24 * view.z)} ${view.y % (24 * view.z)}) scale(${view.z})`);
+  board.classList.toggle('far', view.z < 0.55);
+  board.classList.toggle('labels', labelsOn || view.z > 1.6);
+  devs.forEach(place);
+  $('#zfit').textContent = Math.round(view.z * 100) + '%';
+}
+const toWorld = (sx, sy) => ({ x: (sx - view.x) / view.z, y: (sy - view.y) / view.z });
+function zoomAt(f, sx, sy) {
+  const z = Math.min(3, Math.max(0.25, view.z * f));
+  const w = toWorld(sx, sy);
+  view.z = z; view.x = sx - w.x * z; view.y = sy - w.y * z; applyView();
+}
+function fit() {
+  const xs = devs.flatMap(d => [d.x - 20, d.x + d.w + 20]), ys = devs.flatMap(d => [d.y - 20, d.y + d.h + 20]);
+  const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
+  const W = innerWidth, H = innerHeight, padT = 80, padB = 120, padL = W > 900 ? 360 : 24, padR = 24;
+  const z = Math.min((W - padL - padR) / (maxx - minx), (H - padT - padB) / (maxy - miny), 1.25);
+  view.z = Math.max(0.3, z); view.x = padL + (W - padL - padR - (maxx - minx) * view.z) / 2 - minx * view.z; view.y = padT + (H - padT - padB - (maxy - miny) * view.z) / 2 - miny * view.z;
+  applyView();
+}
+
+/* ================= cables & physics ================= */
+const cables = [];
+let hand = null;             // { cable, end: 'a'|'b' } the end you're holding
+let armed = 'straight';      // tray choice
+let cid = 0;
+const portOf = (end) => end && D(end.dev).ports.find(p => p.key === end.port);
+const portAt = (dev, key) => D(dev).ports.find(p => p.key === key);
+function anchor(end) {
+  const d = D(end.dev), p = portOf(end);
+  return { x: d.x + p.x + p.w / 2, y: d.y + p.y + p.h / 2 };
+}
+const N = 22;
+function newCable(type, aEnd, cursor) {
+  const c = { id: ++cid, type, a: aEnd, b: null, pts: [], born: now(), dce: aEnd };
+  const A = anchor(aEnd);
+  for (let i = 0; i < N; i++) c.pts.push({ x: A.x, y: A.y + i * 2, px: A.x, py: A.y + i * 2 });
+  c.free = { x: cursor.x, y: cursor.y };
+  cables.push(c);
+  return c;
+}
+const occupied = (dev, key) => cables.find(c => (c.a && c.a.dev === dev && c.a.port === key) || (c.b && c.b.dev === dev && c.b.port === key));
+function endPos(c, e) { return c[e] ? anchor(c[e]) : c.free; }
+function stepRopes() {
+  for (const c of cables) {
+    const A = endPos(c, 'a'), B = endPos(c, 'b');
+    const dist = Math.hypot(B.x - A.x, B.y - A.y);
+    const total = Math.max(dist * 1.04, dist + 70 + Math.min(dist * 0.08, 60));
+    const seg = total / (N - 1), p = c.pts;
+    for (let i = 1; i < N - 1; i++) {
+      const q = p[i], vx = (q.x - q.px) * 0.97, vy = (q.y - q.py) * 0.97;
+      q.px = q.x; q.py = q.y; q.x += vx; q.y += vy + 0.55;
+    }
+    p[0].x = A.x; p[0].y = A.y; p[N - 1].x = B.x; p[N - 1].y = B.y;
+    // a short stub straight out of each jack before the cable sags
+    p[1].x = A.x; p[1].y = A.y + 7; p[N - 2].x = B.x; p[N - 2].y = B.y + 7;
+    for (let k = 0; k < 18; k++) {
+      for (let i = 0; i < N - 1; i++) {
+        const a = p[i], b = p[i + 1], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1e-6, diff = (d - seg) / d / 2;
+        const fa = i <= 1 ? 0 : 1, fb = i + 1 >= N - 2 ? 0 : 1, s = fa + fb || 1;
+        a.x += dx * diff * fa * 2 / s; a.y += dy * diff * fa * 2 / s;
+        b.x -= dx * diff * fb * 2 / s; b.y -= dy * diff * fb * 2 / s;
+      }
+    }
+  }
+}
+let hoverCable = null, hoverDev = null;
+function drawWires() {
+  const dpr = devicePixelRatio || 1;
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, wires.width, wires.height);
+  ctx.setTransform(dpr * view.z, 0, 0, dpr * view.z, dpr * view.x, dpr * view.y);
+  const far = view.z < 0.55;
+  for (const c of cables) {
+    const k = CABLES[c.type], col = css(k.color);
+    const related = !hoverDev && !hoverCable ? 1 : (c === hoverCable || (hoverDev && ((c.a && c.a.dev === hoverDev) || (c.b && c.b.dev === hoverDev)))) ? 1 : 0.32;
+    ctx.globalAlpha = related;
+    if (far) {
+      if (!c.a || !c.b) continue;
+      const da = D(c.a.dev), db = D(c.b.dev);
+      ctx.beginPath(); ctx.moveTo(da.x + da.w / 2, da.y + da.h / 2); ctx.lineTo(db.x + db.w / 2, db.y + db.h / 2);
+      ctx.lineWidth = 2.4 / view.z; ctx.strokeStyle = col; ctx.setLineDash(c.type === 'console' ? [4 / view.z, 5 / view.z] : []); ctx.stroke(); ctx.setLineDash([]);
+      continue;
+    }
+    const p = c.pts;
+    const path = () => { ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y); for (let i = 1; i < N - 1; i++) { const mx = (p[i].x + p[i + 1].x) / 2, my = (p[i].y + p[i + 1].y) / 2; ctx.quadraticCurveTo(p[i].x, p[i].y, mx, my); } ctx.lineTo(p[N - 1].x, p[N - 1].y); };
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.save(); ctx.translate(0, 3.5); path(); ctx.strokeStyle = 'rgba(0,0,0,.38)'; ctx.lineWidth = k.w + 2.4; ctx.stroke(); ctx.restore();
+    path(); ctx.strokeStyle = col; ctx.lineWidth = k.w; ctx.stroke();
+    ctx.save(); ctx.translate(-0.5, -0.9); path(); ctx.strokeStyle = 'rgba(255,255,255,.28)'; ctx.lineWidth = Math.max(0.9, k.w * 0.26); ctx.stroke(); ctx.restore();
+    for (const e of ['a', 'b']) plug(c, e, col, k);
+  }
+  ctx.globalAlpha = 1;
+}
+function plug(c, e, col, k) {
+  const pos = endPos(c, e), port = c[e] ? portOf(c[e]) : null;
+  let { x, y } = pos;
+  if (c.seat && c.seat[e]) { const t = Math.min(1, (performance.now() - c.seat[e].t) / 260); const o = (1 - t) * Math.sin(t * 9) * 5; y += o; }
+  ctx.save();
+  const w = port ? port.w - 2 : (c.type === 'serial' ? 24 : c.type === 'fiber' ? 20 : 18), h = port ? port.h - 2 : 13;
+  if (c.type === 'serial') {
+    ctx.fillStyle = 'oklch(30% 0.01 260)'; ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = .6;
+    roundRect(x - w / 2 - 3, y - h / 2 - 1, w + 6, h + 4, 2); ctx.fill(); ctx.stroke();
+    if (c.dce === c[e] || (!c[e] && c.dce === null)) { ctx.fillStyle = 'oklch(85% 0.01 250)'; ctx.font = '600 5.2px Onest, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('DCE', x, y + 2); }
+  } else if (c.type === 'fiber') {
+    ctx.fillStyle = 'oklch(70% 0.03 220 / .9)'; roundRect(x - w / 2, y - h / 2, w, h, 1.5); ctx.fill();
+    ctx.fillStyle = col; roundRect(x - w / 2 + 2, y - 2, w / 2 - 3, h / 2 + 4, 1); ctx.fill(); roundRect(x + 1, y - 2, w / 2 - 3, h / 2 + 4, 1); ctx.fill();
+  } else {
+    // a clear RJ45 head seated in the jack, with its coloured boot below
+    ctx.fillStyle = 'rgba(214,226,240,.34)'; ctx.strokeStyle = 'rgba(255,255,255,.4)'; ctx.lineWidth = .5;
+    roundRect(x - w / 2, y - h / 2, w, h, 1.4); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'oklch(72% 0.11 85 / .8)'; for (let i = 0; i < 8; i++) ctx.fillRect(x - w / 2 + 2.5 + i * ((w - 5) / 8), y - h / 2 + 1.5, 0.9, 3);
+    ctx.fillStyle = col; roundRect(x - w / 2 + 2, y + h / 2 - 1, w - 4, 7, 2); ctx.fill();
+  }
+  ctx.restore();
+}
+function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, w, h, r) : ctx.rect(x, y, w, h); }
+function resize() { const dpr = devicePixelRatio || 1; wires.width = innerWidth * dpr; wires.height = innerHeight * dpr; wires.style.width = innerWidth + 'px'; wires.style.height = innerHeight + 'px'; }
+function distToCable(c, w) {
+  let best = 1e9; const p = c.pts;
+  for (let i = 0; i < N - 1; i++) { const a = p[i], b = p[i + 1], dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1; let t = ((w.x - a.x) * dx + (w.y - a.y) * dy) / l2; t = Math.max(0, Math.min(1, t)); best = Math.min(best, Math.hypot(a.x + t * dx - w.x, a.y + t * dy - w.y)); }
+  return best;
+}
+
+/* ================= the network ================= */
+const ipn = s => s.split('.').reduce((a, o) => a * 256 + (+o), 0);
+const isIp = s => /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.test(s) && s.split('.').every(o => +o <= 255);
+const maskLen = m => ipn(m).toString(2).replace(/0+$/, '').length;
+const validMask = m => isIp(m) && /^1*0*$/.test(ipn(m).toString(2).padStart(32, '0'));
+const sameNet = (a, b, m) => isIp(a) && isIp(b) && validMask(m) && (ipn(a) & ipn(m)) >>> 0 === (ipn(b) & ipn(m)) >>> 0;
+const netOf = (a, m) => [24, 16, 8, 0].map(s => (((ipn(a) & ipn(m)) >>> 0) >>> s) & 255).join('.');
+
+function pcIf(d) { return d.ifs.FastEthernet0; }
+function ipsOf(d) { // [{ifname, ip, mask, up}]
+  if (d.kind === 'pc') return d.ip ? [{ n: 'FastEthernet0', ip: d.ip, mask: d.mask, up: pcIf(d).proto }] : [];
+  return Object.entries(d.ifs).filter(([, f]) => f.ip).map(([n, f]) => ({ n, ip: f.ip, mask: f.mask, up: f.proto && !f.shutdown }));
+}
+function peerOf(dev, ifname) {
+  for (const c of cables) {
+    if (!c.a || !c.b || c.type === 'console') continue;
+    for (const [x, y] of [['a', 'b'], ['b', 'a']]) {
+      const p = portOf(c[x]);
+      if (c[x].dev === dev && p.iface === ifname && D(dev).ifs[ifname].medium === p.type) return { dev: c[y].dev, port: portOf(c[y]), cable: c };
+    }
+  }
+  return null;
+}
+function forwarding(d, n) {
+  const f = d.ifs[n]; if (!f || !f.proto) return false;
+  if (d.kind !== 'switch' || f.svi) return true;
+  return f.portfast || now() - f.upSince >= 30000;
+}
+function stpState(d, n) {
+  const f = d.ifs[n]; if (!f.proto) return 'down';
+  if (d.kind !== 'switch' || forwarding(d, n)) return 'forwarding';
+  return now() - f.upSince < 15000 ? 'listening' : 'learning';
+}
+
+let logs = [];
+function stamp() { const t = new Date(); const mo = t.toLocaleString('en-US', { month: 'short' }); const p = n => String(n).padStart(2, '0'); return `*${mo} ${String(t.getDate()).padStart(2, ' ')} ${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}.${String(t.getMilliseconds()).padStart(3, '0')}`; }
+function log(d, msg) { if (d.kind === 'pc') return; say(d, `${stamp()}: ${msg}`, 'log'); }
+const later = [];
+function evalLinks() {
+  const t = now();
+  for (const d of devs) for (const f of Object.values(d.ifs)) f._phys = false, f._medium = '';
+  for (const c of cables) {
+    if (!c.a || !c.b || c.type === 'console') continue;
+    for (const e of ['a', 'b']) {
+      const d = D(c[e].dev), p = portOf(c[e]), f = d.ifs[p.iface];
+      if (!f) continue;
+      if (p.type === 'sfp' || !f._medium) f._medium = p.type; // the SFP side wins on a combo port
+    }
+  }
+  for (const c of cables) {
+    if (!c.a || !c.b || c.type === 'console') continue;
+    const da = D(c.a.dev), db = D(c.b.dev), pa = portOf(c.a), pb = portOf(c.b), fa = da.ifs[pa.iface], fb = db.ifs[pb.iface];
+    if (fa._medium !== pa.type || fb._medium !== pb.type) continue;
+    const up = !fa.shutdown && !fb.shutdown && t > (da.boot || 0) && t > (db.boot || 0);
+    fa._phys = fb._phys = up;
+  }
+  for (const d of devs) for (const [n, f] of Object.entries(d.ifs)) {
+    if (f.svi) {
+      const anyUp = Object.entries(d.ifs).some(([m, g]) => !g.svi && g.proto && (g.mode === 'trunk' || g.vlan === +n.slice(4)));
+      const pr = !f.shutdown && anyUp;
+      if (pr !== f.proto) { f.proto = pr; f.phys = pr; log(d, `%LINEPROTO-5-UPDOWN: Line protocol on Interface ${n}, changed state to ${pr ? 'up' : 'down'}`); }
+      continue;
+    }
+    f.medium = f._medium;
+    let proto = f._phys;
+    if (proto && n.startsWith('Serial')) { const pe = peerOf(d.id, n); const dceDev = pe && pe.cable.dce.dev; const dceIf = pe && portOf(pe.cable.dce).iface; proto = !!(pe && D(dceDev).ifs[dceIf].clock); }
+    if (f.wasShut && !f.shutdown && !f._phys && !f.phys) { f.wasShut = false; log(d, `%LINK-3-UPDOWN: Interface ${n}, changed state to down`); }
+    if (f._phys) f.wasShut = false;
+    if (f._phys !== f.phys) {
+      f.phys = f._phys;
+      if (!f.shutdown || !f.phys) log(d, `%LINK-3-UPDOWN: Interface ${n}, changed state to ${f.phys ? 'up' : 'down'}`);
+      if (f.phys) f.upSince = t;
+    }
+    if (proto !== f.proto) {
+      const was = f.proto; f.proto = proto;
+      later.push({ at: t + 900, fn: () => log(d, `%LINEPROTO-5-UPDOWN: Line protocol on Interface ${n}, changed state to ${proto ? 'up' : 'down'}`) });
+      if (!was && proto) f.upSince = t;
+    }
+  }
+}
+function paintLeds() {
+  const t = now();
+  for (const d of devs) {
+    const booting = t < (d.boot || 0);
+    d.g.querySelectorAll('[data-sys]').forEach(l => {
+      const k = l.dataset.sys;
+      let c = 'off', bl = false;
+      if (k === 'PWR' || k === 'SYST' || k === 'SYS') c = booting ? 'amber' : 'green', bl = booting && k !== 'PWR';
+      if (k === 'PWR') c = 'green';
+      if (k === 'STAT') c = 'green';
+      if (k === 'ACT') c = Object.values(d.ifs).some(f => f.act > performance.now()) ? 'green' : 'off';
+      l.classList.toggle('green', c === 'green'); l.classList.toggle('amber', c === 'amber'); l.classList.toggle('blink', bl);
+    });
+    for (const p of d.ports) {
+      if (!p.ledEl) continue;
+      const f = d.ifs[p.iface];
+      let c = 'off';
+      if (f && f.phys && f.medium === p.type) c = d.kind === 'switch' && !forwarding(d, p.iface) ? 'amber' : 'green';
+      p.ledEl.classList.toggle('green', c === 'green'); p.ledEl.classList.toggle('amber', c === 'amber');
+      const actOn = f && f.act > performance.now() && c === 'green';
+      if (actOn && !p.ledEl.classList.contains('act')) { p.ledEl.classList.add('act'); setTimeout(() => p.ledEl.classList.remove('act'), 560); }
+    }
+    if (d.kind === 'pc') { d.screen.textContent = d.name; d.g.querySelector('[data-pcip]').textContent = d.ip ? `${d.ip}/${maskLen(d.mask || '0.0.0.0')}` : 'no address'; }
+  }
+}
+
+/* L2: every L3 endpoint reachable from an interface, with the path taken */
+function segment(devId, ifname) {
+  const start = D(devId), out = [], seen = new Set(), path = [];
+  const q = [];
+  const push = (dId, n, vlan, from) => { const k = dId + '|' + n + '|' + vlan; if (seen.has(k)) return; seen.add(k); q.push({ dId, n, vlan, from }); };
+  const leave = (dId, n, vlan, from) => { // send out of interface n of device dId
+    const d = D(dId);
+    if (!forwarding(d, n)) return;
+    const pe = peerOf(dId, n); if (!pe) return;
+    const pd = D(pe.dev), pf = pd.ifs[pe.port.iface];
+    if (!forwarding(pd, pe.port.iface)) return;
+    path.push([dId, n], [pe.dev, pe.port.iface]);
+    if (pd.kind === 'switch') push(pe.dev, pe.port.iface, pf.mode === 'access' ? pf.vlan : vlan, from);
+    else out.push({ dev: pe.dev, n: pe.port.iface });
+  };
+  if (start.kind === 'switch' && ifname.startsWith('Vlan')) {
+    const v = +ifname.slice(4);
+    for (const [n, f] of Object.entries(start.ifs)) if (!f.svi && (f.mode === 'trunk' || f.vlan === v)) leave(devId, n, v);
+  } else leave(devId, ifname, 1);
+  while (q.length) {
+    const { dId, n: inIf, vlan } = q.shift(), d = D(dId);
+    const svi = d.ifs['Vlan' + vlan];
+    if (svi && svi.proto && svi.ip && !(d.id === devId)) out.push({ dev: dId, n: 'Vlan' + vlan });
+    for (const [n, f] of Object.entries(d.ifs)) {
+      if (f.svi || n === inIf) continue;
+      if (f.mode === 'trunk' || f.vlan === vlan) leave(dId, n, vlan);
+    }
+  }
+  return { ends: out, path };
+}
+function owner(ip) { for (const d of devs) for (const a of ipsOf(d)) if (a.ip === ip) return { dev: d, a }; return null; }
+function route(d, dst) {
+  const addrs = ipsOf(d).filter(a => a.up);
+  if (d.kind === 'pc') {
+    const a = addrs[0]; if (!a) return null;
+    if (sameNet(a.ip, dst, a.mask)) return { n: a.n, nh: dst, src: a.ip };
+    if (d.gw && sameNet(a.ip, d.gw, a.mask)) return { n: a.n, nh: d.gw, src: a.ip };
+    return null;
+  }
+  for (const a of addrs) if (sameNet(a.ip, dst, a.mask)) return { n: a.n, nh: dst, src: a.ip };
+  const rs = (d.routes || []).filter(r => sameNet(dst, r.net, r.mask)).sort((x, y) => maskLen(y.mask) - maskLen(x.mask));
+  for (const r of rs) {
+    if (isIp(r.via)) { const a = addrs.find(a => sameNet(a.ip, r.via, a.mask)); if (a) return { n: a.n, nh: r.via, src: a.ip }; }
+    else { const f = d.ifs[r.via]; if (f && f.proto) return { n: r.via, nh: dst, src: f.ip }; }
+  }
+  if (d.kind === 'switch' && d.gw) { const a = addrs[0]; if (a && sameNet(a.ip, d.gw, a.mask)) return { n: a.n, nh: d.gw, src: a.ip }; }
+  return null;
+}
+function deliver(d, dst, ttl = 8, marks = []) {
+  if (ipsOf(d).some(a => a.ip === dst && a.up)) return { ok: true, marks };
+  const r = route(d, dst);
+  if (!r) return { ok: false, why: 'noroute', marks };
+  const seg = segment(d.id, r.n);
+  const hit = seg.ends.find(e => ipsOf(D(e.dev)).some(a => a.n === e.n && a.ip === r.nh));
+  if (!hit) return { ok: false, why: 'arp', marks, at: d };
+  const nd = D(hit.dev);
+  d.arp[r.nh] = { mac: nd.kind === 'pc' ? pcIf(nd).mac : nd.ifs[hit.n].mac, n: r.n };
+  marks.push(...seg.path);
+  learn(seg.path, d, r.n);
+  if (ipsOf(nd).some(a => a.ip === dst)) return { ok: true, marks, last: nd };
+  if (nd.kind !== 'router' || ttl <= 0) return { ok: false, why: 'drop', marks };
+  return deliver(nd, dst, ttl - 1, marks);
+}
+function learn(path, src, n) {
+  const smac = src.kind === 'pc' ? pcIf(src).mac : src.ifs[n].mac;
+  for (let i = 0; i < path.length; i += 2) {
+    const [dId, ifn] = path[i + 1]; const d = D(dId);
+    if (d.kind === 'switch') { const f = d.ifs[ifn]; d.macs[smac] = { vlan: f.mode === 'access' ? f.vlan : 1, port: ifn }; }
+  }
+}
+function flash(marks) { const until = performance.now() + 600; for (const [dId, n] of marks) { const f = D(dId).ifs[n]; if (f) f.act = until; } }
+function ping(d, dst) {
+  const there = deliver(d, dst);
+  if (!there.ok) return { ok: false, why: there.why, marks: there.marks };
+  const r = route(d, dst);
+  const back = deliver(owner(dst).dev, r ? r.src : (ipsOf(d)[0] || {}).ip);
+  flash([...there.marks, ...(back.marks || [])]);
+  return { ok: back.ok, why: back.ok ? '' : 'drop', marks: there.marks };
+}
+
+/* ================= consoles ================= */
+const sessions = {}; // devId -> { lines: [], mode, ifc, vlan, hist: [], hi }
+function sess(d) { return sessions[d.id] || (sessions[d.id] = { lines: [], mode: d.kind === 'pc' ? 'pc' : 'user', ifc: null, vlan: null, hist: [], hi: 0 }); }
+function say(d, text, cls = '') { const s = sess(d); s.lines.push({ text, cls }); if (s.lines.length > 600) s.lines.splice(0, 100); if (open === d.id) renderOut(); }
+function prompt(d) {
+  const s = sess(d), h = d.hostname;
+  return d.kind === 'pc' ? 'C:\\>' : { user: h + '>', priv: h + '#', conf: h + '(config)#', if: h + '(config-if)#', vlan: h + '(config-vlan)#', line: h + '(config-line)#' }[s.mode];
+}
+const IFT = [['FastEthernet', ['f', 'fa', 'fastethernet']], ['GigabitEthernet', ['g', 'gi', 'gigabitethernet']], ['Serial', ['s', 'se', 'serial']], ['Vlan', ['v', 'vl', 'vlan']]];
+function parseIf(d, word) {
+  const m = /^([a-z]+)\s*(\d+(?:\/\d+){0,2})$/i.exec(word || ''); if (!m) return null;
+  const t = IFT.find(([long]) => long.toLowerCase().startsWith(m[1].toLowerCase()) && m[1].length >= 1);
+  if (!t) return null;
+  const name = t[0] + m[2];
+  if (t[0] === 'Vlan' && d.kind === 'switch') return name;
+  return d.ifs[name] ? name : null;
+}
+const short = n => n.replace('GigabitEthernet', 'Gi').replace('FastEthernet', 'Fa').replace('Serial', 'Se');
+
+// The command table: modes, words (<ip> <mask> <num> <word> <if> <rest>), what it does.
+const C = [];
+const cmd = (modes, pat, fn, kind) => C.push({ modes, w: pat.split(' '), fn, kind });
+const HELP = { show: 'Show running system information', configure: 'Enter configuration mode', terminal: 'Configure from the terminal', enable: 'Turn on privileged commands', disable: 'Turn off privileged commands', ping: 'Send echo messages', interface: 'Select an interface to configure', ip: 'IP configuration', address: 'Set the IP address of an interface', shutdown: 'Shutdown the selected interface', no: 'Negate a command or set its defaults', hostname: 'Set system\'s network name', exit: 'Exit from the current mode', end: 'Exit to privileged mode', brief: 'Brief summary of IP status and configuration', 'running-config': 'Current operating configuration', vlan: 'VLAN commands', switchport: 'Set switching mode characteristics', mode: 'Set trunking mode of the interface', access: 'Set access mode characteristics of the interface', trunk: 'Set trunking characteristics of the interface', route: 'Establish static routes', cdp: 'CDP information', neighbors: 'CDP neighbor entries', 'mac': 'MAC configuration', 'spanning-tree': 'Spanning Tree Subsystem', portfast: 'Enable an interface to move directly to forwarding on link up', clock: 'Configure serial interface clock', rate: 'Configure serial interface clock speed', copy: 'Copy from one file to another', do: 'To run exec commands in config mode', description: 'Interface specific description', name: 'Ascii name of the VLAN', interfaces: 'Interface status and configuration', status: 'Show interface line status', controllers: 'Interface controller status', 'address-table': 'MAC forwarding table', arp: 'ARP table', version: 'System hardware and software status', line: 'Configure a terminal line', secret: 'Assign the privileged level secret', 'default-gateway': 'Specify default gateway (if not routing IP)', write: 'Write running configuration to memory' };
+const EXEC = 'user priv';
+cmd('user', 'enable', (d, s) => { s.mode = 'priv'; });
+cmd('priv', 'disable', (d, s) => { s.mode = 'user'; });
+cmd('user priv', 'exit', (d, s) => { s.mode = 'user'; return `\n${d.hostname} con0 is now available\n\nPress RETURN to get started.`; });
+cmd('priv', 'configure terminal', (d, s) => { s.mode = 'conf'; return 'Enter configuration commands, one per line.  End with CNTL/Z.'; });
+cmd(EXEC, 'show ip interface brief', showIpBrief);
+cmd(EXEC, 'show interfaces status', showIntStatus, 'switch');
+cmd(EXEC, 'show interfaces <if>', showInt);
+cmd(EXEC, 'show vlan brief', showVlan, 'switch');
+cmd('priv', 'show running-config', showRun);
+cmd(EXEC, 'show cdp neighbors', showCdp);
+cmd(EXEC, 'show mac address-table', showMac, 'switch');
+cmd(EXEC, 'show ip route', showRoute, 'router');
+cmd(EXEC, 'show ip arp', showArp); cmd(EXEC, 'show arp', showArp);
+cmd(EXEC, 'show controllers <if>', showCtl, 'router');
+cmd(EXEC, 'show version', d => `Cisco IOS Software, ${d.kind === 'router' ? 'ISR Software (X86_64_LINUX_IOSD-UNIVERSALK9-M), Version 17.9.4' : 'C2960 Software (C2960-LANBASEK9-M), Version 15.2(7)E8'}\n\n${d.hostname} uptime is ${Math.floor(now() / 60000)} minutes\ncisco ${d.model} processor\n...`);
+cmd(EXEC, 'ping <ip>', (d, s, a) => iosPing(d, a[0]));
+cmd('priv', 'copy running-config startup-config', () => 'Destination filename [startup-config]? \nBuilding configuration...\n[OK]');
+cmd('priv', 'write memory', () => 'Building configuration...\n[OK]');
+cmd('conf', 'hostname <word>', (d, s, a) => { d.hostname = a[0]; d.g.querySelector('.tagname').textContent = a[0]; d.token.querySelector('text').textContent = a[0]; });
+cmd('conf', 'interface <if>', (d, s, a) => { if (!d.ifs[a[0]]) d.ifs[a[0]] = iface({ shutdown: true, svi: true, mac: mac('0019e8') }); s.mode = 'if'; s.ifc = a[0]; });
+cmd('conf', 'vlan <num>', (d, s, a) => { const v = +a[0]; if (v < 1 || v > 4094) return err('% Bad VLAN list'); d.vlans[v] = d.vlans[v] || 'VLAN' + String(v).padStart(4, '0'); s.mode = 'vlan'; s.vlan = v; }, 'switch');
+cmd('conf', 'ip route <ip> <mask> <hop>', (d, s, a) => { if (!validMask(a[1])) return err('%Inconsistent address and mask'); d.routes = d.routes.filter(r => !(r.net === a[0] && r.mask === a[1])); d.routes.push({ net: netOf(a[0], a[1]), mask: a[1], via: a[2] }); }, 'router');
+cmd('conf', 'no ip route <ip> <mask> <hop>', (d, s, a) => { d.routes = d.routes.filter(r => !(r.net === netOf(a[0], a[1]) && r.mask === a[1])); }, 'router');
+cmd('conf', 'ip default-gateway <ip>', (d, s, a) => { d.gw = a[0]; }, 'switch');
+cmd('conf', 'enable secret <word>', (d, s, a) => { d.secret = a[0]; });
+cmd('conf', 'no ip domain-lookup', () => {});
+cmd('conf', 'service password-encryption', () => {});
+cmd('conf', 'banner motd <rest>', () => {});
+cmd('conf', 'line console <num>', (d, s) => { s.mode = 'line'; });
+cmd('conf', 'line vty <num> <num>', (d, s) => { s.mode = 'line'; });
+cmd('line', 'password <word>', () => {}); cmd('line', 'login', () => {}); cmd('line', 'logging synchronous', () => {}); cmd('line', 'exec-timeout <num> <num>', () => {}); cmd('line', 'transport input <word>', () => {});
+cmd('if', 'ip address <ip> <mask>', (d, s, a) => { const f = d.ifs[s.ifc]; if (d.kind === 'switch' && !f.svi) return err('% Invalid input detected at \'^\' marker.'); if (!validMask(a[1])) return err('% Bad mask 0x' + (ipn(a[1]) >>> 0).toString(16).toUpperCase() + ' for address ' + a[0]); if (ipn(a[0]) === (ipn(a[0]) & ipn(a[1])) >>> 0) return err('Bad mask /' + maskLen(a[1]) + ' for address ' + a[0]); f.ip = a[0]; f.mask = a[1]; });
+cmd('if', 'no ip address', (d, s) => { const f = d.ifs[s.ifc]; f.ip = ''; f.mask = ''; });
+cmd('if', 'shutdown', (d, s) => { const f = d.ifs[s.ifc]; if (!f.shutdown) { f.shutdown = true; later.push({ at: now() + 300, fn: () => log(d, `%LINK-5-CHANGED: Interface ${s.ifc}, changed state to administratively down`) }); } });
+cmd('if', 'no shutdown', (d, s) => { const f = d.ifs[s.ifc]; if (f.shutdown) { f.shutdown = false; f.wasShut = true; } });
+cmd('if', 'description <rest>', (d, s, a) => { d.ifs[s.ifc].desc = a[0]; });
+cmd('if', 'switchport mode access', (d, s) => { d.ifs[s.ifc].mode = 'access'; }, 'switch');
+cmd('if', 'switchport mode trunk', (d, s) => { d.ifs[s.ifc].mode = 'trunk'; }, 'switch');
+cmd('if', 'switchport access vlan <num>', (d, s, a) => { const v = +a[0]; if (!d.vlans[v]) { d.vlans[v] = 'VLAN' + String(v).padStart(4, '0'); say(d, '% Access VLAN does not exist. Creating vlan ' + v); } d.ifs[s.ifc].vlan = v; }, 'switch');
+cmd('if', 'switchport trunk allowed vlan <rest>', () => {}, 'switch');
+cmd('if', 'spanning-tree portfast', (d, s) => { d.ifs[s.ifc].portfast = true; return '%Warning: portfast should only be enabled on ports connected to a single\n host. Connecting hubs, concentrators, switches, bridges, etc... to this\n interface  when portfast is enabled, can cause temporary bridging loops.\n Use with CAUTION'; }, 'switch');
+cmd('if', 'no spanning-tree portfast', (d, s) => { d.ifs[s.ifc].portfast = false; }, 'switch');
+cmd('if', 'clock rate <num>', (d, s, a) => { if (!s.ifc.startsWith('Serial')) return err('% Invalid input detected at \'^\' marker.'); d.ifs[s.ifc].clock = +a[0]; }, 'router');
+cmd('if', 'speed <word>', () => {}); cmd('if', 'duplex <word>', () => {});
+cmd('vlan', 'name <word>', (d, s, a) => { d.vlans[s.vlan] = a[0]; }, 'switch');
+for (const m of ['conf', 'if', 'vlan', 'line']) {
+  cmd(m, 'exit', (d, s) => { s.mode = s.mode === 'conf' ? 'priv' : 'conf'; if (s.mode === 'priv') later.push({ at: now() + 200, fn: () => log(d, '%SYS-5-CONFIG_I: Configured from console by console') }); });
+  cmd(m, 'end', (d, s) => { s.mode = 'priv'; later.push({ at: now() + 200, fn: () => log(d, '%SYS-5-CONFIG_I: Configured from console by console') }); });
+}
+const err = t => ({ err: t });
+
+function tokOk(t, w, d) {
+  if (t === '<ip>' || t === '<mask>') return isIp(w);
+  if (t === '<num>') return /^\d+$/.test(w);
+  if (t === '<word>' || t === '<rest>') return w.length > 0;
+  if (t === '<if>') return !!parseIf(d, w);
+  if (t === '<hop>') return isIp(w) || !!parseIf(d, w);
+  return null;
+}
+function words(line, d) { // join "gigabitethernet 0/0/0" after interface-ish keywords
+  const w = line.trim().split(/\s+/).filter(Boolean), out = [];
+  for (let i = 0; i < w.length; i++) {
+    const prev = (out[out.length - 1] || '').toLowerCase();
+    if (/^[a-z]+$/i.test(w[i]) && w[i + 1] && /^\d/.test(w[i + 1]) && ['int', 'inte', 'inter', 'interf', 'interfa', 'interfac', 'interface', 'interfaces', 'cont', 'contr', 'contro', 'control', 'controll', 'controlle', 'controller', 'controllers'].some(k => k.startsWith(prev) && prev.length >= 3) && parseIf(d, w[i] + w[i + 1])) { out.push(w[i] + w[i + 1]); i++; }
+    else out.push(w[i]);
+  }
+  return out;
+}
+function match(d, mode, ws) {
+  let cands = C.filter(c => c.modes.split(' ').includes(mode) && (!c.kind || c.kind === d.kind));
+  for (let i = 0; i < ws.length; i++) {
+    const w = ws[i], lw = w.toLowerCase();
+    const next = cands.filter(c => c.w[i] === '<rest>' || (c.w[i] !== undefined && (c.w[i].startsWith('<') ? tokOk(c.w[i], w, d) : c.w[i].startsWith(lw))));
+    if (cands.some(c => c.w[i] === '<rest>') && !next.some(c => c.w[i] !== '<rest>')) { const c = cands.find(c => c.w[i] === '<rest>'); return { c, args: [...argsOf(c, ws.slice(0, i), d), ws.slice(i).join(' ')] }; }
+    if (!next.length) return { bad: i };
+    const kws = [...new Set(next.filter(c => !c.w[i].startsWith('<')).map(c => c.w[i]))];
+    if (kws.length > 1 && !kws.includes(lw) && !next.some(c => c.w[i].startsWith('<'))) return { amb: w };
+    cands = kws.includes(lw) ? next.filter(c => c.w[i] === lw || c.w[i].startsWith('<')) : next;
+  }
+  const full = cands.filter(c => c.w.length === ws.length);
+  if (!full.length) return { inc: true, cands };
+  return { c: full[0], args: argsOf(full[0], ws, d) };
+}
+function argsOf(c, ws, d) { return c.w.map((t, i) => t.startsWith('<') ? (t === '<if>' ? parseIf(d, ws[i]) : t === '<hop>' ? (isIp(ws[i]) ? ws[i] : parseIf(d, ws[i])) : ws[i]) : null).filter((x, i) => c.w[i].startsWith('<') && x !== undefined); }
+function help(d, mode, line) {
+  const partial = !/\s$/.test(line) && line.trim().length;
+  const ws = words(line, d), idx = partial ? ws.length - 1 : ws.length, pre = partial ? ws.slice(0, -1) : ws;
+  let cands = C.filter(c => c.modes.split(' ').includes(mode) && (!c.kind || c.kind === d.kind));
+  for (let i = 0; i < pre.length; i++) cands = cands.filter(c => c.w[i] && (c.w[i].startsWith('<') ? tokOk(c.w[i], pre[i], d) : c.w[i].startsWith(pre[i].toLowerCase())));
+  const last = partial ? ws[ws.length - 1].toLowerCase() : '';
+  const opts = [...new Set(cands.map(c => c.w[idx]).filter(Boolean).filter(t => t.startsWith('<') || t.startsWith(last)))];
+  if (partial) return opts.filter(t => !t.startsWith('<')).join('  ') || '% Unrecognized command';
+  if (cands.some(c => c.w.length === idx)) opts.push('<cr>');
+  const desc = { '<ip>': 'A.B.C.D', '<mask>': 'A.B.C.D', '<num>': '<1-4094>', '<word>': 'WORD', '<rest>': 'LINE', '<if>': 'Interface, like g0/0/0', '<hop>': 'Forwarding router\'s address, or an exit interface', '<cr>': '<cr>' };
+  return opts.map(t => '  ' + (t.startsWith('<') ? desc[t].padEnd(20) : t.padEnd(20) + (HELP[t] || ''))).join('\n') || '% Unrecognized command';
+}
+function run(d, line) {
+  const s = sess(d), pr = prompt(d);
+  say(d, pr + line, 'cmd');
+  if (!line.trim()) return;
+  s.hist.push(line); s.hi = s.hist.length;
+  if (d.kind === 'pc') return runPC(d, line);
+  let ws = words(line, d), mode = s.mode, isDo = false;
+  if (/^do$/i.test(ws[0]) && !['user', 'priv'].includes(mode)) { ws = ws.slice(1); mode = 'priv'; isDo = true; }
+  const m = match(d, mode, ws);
+  if (m.bad !== undefined) { const col = pr.length + line.indexOf(ws[m.bad], line.split(/\s+/).slice(0, m.bad).join(' ').length); say(d, ' '.repeat(Math.max(0, col)) + '^\n% Invalid input detected at \'^\' marker.', 'err'); return; }
+  if (m.amb) { say(d, `% Ambiguous command:  "${line.trim()}"`, 'err'); return; }
+  if (m.inc) { say(d, '% Incomplete command.', 'err'); return; }
+  const r = m.c.fn(d, isDo ? Object.assign({}, s, { mode: 'priv' }) : s, m.args);
+  if (r && r.err) say(d, r.err, 'err'); else if (r) say(d, r);
+  check();
+}
+
+/* show commands */
+function ifStatus(d, n) { const f = d.ifs[n]; return f.shutdown ? ['administratively down', 'down'] : [f.phys || (f.svi && f.proto) ? 'up' : 'down', f.proto ? 'up' : 'down']; }
+function showIpBrief(d) {
+  const rows = Object.keys(d.ifs).filter(n => !(d.kind === 'switch' && n === 'Vlan1' && false));
+  return 'Interface              IP-Address      OK? Method Status                Protocol\n' + rows.map(n => { const f = d.ifs[n], [st, pr] = ifStatus(d, n); return `${n.padEnd(23)}${(f.ip || 'unassigned').padEnd(16)}YES ${(f.ip ? 'manual' : 'unset').padEnd(7)}${st.padEnd(22)}${pr}`; }).join('\n');
+}
+function showIntStatus(d) {
+  return 'Port      Name               Status       Vlan       Duplex  Speed Type\n' + Object.entries(d.ifs).filter(([, f]) => !f.svi).map(([n, f]) => {
+    const st = f.shutdown ? 'disabled' : f.phys ? 'connected' : 'notconnect';
+    const gi = n.startsWith('Gig');
+    return `${short(n).padEnd(10)}${(f.desc || '').slice(0, 18).padEnd(19)}${st.padEnd(13)}${(f.mode === 'trunk' ? 'trunk' : String(f.vlan)).padEnd(11)}${(f.phys ? 'a-full' : 'auto').padStart(6)}${(f.phys ? (gi ? 'a-1000' : 'a-100') : 'auto').padStart(7)} ${gi ? (f.medium === 'sfp' ? '1000BaseSX SFP' : '10/100/1000BaseTX') : '10/100BaseTX'}`;
+  }).join('\n');
+}
+function showInt(d, s, a) {
+  const n = a[0], f = d.ifs[n], [st, pr] = ifStatus(d, n);
+  return `${n} is ${st}, line protocol is ${pr}\n  Hardware is ${n.startsWith('Serial') ? 'NIM-2T' : n.startsWith('Vlan') ? 'Ethernet SVI' : d.kind === 'router' ? 'ISR4321-2x1GE' : n.startsWith('Gig') ? 'Gigabit Ethernet' : 'Fast Ethernet'}, address is ${f.mac} (bia ${f.mac})${f.desc ? `\n  Description: ${f.desc}` : ''}${f.ip ? `\n  Internet address is ${f.ip}/${maskLen(f.mask)}` : ''}\n  MTU 1500 bytes, BW ${n.startsWith('Serial') ? '1544' : n.startsWith('Gig') ? '1000000' : '100000'} Kbit/sec, DLY 10 usec,\n  ${f.phys ? 'Full-duplex' : 'Auto-duplex'}, ${f.phys ? (n.startsWith('Gig') ? '1000Mb/s' : '100Mb/s') : 'Auto-speed'}\n  ...`;
+}
+function showVlan(d) {
+  const ports = v => Object.entries(d.ifs).filter(([, f]) => !f.svi && f.mode === 'access' && f.vlan === +v).map(([n]) => short(n));
+  const wrap = arr => { const lines = []; for (let i = 0; i < arr.length; i += 4) lines.push(arr.slice(i, i + 4).join(', ')); return lines.length ? lines : ['']; };
+  let out = 'VLAN Name                             Status    Ports\n---- -------------------------------- --------- -------------------------------\n';
+  for (const v of Object.keys(d.vlans).map(Number).sort((a, b) => a - b)) { const w = wrap(ports(v)); out += `${String(v).padEnd(5)}${d.vlans[v].padEnd(33)}active    ${w[0]}\n` + w.slice(1).map(l => ' '.repeat(48) + l + '\n').join(''); }
+  return out + '1002 fddi-default                     act/unsup \n1003 token-ring-default               act/unsup \n1004 fddinet-default                  act/unsup \n1005 trnet-default                    act/unsup ';
+}
+function showRun(d) {
+  let o = `Building configuration...\n\nCurrent configuration : ${1200 + Object.keys(d.ifs).length * 40} bytes\n!\nversion ${d.kind === 'router' ? '17.9' : '15.2'}\n!\nhostname ${d.hostname}\n!\n${d.secret ? `enable secret 9 $9$${btoa(d.secret).slice(0, 14)}\n!\n` : ''}`;
+  if (d.kind === 'switch') for (const v of Object.keys(d.vlans).filter(v => v !== '1')) o += `vlan ${v}\n name ${d.vlans[v]}\n!\n`;
+  for (const [n, f] of Object.entries(d.ifs)) {
+    o += `interface ${n}\n`;
+    if (f.desc) o += ` description ${f.desc}\n`;
+    if (d.kind === 'switch' && !f.svi) { if (f.mode === 'trunk') o += ' switchport mode trunk\n'; else { if (f.vlan !== 1) o += ` switchport access vlan ${f.vlan}\n`; if (f.mode === 'access' && (f.vlan !== 1 || f.portfast)) o += ' switchport mode access\n'; } if (f.portfast) o += ' spanning-tree portfast\n'; }
+    o += f.ip ? ` ip address ${f.ip} ${f.mask}\n` : (d.kind === 'router' || f.svi ? ' no ip address\n' : '');
+    if (f.clock) o += ` clock rate ${f.clock}\n`;
+    if (f.shutdown) o += ' shutdown\n';
+    o += '!\n';
+  }
+  for (const r of d.routes || []) o += `ip route ${r.net} ${r.mask} ${r.via}\n`;
+  if (d.gw) o += `ip default-gateway ${d.gw}\n`;
+  return o + '!\nline con 0\nline vty 0 4\n login\n!\nend';
+}
+function showCdp(d) {
+  const rows = [];
+  for (const n of Object.keys(d.ifs)) {
+    const f = d.ifs[n]; if (!f.proto || f.svi) continue;
+    const pe = peerOf(d.id, n); if (!pe) continue;
+    const pd = D(pe.dev); if (pd.kind === 'pc') continue;
+    const sh = x => x.replace('GigabitEthernet', 'Gig ').replace('FastEthernet', 'Fas ').replace('Serial', 'Ser ');
+    rows.push(`${pd.hostname.padEnd(17)}${sh(n).padEnd(18)}${'163'.padStart(7)}${(pd.kind === 'router' ? 'R B S I' : 'S I').padStart(13)}  ${(pd.kind === 'router' ? 'ISR4321/K' : 'WS-C2960+').padEnd(10)}${sh(pe.port.iface)}`);
+  }
+  return 'Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge\n                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,\n                  D - Remote, C - CVTA, M - Two-port Mac Relay\n\nDevice ID        Local Intrfce     Holdtme    Capability  Platform  Port ID\n' + rows.join('\n') + `\n\nTotal cdp entries displayed : ${rows.length}`;
+}
+function showMac(d) {
+  const rows = Object.entries(d.macs).map(([m, e]) => `${String(e.vlan).padStart(4)}    ${m}    DYNAMIC     ${short(e.port)}`);
+  return `          Mac Address Table\n-------------------------------------------\n\nVlan    Mac Address       Type        Ports\n----    -----------       --------    -----\n${rows.join('\n')}\nTotal Mac Addresses for this criterion: ${rows.length}`;
+}
+function showRoute(d) {
+  let o = 'Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP\n       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area\n       * - candidate default\n\n';
+  const def = (d.routes || []).find(r => r.net === '0.0.0.0');
+  o += def ? `Gateway of last resort is ${isIp(def.via) ? def.via : '0.0.0.0'} to network 0.0.0.0\n\n` : 'Gateway of last resort is not set\n\n';
+  const lines = [];
+  for (const [n, f] of Object.entries(d.ifs)) if (f.ip && f.proto) { lines.push([netOf(f.ip, f.mask), `C        ${netOf(f.ip, f.mask)}/${maskLen(f.mask)} is directly connected, ${n}`]); lines.push([f.ip, `L        ${f.ip}/32 is directly connected, ${n}`]); }
+  for (const r of d.routes || []) lines.push([r.net, `S${r.net === '0.0.0.0' ? '*' : ' '}       ${r.net}/${maskLen(r.mask)} [1/0] ${isIp(r.via) ? 'via ' + r.via : 'is directly connected, ' + r.via}`]);
+  return o + lines.sort((a, b) => ipn(a[0]) - ipn(b[0])).map(l => l[1]).join('\n');
+}
+function showArp(d) {
+  const rows = [];
+  for (const [n, f] of Object.entries(d.ifs)) if (f.ip && f.proto) rows.push(`Internet  ${f.ip.padEnd(17)}${'-'.padStart(5)}   ${f.mac}  ARPA   ${n}`);
+  for (const [ip, e] of Object.entries(d.arp)) rows.push(`Internet  ${ip.padEnd(17)}${'0'.padStart(5)}   ${e.mac}  ARPA   ${e.n}`);
+  return 'Protocol  Address          Age (min)  Hardware Addr   Type   Interface\n' + rows.join('\n');
+}
+function showCtl(d, s, a) {
+  const n = a[0]; if (!n.startsWith('Serial')) return err('% Invalid input detected at \'^\' marker.');
+  const pe = peerOf(d.id, n), f = d.ifs[n];
+  if (!pe) return `Interface ${n}\nHardware is NIM-2T\nNo serial cable attached\n...`;
+  const dce = pe.cable.dce.dev === d.id && portOf(pe.cable.dce).iface === n;
+  return `Interface ${n}\nHardware is NIM-2T\n${dce ? 'DCE' : 'DTE'} V.35, ${dce ? (f.clock ? 'clock rate ' + f.clock : 'clocks stopped') : 'clocks detected'}.\n...`;
+}
+function iosPing(d, dst) {
+  const first = !d.arp[dst] && !route(d, dst) ? false : !d.arp[(route(d, dst) || {}).nh];
+  const r = ping(d, dst);
+  const marks = r.ok ? (first ? '.!!!!' : '!!!!!') : '.....';
+  const n = (marks.match(/!/g) || []).length;
+  return `Type escape sequence to abort.\nSending 5, 100-byte ICMP Echos to ${dst}, timeout is 2 seconds:\n${marks}\nSuccess rate is ${n * 20} percent (${n}/5)${n ? ', round-trip min/avg/max = 1/1/2 ms' : ''}`;
+}
+let pinged = new Set();
+function runPC(d, line) {
+  const w = line.trim().split(/\s+/), c = w[0].toLowerCase();
+  if (c === 'ipconfig') {
+    const all = (w[1] || '').toLowerCase() === '/all';
+    say(d, `\nEthernet adapter Ethernet0:\n\n   Connection-specific DNS Suffix  . :${all ? `\n   Physical Address. . . . . . . . . : ${pcIf(d).mac.replace(/\./g, '').toUpperCase().match(/../g).join('-')}` : ''}\n   IPv4 Address. . . . . . . . . . . : ${d.ip || '0.0.0.0'}\n   Subnet Mask . . . . . . . . . . . : ${d.mask || '0.0.0.0'}\n   Default Gateway . . . . . . . . . : ${d.gw}\n`);
+  } else if (c === 'ping' && w[1]) {
+    const dst = w[1]; if (!isIp(dst)) { say(d, `Ping request could not find host ${dst}. Please check the name and try again.`); return; }
+    if (!d.ip) { say(d, 'PING: transmit failed. General failure.'); return; }
+    if (!pcIf(d).proto) { say(d, `\nPinging ${dst} with 32 bytes of data:\nPING: transmit failed. General failure.\nPING: transmit failed. General failure.\nPING: transmit failed. General failure.\nPING: transmit failed. General failure.\n\nThe network cable is unplugged.`); return; }
+    const r = ping(d, dst);
+    let out = `\nPinging ${dst} with 32 bytes of data:\n`;
+    let got = 0;
+    for (let i = 0; i < 4; i++) {
+      if (r.ok) { out += `Reply from ${dst}: bytes=32 time<1ms TTL=${owner(dst).dev.kind === 'router' ? 255 : 128}\n`; got++; }
+      else if (r.why === 'noroute' || (r.why === 'arp' && !sameNet(d.ip, dst, d.mask))) out += `Reply from ${d.ip}: Destination host unreachable.\n`;
+      else out += 'Request timed out.\n';
+    }
+    out += `\nPing statistics for ${dst}:\n    Packets: Sent = 4, Received = ${r.why === 'noroute' ? 4 : got}, Lost = ${r.why === 'noroute' ? 0 : 4 - got} (${r.why === 'noroute' ? 0 : (4 - got) * 25}% loss),`;
+    say(d, out, r.ok ? 'ok' : '');
+    if (r.ok) pinged.add(d.id + '>' + dst);
+    check();
+  } else if (c === 'arp' && w[1] === '-a') {
+    const rows = Object.entries(d.arp).map(([ip, e]) => `  ${ip.padEnd(22)}${e.mac.replace(/\./g, '').match(/../g).join('-').padEnd(22)}dynamic`);
+    say(d, rows.length ? `\nInterface: ${d.ip} --- 0x3\n  Internet Address      Physical Address      Type\n${rows.join('\n')}` : 'No ARP Entries Found.');
+  } else if (c === 'cls') { sess(d).lines = []; renderOut(); }
+  else if (c === 'help' || c === '?') say(d, 'ipconfig [/all]   ping <address>   arp -a   cls');
+  else say(d, `'${w[0]}' is not recognized as an internal or external command,\noperable program or batch file.`);
+}
+
+/* ================= console panel ================= */
+let open = null, tabsOpen = [];
+const conEl = $('#con'), outEl = $('#out'), inEl = $('#in');
+function consoleVia(d) { if (d.kind === 'pc') return d; const c = cables.find(c => c.type === 'console' && c.a && c.b && [c.a.dev, c.b.dev].includes(d.id)); return c ? D(c.a.dev === d.id ? c.b.dev : c.a.dev) : null; }
+function openConsole(id) {
+  const d = D(id), via = consoleVia(d);
+  if (!via) { toast(`Plug a console cable from a PC's COM1 port into ${d.name}'s CONSOLE port first. That's how you reach a device with no address yet.`); return; }
+  if (!tabsOpen.includes(id)) { tabsOpen.push(id); if (!sessions[id] && d.kind !== 'pc') say(d, `\n\nPress RETURN to get started!\n`); if (d.kind === 'pc' && !sess(d).lines.length) say(d, 'Microsoft Windows [Version 10.0.22631]\n(c) Microsoft Corporation. All rights reserved.\n'); }
+  open = id; renderTabs(); renderOut(); if (!conEl.classList.contains('on')) { const edge = Math.max(...devs.map(x => (x.x + x.w) * view.z + view.x)); const room = innerWidth - Math.min(470, innerWidth - 32) - 40; if (edge > room) { view.x -= Math.min(edge - room, Math.max(0, Math.min(...devs.map(x => x.x * view.z + view.x)) - 360)); applyView(); } } conEl.classList.add('on'); setTimeout(() => inEl.focus(), 60);
+  check();
+}
+function renderTabs() {
+  $('#tabs').innerHTML = tabsOpen.map(id => `<button class="tab" type="button" role="tab" data-tab="${id}" aria-selected="${id === open}">${esc(D(id).hostname)}<span class="x" data-close="${id}" aria-label="Close">×</span></button>`).join('');
+  const d = D(open); const via = d && consoleVia(d);
+  $('#via').textContent = !d ? '' : d.kind === 'pc' ? `${d.name} · Command Prompt` : `${d.hostname} · console from ${via ? via.name : '…'}, 9600 baud`;
+  const pc = d && d.kind === 'pc';
+  $('#pcset').hidden = !pc;
+  if (pc) { $('#pcIp').value = d.ip; $('#pcMask').value = d.mask; $('#pcGw').value = d.gw; }
+}
+function renderOut() {
+  const d = D(open); if (!d) return;
+  outEl.innerHTML = sess(d).lines.map(l => `<span class="${l.cls}">${esc(l.text)}</span>`).join('\n');
+  outEl.scrollTop = outEl.scrollHeight;
+  $('#prompt').textContent = prompt(d);
+}
+$('#tabs').addEventListener('click', e => { const x = e.target.closest('[data-close]'); if (x) { tabsOpen = tabsOpen.filter(t => t !== x.dataset.close); open = tabsOpen[tabsOpen.length - 1] || null; if (!open) conEl.classList.remove('on'); renderTabs(); renderOut(); return; } const t = e.target.closest('[data-tab]'); if (t) { open = t.dataset.tab; renderTabs(); renderOut(); inEl.focus(); } });
+$('#conClose').addEventListener('click', () => conEl.classList.remove('on'));
+inEl.addEventListener('keydown', e => {
+  const d = D(open); if (!d) return; const s = sess(d);
+  if (e.key === 'Enter') { const v = inEl.value; inEl.value = ''; run(d, v); renderOut(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); if (s.hi > 0) { s.hi--; inEl.value = s.hist[s.hi]; } }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); if (s.hi < s.hist.length) { s.hi++; inEl.value = s.hist[s.hi] || ''; } }
+  else if (e.key === '?' && d.kind !== 'pc') { e.preventDefault(); say(d, prompt(d) + inEl.value + '?', 'cmd'); say(d, help(d, s.mode, inEl.value)); renderOut(); }
+  else if (e.key === 'Tab' && d.kind !== 'pc') {
+    e.preventDefault();
+    const v = inEl.value, ws = v.split(/\s+/), last = ws[ws.length - 1].toLowerCase(); if (!last) return;
+    const opts = help(d, s.mode, v).split(/\s+/).filter(o => o && o.startsWith(last));
+    if (opts.length === 1) { ws[ws.length - 1] = opts[0]; inEl.value = ws.join(' ') + ' '; }
+  } else if (e.key === 'z' && e.ctrlKey && d.kind !== 'pc') { e.preventDefault(); if (!['user', 'priv'].includes(s.mode)) { say(d, prompt(d) + '^Z', 'cmd'); s.mode = 'priv'; renderOut(); } }
+  e.stopPropagation();
+});
+$('#pcset').addEventListener('submit', e => {
+  e.preventDefault(); const d = D(open);
+  const ip = $('#pcIp').value.trim(), mask = $('#pcMask').value.trim(), gw = $('#pcGw').value.trim();
+  if (ip && !isIp(ip)) return toast('That address isn\'t four numbers from 0 to 255, like 192.168.10.11.');
+  if (mask && !validMask(mask)) return toast('A subnet mask is ones then zeros, like 255.255.255.0.');
+  if (gw && !isIp(gw)) return toast('The gateway is the router\'s address on this LAN, like 192.168.10.1.');
+  d.ip = ip; d.mask = mask; d.gw = gw; toast(`${d.name} now has ${ip || 'no address'}.`); check();
+});
+
+/* ================= the brief ================= */
+const TASKS = [
+  { t: 'Plug a <b>console</b> cable from PC-A\'s COM1 into R1\'s CONSOLE port, then double-click R1.', ok: () => tabsOpen.includes('R1') },
+  { t: 'On R1, give <code>G0/0/0</code> the address <code>192.168.10.1 255.255.255.0</code> and bring it up.', ok: () => { const f = D('R1').ifs['GigabitEthernet0/0/0']; return f.ip === '192.168.10.1' && f.mask === '255.255.255.0' && !f.shutdown; } },
+  { t: 'Cable R1 G0/0/0, PC-A and PC-B to S1 with straight-through cables.', ok: () => ['R1', 'PC-A', 'PC-B'].every(id => { const n = id === 'R1' ? 'GigabitEthernet0/0/0' : 'FastEthernet0'; const pe = peerOf(id, n); return pe && pe.dev === 'S1'; }) },
+  { t: 'Give PC-B <code>192.168.10.11</code>, mask <code>255.255.255.0</code>, gateway <code>192.168.10.1</code>.', ok: () => { const d = D('PC-B'); return d.ip === '192.168.10.11' && d.mask === '255.255.255.0' && d.gw === '192.168.10.1'; } },
+  { t: 'From PC-B, <code>ping 192.168.10.1</code>. Watch S1\'s port lights first: amber means spanning tree is still listening.', ok: () => pinged.has('PC-B>192.168.10.1') },
+];
+let doneBefore = new Set();
+function check() {
+  let firstOpen = -1;
+  const html = TASKS.map((k, i) => { const ok = k.ok(); if (ok && !doneBefore.has(i)) { doneBefore.add(i); } if (!ok && firstOpen < 0) firstOpen = i; return `<li class="${ok ? 'done' : ''}${!ok && firstOpen === i ? ' next' : ''}"><span>${k.t}</span></li>`; }).join('');
+  $('#tasks').innerHTML = html;
+  const n = TASKS.filter(k => k.ok()).length;
+  $('#count').textContent = n === TASKS.length ? 'All done' : `${n} of ${TASKS.length}`;
+}
+$('#hideBrief').addEventListener('click', () => { const b = $('#brief'); b.classList.toggle('min'); $('#hideBrief').textContent = b.classList.contains('min') ? 'Show the brief' : 'Hide the brief'; });
+$('#brief').addEventListener('click', e => { if (e.target.closest('h1') && $('#brief').classList.contains('min')) $('#hideBrief').click(); });
+
+/* ================= tray ================= */
+$('#tray').innerHTML = Object.entries(CABLES).map(([k, c]) => `<button class="cable" type="button" data-cable="${k}" aria-pressed="${k === armed}"><svg viewBox="0 0 34 28" aria-hidden="true"><path d="M3 22c6-16 18 6 22-10" fill="none" stroke="var(${c.color})" stroke-width="${Math.min(4, c.w)}" stroke-linecap="round"/><rect x="${k === 'serial' ? 22 : 23}" y="3" width="${k === 'serial' ? 11 : 8}" height="${k === 'fiber' ? 7 : 9}" rx="1.4" fill="${k === 'straight' || k === 'cross' || k === 'console' ? 'rgba(214,226,240,.55)' : k === 'fiber' ? 'var(--c-fiber)' : 'oklch(35% 0.01 260)'}"/></svg><b>${c.name}</b><span>${c.hint}</span></button>`).join('');
+$('#tray').addEventListener('click', e => {
+  const b = e.target.closest('[data-cable]'); if (!b) return;
+  armed = b.dataset.cable; document.querySelectorAll('.cable').forEach(x => x.setAttribute('aria-pressed', x === b));
+  toast(`${CABLES[armed].name}: drag from a port to another port, or click one port and then the other.`);
+});
+
+/* ================= pointer ================= */
+let lastDown = null, drag = null, downAt = null, mouse = { x: 0, y: 0 }, world = { x: 0, y: 0 };
+function portFromEvent(e) { const pg = e.target.closest && e.target.closest('.port:not(.decor)'); return pg ? { dev: pg.dataset.dev, port: pg.dataset.port, el: pg } : null; }
+function fits(type, end) { const p = portAt(end.dev, end.port); return CABLES[type].fits.includes(p.type); }
+function markFits() {
+  document.querySelectorAll('.port').forEach(pg => pg.classList.remove('fits', 'hot'));
+  board.classList.toggle('dim-other', !!hand);
+  document.body.classList.toggle('hand', !!hand);
+  if (!hand) return;
+  const t = hand.cable.type, other = hand.cable[hand.end === 'a' ? 'b' : 'a'];
+  document.querySelectorAll('.port:not(.decor)').forEach(pg => {
+    const end = { dev: pg.dataset.dev, port: pg.dataset.port };
+    if (fits(t, end) && !occupied(end.dev, end.port) && !(other && other.dev === end.dev)) pg.classList.add('fits');
+  });
+}
+function seat(c, e, end) {
+  c[e] = end; c.seat = c.seat || {}; c.seat[e] = { t: performance.now() }; click();
+  if (c.type === 'serial' && c.dce === null) c.dce = end;
+  hand = null; markFits(); evalLinks(); check();
+  if (c.a && c.b) {
+    const pa = portOf(c.a), pb = portOf(c.b), da = D(c.a.dev), db = D(c.b.dev);
+    if (c.type === 'cross' && da.kind !== db.kind) toast('Crossover between unlike devices: these ports have Auto-MDIX, so it still links. Older gear needs straight-through here.');
+    if (c.type === 'straight' && da.kind === db.kind) toast('Straight-through between like devices: Auto-MDIX swaps the pairs for you. On older gear this needs a crossover.');
+    if (c.type === 'console') toast(`Console cable in. Double-click ${da.kind === 'pc' ? db.name : da.name} to open its console from ${da.kind === 'pc' ? da.name : db.name}.`);
+    if (c.type === 'serial') toast(`${D(c.dce.dev).name} has the DCE end. It needs a clock rate before the line protocol comes up.`);
+    if (pa.type === 'eth' && da.kind === 'switch' && !da.ifs[pa.iface].portfast || pb.type === 'eth' && db.kind === 'switch' && !db.ifs[pb.iface].portfast) setTimeout(() => toast('Amber on the switch port: spanning tree listens for 15 seconds, then learns for 15, before it forwards.'), 900);
+  }
+}
+function unplug(c, e) { c[e] = null; if (c.dce && !c.a && !c.b) c.dce = null; }
+function removeCable(c) { const i = cables.indexOf(c); if (i >= 0) cables.splice(i, 1); evalLinks(); check(); }
+board.addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  closeMenu();
+  const pt = portFromEvent(e), devEl = e.target.closest('.dev');
+  downAt = { x: e.clientX, y: e.clientY, pt, devEl };
+  if (hand) {
+    if (pt) {
+      if (!fits(hand.cable.type, pt)) { reject(hand.cable.type, pt); return; }
+      if (occupied(pt.dev, pt.port)) { toast('That port already has a cable. Grab its plug to move it.'); return; }
+      const other = hand.cable[hand.end === 'a' ? 'b' : 'a'];
+      if (other && other.dev === pt.dev) { toast('Both ends on the same device would just make a loop.'); return; }
+      seat(hand.cable, hand.end, { dev: pt.dev, port: pt.port });
+    } else { removeCable(hand.cable); hand = null; markFits(); }
+    return;
+  }
+  if (pt) {
+    const c = occupied(pt.dev, pt.port);
+    if (c) { const end = c.a && c.a.dev === pt.dev && c.a.port === pt.port ? 'a' : 'b'; unplug(c, end); c.free = toWorld(e.clientX, e.clientY); hand = { cable: c, end }; markFits(); evalLinks(); check(); drag = { kind: 'plug' }; return; }
+    if (!fits(armed, pt)) { const t = Object.keys(CABLES).find(k => fits(k, pt)); if (t) { armed = t; document.querySelectorAll('.cable').forEach(x => x.setAttribute('aria-pressed', x.dataset.cable === t)); } else return; }
+    const c2 = newCable(armed, { dev: pt.dev, port: pt.port }, toWorld(e.clientX, e.clientY));
+    c2.seat = { a: { t: performance.now() } }; click();
+    if (armed === 'serial') c2.dce = c2.a;
+    hand = { cable: c2, end: 'b' }; markFits(); drag = { kind: 'plug' };
+    return;
+  }
+  if (devEl) {
+    const t = performance.now();
+    if (lastDown && lastDown.dev === devEl.dataset.dev && t - lastDown.t < 380) { lastDown = null; openConsole(devEl.dataset.dev); return; }
+    lastDown = { dev: devEl.dataset.dev, t };
+    const d = D(devEl.dataset.dev); drag = { kind: 'dev', d, ox: toWorld(e.clientX, e.clientY).x - d.x, oy: toWorld(e.clientX, e.clientY).y - d.y }; devsG.appendChild(d.g); d.g.classList.add('dragging'); board.setPointerCapture(e.pointerId); return; }
+  drag = { kind: 'pan', sx: e.clientX, sy: e.clientY, vx: view.x, vy: view.y }; board.classList.add('panning'); board.setPointerCapture(e.pointerId);
+});
+addEventListener('pointermove', e => {
+  mouse = { x: e.clientX, y: e.clientY }; world = toWorld(e.clientX, e.clientY);
+  if (hand) {
+    hand.cable.free = world;
+    const pt = portFromEvent(e); document.querySelectorAll('.port.hot').forEach(x => x.classList.remove('hot'));
+    if (pt && pt.el.classList.contains('fits')) { pt.el.classList.add('hot'); hand.cable.free = anchor(pt); }
+    else { // magnetic pull toward the nearest fitting port
+      let best = null, bd = 30 / view.z;
+      document.querySelectorAll('.port.fits').forEach(pg => { const a = anchor({ dev: pg.dataset.dev, port: pg.dataset.port }); const dd = Math.hypot(a.x - world.x, a.y - world.y); if (dd < bd) { bd = dd; best = { pg, a }; } });
+      if (best) { best.pg.classList.add('hot'); hand.cable.free = { x: world.x + (best.a.x - world.x) * 0.6, y: world.y + (best.a.y - world.y) * 0.6 }; hand.snap = best; } else hand.snap = null;
+    }
+  }
+  if (drag && drag.kind === 'dev') { drag.d.x = Math.round(world.x - drag.ox); drag.d.y = Math.round(world.y - drag.oy); place(drag.d); }
+  else if (drag && drag.kind === 'pan') { view.x = drag.vx + e.clientX - drag.sx; view.y = drag.vy + e.clientY - drag.sy; applyView(); }
+  hoverInfo(e);
+});
+addEventListener('pointerup', e => {
+  if (drag && drag.kind === 'plug' && hand) {
+    const moved = downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6;
+    const pt = portFromEvent(e) || (hand.snap ? { dev: hand.snap.pg.dataset.dev, port: hand.snap.pg.dataset.port } : null);
+    if (moved && pt && fits(hand.cable.type, pt) && !occupied(pt.dev, pt.port) && hand.cable[hand.end === 'a' ? 'b' : 'a']?.dev !== pt.dev) seat(hand.cable, hand.end, { dev: pt.dev, port: pt.port });
+    else if (moved && pt && !fits(hand.cable.type, pt)) reject(hand.cable.type, pt);
+  }
+  if (drag && drag.d) drag.d.g.classList.remove('dragging');
+  board.classList.remove('panning'); drag = null;
+});
+function reject(type, pt) {
+  const p = portAt(pt.dev, pt.port), want = CABLES[type].fits;
+  const names = { eth: 'an Ethernet (RJ45) port', sfp: 'an SFP cage', serial: 'a smart serial port', con: 'a CONSOLE port', com: 'a PC\'s COM1 port' };
+  toast(`A ${CABLES[type].name.toLowerCase()} cable doesn't fit ${names[p.type] || 'that port'}. It goes into ${want.map(w => names[w]).join(' or ')}.`);
+  if (hand) { const c = hand.cable; c.pts.forEach(q => { q.px = q.x + (Math.random() - .5) * 6; }); }
+}
+board.addEventListener('wheel', e => { e.preventDefault(); if (e.shiftKey) { view.x -= e.deltaY; applyView(); return; } zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), e.clientX, e.clientY); }, { passive: false });
+addEventListener('keydown', e => {
+  if (e.target === inEl || e.target.tagName === 'INPUT') return;
+  if (e.key === 'Escape') { if (hand) { if (!hand.cable.a || !hand.cable.b) removeCable(hand.cable); hand = null; markFits(); } closeMenu(); }
+  if (e.key === 'Alt') { e.preventDefault(); board.classList.add('labels'); }
+  if (e.key === '+' || e.key === '=') zoomAt(1.2, innerWidth / 2, innerHeight / 2);
+  if (e.key === '-') zoomAt(1 / 1.2, innerWidth / 2, innerHeight / 2);
+  if (e.key === '0') fit();
+});
+addEventListener('keyup', e => { if (e.key === 'Alt') board.classList.toggle('labels', labelsOn || view.z > 1.6); });
+
+/* hover: one calm card, only for what's under the pointer */
+const card = $('#card');
+function hoverInfo(e) {
+  if (!board.contains(e.target)) { card.classList.remove('on'); hoverDev = null; hoverCable = null; return; }
+  if (drag && drag.kind !== 'plug') { card.classList.remove('on'); return; }
+  const pt = portFromEvent(e), devEl = e.target.closest && e.target.closest('.dev');
+  let html = '';
+  hoverCable = null; hoverDev = devEl ? devEl.dataset.dev : null;
+  if (!pt && !devEl && !hand && view.z >= 0.55) { const w = toWorld(e.clientX, e.clientY); let best = null, bd = 8 / view.z; for (const c of cables) { const dd = distToCable(c, w); if (dd < bd) { bd = dd; best = c; } } hoverCable = best; }
+  if (pt) html = portCard(pt);
+  else if (hoverCable) html = cableCard(hoverCable);
+  else if (devEl && !hand) html = devCard(D(devEl.dataset.dev));
+  if (!html) { card.classList.remove('on'); return; }
+  card.innerHTML = html; card.classList.add('on');
+  const r = card.getBoundingClientRect();
+  let x = e.clientX + 18, y = e.clientY + 18;
+  if (x + r.width > innerWidth - 12) x = e.clientX - r.width - 18;
+  if (y + r.height > innerHeight - 12) y = e.clientY - r.height - 18;
+  card.style.left = x + 'px'; card.style.top = y + 'px';
+}
+function linkTo(dev, iface, type) { const c = cables.find(c => (c.a && c.a.dev === dev && portOf(c.a).iface === iface && portOf(c.a).type === type) || (c.b && c.b.dev === dev && portOf(c.b).iface === iface && portOf(c.b).type === type)); if (!c) return null; const o = c.a && c.a.dev === dev && portOf(c.a).iface === iface ? c.b : c.a; return { c, o }; }
+function portCard(pt) {
+  const d = D(pt.dev), p = portAt(pt.dev, pt.port), f = d.ifs[p.iface];
+  const lk = linkTo(d.id, p.iface, p.type);
+  const rows = [];
+  if (p.type === 'con' || p.type === 'com') {
+    const c = cables.find(c => c.type === 'console' && [c.a, c.b].some(x => x && x.dev === d.id && x.port === p.key));
+    rows.push(['Cable', c ? (c.a && c.b ? 'console to ' + D(c.a.dev === d.id ? c.b.dev : c.a.dev).name : 'console, one end free') : 'nothing plugged in']);
+    return `<h3>${p.type === 'con' ? 'Console port' : 'COM1 serial port'}<i>RJ45 / DB-9</i></h3><dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl><p>${p.type === 'con' ? 'A rollover console cable from a PC reaches the command line before the device has any address.' : 'Plug the PC end of a console cable here.'}</p>`;
+  }
+  const st = stpState(d, p.iface);
+  let led = 'off', ledTxt = 'Off: no link';
+  if (f.phys && f.medium === p.type) { if (d.kind === 'switch' && st !== 'forwarding') { led = 'amber'; const left = Math.ceil((30000 - (now() - f.upSince)) / 1000); ledTxt = `Amber: spanning tree is ${st} (${left} s to forwarding)`; } else { led = 'green'; ledTxt = 'Green: link up, forwarding'; } }
+  else if (f.shutdown) ledTxt = 'Off: administratively down';
+  else if (lk && lk.o && f.medium && f.medium !== p.type) ledTxt = 'Off: the SFP side of this combo port is in use';
+  rows.push(['Light', `<span class="dot ${led}"></span>${ledTxt}`]);
+  rows.push(['Cable', lk ? (lk.o ? `${CABLES[lk.c.type].name.toLowerCase()} to ${D(lk.o.dev).name} ${short(portOf(lk.o).iface)}` : 'one end free') : 'nothing plugged in']);
+  if (d.kind === 'switch') rows.push(['Mode', f.mode === 'trunk' ? 'trunk, all VLANs' : `access, VLAN ${f.vlan}${f.portfast ? ', PortFast' : ''}`]);
+  if (f.ip) rows.push(['Address', `${f.ip}/${maskLen(f.mask)}`]);
+  if (d.kind === 'pc') rows.push(['Address', d.ip ? `${d.ip}/${maskLen(d.mask || '0.0.0.0')}` : 'none set']);
+  if (p.iface.startsWith('Serial')) { const pe = peerOf(d.id, p.iface); if (pe) rows.push(['Clocking', pe.cable.dce.dev === d.id ? (f.clock ? `DCE, ${f.clock} bit/s` : 'DCE, no clock rate set') : 'DTE']); }
+  const [s1, s2] = d.kind === 'pc' ? [f.phys ? 'up' : 'down', f.phys ? 'up' : 'down'] : ifStatus(d, p.iface);
+  rows.push(['Status', `${s1}, protocol ${s2}`]);
+  return `<h3>${esc(d.kind === 'pc' ? 'Network adapter' : p.iface)}<i>${esc(d.name)}</i></h3><dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${r[1]}</dd>`).join('')}</dl>`;
+}
+function devCard(d) {
+  const ups = Object.values(d.ifs).filter(f => f.proto && !f.svi).length;
+  const via = consoleVia(d);
+  const rows = [['Model', d.model], ['Links up', String(ups)]];
+  if (d.kind === 'pc') rows.push(['Address', d.ip ? `${d.ip}/${maskLen(d.mask || '0.0.0.0')}` : 'none'], ['Gateway', d.gw || 'none']);
+  const tip = d.kind === 'pc' ? 'Double-click for its command prompt and network settings.' : via ? `Double-click to open the console from ${via.name}.` : 'Needs a console cable from a PC before you can type into it.';
+  return `<h3>${esc(d.hostname)}<i>${esc(d.kind)}</i></h3><dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl><p>${tip} Right-click for more.</p>`;
+}
+function cableCard(c) {
+  const ends = [c.a, c.b].map(x => x ? `${D(x.dev).name} ${x.port}` : 'free');
+  return `<h3>${CABLES[c.type].name}<i>cable</i></h3><dl><dt>From</dt><dd class="mono">${esc(ends[0])}</dd><dt>To</dt><dd class="mono">${esc(ends[1])}</dd></dl><p>Grab a plug to move it. Right-click to unplug.</p>`;
+}
+
+/* right-click */
+const menu = $('#menu');
+function closeMenu() { menu.hidden = true; }
+function showMenu(x, y, items) {
+  menu.innerHTML = items.map((it, i) => it === '-' ? '<hr>' : it.h ? `<div class="h">${esc(it.h)}</div>` : `<button type="button" role="menuitem" data-i="${i}" ${it.off ? 'disabled' : ''}>${esc(it.label)}${it.k ? `<span>${esc(it.k)}</span>` : ''}</button>`).join('');
+  menu.hidden = false; const r = menu.getBoundingClientRect();
+  menu.style.left = Math.min(x, innerWidth - r.width - 8) + 'px'; menu.style.top = Math.min(y, innerHeight - r.height - 8) + 'px';
+  menu.onclick = ev => { const b = ev.target.closest('[data-i]'); if (!b || b.disabled) return; closeMenu(); items[+b.dataset.i].run(); };
+}
+board.addEventListener('contextmenu', e => {
+  e.preventDefault(); card.classList.remove('on');
+  const pt = portFromEvent(e), devEl = e.target.closest('.dev');
+  if (pt) {
+    const d = D(pt.dev), p = portAt(pt.dev, pt.port), c = occupied(pt.dev, pt.port), f = d.ifs[p.iface];
+    const items = [{ h: `${d.name} ${p.iface === 'console' ? 'CONSOLE' : p.iface === 'com' ? 'COM1' : p.iface}` }];
+    if (c) items.push({ label: 'Unplug this end', run: () => { unplug(c, c.a && c.a.dev === pt.dev && c.a.port === pt.port ? 'a' : 'b'); removeCable(c); } });
+    if (f && d.kind !== 'pc' && !f.svi) {
+      items.push({ label: f.shutdown ? 'Bring up (no shutdown)' : 'Shut down', run: () => { f.shutdown = !f.shutdown; log(d, f.shutdown ? `%LINK-5-CHANGED: Interface ${p.iface}, changed state to administratively down` : `%LINK-3-UPDOWN: Interface ${p.iface}, changed state to ${f._phys ? 'up' : 'down'}`); evalLinks(); check(); } });
+      items.push({ label: `Run show interfaces ${short(p.iface)}`, off: !consoleVia(d), run: () => { openConsole(d.id); run(d, `show interfaces ${short(p.iface)}`); renderOut(); } });
+    }
+    showMenu(e.clientX, e.clientY, items); return;
+  }
+  if (hoverCable) { const c = hoverCable; showMenu(e.clientX, e.clientY, [{ h: CABLES[c.type].name }, { label: 'Unplug both ends', run: () => removeCable(c) }]); return; }
+  if (devEl) {
+    const d = D(devEl.dataset.dev), via = consoleVia(d);
+    const items = [{ h: d.hostname }, { label: d.kind === 'pc' ? 'Open command prompt' : 'Open console', k: 'double-click', off: !via && d.kind !== 'pc', run: () => openConsole(d.id) }];
+    if (d.kind !== 'pc') items.push({ label: 'show running-config', off: !via, run: () => { openConsole(d.id); const s = sess(d); const m = s.mode; if (m === 'user') { run(d, 'enable'); } run(d, 'show running-config'); renderOut(); } }, { label: 'show ip interface brief', off: !via, run: () => { openConsole(d.id); run(d, 'show ip interface brief'); renderOut(); } });
+    items.push('-', { label: 'Power cycle', run: () => { d.boot = now() + 2600; evalLinks(); log(d, '%SYS-5-RELOAD: Reload requested by console.'); toast(`${d.name} is restarting. Its lights go amber, then green.`); } });
+    showMenu(e.clientX, e.clientY, items); return;
+  }
+  showMenu(e.clientX, e.clientY, [{ label: 'Fit everything', k: '0', run: fit }, { label: labelsOn ? 'Hide port names' : 'Show port names', k: 'Alt', run: () => $('#labels').click() }]);
+});
+addEventListener('pointerdown', e => { if (!e.target.closest('#menu')) closeMenu(); }, true);
+
+/* toolbar */
+$('#zin').addEventListener('click', () => zoomAt(1.25, innerWidth / 2, innerHeight / 2));
+$('#zout').addEventListener('click', () => zoomAt(0.8, innerWidth / 2, innerHeight / 2));
+$('#zfit').addEventListener('click', fit);
+$('#labels').addEventListener('click', e => { labelsOn = !labelsOn; e.currentTarget.setAttribute('aria-pressed', labelsOn); applyView(); });
+$('#fast').addEventListener('click', e => { speed = speed === 1 ? 10 : 1; e.currentTarget.setAttribute('aria-pressed', speed !== 1); toast(speed === 1 ? 'Real time. Spanning tree takes 30 seconds again.' : 'Ten times faster. Spanning tree now finishes in 3 seconds.'); });
+let soundOn = true, ac = null;
+$('#sound').addEventListener('click', e => { soundOn = !soundOn; e.currentTarget.setAttribute('aria-pressed', soundOn); });
+function click() {
+  if (!soundOn) return;
+  try {
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const t = ac.currentTime, len = Math.floor(ac.sampleRate * 0.03), buf = ac.createBuffer(1, len, ac.sampleRate), ch = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 6);
+    const src = ac.createBufferSource(), bp = ac.createBiquadFilter(), g = ac.createGain();
+    src.buffer = buf; bp.type = 'bandpass'; bp.frequency.value = 3200; bp.Q.value = 1.4; g.gain.value = 0.22;
+    src.connect(bp).connect(g).connect(ac.destination); src.start(t);
+    const o = ac.createOscillator(), og = ac.createGain(); o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(70, t + 0.05); og.gain.setValueAtTime(0.12, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.06); o.connect(og).connect(ac.destination); o.start(t); o.stop(t + 0.07);
+  } catch { /* no audio here */ }
+}
+let tT;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(tT); tT = setTimeout(() => t.classList.remove('on'), Math.max(2600, m.length * 55)); }
+
+/* ================= run ================= */
+devs.forEach(d => { d.boot = 1800 + Math.random() * 900; draw(d); });
+// The ISP side is already set up; your job is your side.
+D('ISP').hostname = 'ISP';
+resize(); fit(); check();
+addEventListener('resize', () => { resize(); });
+let lastEval = 0;
+function frame(t) {
+  const dt = Math.min(100, t - lastReal); lastReal = t; simT += dt * speed;
+  for (let i = later.length - 1; i >= 0; i--) if (later[i].at <= simT) { later[i].fn(); later.splice(i, 1); }
+  if (t - lastEval > 120) { evalLinks(); paintLeds(); lastEval = t; }
+  stepRopes(); drawWires();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+setTimeout(() => toast('Drag from any port to start a cable. Right-click anything for more. Scroll to zoom.'), 2400);
+})();
+</script>

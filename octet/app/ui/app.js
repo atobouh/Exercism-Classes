@@ -21,7 +21,7 @@
 
   /* ---------- theme ---------- */
   const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } } };
-  const setTheme = t => { lb.dataset.theme = t; $$('.theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === t)); store.set('octet-theme', t); };
+  const setTheme = t => { lb.dataset.theme = t; $('#bench').setAttribute('theme', t); $$('.theme button').forEach(b => b.setAttribute('aria-pressed', b.dataset.th === t)); store.set('octet-theme', t); };
   setTheme(store.get('octet-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
   $$('.theme button').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.th)));
 
@@ -357,8 +357,14 @@
       await refresh(); renderSettings(ABOUT); return;
     }
     if (sw || pt) { if (sw) PICK.cloth = sw.dataset.cloth; if (pt) PICK.pattern = pt.dataset.pattern; renderCheck(); return; }
-    const a = e.target.closest('[data-set]'); if (!a) return;
+    const a = e.target.closest('[data-set]'); if (!a || a.disabled) return;
     const act = a.dataset.set;
+    // Checking or adding a whole book takes a moment; say so on the button.
+    const busy = { check: 'Checking…', import: 'Adding…' }[act];
+    if (busy) { a.disabled = true; a.dataset.was = a.textContent; a.textContent = busy; await new Promise(r => setTimeout(r, 30)); }
+    try { await settingsAct(a, act, mb); } finally { if (busy && a.isConnected) { a.disabled = false; a.textContent = a.dataset.was; } }
+  }));
+  const settingsAct = async (a, act, mb) => {
     if (act === 'copy-prompt') copy(await api('book_prompt'), 'Prompt copied. Paste it into your assistant with your PDF.');
     else if (act === 'show-prompt') { const pre = $('#promptText'); if (pre.hidden) pre.textContent = await api('book_prompt'); pre.hidden = !pre.hidden; a.textContent = pre.hidden ? 'Read it first' : 'Hide it'; }
     else if (act === 'clear') { $('#bkText').value = ''; CHECK = null; renderCheck(); }
@@ -380,7 +386,7 @@
       await api('book_remove', { id: b.id }); await refresh(); renderSettings(ABOUT);
       toast(b.yours ? `${b.title} is off your shelf. Your notes on it stay saved.` : `${b.title} is back to the shipped pages.`);
     }
-  }));
+  };
 
   /* ---------- hiding the sidebars ---------- */
   const panes = { side: store.get('octet-side') !== 'hidden', list: store.get('octet-list') !== 'hidden' };
@@ -393,211 +399,39 @@
   $('#tbSide').addEventListener('click', () => setPane('side', !panes.side));
   $('#listBtn').addEventListener('click', () => setPane('list', !panes.list));
   document.addEventListener('keydown', e => {
-    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'b' || labOn) return;
+    if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'b' || (labOn && e.shiftKey)) return;
     e.preventDefault();
     if (e.shiftKey) setPane('list', !panes.list); else setPane('side', !panes.side);
   });
 
-  /* ---------- lab ---------- */
-  const labw = $('#labw'), cv = $('#cv'), cvLinks = $('#cvLinks');
-  let LAB = null, labOn = false, curDev = null, pane = 'console', openTabs = [], tool = 'move', pendingA = null, ranChecks = false;
-  const HIST = {}, CMDS = {};
-  const W = 168, H = 58;
-  const SHORTS = [['GigabitEthernet', 'Gi'], ['FastEthernet', 'Fa'], ['Ethernet', 'Et'], ['Loopback', 'Lo'], ['Vlan', 'Vl']];
-  const shortName = n => { for (const [l, s] of SHORTS) if (n.startsWith(l)) return s + n.slice(l.length); return n; };
-  const ICON = {
-    pc: '<svg viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="10" rx="1.8"/><path d="M7 17h6M10 13.5V17"/></svg>',
-    switch: '<svg viewBox="0 0 20 20"><rect x="2" y="5.5" width="16" height="9" rx="2"/><path d="M5 10h1.5M8.5 10H10M12.5 10H14"/></svg>',
-    router: '<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 5.5v9M5.5 10h9M7.5 7.5L10 5.5l2.5 2M7.5 12.5l2.5 2 2.5-2"/></svg>',
-  };
-  const dev = n => LAB.view.devices.find(d => d.name === n);
-
-  const renderCards = () => {
-    cv.querySelectorAll('.dcard').forEach(x => x.remove());
-    for (const d of LAB.view.devices) {
-      const el = document.createElement('button'); el.type = 'button'; el.className = 'dcard' + (d.name === curDev ? ' sel' : ''); el.dataset.dev = d.name;
-      el.style.left = d.x + 'px'; el.style.top = d.y + 'px';
-      el.innerHTML = `<span class="ic">${ICON[d.kind]}</span><span><b>${esc(d.name)}<i class="${d.status === 'ok' ? '' : d.status}"></i></b><span class="sb">${esc(d.subtitle)}</span></span>`;
-      cv.insertBefore(el, cv.querySelector('.cvtools'));
-    }
-  };
-  const inside = (pt, d, pad = 8) => pt.x > d.x - pad && pt.x < d.x + W + pad && pt.y > d.y - pad && pt.y < d.y + H + pad;
-  const renderLinks = () => {
-    const NS = 'http://www.w3.org/2000/svg';
-    cvLinks.innerHTML = '';
-    const f = LAB.view.fault, fPort = f && f.iface ? shortName(f.iface.split('.')[0]) : null;
-    for (const l of LAB.view.links) {
-      const A = dev(l.a), B = dev(l.b); if (!A || !B) continue;
-      const ax = A.x + W / 2, ay = A.y + H / 2, bx = B.x + W / 2, by = B.y + H / 2;
-      const vert = Math.abs(by - ay) > Math.abs(bx - ax), dx = (bx - ax) / 2, dy = (by - ay) / 2;
-      const d = vert ? `M${ax} ${ay} C ${ax} ${ay + dy}, ${bx} ${by - dy}, ${bx} ${by}` : `M${ax} ${ay} C ${ax + dx} ${ay}, ${bx - dx} ${by}, ${bx} ${by}`;
-      const mk = cls => { const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); p.setAttribute('class', cls); cvLinks.appendChild(p); return p; };
-      const path = mk('lnk' + (l.trunk ? ' trunk' : '') + (l.up ? '' : ' new')); if (l.trunk) mk('lnk trunk-in');
-      const len = path.getTotalLength();
-      let sA = 0; while (sA < len && inside(path.getPointAtLength(sA), A)) sA += 3;
-      let sB = len; while (sB > 0 && inside(path.getPointAtLength(sB), B)) sB -= 3;
-      const label = (t, at, side) => {
-        const p = path.getPointAtLength(at), tx = document.createElementNS(NS, 'text'), left = vert && side < -4;
-        tx.setAttribute('class', 'plab'); tx.setAttribute('x', vert ? p.x + (left ? -10 : 10) : p.x); tx.setAttribute('y', vert ? p.y + 4 : p.y - 9);
-        tx.setAttribute('text-anchor', vert ? (left ? 'end' : 'start') : 'middle'); tx.textContent = t; cvLinks.appendChild(tx);
-      };
-      label(l.a_port, Math.min(sA + 22, len / 2), bx - ax); label(l.b_port, Math.max(sB - 22, len / 2), ax - bx);
-      if (l.trunk && l.vlans.length) {
-        const m = path.getPointAtLength(len / 2), text = `VLAN ${l.vlans.join(', ')}`, w = 16 + text.length * 6.4;
-        const g = document.createElementNS(NS, 'g'); g.setAttribute('class', 'vpill');
-        g.setAttribute('transform', vert ? `translate(${m.x - w / 2 - 16} ${m.y})` : `translate(${m.x} ${m.y + 22})`);
-        g.innerHTML = `<rect x="${-w / 2}" y="-11" width="${w}" height="22" rx="11"/><text x="0" y="4" text-anchor="middle">${esc(text)}</text>`; cvLinks.appendChild(g);
-      }
-      const atA = f && fPort && l.a === f.device && l.a_port === fPort, atB = f && fPort && l.b === f.device && l.b_port === fPort;
-      if (atA || atB) {
-        const c = path.getPointAtLength(atA ? Math.min(sA + 52, len / 2 - 10) : Math.max(sB - 52, len / 2 + 10));
-        const x = document.createElementNS(NS, 'g'); x.setAttribute('class', 'cutx'); x.setAttribute('transform', `translate(${c.x} ${c.y})`);
-        x.innerHTML = vert ? '<circle r="10"/><path d="M-4 -4l8 8M4 -4l-8 8"/><text x="18" y="5">Traffic stops here</text>' : '<circle r="10"/><path d="M-4 -4l8 8M4 -4l-8 8"/><text x="0" y="-20" text-anchor="middle">Traffic stops here</text>';
-        cvLinks.appendChild(x);
-      }
-    }
-  };
-  const renderBrief = () => {
-    const tasks = LAB.tasks;
-    $('#brief').innerHTML = tasks.map((t, i) => {
-      const open = !t.pass, first = open && tasks.findIndex(x => !x.pass) === i;
-      return `<div class="task${open ? ' open' : ''}"><span class="st"></span><div>${first ? `<b>${esc(t.text)}</b>` : esc(t.text)}${first && t.detail ? `<small>${esc(t.detail)}</small>` : ''}${first && ranChecks ? `<small>${esc(t.message)}.</small>` : ''}</div></div>`;
-    }).join('') + (tasks.some(t => !t.pass && t.hint) ? `<button class="lk" type="button" id="hintBtn">Show a hint</button>` : '');
-    $('#chkDots').innerHTML = tasks.map(t => `<i class="${t.pass ? '' : 'bad'}"></i>`).join('');
-    $('#chkText').textContent = `${tasks.filter(t => t.pass).length} of ${tasks.length} checks`;
-  };
-  lb.addEventListener('click', e => {
-    if (e.target.id !== 'hintBtn') return;
-    const t = LAB.tasks.find(x => !x.pass && x.hint);
-    e.target.outerHTML = `<small style="color:var(--ink2)">${esc(t ? t.hint : '')}</small>`;
-  });
-  const refreshMap = () => { renderCards(); renderLinks(); };
-
-  const renderPanel = safe(async () => {
-    if (!curDev || !dev(curDev)) curDev = LAB.view.devices[0].name;
-    $('#lpTabs').innerHTML = openTabs.map(t => `<button type="button" role="tab" data-tab="${esc(t)}" aria-selected="${t === curDev}">${esc(t)}</button>`).join('');
-    $('#lpName').textContent = curDev; $('#lpSub').textContent = dev(curDev).subtitle;
-    $$('#lpSeg button').forEach(b => b.setAttribute('aria-selected', b.dataset.pane === pane));
-    const body = $('#lpBody');
-    if (pane === 'console') {
-      const h = HIST[curDev] || (HIST[curDev] = []);
-      body.innerHTML = `<div class="con">${h.map(x => `<div class="c">${esc(x.prompt)}${esc(x.line)}</div>${x.out ? `<div class="${x.err ? 'e' : ''}">${esc(x.out)}</div>` : ''}`).join('')}<div class="con-line"><span class="c">${esc(LAB.prompts[curDev] || '')}</span><input id="conIn" aria-label="${esc(curDev)} console" spellcheck="false" autocomplete="off"></div></div>`;
-      body.scrollTop = body.scrollHeight;
-    } else if (pane === 'ports') {
-      const rows = await api('lab_ports', { device: curDev });
-      body.innerHTML = rows.length ? `<table class="ports"><thead><tr><th>Port</th><th>Carries</th><th>Address</th></tr></thead><tbody>${rows.map(r => `<tr><td class="m"><span class="sd${r.warn ? ' warn' : ''}${r.up ? '' : ' off'}"></span>${esc(r.port)}</td><td class="${r.warn ? 'w' : ''}">${esc(r.carries)}</td><td class="m">${esc(r.address)}</td></tr>`).join('')}</tbody></table>` : '<p class="empty-note">Nothing is cabled or configured yet. Connect it on the canvas, then set it up in its console.</p>';
-    } else {
-      const lines = await api('lab_changes', { device: curDev });
-      body.innerHTML = lines.length ? `<div class="diff"><div class="hd">Compared with when you opened the lab</div>${lines.map(l => `<div class="${l.change === 'add' ? 'add' : l.change === 'del' ? 'del' : ''}">${esc(l.text)}</div>`).join('')}</div>` : '<p class="empty-note">No changes yet. Everything you configure on this device shows up here, line by line.</p>';
-    }
-  });
-  const openDev = n => { curDev = n; if (!openTabs.includes(n)) openTabs.push(n); if (openTabs.length > 5) openTabs.shift(); cv.querySelectorAll('.dcard').forEach(x => x.classList.toggle('sel', x.dataset.dev === n)); renderPanel(); };
-  $('#lpTabs').addEventListener('click', e => { const t = e.target.closest('[data-tab]'); if (t) openDev(t.dataset.tab); });
-  $('#lpSeg').addEventListener('click', e => { const b = e.target.closest('[data-pane]'); if (b) { pane = b.dataset.pane; renderPanel(); } });
-  $('#lpBody').addEventListener('keydown', safe(async e => {
-    if (e.target.id !== 'conIn') return;
-    const hist = CMDS[curDev] || (CMDS[curDev] = { list: [], at: 0 });
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      e.preventDefault();
-      hist.at = Math.max(0, Math.min(hist.list.length, hist.at + (e.key === 'ArrowUp' ? -1 : 1)));
-      e.target.value = hist.list[hist.at] || '';
-      return;
-    }
-    if (e.key !== 'Enter' || e.ctrlKey || e.metaKey) return;
-    e.stopPropagation();
-    const line = e.target.value;
-    if (line.trim()) { hist.list.push(line); hist.at = hist.list.length; }
-    const r = await api('lab_exec', { device: curDev, line });
-    (HIST[curDev] = HIST[curDev] || []).push({ prompt: r.result.prompt, line, out: r.result.output.text, err: r.result.output.error });
-    LAB.prompts[curDev] = r.result.next_prompt;
-    LAB.view = r.view;
-    refreshMap(); await renderPanel(); $('#conIn').focus();
-  }));
-
-  /* canvas: drag, select, add, connect, note */
-  let drag = null;
-  const setTool = t => {
-    tool = t; $$('.cvtools [data-tool]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tool === t)); $('#addMenu').hidden = t !== 'add';
-    if (t !== 'connect') { pendingA = null; cv.querySelectorAll('.pending').forEach(x => x.classList.remove('pending')); }
-    $('#cvHint').textContent = t === 'connect' ? 'Click one device, then another, to cable them.' : t === 'add' ? 'Pick what to add.' : 'Drag anything. Click a device to open it.';
-  };
-  $('.cvtools').addEventListener('click', e => {
-    const b = e.target.closest('[data-tool]'); if (!b) return;
-    if (b.dataset.tool === 'note') { addNote(); setTool('move'); return; }
-    setTool(tool === b.dataset.tool && b.dataset.tool !== 'move' ? 'move' : b.dataset.tool);
-  });
-  $('#addMenu').addEventListener('click', safe(async e => {
-    const b = e.target.closest('[data-add]'); if (!b) return;
-    const r = await api('lab_add', { kind: b.dataset.add, x: Math.max(320, cv.clientWidth - 220), y: 200 });
-    LAB.view = r.view; LAB.prompts[r.name] = r.prompt; setTool('move'); refreshMap(); openDev(r.name);
-    toast(`Added ${r.name}. Use Connect to cable it.`);
-  }));
-  cv.addEventListener('pointerdown', e => {
-    const card = e.target.closest('.dcard'), head = e.target.closest('[data-drag]');
-    if (!card && !head) return;
-    const el = card || document.getElementById(head.dataset.drag);
-    const r = el.getBoundingClientRect(), c = cv.getBoundingClientRect();
-    el.style.left = (r.left - c.left) + 'px'; el.style.top = (r.top - c.top) + 'px'; el.style.bottom = 'auto';
-    drag = { el, card: !!card, sx: e.clientX, sy: e.clientY, ox: r.left - c.left, oy: r.top - c.top, moved: false };
-    el.setPointerCapture(e.pointerId);
-  });
-  cv.addEventListener('pointermove', e => {
-    if (!drag) return;
-    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-    if (!drag.moved && Math.hypot(dx, dy) < 4) return;
-    drag.moved = true; drag.el.classList.add('dragging');
-    const nx = Math.max(8, Math.min(cv.clientWidth - drag.el.offsetWidth - 8, drag.ox + dx)), ny = Math.max(8, Math.min(cv.clientHeight - drag.el.offsetHeight - 8, drag.oy + dy));
-    drag.el.style.left = nx + 'px'; drag.el.style.top = ny + 'px';
-    if (drag.card) { const d = dev(drag.el.dataset.dev); d.x = nx; d.y = ny; renderLinks(); }
-  });
-  cv.addEventListener('pointerup', safe(async () => {
-    if (!drag) return; const d = drag; drag = null; d.el.classList.remove('dragging');
-    if (!d.card) return;
-    const n = d.el.dataset.dev;
-    if (d.moved) { const v = dev(n); await api('lab_move', { device: n, x: v.x, y: v.y }); return; }
-    if (tool === 'connect') {
-      if (!pendingA) { pendingA = n; d.el.classList.add('pending'); return; }
-      if (pendingA !== n) { const r = await api('lab_connect', { a: pendingA, b: n }); LAB.view = r.view; toast(`Cabled ${pendingA} ${r.link.a_port} to ${n} ${r.link.b_port}.`); }
-      setTool('move'); refreshMap(); return;
-    }
-    openDev(n);
-  }));
-  const addNote = () => {
-    const id = 'note' + Date.now(), el = document.createElement('section'); el.className = 'ncard mine-card'; el.id = id; el.style.left = '300px'; el.style.top = '40px';
-    el.innerHTML = `<header data-drag="${id}">Note</header><div class="nb"><textarea aria-label="Note" placeholder="Anything you want to remember"></textarea></div>`;
-    cv.insertBefore(el, cv.querySelector('.cvtools')); el.querySelector('textarea').focus({ preventScroll: true });
-  };
-
-  const runChecks = safe(async () => {
-    const r = await api('lab_checks', { notes: $('#labNotes').value });
-    ranChecks = true; LAB.tasks = r.tasks; LAB.view = r.view; renderBrief(); refreshMap();
-    if (r.passed) { toast('All checks pass. The lab is marked passed in your chapter.'); refresh(); }
-    else { const t = r.tasks.find(x => !x.pass); toast(t ? t.message : 'Not yet.'); }
-  });
-  $('#runChk').addEventListener('click', runChecks);
+  /* ---------- lab: the bench ---------- */
+  // The lab is <octet-bench> from ./bench, the same kit any site can embed.
+  const labw = $('#labw');
+  let labOn = false, LABID = null;
+  const bench = () => $('#bench');
   const openLab = safe(async id => {
-    const st = await api('lab_open', { id });
-    LAB = st; ranChecks = false; labOn = true;
-    for (const k of Object.keys(HIST)) delete HIST[k];
-    openTabs = LAB.view.devices.filter(d => d.kind !== 'pc').map(d => d.name).concat(LAB.view.devices.filter(d => d.kind === 'pc').slice(-1).map(d => d.name));
-    curDev = (LAB.view.devices.find(d => d.kind === 'router') || LAB.view.devices[0]).name;
-    pane = 'console';
-    $('#labTitle').textContent = LAB.view.title; $('#labSub').textContent = LAB.summary;
-    labw.classList.add('on'); lb.classList.add('lab-open'); hideSel(); setTool('move');
-    where('Lab', LAB.view.title);
-    renderBrief(); refreshMap(); renderPanel();
-    setTimeout(() => $('#runChk').focus({ preventScroll: true }), 50);
+    await customElements.whenDefined('octet-bench');
+    const r = await api('lab_def', { id });
+    LABID = id; labOn = true;
+    labw.classList.add('on'); lb.classList.add('lab-open'); hideSel();
+    const at = allPages().find(p => p.lab === id), loc = at && findPage(at.id);
+    bench().setAttribute('context', loc ? `Lab in chapter ${loc.chapter.number} of ${loc.book.title}` : 'Lab');
+    bench().load(r.lab, { state: r.state || undefined });
+    if (loc) where(loc.book.title, loc.chapter.title, r.lab.title); else where('Lab', r.lab.title);
+    setTimeout(() => bench().focus({ preventScroll: true }), 60);
   });
-  const closeLab = async () => { labOn = false; labw.classList.remove('on'); lb.classList.remove('lab-open'); closeCtx(); await refresh(); if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
-  $('#labBack').addEventListener('click', closeLab);
-  labw.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); runChecks(); return; }
-    if (e.key === 'Escape') { e.stopPropagation(); setTool('move'); }
-  });
+  // Save on the way out too: the bench's own save waits a moment after each change.
+  const leaveLab = () => { if (LABID && bench().net) api('lab_save', { id: LABID, state: bench().snapshot() }).catch(() => {}); labOn = false; LABID = null; labw.classList.remove('on'); lb.classList.remove('lab-open'); closeCtx(); };
+  const closeLab = async () => { leaveLab(); await refresh(); if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
+  labw.addEventListener('bench-back', closeLab);
+  labw.addEventListener('bench-change', e => api('lab_save', { id: e.detail.lab, state: e.detail.state }).catch(() => {}));
+  labw.addEventListener('bench-passed', safe(async e => { if (LABID && e.detail.lab === LABID) { await api('lab_pass', { id: LABID }); refresh(); } }));
 
   /* ---------- navigation ---------- */
   lb.addEventListener('click', safe(async e => {
     const t = e.target;
+    // The sidebar works during a lab too: going anywhere leaves it.
+    if (labOn && !t.closest('#labw') && t.closest('[data-go], [data-book], [data-col], [data-open]')) leaveLab();
     const go = t.closest('[data-go]');
     if (go) {
       const v = go.dataset.go;
@@ -656,6 +490,7 @@
   };
   document.addEventListener('contextmenu', e => {
     e.preventDefault();
+    if (e.composedPath().some(n => n.id === 'bench')) return; // the bench has its own menu
     const field = e.target.closest('input, textarea');
     const sel = window.getSelection(), text = sel && !sel.isCollapsed ? sel.toString() : '';
     const items = [];

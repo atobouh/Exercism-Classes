@@ -1,0 +1,20 @@
+{
+  "format": 1,
+  "id": "itn-02-office-online",
+  "title": "Bring the office online",
+  "summary": "Two PCs, a switch and a router, still in their boxes.",
+  "devices": [
+    { "id": "ISP", "model": "ISR4321", "x": -280, "y": -470, "locked": true, "config": "interface s0/1/0\n ip address 10.0.0.2 255.255.255.252\n no shutdown" },
+    { "id": "R1", "model": "ISR4321", "x": -280, "y": -250 },
+    { "id": "S1", "model": "WS-C2960+24TC-L", "x": -360, "y": -40 },
+    { "id": "PC-A", "model": "PC", "x": -330, "y": 180, "ip": "192.168.10.10", "mask": "255.255.255.0", "gateway": "192.168.10.1" },
+    { "id": "PC-B", "model": "PC", "x": 140, "y": 180 }
+  ],
+  "tasks": [
+    { "text": "Plug a **console** cable from PC-A's COM1 into R1's CONSOLE port, then double-click R1.", "hint": "Pick Console in the tray. The CONSOLE port has a light-blue outline.", "check": { "console": "R1" } },
+    { "text": "On R1, give `G0/0/0` the address `192.168.10.1 255.255.255.0` and bring it up.", "hint": "`enable`, `configure terminal`, `interface g0/0/0`, `ip address 192.168.10.1 255.255.255.0`, `no shutdown`.", "check": { "address": { "device": "R1", "iface": "g0/0/0", "ip": "192.168.10.1", "mask": "255.255.255.0", "up": true } } },
+    { "text": "Cable R1 G0/0/0, PC-A and PC-B to S1 with straight-through cables.", "check": { "cabled": [["R1 G0/0/0", "S1"], ["PC-A NIC", "S1"], ["PC-B NIC", "S1"]] } },
+    { "text": "Give PC-B `192.168.10.11`, mask `255.255.255.0`, gateway `192.168.10.1`.", "hint": "Double-click PC-B. Its network settings are at the top of its window.", "check": { "pc": { "device": "PC-B", "ip": "192.168.10.11", "mask": "255.255.255.0", "gateway": "192.168.10.1" } } },
+    { "text": "From PC-B, `ping 192.168.10.1`. Watch S1's port lights first: amber means spanning tree is still listening.", "hint": "If the ping fails, wait for S1's lights to turn green, or set `spanning-tree portfast` on the PC ports.", "check": { "pinged": { "from": "PC-B", "to": "192.168.10.1" } } }
+  ]
+}

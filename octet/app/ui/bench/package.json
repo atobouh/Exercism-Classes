@@ -1,0 +1,11 @@
+{
+  "name": "octet-bench",
+  "version": "0.1.0",
+  "description": "A network lab for any web page: real faceplates, cables you plug in, and an IOS-style console.",
+  "type": "module",
+  "main": "index.js",
+  "exports": { ".": "./index.js", "./engine": "./engine.js", "./catalog": "./catalog.js" },
+  "files": ["*.js", "labs/", "README.md"],
+  "scripts": { "test": "node test/engine.test.mjs" },
+  "keywords": ["networking", "ccna", "cisco", "lab", "simulator", "web-component"]
+}

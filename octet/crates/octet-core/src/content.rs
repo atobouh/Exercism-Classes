@@ -694,6 +694,52 @@ impl Blueprint {
     }
 }
 
+/// The device models a bench lab may use, matching the bench catalog in
+/// `app/ui/bench/catalog.js`. Labs can't add models; your own books can,
+/// through the SDK.
+pub const BENCH_MODELS: &[&str] = &["ISR4321", "WS-C2960+24TC-L", "PC"];
+
+/// Checks a bench lab file: format 1, an id that matches its file name,
+/// known device models, unique device ids, and cables between devices that
+/// exist. Returns the lab as JSON for the interface.
+pub fn read_lab(path: &Path) -> Result<serde_json::Value, String> {
+    let src = fs::read_to_string(path).map_err(|e| format!("can't read {}: {e}", path.display()))?;
+    let v: toml::Value = toml::from_str(&src).map_err(|e| format!("{}: {}", path.display(), one_line(&e.to_string())))?;
+    let name = path.file_stem().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
+    let fail = |m: String| Err(format!("{}: {m}", path.display()));
+    if v.get("format").and_then(|f| f.as_integer()) != Some(1) {
+        return fail("put `format = 1` at the top".into());
+    }
+    if v.get("id").and_then(|i| i.as_str()) != Some(name.as_str()) {
+        return fail(format!("its id should be \"{name}\", the file name"));
+    }
+    let devices = v.get("device").and_then(|d| d.as_array()).cloned().unwrap_or_default();
+    if devices.is_empty() {
+        return fail("list at least one [[device]]".into());
+    }
+    let mut ids = HashSet::new();
+    for d in &devices {
+        let id = d.get("id").and_then(|x| x.as_str()).unwrap_or("");
+        let model = d.get("model").and_then(|x| x.as_str()).unwrap_or("");
+        if id.is_empty() || !ids.insert(id.to_string()) {
+            return fail(format!("device \"{id}\" needs a unique id"));
+        }
+        if !BENCH_MODELS.contains(&model) {
+            return fail(format!("device {id} has model \"{model}\"; use one of {}", BENCH_MODELS.join(", ")));
+        }
+    }
+    for c in v.get("cable").and_then(|c| c.as_array()).cloned().unwrap_or_default() {
+        for end in ["a", "b"] {
+            let e = c.get(end).and_then(|x| x.as_str()).unwrap_or("");
+            let dev = e.split_whitespace().next().unwrap_or("");
+            if !ids.contains(dev) {
+                return fail(format!("a cable end \"{e}\" names no device"));
+            }
+        }
+    }
+    serde_json::to_value(&v).map_err(|e| e.to_string())
+}
+
 /// Every page or lab a book refers to must exist, every exam tag must be a
 /// real topic, and every inline link must resolve. Returns the problems.
 pub fn check_references(books: &[Book], blueprints: &[Blueprint], labs_dir: Option<&Path>) -> Vec<String> {
@@ -722,8 +768,8 @@ pub fn check_references(books: &[Book], blueprints: &[Blueprint], labs_dir: Opti
             if let Some(dir) = labs_dir {
                 for blk in &p.blocks {
                     if let Block::Lab { id } = blk {
-                        if !dir.join(format!("{id}.toml")).is_file() {
-                            problems.push(format!("{}: names missing lab {id}", p.id));
+                        if let Err(e) = read_lab(&dir.join(format!("{id}.toml"))) {
+                            problems.push(format!("{}: lab {id}: {e}", p.id));
                         }
                     }
                 }
