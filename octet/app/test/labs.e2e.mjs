@@ -26,7 +26,11 @@ const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: p
 try {
   const page = await browser.newPage({ viewport: { width: 1400, height: 860 }, acceptDownloads: true });
   page.on('pageerror', e => { throw e; });
-  await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'domcontentloaded' });
+  // The dev server (tiny_http) sometimes stalls a fresh browser's first
+  // load on one script; a second try always gets through.
+  for (let i = 0; ; i++) {
+    try { await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'domcontentloaded', timeout: 8000 }); break; } catch (e) { if (i === 2) throw e; }
+  }
   const bench = page.locator('#bench');
 
   // A new lab opens the bench in build mode, with the drawer.
@@ -49,9 +53,12 @@ try {
   // Addresses, from each PC's command prompt.
   for (const [pc, ip] of [['PC-1', '10.0.0.1'], ['PC-2', '10.0.0.2']]) {
     await bench.locator(`.dev[data-dev="${pc}"] .body`).first().dblclick();
+    // the console takes the focus a moment after it opens; fill after that
+    await page.waitForFunction(() => document.querySelector('#bench').shadowRoot.activeElement?.classList.contains('cin'));
     await bench.locator('.pcset input[name="ip"]').fill(ip);
     await bench.locator('.pcset input[name="mask"]').fill('255.255.255.0');
     await bench.locator('.pcset button').click();
+    assert.equal(await page.evaluate(id => document.querySelector('#bench').net.device(id).mask, pc), '255.255.255.0');
     await bench.locator('.cclose').click();
   }
 
