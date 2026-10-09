@@ -26,7 +26,7 @@ const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: p
 try {
   const page = await browser.newPage({ viewport: { width: 1400, height: 860 }, acceptDownloads: true });
   page.on('pageerror', e => { throw e; });
-  await page.goto(`http://127.0.0.1:${port}/`);
+  await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'domcontentloaded' });
   const bench = page.locator('#bench');
 
   // A new lab opens the bench in build mode, with the drawer.
@@ -62,8 +62,9 @@ try {
   assert.equal(await bench.locator('.task [data-k="text"]').inputValue(), 'Ping 10.0.0.2 from PC-1.');
   await bench.locator('.task .st', { hasText: 'Not done' }).waitFor();
 
-  // The ping works once the PCs have booted.
-  await page.waitForTimeout(2500);
+  // The ping works once the PCs have booted and linked. The bench clock runs
+  // on animation frames, so wait for the state rather than a set time.
+  await page.waitForFunction(() => { const n = document.querySelector('#bench').net; return ['PC-1', 'PC-2'].every(id => n.isOn(id) && n.device(id).ifs.FastEthernet0.proto); }, null, { timeout: 30000 });
   await bench.locator('.dev[data-dev="PC-1"] .body').first().dblclick();
   await bench.locator('.cin').fill('ping 10.0.0.2');
   await bench.locator('.cin').press('Enter');
@@ -95,6 +96,36 @@ try {
   assert.equal(await page.evaluate(() => document.querySelector('#bench').net.devices.length), 2);
   assert.equal(await page.evaluate(() => document.querySelector('#bench').net.cables.length), 0, 'the start has no cable');
   assert.equal(await bench.locator('.dv').count() === 0 || !(await bench.locator('.drawer').isVisible()), true, 'no drawer for a student');
+
+  // Try it as a student starts from the start; Back to building returns
+  // to the board as you left it, and trying saves nothing.
+  await page.click('[data-go="labs"]');
+  await page.locator('[data-mine="two-pcs"] [data-labact="build"]').click();
+  await bench.locator('.dev[data-dev="PC-2"]').waitFor();
+  await bench.locator('[data-cable="cross"]').click();
+  await bench.locator('.port[data-dev="PC-1"][data-port="NIC"]').click();
+  await bench.locator('.port[data-dev="PC-2"][data-port="NIC"]').click();
+  await bench.locator('[data-btab="brief"]').click();
+  await bench.locator('[data-act="try"]').click();
+  assert.equal(await bench.getAttribute('mode'), 'try');
+  assert.equal(await page.evaluate(() => document.querySelector('#bench').net.cables.length), 0);
+  await bench.locator('.tb.edit').click();
+  assert.equal(await page.evaluate(() => document.querySelector('#bench').net.cables.length), 1);
+
+  // Rename from the device's menu; the task follows.
+  await bench.locator('.dev[data-dev="PC-1"] .body').first().click({ button: 'right', force: true });
+  await bench.locator('.menu button', { hasText: 'Rename' }).click();
+  await bench.locator('.menu input').fill('ALICE');
+  await bench.locator('.menu input').press('Enter');
+  await bench.locator('.dev[data-dev="ALICE"]').waitFor();
+  assert.equal(await bench.locator('.task [data-v="device"]').inputValue(), 'ALICE');
+  await page.waitForTimeout(600);
+  await bench.locator('.tb.back').click();
+  await page.locator('[data-mine="two-pcs"]').waitFor();
+  const def = await page.evaluate(async () => (await fetch('/api/lab_def', { method: 'POST', body: JSON.stringify({ id: 'two-pcs', mine: true }) })).json());
+  assert.deepEqual(def.board.devices.map(d => d.id), ['ALICE', 'PC-2']);
+  assert.equal(def.lab.task[0].check.pinged.from, 'ALICE');
+  assert.equal(def.state, null, 'trying it saved no progress');
 
   // A broken file is refused with what's wrong.
   await page.click('[data-go="labs"]');

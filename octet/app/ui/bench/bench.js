@@ -444,6 +444,9 @@ export class OctetBench extends HTMLElement {
   /* ---------- lights ---------- */
   paint() {
     const net = this.net, t = net.clock;
+    // devices added or removed through bench.net directly
+    for (const d of net.devices) if (!d.g || !d.g.isConnected) { drawDevice(this.devsG, d); this.place(d); }
+    for (const g of [...this.devsG.children]) if (!net.device(g.dataset.dev) || net.device(g.dataset.dev).g !== g) g.remove();
     for (const d of net.devices) {
       const on = net.isOn(d.id), booting = d.power && !on;
       d.g.classList.toggle('off', !d.power);
