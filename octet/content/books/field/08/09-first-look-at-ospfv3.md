@@ -25,7 +25,7 @@ OSPFv3 is still a link-state protocol. Routers flood descriptions of their links
 
 ## Configuring two routers
 
-R1 and R2 share `2001:db8:acad:12::/64`. R1 has a LAN on G0/0/0, and R2 has its own on G0/0/0. This is R1:
+R1 and R2 share `2001:db8:acad:12::/64`, with R1 at `::1` and R2 at `::2`. R1's LAN is `2001:db8:acad:1::/64` on G0/0/0, and R2's LAN is `2001:db8:acad:2::/64` on its G0/0/0. This is R1:
 
 ```console R1
 R1(config)# ipv6 unicast-routing
@@ -33,13 +33,15 @@ R1(config)# ipv6 router ospf 10
 R1(config-rtr)# router-id 1.1.1.1
 R1(config-rtr)# exit
 R1(config)# interface gigabitethernet 0/0/0
+R1(config-if)# ipv6 address 2001:db8:acad:1::1/64
 R1(config-if)# ipv6 ospf 10 area 0
 R1(config-if)# exit
 R1(config)# interface gigabitethernet 0/0/1
+R1(config-if)# ipv6 address 2001:db8:acad:12::1/64
 R1(config-if)# ipv6 ospf 10 area 0
 ```
 
-The number 10 is a process ID that only has meaning on this router, but the process ID in the interface command must match the one in `ipv6 router ospf`. R2 gets the same commands with `router-id 2.2.2.2`.
+The number 10 is a process ID that only has meaning on this router, but the process ID in the interface command must match the one in `ipv6 router ospf`. R2 gets the same pattern with `router-id 2.2.2.2`, its own addresses (`2001:db8:acad:12::2/64` on the link and `2001:db8:acad:2::1/64` on its LAN), and `ipv6 ospf 10 area 0` on both interfaces.
 
 ```command
 prompt = "Set R1's OSPFv3 router ID to 1.1.1.1."
@@ -50,7 +52,7 @@ why = "An IPv6-only router has no IPv4 address to take a router ID from, so it m
 
 If you forget the router ID on a router with no IPv4 address, IOS logs a message that it could not pick one and the process does not start. Routers that do have an IPv4 address (a loopback, say) pick one on their own, but setting it explicitly is a good habit.
 
-Newer IOS XE releases also offer a unified syntax: `router ospfv3 10` with `address-family ipv6 unicast`, and `ospfv3 10 ipv6 area 0` on the interface, which can carry IPv4 as well. The classic commands above work on the course gear.
+Newer IOS XE releases also offer a unified syntax: `router ospfv3 10` with an `address-family ipv6 unicast` block, and `ospfv3 10 ipv6 area 0` on the interface. The same process can also carry IPv4 through an IPv4 address family. The classic commands above are the ones this book uses.
 
 ## Verifying
 

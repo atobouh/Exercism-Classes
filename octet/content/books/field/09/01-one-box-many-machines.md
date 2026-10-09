@@ -4,7 +4,7 @@ summary = "Why data centers moved from one server per application to many virtua
 links = ["ensa/13/01-from-server-room-to-cloud", "ensa/13/03-virtualization", "field/09/02-hypervisors-and-virtual-machines", "field/09/06-vrfs"]
 +++
 
-Walk down an aisle in an old data center and read the labels: payroll, intranet, print server, test database, a mail relay nobody dares to touch. Each rack unit is one physical server with one job, and a monitoring screen shows most of them using around 10 percent of their processor. The other 90 percent is paid for, powered, cooled and wired to a switch port, and it does nothing.
+Walk down an aisle in an old data center and read the labels: payroll, intranet, print server, test database, a mail relay nobody dares to touch. Each server in the rack has one job, and a monitoring screen shows most of them using around 10 percent of their processor. The other 90 percent is paid for, powered, cooled and wired to a switch port, and it does nothing.
 
 This chapter follows the fix, which is to stop tying an application to a box. [ENSA chapter 13](ensa/13/03-virtualization) introduced the idea. Here we go further into how it works on real hosts and real routers.
 
@@ -14,7 +14,7 @@ Nobody planned this waste. Different applications wanted different operating sys
 
 ## The idea: separate the system from the hardware
 
-*Virtualization* puts a layer of software between the hardware and the operating systems. Several operating systems then share one physical host, and each believes it has a machine to itself. Each one runs as an isolated *virtual machine* (VM). The ten servers at 10 percent become ten VMs on one host at roughly 100 percent, which is a sensible load.
+*Virtualization* puts a layer of software between the hardware and the operating systems. Several operating systems then share one physical host, and each believes it has a machine to itself. Each one runs as an isolated *virtual machine* (VM). Ten servers at 10 percent each carry about one server's worth of work, so they can run as ten VMs on one well-sized host.
 
 ```question
 prompt = "Ten servers each run at about 10 percent CPU. Which statement describes what virtualization does for them?"

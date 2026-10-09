@@ -75,19 +75,7 @@ The RADIUS accept message can carry more than yes. It can place the user in a pa
 
 ## Checking the result
 
-```console S1
-S1# show authentication sessions
-Interface                MAC Address     Method   Domain   Status Fg Session ID
---------------------------------------------------------------------------------------------
-Gi1/0/5                  0050.7966.6800  dot1x    DATA     Auth        0A0101010000001B
-...
-S1# show dot1x all
-Sysauthcontrol              Enabled
-Dot1x Protocol Version      3
-...
-```
-
-`Auth` means the session is authorized; the Method column says whether it got in by `dot1x` or `mab`.
+Run `show authentication sessions` on the switch to see each port's session. It lists the interface, the MAC address of the device, the method that let it in (`dot1x` or `mab`) and the session status. A session that has passed shows `Auth`. `show dot1x all` prints the switch-wide 802.1X settings, including whether `dot1x system-auth-control` is in effect.
 
 ```recall
 front = "Name the three roles in 802.1X and who plays each."

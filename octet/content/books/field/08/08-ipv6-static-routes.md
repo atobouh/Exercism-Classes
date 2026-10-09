@@ -115,7 +115,7 @@ Tracing the route to 2001:DB8:ACAD:2::10
   2 2001:DB8:ACAD:2::10 1 msec 1 msec 1 msec
 ```
 
-Hop 1 is R2, hop 2 is the PC. If the trace stops after hop 1, R2 is missing its return route or its address.
+Hop 1 is R2, hop 2 is the PC. If the trace stops after hop 1, look at R2: check that its LAN interface is up with the right address, and that it has a route to the destination.
 
 ```recall
 front = "Why does an IPv6 static route with a link-local next hop need an exit interface?"

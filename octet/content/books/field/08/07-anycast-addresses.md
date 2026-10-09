@@ -4,7 +4,7 @@ summary = "One address on several devices, with routing delivering each packet t
 links = ["itn/12/04-ipv6-address-types", "field/08/01-the-ipv6-address-map", "field/08/08-ipv6-static-routes"]
 +++
 
-Type `1.1.1.1` into a laptop in Douala and another in Frankfurt, and the packets go to two different machines that answer to the same address. Nothing is wrong. The address is *anycast*: one address, many servers, and the network sends each client to the closest one. This page explains the idea, how a router is told about it, the one special anycast address every subnet has and when the technique helps or hurts.
+Two people in different cities can both send queries to the same public DNS resolver address, and their packets can reach two different machines, each in a nearby data center. Nothing is wrong. The address is *anycast*: one address, many servers, and the network sends each client to the closest one. This page explains the idea, how a router is told about it, the one special anycast address every subnet has and when the technique helps or hurts.
 
 ## A routing trick, not an address type
 
@@ -41,7 +41,7 @@ None of this is specific to IPv6. Anycast works with IPv4 in the same way, and m
 
 ## Configuring one on a router
 
-If you give two devices the same ordinary address, each will run duplicate address detection and one will refuse. The `anycast` keyword tells IOS that sharing is intended and skips the check.
+If you give two devices the same ordinary address, duplicate address detection (DAD) runs on the address. The device that configures it second finds the duplicate and does not use the address. The `anycast` keyword tells IOS that sharing is intended and skips the check.
 
 ```console R2
 R2(config)# interface gigabitethernet 0/0/0
@@ -49,11 +49,11 @@ R2(config-if)# ipv6 address 2001:db8:acad:99::1/64 anycast
 R2(config-if)# end
 R2# show ipv6 interface brief gigabitethernet 0/0/0
 GigabitEthernet0/0/0   [up/up]
-    FE80::2EE:8CFF:FE12:3A01
+    FE80::2EE:8CFF:FE12:3B01
     2001:DB8:ACAD:99::1
 ```
 
-The output looks like any other address, which is the point. Notice that you have only configured the address. To make routing prefer the nearest copy, each site also has to advertise it, through a routing protocol or a static route. In real deployments the shared service address usually sits on a loopback as a `/128` and the servers themselves have a routing relationship with the nearest router.
+The output looks like any other address, which is the point. Notice that you have only configured the address. To make routing prefer the nearest copy, each site also has to advertise it, through a routing protocol or a static route. In many real deployments the shared address is a `/128` on a loopback, advertised into routing by a protocol such as BGP.
 
 ```command
 prompt = "Mark 2001:db8:acad:99::1/64 as an anycast address on this interface."

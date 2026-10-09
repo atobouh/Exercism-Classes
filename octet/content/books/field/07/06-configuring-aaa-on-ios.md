@@ -32,7 +32,7 @@ R1(config-radius-server)# key Sh4red-Key-Rad
 R1(config-radius-server)# exit
 ```
 
-The ports on the RADIUS line are the standard ones; write them out if your server uses 1645 and 1646. Older guides show `tacacs-server host` and `radius-server host`; those forms are deprecated and the named blocks replace them.
+The ports on the RADIUS line are the standard ones; write them out if your server uses 1645 and 1646. Older guides show `tacacs-server host` and `radius-server host`; those are older forms, and the named blocks are the ones to type on current IOS XE.
 
 A *server group* gathers servers into one name that method lists can use, and lets you order several servers for redundancy.
 
@@ -65,7 +65,7 @@ R1(config)# aaa accounting commands 15 default start-stop group ADMINS
 - The first line is the default login list: ask the TACACS+ group, fall back to local only if no server answers.
 - `CONSOLE` is a separate named list that checks only the local database. Keeping the console independent of the network is a deliberate choice: it stays usable when every server is down.
 - The authorization lines decide whether the session gets an exec prompt and whether each level 15 command is approved by the server.
-- `start-stop` sends a record when a session or command begins and another when it ends. Without a server group at the end, there is nowhere to send them.
+- `start-stop` sends one record when a session or command begins and another when it ends. The records go to the server group named in the list, so the list needs that group, not only `local`.
 
 Plain `group tacacs+` means "all configured TACACS+ servers"; naming your own group, as above, picks specific ones. Either form works in a list.
 
@@ -98,15 +98,9 @@ Test before you log out of anything.
 R1# test aaa group tacacs+ admin Str0ng-Test-Pw legacy
 Attempting authentication test to server-group tacacs+ using tacacs+
 User was successfully authenticated.
-R1# show aaa servers
-
-RADIUS: id 1, priority 1, host 10.1.1.6, auth-port 1812, acct-port 1813
-     State: current UP, duration 312s, previous duration 0s
-     Dead: total time 0s, count 0
-...
 ```
 
-`legacy` selects the older test method, the one that works on most releases. The server status from `show aaa servers` shows whether the router considers each server up or dead and counts requests, accepts, rejects and timeouts. A rising timeout count with no accepts points at routing, a firewall or a wrong key, not at the user's password. When a login still fails, `debug aaa authentication` shows which method the router tried and what each returned. Turn debugging off with `undebug all` afterward.
+`legacy` selects the simple pass-or-fail test that most examples use for TACACS+. Some releases also offer `new-code`, which prints more detail. `show aaa servers` lists each configured server and whether the router considers it up or dead, and it counts requests, accepts, rejects and timeouts. A rising timeout count with no accepts points at routing, a firewall or a wrong key, not at the user's password. When a login still fails, `debug aaa authentication` shows which method the router tried and what each returned. Turn debugging off with `undebug all` afterward.
 
 Fallback to `local` happens when the server does not respond. A wrong password at a responding server is a plain rejection, and it ends there.
 

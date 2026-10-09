@@ -4,7 +4,7 @@ summary = "Building a 64-bit interface ID from a 48-bit MAC address, step by ste
 links = ["itn/12/09-interface-ids-eui64-and-random", "itn/05/08-hex-in-macs-and-ipv6", "field/02/03-hexadecimal", "field/08/04-link-local-addresses"]
 +++
 
-Look at the link-local address on any Cisco router and you will see `ff:fe` sitting in the middle of it. That is the signature of *modified EUI-64*, a recipe that stretches a 48-bit MAC address into the 64-bit interface ID an IPv6 address needs. The itn book shows the steps once. This page walks them slowly with fresh numbers, shows why the bit flip exists, and covers the privacy problem that made most hosts stop using it.
+Look at the link-local address on a Cisco router with default settings and you will see `ff:fe` sitting in the middle of it. That is the signature of *modified EUI-64*, a recipe that stretches a 48-bit MAC address into the 64-bit interface ID an IPv6 address needs. The itn book shows the steps once. This page walks them slowly with fresh numbers, shows why the bit flip exists, and covers the privacy problem that made most hosts stop using it.
 
 ## The three steps
 
@@ -21,7 +21,6 @@ The result, written as four hextets, is `0250:79ff:fe66:6800`, or `250:79ff:fe66
 | MAC address | `00 50 79 66 68 00` |
 | After splitting and inserting | `00 50 79 ff fe 66 68 00` |
 | After flipping the U/L bit | `02 50 79 ff fe 66 68 00` |
-
 
 ## Why flip a bit
 
@@ -63,10 +62,10 @@ Read the middle of the interface ID. If the fourth and fifth bytes are `ff:fe`, 
 
 ## The privacy problem
 
-A MAC address does not change when a laptop moves from the office to a cafe. If the MAC is inside the IPv6 address, the last 64 bits stay the same everywhere the laptop goes, and anyone who sees them can follow it. To stop that, operating systems moved away from EUI-64 for global addresses. Windows and most Linux and Apple systems use one of two approaches: a stable random interface ID per network (RFC 7217), and temporary randomized addresses for outgoing connections (RFC 4941) that change regularly. You saw the second in `ipconfig` as the "Temporary IPv6 Address". Routers keep EUI-64 because nobody carries a router to a cafe, and a readable pattern helps.
+A MAC address does not change when a laptop moves from the office to a cafe. If the MAC is inside the IPv6 address, the last 64 bits stay the same everywhere the laptop goes, and anyone who sees them can follow it. To stop that, many operating systems avoid EUI-64 for global addresses. Most use temporary randomized addresses for outgoing connections (RFC 4941) that change regularly, and some also use a stable random interface ID per network (RFC 7217). On Windows you can see the temporary kind in `ipconfig` as the "Temporary IPv6 Address". Many routers keep EUI-64, because a router rarely moves and a readable pattern helps.
 
 ```trap
-Do not expect a modern PC to show `ff:fe` in its address. Its absence means the host chose random bits. It does not mean something is misconfigured.
+Do not expect a modern PC to show `ff:fe` in its address. A missing `ff:fe` usually means the host chose random bits. It does not mean something is misconfigured.
 ```
 
 ## Practice

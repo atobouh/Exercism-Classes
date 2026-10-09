@@ -10,7 +10,7 @@ So far every device has been something you log in to. Cloud-managed networking t
 
 A cloud-managed switch, access point or firewall opens an outbound encrypted connection to the vendor's cloud service when it powers up. The administrator signs in to a web dashboard, and the dashboard shows every device across every site. Configuration changes made there are pushed down the device's connection. Monitoring data, such as client counts and link status, flows up.
 
-Notice what the device does not do. It does not listen for your SSH session, because there is no need for you to reach it directly. Fewer open management ports on the device is itself a security gain.
+Notice what the device does not need. Day-to-day management does not require you to reach it directly, because the dashboard is the normal path. Fewer open management ports on the device can be a security gain, though the exact local access depends on the product.
 
 ## What moves and what stays
 

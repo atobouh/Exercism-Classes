@@ -54,7 +54,7 @@ why = "Insert ff:fe between 0cd996 and 123a01, and flip the seventh bit of 0c to
 prompt = "A server has the address 2001:db8:acad:2::53. Which group does it join for neighbor discovery?"
 options = ["ff02::1", "ff02::1:ff00:53", "ff02::1:ff53:0", "ff02::2:ff00:53"]
 answer = 1
-why = "The last 24 bits of the address are 00:0053, so the solicited-node group is ff02::1:ff plus those digits: ff02::1:ff00:53."
+why = "The last 24 bits of the address are 00:0053. The solicited-node group is ff02::1:ff followed by those 24 bits: ff02::1:ff00:53."
 ```
 
 ## Static routes and OSPFv3
@@ -106,6 +106,6 @@ back = "The last 24 bits of the unicast address for the group (ff02::1:ff + thos
 ```
 
 ```recall
-front = "What do static routes and OSPFv3 both use as a next hop on a shared link, and what does the router need alongside it?"
-back = "The neighbor's link-local address, together with the exit interface."
+front = "Which address do OSPFv3 routes use as their next hop, and what must a static route with that kind of next hop also name?"
+back = "The neighbor's link-local address. A static route also needs the exit interface, because the link-local address is unique only on its link."
 ```

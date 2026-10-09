@@ -51,9 +51,9 @@ why = "The console does not use the network or SSH. A locked door keeps the pers
 
 ```question
 prompt = "Which TACACS+ and RADIUS pairing of function and port is correct?"
-options = ["TACACS+ uses TCP 49 and encrypts the whole body", "RADIUS uses TCP 1812 and encrypts the whole body", "TACACS+ uses UDP 1813", "RADIUS combines authentication and accounting on TCP 49"]
+options = ["TACACS+ uses TCP 49 and obfuscates the whole body", "RADIUS uses TCP 1812 and encrypts the whole body", "TACACS+ uses UDP 1813", "RADIUS combines authentication and accounting on TCP 49"]
 answer = 0
-why = "TACACS+ is TCP 49 with the entire body encrypted. RADIUS uses UDP 1812 and 1813 and encrypts only the password."
+why = "TACACS+ is TCP 49 with the entire body obfuscated, not encrypted. RADIUS uses UDP 1812 and 1813 and encrypts only the password."
 ```
 
 ```question
@@ -61,6 +61,13 @@ prompt = "In 802.1X, which device is the authenticator?"
 options = ["The PC", "The RADIUS server", "The access switch", "The directory database"]
 answer = 2
 why = "The switch controls the port and relays the exchange. The PC is the supplicant, and the RADIUS server is the authentication server."
+```
+
+```question
+prompt = "A user signs in with a password, then approves a push prompt on a phone. How many factors is that?"
+options = ["One", "Two", "Three", "None, because the phone is not a password"]
+answer = 1
+why = "The password is something you know and the approval shows you have the phone. Two different kinds of proof make two factors."
 ```
 
 ```recall
