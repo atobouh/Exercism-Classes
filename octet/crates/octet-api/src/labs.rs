@@ -172,7 +172,7 @@ impl Mine {
     /// The `.octet-lab` file: the lab with its starting bench, not your board.
     pub fn export(&self, id: &str) -> Result<String, String> {
         let v = self.get(id)?;
-        let start = if v["start"].is_null() { v["board"].clone() } else { v["start"].clone() };
+        let start = if v["start"].is_null() { fresh(v["board"].clone()) } else { v["start"].clone() };
         let out = json!({ "format": 1, "title": v["title"], "summary": v["summary"], "task": v["task"], "start": start });
         Ok(serde_json::to_string_pretty(&out).unwrap())
     }
@@ -192,6 +192,28 @@ impl Mine {
         self.put(&id, &lab).map_err(|e| vec![e])?;
         Ok(id)
     }
+}
+
+/// A bench as a student first sees it: no consoles opened, no pings yet.
+fn fresh(mut s: Value) -> Value {
+    if let Some(o) = s.as_object_mut() {
+        for k in ["opened", "pinged", "tried"] {
+            o.insert(k.into(), json!([]));
+        }
+        o.insert("passed".into(), json!(false));
+    }
+    s
+}
+
+/// Writes the `.octet-lab` file into `dir` without replacing another one.
+pub fn write_file(dir: &Path, id: &str, text: &str) -> Result<PathBuf, String> {
+    std::fs::create_dir_all(dir).map_err(|e| format!("can't reach {}: {e}", dir.display()))?;
+    let p = std::iter::once(dir.join(format!("{id}.octet-lab")))
+        .chain((2..).map(|n| dir.join(format!("{id}-{n}.octet-lab"))))
+        .find(|p| !p.exists())
+        .unwrap();
+    std::fs::write(&p, text).map_err(|e| format!("can't save {}: {e}", p.display()))?;
+    Ok(p)
 }
 
 /// The folder for your labs, next to your data file.

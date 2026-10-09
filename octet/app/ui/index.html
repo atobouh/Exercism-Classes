@@ -24,6 +24,7 @@
       <button class="si" type="button" data-go="library"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 2.5v11M6 2.5v11M9.5 3.2l3.6 10.3"/></svg>Library</button>
       <button class="si" type="button" data-go="reading"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h6l2.5 2.5v8.5H4z"/><path d="M6.5 7.5h4M6.5 10h3"/></svg>Reading now</button>
       <button class="si" type="button" data-go="review"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.8v2.4h2.4"/></svg>Review<span class="n" id="dueN"></span></button>
+      <button class="si" type="button" data-go="labs"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="4.5" height="3.5" rx="1"/><rect x="9.5" y="10" width="4.5" height="3.5" rx="1"/><rect x="2" y="10" width="4.5" height="3.5" rx="1"/><path d="M4.25 6v4M6.5 11.75h3M6.5 4.25h3.25v5.75"/></svg>Labs</button>
       <span class="grp">Books</span>
       <div id="navBooks"></div>
       <span class="grp">Collections</span>
@@ -53,6 +54,7 @@
     </section>
     <section class="view collection" data-view="collection"><div class="col-in"><div class="lib-head"><h1 id="colTitle"></h1><p id="colSub"></p></div><div class="blocks" id="colBlocks"></div></div></section>
     <section class="view settings" data-view="settings"><div class="set-in" id="setIn"></div></section>
+    <section class="view labs-v" data-view="labs"><div class="lib-in" id="labsIn"></div><input type="file" id="labFile" accept=".octet-lab,.json,application/json" hidden></section>
     <section class="view review" data-view="review"><div class="card" id="card"></div></section>
     <div class="toast hide" id="toast" role="status"></div>
   </div>

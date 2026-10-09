@@ -43,8 +43,10 @@ bench.load(lab, { state: JSON.parse(localStorage.getItem(lab.id)) })
 
 | Event | `detail` | When |
 | --- | --- | --- |
-| `bench-change` | `{ lab, state }` | Something changed: a cable, a config, a device moved. Debounced. |
-| `bench-passed` | `{ lab, tasks }` | Every task is done, the first time. |
+| `bench-change` | `{ lab, state, mode }` | Something changed: a cable, a config, a device moved. Debounced. `mode` says whose bench it is: `"build"` (the author's), `"play"` (a student's) or `"try"` (the author playing; don't keep it). |
+| `bench-passed` | `{ lab, tasks, mode }` | Every task is done, the first time. Never fires in build mode. |
+| `bench-edit` | `{ lab, title, summary, task }` | Build mode: the title, summary or tasks changed. Debounced. |
+| `bench-start` | `{ lab, state }` | Build mode: **Use this as the starting point** was pressed. Give `state` back to `load` for a student. |
 | `bench-back` | | The back button was pressed. It only shows if you set `back`. |
 
 ### Attributes
@@ -55,6 +57,24 @@ bench.load(lab, { state: JSON.parse(localStorage.getItem(lab.id)) })
 - `theme="light"`, `"dark"` or `"auto"`: the colours. `auto` follows the system. The default is dark.
 - `layout="docked"`: the brief and the console become panes beside the board, and the tools become a bar along its top. Use this inside an app. The default layout floats them over the board, for a page.
 - `context="Lab in chapter 2 of My course"`: a line under the title in the docked brief.
+- `mode="build"`: the lab builder. See below.
+
+### Build a lab
+
+With `mode="build"` the brief becomes the builder, with two tabs:
+
+- **Devices**: every model in the catalog, grouped. Click one to add it, or drag it onto the board. Right-click a device on the board to rename, duplicate or delete it; deleting unplugs its cables. Consoles open without a console cable while you build.
+- **Brief**: the title, the summary and the tasks. Each task's check is picked from menus filled from the board, and the task's text writes itself until you write your own. **Use this as the starting point** fires `bench-start`. **Try it as a student** plays the lab from that start; **Back to building** returns to the board you left.
+
+```js
+bench.setAttribute('mode', 'build')
+bench.load({ id: 'my-lab', title: 'My lab', task: [] })      // an empty bench
+bench.addEventListener('bench-change', e => e.detail.mode === 'build' && saveBoard(e.detail.state))
+bench.addEventListener('bench-edit', e => saveBrief(e.detail))
+bench.addEventListener('bench-start', e => saveStart(e.detail.state))
+```
+
+To play a built lab, load the lab with its start as the state: `bench.load(lab, { state: start })`. A saved state carries each device's model, so a lab needs no `[[device]]` list when it has a start.
 
 ### Match your site
 

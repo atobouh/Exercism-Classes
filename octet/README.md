@@ -92,3 +92,13 @@ cargo test
 ```
 
 This runs the simulator, the library, the commands, and a check that every link and lab in `content/` resolves.
+
+The bench engine and the open lab have their own:
+
+```
+node app/ui/bench/test/engine.test.mjs          # the network engine, no browser
+cargo build -p octet-api --features dev-server
+node app/test/labs.e2e.mjs                      # build a lab, ping, export, open it again (needs Playwright)
+```
+
+Labs you build in the Labs view are saved as `labs/<id>.json` next to your data file, and shared as `.octet-lab` files.

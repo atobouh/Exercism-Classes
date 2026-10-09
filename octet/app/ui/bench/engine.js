@@ -38,11 +38,12 @@ export function createNetwork(lab, opts = {}) {
 
   /* ---------- devices ---------- */
   const devs = [];
+  const ouiOf = kind => kind === 'router' ? '00d097' : kind === 'switch' ? '0019e8' : '005079';
   function addDevice(def) {
     const m = CATALOG[def.model];
     if (!m) throw new Error(`device ${def.id}: unknown model ${def.model}`);
     const d = { id: def.id, model: def.model, m, kind: m.kind, x: def.x || 0, y: def.y || 0, ifs: {}, hostname: def.hostname || def.id, power: true, boot: clock + 1800 + devs.length * 300, routes: [], arp: {}, macs: {}, vlans: { 1: 'default' }, gw: '', secret: '', ip: def.ip || '', mask: def.mask || '', pcgw: def.gateway || def.gw || '', ledMode: 'stat', locked: !!def.locked };
-    const oui = m.kind === 'router' ? '00d097' : m.kind === 'switch' ? '0019e8' : '005079';
+    const oui = ouiOf(m.kind);
     for (const p of m.ports) if (!['console', 'com', 'aux'].includes(p.iface) && !d.ifs[p.iface]) d.ifs[p.iface] = iface({ shutdown: m.kind === 'pc' ? false : !!(m.defaults || {}).shutdown, mac: mac(oui) });
     if (m.kind === 'switch') d.ifs.Vlan1 = iface({ shutdown: true, svi: true, mac: mac(oui) });
     devs.push(d);
@@ -70,6 +71,15 @@ export function createNetwork(lab, opts = {}) {
     devs.splice(devs.indexOf(d), 1);
     delete sessions[id];
     evalLinks(); emit('change');
+  }
+  function copyDevice(id) { // a second one, set up the same, with its own name and MACs
+    const src = D(id); if (!src) return null;
+    const sd = JSON.parse(JSON.stringify(snapshot().devices.find(x => x.id === id)));
+    const d = add({ model: src.model, x: src.x + 40, y: src.y + 40 });
+    Object.assign(d, { ip: sd.ip, mask: sd.mask, pcgw: sd.pcgw, routes: sd.routes, vlans: sd.vlans, gw: sd.gw, secret: sd.secret });
+    for (const [n, f] of Object.entries(sd.ifs)) d.ifs[n] = Object.assign(d.ifs[n] || iface({}), f, { mac: d.ifs[n] ? d.ifs[n].mac : mac(ouiOf(d.kind)), phys: false, proto: false, upSince: clock });
+    evalLinks(); emit('change');
+    return d;
   }
   function renameDevice(id, to) {
     const d = D(id); if (!d || id === to) return;
@@ -655,7 +665,7 @@ export function createNetwork(lab, opts = {}) {
     devs.forEach((x, i) => { x.arp = JSON.parse(arp[i]); x.macs = JSON.parse(macs[i]); Object.values(x.ifs).forEach((f, j) => { f.act = act[i][j]; }); });
     return ok;
   }
-  const tasks = () => (lab.tasks || lab.task || []).map(t => ({ text: t.text, hint: t.hint || '', done: checkTask(t) }));
+  const tasks = () => (lab.tasks || lab.task || []).map(t => ({ text: t.text, hint: t.hint || '', done: (() => { try { return !!checkTask(t); } catch { return false; } })() })); // a task about a device that's gone isn't done
 
   /* ---------- build the lab ---------- */
   for (const def of lab.devices || lab.device || []) addDevice(def);
@@ -699,7 +709,7 @@ export function createNetwork(lab, opts = {}) {
   return {
     lab, devices: devs, cables, catalog: CATALOG, cableTypes: CABLES,
     device: D, portOf, peerOf, segment,
-    addDevice: add, removeDevice, renameDevice,
+    addDevice: add, removeDevice, renameDevice, copyDevice,
     get clock() { return clock; }, tick,
     plug, attach, detach, remove, canPlug, fits, occupied,
     exec, prompt, help, session: id => sess(D(id)), configure, setPC,

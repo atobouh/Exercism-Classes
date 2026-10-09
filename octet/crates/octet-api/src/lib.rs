@@ -25,6 +25,8 @@ pub struct App {
     labs_dir: PathBuf,
     /// Labs you built or opened from a file, next to your data file.
     mine: labs::Mine,
+    /// Where exported labs are saved, when the shell knows (the desktop app's Downloads).
+    downloads: Option<PathBuf>,
     clock: Option<i64>,
 }
 
@@ -98,9 +100,14 @@ impl App {
         let store = Store::open(data).map_err(|e| e.to_string())?;
         let user_books = data.parent().map(|d| d.join("books")).unwrap_or_else(|| PathBuf::from("books"));
         let blueprints = Blueprint::load_dir(&content.join("exam")).map_err(|e| e.to_string())?;
-        let mut app = Self { books: vec![], store, content: content.to_path_buf(), user_books, broken: vec![], blueprints, labs_dir: content.join("labs"), mine: labs::Mine::new(labs::dir_for(data)), clock: None };
+        let mut app = Self { books: vec![], store, content: content.to_path_buf(), user_books, broken: vec![], blueprints, labs_dir: content.join("labs"), mine: labs::Mine::new(labs::dir_for(data)), downloads: None, clock: None };
         app.reload()?;
         Ok(app)
+    }
+
+    /// Where `lab_export_file` saves: the desktop app passes its Downloads folder.
+    pub fn set_downloads(&mut self, dir: PathBuf) {
+        self.downloads = Some(dir);
     }
 
     /// Reads the shelf again. A broken book of yours is set aside, never a
@@ -545,6 +552,11 @@ impl App {
                 Ok(Value::Null)
             }
             "lab_export" => Ok(json!(self.mine.export(&arg::<String>(args, "id")?)?)),
+            "lab_export_file" => {
+                let id: String = arg(args, "id")?;
+                let dir = self.downloads.clone().ok_or("this Octet has no Downloads folder to save to")?;
+                Ok(json!(labs::write_file(&dir, &id, &self.mine.export(&id)?)?.display().to_string()))
+            }
             "lab_import" => {
                 let text: String = arg(args, "text")?;
                 Ok(match self.mine.import(&text, self.now()) {
@@ -697,13 +709,19 @@ mod tests {
         let def = a.call("lab_def", &json!({ "id": r["id"], "mine": true })).unwrap();
         assert_eq!((def["lab"]["title"].as_str(), def["lab"]["from"].as_str()), (Some("Two PCs"), Some("file")));
         assert_eq!(def["lab"]["task"], task);
-        assert_eq!(def["start"], board);
+        assert_eq!((&def["start"]["devices"], &def["start"]["cables"]), (&board["devices"], &board["cables"]));
+        assert_eq!(def["start"]["opened"], json!([]), "a student starts with no consoles opened");
         assert!(def["state"].is_null() && def["passed"] == false, "progress doesn't travel with the file");
 
         let bad = a.call("lab_import", &json!({ "text": "{\"format\": 1, \"title\": \"x\", \"start\": {\"devices\": [{\"id\": \"R1\", \"model\": \"C9300\"}]}}" })).unwrap();
         assert_eq!(bad["ok"], false);
         assert!(bad["problems"][0].as_str().unwrap().contains("C9300"));
 
+        assert!(a.call("lab_export_file", &json!({ "id": id })).is_err(), "nowhere to save yet");
+        a.set_downloads(d.path().join("Downloads"));
+        let p = a.call("lab_export_file", &json!({ "id": id })).unwrap();
+        assert!(p.as_str().unwrap().ends_with("two-pcs.octet-lab"));
+        assert!(a.call("lab_export_file", &json!({ "id": id })).unwrap().as_str().unwrap().ends_with("two-pcs-2.octet-lab"), "never replaces a file");
         a.call("lab_rename", &json!({ "id": id, "title": "Two PCs, crossed" })).unwrap();
         assert!(a.call("lab_rename", &json!({ "id": id, "title": " " })).is_err());
         a.call("lab_delete", &json!({ "id": id })).unwrap();

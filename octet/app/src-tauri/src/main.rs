@@ -28,7 +28,10 @@ fn main() {
         .setup(|app| {
             let content = content_dir(app);
             let data = app.path().app_data_dir()?.join("octet.json");
-            let state = octet_api::App::open(&content, &data)?;
+            let mut state = octet_api::App::open(&content, &data)?;
+            if let Ok(dir) = app.path().download_dir() {
+                state.set_downloads(dir);
+            }
             app.manage(State(Mutex::new(state)));
             // The interface shows the window once it has drawn. If that never
             // happens, show it anyway so Octet can't start invisible.

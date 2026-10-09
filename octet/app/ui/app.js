@@ -409,10 +409,12 @@
   const labw = $('#labw');
   let labOn = false, LABID = null;
   const bench = () => $('#bench');
+  let MINE = false; // the open lab is one of yours, not a course lab
   const openLab = safe(async id => {
     await customElements.whenDefined('octet-bench');
     const r = await api('lab_def', { id });
-    LABID = id; labOn = true;
+    LABID = id; labOn = true; MINE = false;
+    bench().removeAttribute('mode'); bench().setAttribute('back', 'Back to reading');
     labw.classList.add('on'); lb.classList.add('lab-open'); hideSel();
     const at = allPages().find(p => p.lab === id), loc = at && findPage(at.id);
     bench().setAttribute('context', loc ? `Lab in chapter ${loc.chapter.number} of ${loc.book.title}` : 'Lab');
@@ -420,12 +422,91 @@
     if (loc) where(loc.book.title, loc.chapter.title, r.lab.title); else where('Lab', r.lab.title);
     setTimeout(() => bench().focus({ preventScroll: true }), 60);
   });
+  // One of your labs: build mode shows the drawer and the task writer;
+  // play mode is the lab as a student gets it.
+  const openMine = safe(async (id, mode = 'build') => {
+    await customElements.whenDefined('octet-bench');
+    const r = await api('lab_def', { id, mine: true });
+    LABID = id; labOn = true; MINE = true;
+    labw.classList.add('on'); lb.classList.add('lab-open'); hideSel();
+    const b = bench(), clean = s => s && { ...s, opened: [], pinged: [], tried: [], passed: false };
+    b.setAttribute('mode', mode); b.setAttribute('back', 'Back to labs');
+    b.setAttribute('context', r.lab.from === 'file' ? 'Opened from a file' : mode === 'build' ? 'Your lab, building' : 'Your lab');
+    if (r.start) r.lab.start = r.start;
+    b.load(r.lab, { state: (mode === 'build' ? r.board : r.state || r.start || clean(r.board)) || undefined });
+    where('Labs', r.lab.title);
+    setTimeout(() => b.focus({ preventScroll: true }), 60);
+  });
+  // What the bench holds goes where it belongs: your build, or your progress.
+  const saveBench = (state, mode) => {
+    if (!LABID) return;
+    if (!MINE) { if (mode !== 'try') api('lab_save', { id: LABID, state }).catch(() => {}); return; }
+    if (mode === 'build') api('lab_update', { id: LABID, board: state }).catch(() => {});
+    else if (mode === 'play') api('lab_save', { id: LABID, mine: true, state }).catch(() => {});
+  };
   // Save on the way out too: the bench's own save waits a moment after each change.
-  const leaveLab = () => { if (LABID && bench().net) api('lab_save', { id: LABID, state: bench().snapshot() }).catch(() => {}); labOn = false; LABID = null; labw.classList.remove('on'); lb.classList.remove('lab-open'); closeCtx(); };
-  const closeLab = async () => { leaveLab(); await refresh(); if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
+  const leaveLab = () => { if (LABID && bench().net) saveBench(bench().snapshot(), bench().mode); labOn = false; LABID = null; labw.classList.remove('on'); lb.classList.remove('lab-open'); closeCtx(); };
+  const closeLab = async () => { const mine = MINE; leaveLab(); await refresh(); if (mine) openLabs(); else if (PAGE) openPage(PAGE.page.id); else renderLibrary(); };
   labw.addEventListener('bench-back', closeLab);
-  labw.addEventListener('bench-change', e => api('lab_save', { id: e.detail.lab, state: e.detail.state }).catch(() => {}));
-  labw.addEventListener('bench-passed', safe(async e => { if (LABID && e.detail.lab === LABID) { await api('lab_pass', { id: LABID }); refresh(); } }));
+  labw.addEventListener('bench-change', e => { if (e.detail.lab === LABID) saveBench(e.detail.state, e.detail.mode); });
+  labw.addEventListener('bench-edit', e => { if (MINE && e.detail.lab === LABID) { api('lab_update', { id: LABID, title: e.detail.title.trim() || 'Untitled lab', summary: e.detail.summary, task: e.detail.task }).catch(() => {}); where('Labs', e.detail.title); } });
+  labw.addEventListener('bench-start', e => { if (MINE && e.detail.lab === LABID) api('lab_update', { id: LABID, start: e.detail.state }).catch(() => {}); });
+  labw.addEventListener('bench-passed', safe(async e => {
+    if (!LABID || e.detail.lab !== LABID || e.detail.mode === 'try') return;
+    await api('lab_pass', MINE ? { id: LABID, mine: true } : { id: LABID }); refresh();
+  }));
+
+  /* ---------- the Labs view ---------- */
+  let LABS = null, NAMING = false;
+  const STATE = { new: 'Not started', started: 'In progress', passed: 'Passed' };
+  const renderLabs = () => {
+    const mine = LABS.mine.filter(l => l.from !== 'file'), shared = LABS.mine.filter(l => l.from === 'file');
+    const card = l => `<div class="labcard" data-mine="${esc(l.id)}"><b>${esc(l.title)}</b><span>${l.devices} device${l.devices === 1 ? '' : 's'}, ${l.tasks} task${l.tasks === 1 ? '' : 's'}${l.state === 'new' ? '' : '. ' + STATE[l.state]}</span>${l.summary ? `<p>${esc(l.summary)}</p>` : ''}<div class="row"><button class="btn ghost" type="button" data-labact="build">Build</button><button class="btn ghost" type="button" data-labact="play">${l.from === 'file' ? 'Open' : 'Try it'}</button><button class="btn ghost" type="button" data-labact="export">Export</button><button class="btn ghost danger" type="button" data-labact="delete">Delete</button></div></div>`;
+    const newCard = NAMING
+      ? `<div class="labcard"><form id="labNew"><b>Name your lab</b><input name="title" placeholder="Two PCs and a switch" maxlength="80" autocomplete="off" aria-label="Lab name"><div class="row"><button class="btn pri" type="submit">Start building</button><button class="btn ghost" type="button" data-labact="cancel">Cancel</button></div></form></div>`
+      : `<button class="labcard new" type="button" data-labact="new"><b>New lab</b><span>A blank bench and a drawer of devices</span></button>`;
+    const books = LABS.books.map(b => `<div><h3>${esc(b.title)}</h3><div class="ch-list">${b.labs.map(l => `<button class="ch" type="button" data-lab="${esc(l.id)}"><span>Lab</span>${esc(l.title)}<span class="st-${l.state}">${STATE[l.state]}</span></button>`).join('')}</div></div>`).join('');
+    $('#labsIn').innerHTML = `<div class="lib-head"><h1>Labs</h1><p>The labs from your books, and labs you build yourself. Drop a .octet-lab file anywhere here to open it.</p></div>
+      <div class="lib-sec"><h2>From your books</h2><div class="lab-books">${books || '<p style="margin:0;color:var(--ink3)">No book has a lab yet.</p>'}</div></div>
+      <div class="lib-sec"><h2>Your labs</h2><div class="lab-grid">${newCard}${mine.map(card).join('')}</div></div>
+      <div class="lib-sec"><h2>Opened from files <button type="button" data-labact="file">Open a lab file</button></h2>${shared.length ? `<div class="lab-grid">${shared.map(card).join('')}</div>` : '<p style="margin:0;color:var(--ink3)">Labs someone shared with you land here.</p>'}</div>`;
+    const inp = $('#labNew input'); if (inp) inp.focus();
+  };
+  const openLabs = safe(async () => { LABS = await api('lab_list'); NAMING = false; renderLabs(); show('labs'); where('Labs'); });
+  const download = (name, text) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); };
+  const importLab = safe(async text => {
+    const r = await api('lab_import', { text });
+    if (!r.ok) { toast("Octet can't open that lab: " + r.problems.join('; ')); return; }
+    LABS = await api('lab_list'); renderLabs(); show('labs'); where('Labs');
+    toast(`${(LABS.mine.find(l => l.id === r.id) || {}).title || 'The lab'} is under Opened from files.`);
+  });
+  const readFile = f => { if (!f) return; if (f.size > 4e6) return toast("That file is too big to be a lab."); f.text().then(importLab); };
+  $('#labsIn').addEventListener('submit', safe(async e => {
+    e.preventDefault();
+    const title = new FormData(e.target).get('title').trim() || 'Untitled lab';
+    const r = await api('lab_new', { title }); openMine(r.id, 'build');
+  }));
+  $('#labsIn').addEventListener('click', safe(async e => {
+    const a = e.target.closest('[data-labact]'); if (!a) return;
+    const act = a.dataset.labact, card = a.closest('[data-mine]'), id = card && card.dataset.mine;
+    if (act === 'new') { NAMING = true; renderLabs(); }
+    else if (act === 'cancel') { NAMING = false; renderLabs(); }
+    else if (act === 'file') $('#labFile').click();
+    else if (act === 'build' || act === 'play') openMine(id, act);
+    else if (act === 'export') {
+      const l = LABS.mine.find(x => x.id === id);
+      if (window.__TAURI__) { const path = await api('lab_export_file', { id }); toast(`Saved ${path}`); }
+      else { download(`${id}.octet-lab`, await api('lab_export', { id })); toast(`${l.title} is saved as ${id}.octet-lab.`); }
+    } else if (act === 'delete') {
+      if (a.dataset.sure !== '1') { a.dataset.sure = '1'; a.textContent = 'Delete for good'; setTimeout(() => { if (a.isConnected) { a.dataset.sure = ''; a.textContent = 'Delete'; } }, 4000); return; }
+      await api('lab_delete', { id }); LABS = await api('lab_list'); renderLabs();
+    }
+  }));
+  $('#labFile').addEventListener('change', e => { readFile(e.target.files[0]); e.target.value = ''; });
+  // Drop a lab file anywhere on the window.
+  lb.addEventListener('dragover', e => { if (labOn || ![...e.dataTransfer.types].includes('Files')) return; e.preventDefault(); $('.labs-v').classList.add('drop'); });
+  lb.addEventListener('dragleave', e => { if (e.target === lb || !lb.contains(e.relatedTarget)) $('.labs-v').classList.remove('drop'); });
+  lb.addEventListener('drop', e => { if (labOn || !e.dataTransfer.files.length) return; e.preventDefault(); $('.labs-v').classList.remove('drop'); readFile(e.dataTransfer.files[0]); });
 
   /* ---------- navigation ---------- */
   lb.addEventListener('click', safe(async e => {
@@ -438,6 +519,7 @@
       if (v === 'library') { await refresh(); renderLibrary(); }
       else if (v === 'review') openReview();
       else if (v === 'settings') openSettings();
+      else if (v === 'labs') openLabs();
       else if (v === 'reading') { const r = LIB.ribbon || (allPages()[0] && { page: allPages()[0].id }); if (r) openPage(r.page, r.block); }
       return;
     }
@@ -510,6 +592,7 @@
       items.push({ label: 'Library', run: () => lb.querySelector('[data-go="library"]').click() });
       items.push({ label: 'Reading now', run: () => lb.querySelector('[data-go="reading"]').click() });
       items.push({ label: 'Review', run: () => lb.querySelector('[data-go="review"]').click() });
+      items.push({ label: 'Labs', run: () => lb.querySelector('[data-go="labs"]').click() });
       items.push('-', { label: panes.side ? 'Hide the sidebar' : 'Show the sidebar', key: 'Ctrl B', run: () => setPane('side', !panes.side) });
       if (cur === 'reading') items.push({ label: panes.list ? 'Hide the page list' : 'Show the page list', key: 'Ctrl Shift B', run: () => setPane('list', !panes.list) });
       items.push({ label: 'Settings', run: () => openSettings() });

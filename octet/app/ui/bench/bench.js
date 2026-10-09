@@ -10,10 +10,11 @@
 //   </script>
 //
 // Attributes: `back` (a label for a back button, fires bench-back),
-// `labels` (show every port name), `fast` (start the clock at ten times).
+// `labels` (show every port name), `fast` (start the clock at ten times),
+// `mode="build"` (the lab builder: a device drawer and a task writer).
 
 import { createNetwork, maskLen, short } from './engine.js';
-import { CABLES } from './catalog.js';
+import { CABLES, CATALOG } from './catalog.js';
 import { drawDevice, DEFS } from './faceplate.js';
 
 const LIGHT = `--b-bench: oklch(99.1% 0.002 85); --b-pane: oklch(97.9% 0.003 80); --b-pop: oklch(99.4% 0.002 85); --b-dot: oklch(84% 0.006 70);
@@ -171,7 +172,7 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 :host([layout="docked"]) .brief header { display: grid; gap: 2px; padding: 20px 20px 12px; border-bottom: 1px solid var(--b-line); }
 :host([layout="docked"]) .brief h1 { font: 500 22px/1.15 var(--b-book); }
 :host([layout="docked"]) .brief .count { font-size: 12.5px; white-space: normal; }
-:host([layout="docked"]) .brief .body { overflow-y: auto; padding: 14px 20px; display: grid; gap: 14px; align-content: start; }
+:host([layout="docked"]) .brief > .body { overflow-y: auto; padding: 14px 20px; display: grid; gap: 14px; align-content: start; }
 :host([layout="docked"]) .brief .sum { font-size: 13.5px; line-height: 1.5; }
 :host([layout="docked"]) .brief ol { gap: 2px; margin: 0 -8px; }
 :host([layout="docked"]) .brief li { padding: 8px; border-radius: 9px; font-size: 13.5px; }
@@ -190,6 +191,50 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 :host([layout="docked"]) .con { top: 0; right: 0; bottom: 0; width: var(--b-con-w); border: 0; border-left: 1px solid var(--b-line); border-radius: 0; box-shadow: none; background: var(--b-pane); }
 :host([layout="docked"]) .con .tabs { padding: 8px 8px 0; }
 :focus-visible { outline: 2px solid var(--b-you); outline-offset: 2px; }
+/* mode="build": the brief becomes the builder, with a device drawer and a
+   task writer. mode="try" is you playing your own lab. */
+.btabs, .drawer, .writer, .tb.edit { display: none; }
+:host([mode="build"]) .btabs { display: flex; gap: 2px; padding: 0 0 2px; }
+:host([mode="build"]) .brief > .body, :host([mode="build"]) .brief > .row { display: none; }
+:host([mode="build"]) .brief[data-tab="devices"] .drawer, :host([mode="build"]) .brief[data-tab="brief"] .writer { display: grid; }
+:host([mode="try"]) .tb.edit { display: inline-flex; }
+:host([layout="docked"][mode="build"]) .brief { grid-template-rows: auto auto minmax(0, 1fr); }
+:host([layout="docked"][mode="build"]) .btabs { padding: 8px 12px; border-bottom: 1px solid var(--b-line); }
+:host(:not([layout="docked"])[mode="build"]) .drawer, :host(:not([layout="docked"])[mode="build"]) .writer { max-height: calc(100vh - 200px); }
+.btab { border: 0; background: transparent; color: var(--b-ink3); font: 500 12.5px var(--b-ui); padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+.btab:hover { color: var(--b-ink); }
+.btab[aria-selected="true"] { background: var(--b-sel); color: var(--b-ink); }
+.drawer, .writer { overflow-y: auto; align-content: start; gap: 6px; padding: 12px 14px 16px; min-height: 0; }
+.drawer h2 { margin: 10px 2px 2px; font: 500 11.5px var(--b-ui); color: var(--b-ink3); }
+.drawer h2:first-child { margin-top: 0; }
+.dv { border: 0; background: transparent; color: var(--b-ink); font: inherit; text-align: left; border-radius: 10px; padding: 8px; display: grid; gap: 4px; cursor: grab; touch-action: none; transition: background-color 120ms ease; }
+.dv:hover { background: var(--b-hover); }
+.dv svg { width: 100%; height: 44px; pointer-events: none; }
+.dv b { font: 500 12.5px var(--b-ui); }
+.dv span { font-size: 11.5px; color: var(--b-ink3); }
+.drawer p, .writer p { margin: 0; font-size: 12.5px; color: var(--b-ink3); line-height: 1.45; }
+.ghost { position: absolute; z-index: 50; pointer-events: none; padding: 6px 10px; font: 500 12.5px var(--b-ui); transform: translate(-50%, -50%); }
+.fld { display: grid; gap: 4px; font-size: 11.5px; color: var(--b-ink3); }
+.writer input, .writer textarea, .writer select { width: 100%; min-width: 0; border: 0; border-radius: 7px; background: var(--b-bench); color: var(--b-ink); font: 400 13px var(--b-ui); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--b-line); resize: vertical; }
+.writer select { padding: 5px 6px; font-size: 12.5px; }
+.writer input:focus, .writer textarea:focus, .writer select:focus { box-shadow: inset 0 0 0 1.5px var(--b-you); }
+.writer input.mono { font: 400 12.5px var(--b-mono); }
+.writer h2 { margin: 8px 0 0; font: 500 11.5px var(--b-ui); color: var(--b-ink3); }
+.task { display: grid; gap: 6px; padding: 10px; border-radius: 10px; box-shadow: inset 0 0 0 1px var(--b-line); }
+.trow { display: flex; gap: 6px; align-items: center; }
+.trow > * { flex: 1; }
+.trow .num { flex: 0 0 18px; font: 600 11px var(--b-ui); color: var(--b-ink3); }
+.trow .del { flex: 0 0 auto; border: 0; background: none; color: var(--b-ink3); font-size: 16px; cursor: pointer; padding: 0 4px; }
+.trow .del:hover { color: var(--b-broken); }
+.trow label { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--b-ink2); flex: 0 0 auto; }
+.trow label input { width: auto; box-shadow: none; }
+.task .st { font-size: 11.5px; color: var(--b-ink3); }
+.task .st.ok { color: var(--b-ok); }
+.wbtn { border: 0; border-radius: 8px; background: var(--b-sel); color: var(--b-ink); font: 500 12.5px var(--b-ui); padding: 8px 10px; cursor: pointer; text-align: left; }
+.wbtn:hover { background: var(--b-hover); }
+.wbtn.main { background: var(--b-ink); color: var(--b-bench); }
+.menu form { display: flex; gap: 6px; padding: 4px; }
+.menu input { width: 140px; border: 0; border-radius: 7px; background: var(--b-bench); color: var(--b-ink); font: 400 13px var(--b-ui); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1.5px var(--b-you); }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; animation-duration: 1ms !important; } }
 `;
 
@@ -198,9 +243,9 @@ const HTML = `
   <rect class="grid" x="-6000" y="-6000" width="12000" height="12000" fill="url(#b-dots)"/>
   <g class="cam"><g class="devs"></g></g></svg>
 <canvas></canvas>
-<section class="panel brief" aria-label="The brief"><header><h1></h1><span class="count"></span></header><div class="body"><p class="sum"></p><ol></ol></div><div class="row"><button class="more hintbtn" type="button">Show a hint</button><button class="more minbtn" type="button">Hide the brief</button></div></section>
+<section class="panel brief" aria-label="The brief" data-tab="devices"><header><h1></h1><span class="count"></span></header><nav class="btabs" role="tablist"><button class="btab" type="button" role="tab" data-btab="devices" aria-selected="true">Devices</button><button class="btab" type="button" role="tab" data-btab="brief" aria-selected="false">Brief</button></nav><div class="drawer"></div><div class="writer"></div><div class="body"><p class="sum"></p><ol></ol></div><div class="row"><button class="more hintbtn" type="button">Show a hint</button><button class="more minbtn" type="button">Hide the brief</button></div></section>
 <div class="panel tools" role="toolbar" aria-label="Bench tools">
-  <button class="tb brieftb" type="button" data-t="brief" aria-pressed="true" title="Show or hide the brief"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M3 8h10M3 11.5h6"/></svg>Brief</button><button class="tb back" type="button" hidden></button><span class="sep back-sep" hidden></span>
+  <button class="tb brieftb" type="button" data-t="brief" aria-pressed="true" title="Show or hide the brief"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M3 8h10M3 11.5h6"/></svg>Brief</button><button class="tb back" type="button" hidden></button><button class="tb edit" type="button" data-t="edit">← Back to building</button><span class="sep back-sep" hidden></span>
   <button class="tb" type="button" data-t="zout" aria-label="Zoom out">−</button><button class="tb zoom" type="button" data-t="fit" title="Fit everything">100%</button><button class="tb" type="button" data-t="zin" aria-label="Zoom in">+</button>
   <span class="sep"></span>
   <button class="tb" type="button" data-t="labels" aria-pressed="false" title="Show every port name">Labels <span class="k">Alt</span></button>
@@ -218,6 +263,28 @@ const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(
 const md = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
 const N = 22;
 
+/* ---------- the task writer ---------- */
+// Each check the engine grades, as menus: `f` lists the fields, `dev` which
+// kinds of device the first menu offers. `get` and `put` turn a check into
+// those fields and back. `say` writes the task for you until you write your own.
+const ROUTED = ['router', 'switch'];
+const KINDS = {
+  console: { name: 'Opens a console', f: ['device'], dev: ROUTED, get: c => ({ device: c }), put: v => v.device, say: v => `Open ${v.device}'s console from a PC.` },
+  address: { name: 'Interface has an address', f: ['device', 'iface', 'ip', 'mask', 'up'], dev: ROUTED, get: c => c, put: v => ({ device: v.device, iface: v.iface, ip: v.ip, mask: v.mask, up: !!v.up }), say: v => `Give ${v.device} ${short(v.iface || '')} the address ${v.ip || '…'}${v.mask ? '/' + maskLen(v.mask) : ''}${v.up ? ', and bring it up' : ''}.` },
+  pc: { name: 'PC is set up', f: ['device', 'ip', 'mask', 'gateway'], dev: ['pc'], get: c => c, put: v => ({ device: v.device, ip: v.ip, mask: v.mask, ...(v.gateway ? { gateway: v.gateway } : {}) }), say: v => `Set ${v.device} to ${v.ip || '…'}${v.mask ? '/' + maskLen(v.mask) : ''}${v.gateway ? `, gateway ${v.gateway}` : ''}.` },
+  cabled: { name: 'Port is cabled to', f: ['device', 'port', 'to'], get: c => { const [e, to] = (c && c[0]) || []; const [device, port] = (e || '').split(/\s+/); return { device, port, to }; }, put: v => [[`${v.device} ${v.port || ''}`.trim(), v.to]], say: v => `Cable ${v.device} ${v.port || ''} to ${v.to || '…'}.` },
+  link: { name: 'Link between two ports', f: ['device', 'port', 'to', 'toport'], get: c => { const [device, port] = (c.a || '').split(/\s+/), [to, toport] = (c.b || '').split(/\s+/); return { device, port, to, toport }; }, put: v => ({ a: `${v.device} ${v.port || ''}`.trim(), b: `${v.to || ''} ${v.toport || ''}`.trim() }), say: v => `Link ${v.device} ${v.port || ''} to ${v.to || '…'}${v.toport ? ' ' + v.toport : ''}.` },
+  vlan: { name: 'VLANs exist', f: ['device', 'vlans'], dev: ['switch'], get: c => ({ device: c.device, vlans: [].concat(c.vlans || c.id || []).join(', ') }), put: v => ({ device: v.device, vlans: String(v.vlans || '').split(/[\s,]+/).filter(Boolean).map(Number).filter(n => n > 0 && n < 4095) }), say: v => `Create VLAN ${v.vlans || '…'} on ${v.device}.` },
+  trunk: { name: 'Trunk is up', f: ['device', 'iface'], dev: ['switch'], get: c => c, put: v => ({ device: v.device, iface: v.iface }), say: v => `Make ${v.device} ${short(v.iface || '')} a working trunk.` },
+  pinged: { name: 'Ping succeeds', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Ping ${v.to || '…'} from ${v.device}.` },
+  tried: { name: 'Ping was tried', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Try a ping to ${v.to || '…'} from ${v.device}.` },
+  reach: { name: 'Can reach an address', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Make ${v.to || '…'} reachable from ${v.device}.` },
+};
+const FIELD = { device: 'Device', iface: 'Interface', port: 'Port', to: 'To', toport: 'Port (any)', ip: 'Address', mask: 'Mask', gateway: 'Gateway', vlans: 'VLANs', up: 'Up' };
+const GROUPS = [['router', 'Routers'], ['switch', 'Switches'], ['pc', 'End devices'], ['wireless', 'Wireless'], ['wan', 'WAN']];
+// A task naming `from` now names `to`: device ids, and "DEV PORT" ends.
+const renamed = (x, from, to) => typeof x === 'string' ? (x === from ? to : x.startsWith(from + ' ') ? to + x.slice(from.length) : x) : Array.isArray(x) ? x.map(y => renamed(y, from, to)) : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, renamed(v, from, to)])) : x;
+
 export class OctetBench extends HTMLElement {
   constructor() {
     super();
@@ -229,12 +296,12 @@ export class OctetBench extends HTMLElement {
     this.ropes = new Map();
     this.hand = null; this.armed = 'straight'; this.speed = 1; this.sound = true; this.labelsOn = false;
     this.tabs = []; this.open = null; this.hover = { dev: null, cable: null };
-    this.raf = 0; this.passedOnce = false; this.hints = false;
+    this.raf = 0; this.passedOnce = false; this.hints = false; this.said = new WeakMap();
   }
   connectedCallback() {
     this.board = this.$('svg.board'); this.cam = this.$('.cam'); this.devsG = this.$('.devs'); this.canvas = this.$('canvas'); this.ctx = this.canvas.getContext('2d');
     this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(this);
-    this.wire();
+    this.wire(); this.wireBuild();
     if (this.hasAttribute('back')) { const b = this.$('.back'); b.hidden = false; this.$('.back-sep').hidden = false; b.textContent = '← ' + this.getAttribute('back'); }
     if (this.hasAttribute('labels')) this.labelsOn = true;
     if (this.hasAttribute('fast')) this.setSpeed(10);
@@ -245,8 +312,13 @@ export class OctetBench extends HTMLElement {
   disconnectedCallback() { cancelAnimationFrame(this.raf); this.ro && this.ro.disconnect(); }
 
   get docked() { return this.getAttribute('layout') === 'docked'; }
-  static get observedAttributes() { return ['context']; }
-  attributeChangedCallback() { if (this.net) this.renderBrief(); }
+  get mode() { return this.getAttribute('mode') || 'play'; }
+  get building() { return this.mode === 'build'; }
+  static get observedAttributes() { return ['context', 'mode', 'back']; }
+  attributeChangedCallback(name) {
+    if (name === 'back' && this.board) { const b = this.$('.back'), on = this.hasAttribute('back'); b.hidden = !on; this.$('.back-sep').hidden = !on; b.textContent = '← ' + (this.getAttribute('back') || ''); }
+    if (!this.net) return; if (name === 'mode') this.renderBuild(); this.renderBrief();
+  }
 
   /* ---------- public API ---------- */
   load(lab, { state } = {}) {
@@ -261,9 +333,12 @@ export class OctetBench extends HTMLElement {
     this.$('.brief .sum').textContent = lab.summary || '';
     this.$('.brief .sum').hidden = !lab.summary;
     this.renderTray();
+    if (!lab.tasks && !lab.task) lab.task = [];
+    this.renderBuild();
     this.passedOnce = !!(state && state.passed);
     requestAnimationFrame(() => { this.resize(); this.fit(); this.renderBrief(); });
-    if (!state) setTimeout(() => this.toast('Drag from any port to start a cable. Right-click anything for more. Scroll to zoom.'), 2200);
+    if (this.building && !this.net.devices.length) setTimeout(() => this.toast('Take a device from the drawer: drag it onto the board, or click it.'), 600);
+    else if (!state) setTimeout(() => this.toast('Drag from any port to start a cable. Right-click anything for more. Scroll to zoom.'), 2200);
     return this.net;
   }
   paneW(v) { return parseFloat(getComputedStyle(this).getPropertyValue(v)) || 300; }
@@ -414,13 +489,172 @@ export class OctetBench extends HTMLElement {
     this.$('.brief .count').textContent = (ctx && this.docked ? ctx + '. ' : '') + (ts.length && n === ts.length ? 'All done' : this.docked ? `${n} of ${ts.length} done` : `${n} of ${ts.length}`);
     this.$('.hintbtn').hidden = next < 0 || !ts[next].hint;
     this.$('.hintbtn').textContent = this.hints ? 'Hide the hint' : 'Show a hint';
-    if (ts.length && n === ts.length && !this.passedOnce) { this.passedOnce = true; this.toast('Every task is done. The lab is passed.'); this.dispatchEvent(new CustomEvent('bench-passed', { bubbles: true, composed: true, detail: { lab: this.lab.id, tasks: ts } })); }
+    this.$$('.task').forEach((el, i) => { const st = el.querySelector('.st'); if (st && ts[i]) { st.textContent = ts[i].done ? 'Done on the board now' : 'Not done on the board yet'; st.classList.toggle('ok', ts[i].done); } });
+    if (this.building) return ts;
+    if (ts.length && n === ts.length && !this.passedOnce) { this.passedOnce = true; this.toast('Every task is done. The lab is passed.'); this.dispatchEvent(new CustomEvent('bench-passed', { bubbles: true, composed: true, detail: { lab: this.lab.id, tasks: ts, mode: this.mode } })); }
     return ts;
   }
   changed() {
     this.renderBrief();
     clearTimeout(this.saveT);
-    this.saveT = setTimeout(() => this.dispatchEvent(new CustomEvent('bench-change', { bubbles: true, composed: true, detail: { lab: this.lab && this.lab.id, state: this.snapshot() } })), 400);
+    this.saveT = setTimeout(() => this.dispatchEvent(new CustomEvent('bench-change', { bubbles: true, composed: true, detail: { lab: this.lab && this.lab.id, state: this.snapshot(), mode: this.mode } })), 400);
+  }
+
+  /* ---------- build mode ---------- */
+  renderBuild() {
+    const br = this.$('.brief');
+    if (!this.building) return;
+    br.classList.remove('min');
+    // the drawer: every model, drawn by the same renderer as the board
+    const groups = GROUPS.map(([k, name]) => [name, Object.entries(CATALOG).filter(([, m]) => (m.group || m.kind) === k)]).filter(([, ms]) => ms.length);
+    this.$('.drawer').innerHTML = groups.map(([name, ms]) => `<h2>${name}</h2>` + ms.map(([id, m]) => `<button class="dv" type="button" data-model="${esc(id)}" title="Drag onto the board, or click"><svg viewBox="-4 -4 ${m.w + 8} ${m.h + 8}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg><b>${esc(m.name)}</b><span>${esc(m.platform || m.kind)}</span></button>`).join('')).join('') + '<p>Right-click a device on the board to rename, copy or delete it.</p>';
+    this.$$('.dv').forEach(b => { const m = CATALOG[b.dataset.model]; drawDevice(b.querySelector('svg'), { id: '', hostname: '', m, kind: m.kind }); });
+    this.renderWriter();
+  }
+  addFromDrawer(model, cx, cy) {
+    const m = CATALOG[model], r = this.getBoundingClientRect(), left = this.docked ? this.paneW('--b-pane-w') : 0;
+    let w;
+    // A click stacks it under what's there, like a rack, with PCs side by
+    // side. On an empty board it goes in the middle.
+    const ds = this.net.devices, last = cx === undefined && ds[ds.length - 1];
+    if (last && last.kind === 'pc' && m.kind === 'pc') w = { x: last.x + last.m.w + 50 + m.w / 2, y: last.y + m.h / 2 };
+    else if (last) { const minx = Math.min(...ds.map(d => d.x)), maxx = Math.max(...ds.map(d => d.x + d.m.w)); w = { x: (minx + maxx) / 2, y: Math.max(...ds.map(d => d.y + d.m.h)) + 80 + m.h / 2 }; }
+    else if (cx === undefined) w = this.toWorld(r.left + left + (r.width - left) / 2, r.top + r.height / 2);
+    else w = this.toWorld(cx, cy);
+    let d; try { d = this.net.addDevice({ model, x: Math.round(w.x - m.w / 2), y: Math.round(w.y - m.h / 2) }); } catch (err) { return this.toast(err.message); }
+    this.drawNew(d);
+    const sx = (d.x + m.w) * this.view.z + this.view.x;
+    const sy = (d.y + m.h) * this.view.z + this.view.y;
+    if (sx > this.clientWidth - 24 || sy > this.clientHeight - 100 || d.x * this.view.z + this.view.x < left) this.fit();
+    this.toast(`${d.id} is on the bench. It boots, then its lights come on. Right-click it to rename it.`);
+  }
+  drawNew(d) { drawDevice(this.devsG, d); this.place(d); this.paint(); this.renderWriter(); }
+  redraw(d) { d.g.remove(); this.drawNew(d); }
+  renameDev(d, to) {
+    const from = d.id; to = to.trim();
+    if (!to || to === from) return;
+    try { this.net.renameDevice(from, to); } catch (err) { return this.toast(err.message); }
+    const list = this.taskList(); list.forEach((t, i) => { list[i] = { ...t, check: renamed(t.check, from, to) }; });
+    this.tabs = this.tabs.map(x => x === from ? to : x); if (this.open === from) this.open = to;
+    this.redraw(d); this.renderTabs(); this.edited();
+  }
+  deleteDev(d) {
+    this.net.removeDevice(d.id); d.g.remove();
+    this.tabs = this.tabs.filter(x => x !== d.id); if (this.open === d.id) { this.open = this.tabs[this.tabs.length - 1] || null; if (!this.open) this.$('.con').classList.remove('on'); }
+    this.renderTabs(); this.renderOut(); this.renderWriter();
+    this.toast(`${d.id} is off the bench, with its cables.`);
+  }
+  taskList() { const l = this.lab; return l.tasks || (l.task = l.task || []); }
+  edited() {
+    this.renderBrief();
+    clearTimeout(this.editT);
+    this.editT = setTimeout(() => this.dispatchEvent(new CustomEvent('bench-edit', { bubbles: true, composed: true, detail: { lab: this.lab.id, title: this.lab.title || '', summary: this.lab.summary || '', task: this.taskList() } })), 400);
+  }
+  renderWriter() {
+    if (!this.building || !this.net) return;
+    const w = this.$('.writer'), devs = this.net.devices, lab = this.lab;
+    const opt = (v, label, sel) => `<option value="${esc(v)}"${v === sel ? ' selected' : ''}>${esc(label)}</option>`;
+    const field = (k, v, kind) => {
+      const val = v[k] || '';
+      if (k === 'device' || k === 'to' && kind !== 'pinged' && kind !== 'tried' && kind !== 'reach') {
+        const kinds = k === 'device' && KINDS[kind].dev, ds = devs.filter(d => !kinds || kinds.includes(d.kind));
+        const ids = ds.map(d => d.id); if (val && !ids.includes(val)) ids.unshift(val);
+        return `<select data-v="${k}" aria-label="${FIELD[k]}">${opt('', FIELD[k] + '…', val)}${ids.map(id => opt(id, id, val)).join('')}</select>`;
+      }
+      if (k === 'iface' || k === 'port' || k === 'toport') {
+        const d = this.net.device(k === 'toport' ? v.to : v.device);
+        const names = !d ? [] : k === 'iface' ? Object.keys(d.ifs) : d.m.ports.filter(p => !['decor', 'con', 'com'].includes(p.type)).map(p => p.key);
+        if (val && !names.includes(val)) names.unshift(val);
+        return `<select data-v="${k}" aria-label="${FIELD[k]}">${opt('', FIELD[k] + '…', val)}${names.map(n => opt(n, k === 'iface' ? short(n) : n, val)).join('')}</select>`;
+      }
+      if (k === 'up') return `<label><input type="checkbox" data-v="up"${v.up ? ' checked' : ''}> up</label>`;
+      return `<input class="mono" data-v="${k}" value="${esc(val)}" placeholder="${FIELD[k]}" spellcheck="false" autocomplete="off" aria-label="${FIELD[k]}">`;
+    };
+    const tasks = this.taskList().map((t, i) => {
+      const kind = Object.keys(t.check || {})[0] || 'pinged', K = KINDS[kind] || KINDS.pinged, v = K.get((t.check || {})[kind] || {}) || {};
+      const rows = []; for (let j = 0; j < K.f.length; j += 2) rows.push(`<div class="trow">${K.f.slice(j, j + 2).map(k => field(k, v, kind)).join('')}</div>`);
+      return `<div class="task" data-i="${i}"><div class="trow"><span class="num">${i + 1}</span><select data-k="kind" aria-label="Check">${Object.entries(KINDS).map(([k, x]) => opt(k, x.name, kind)).join('')}</select><button class="del" type="button" data-del aria-label="Delete task">×</button></div>${rows.join('')}<input data-k="text" value="${esc(t.text || '')}" placeholder="What the student does" aria-label="Task"><input data-k="hint" value="${esc(t.hint || '')}" placeholder="A hint, if they ask (optional)" aria-label="Hint"><span class="st"></span></div>`;
+    }).join('');
+    w.innerHTML = `<label class="fld">Title<input data-f="title" value="${esc(lab.title || '')}"></label><label class="fld">Summary<textarea data-f="summary" rows="3" placeholder="What the student starts with, and what they're after">${esc(lab.summary || '')}</textarea></label>
+      <h2>Tasks</h2>${tasks || '<p>No tasks yet. A lab with no tasks is a sandbox.</p>'}<button class="wbtn" type="button" data-act="add">Add a task</button>
+      <h2>Starting point</h2><p>Build the network a student starts with, broken if you like, then mark it.</p><button class="wbtn" type="button" data-act="start">Use this as the starting point</button><button class="wbtn main" type="button" data-act="try">Try it as a student</button>`;
+    this.renderBrief();
+  }
+  wireBuild() {
+    this.$('.btabs').addEventListener('click', e => { const b = e.target.closest('[data-btab]'); if (!b) return; this.$('.brief').dataset.tab = b.dataset.btab; this.$$('.btab').forEach(x => x.setAttribute('aria-selected', x === b)); });
+    // the drawer: click to add, or drag onto the board
+    this.$('.drawer').addEventListener('pointerdown', e => {
+      const b = e.target.closest('.dv'); if (!b || e.button !== 0) return;
+      e.preventDefault();
+      const model = b.dataset.model, sx = e.clientX, sy = e.clientY, host = this.getBoundingClientRect();
+      let ghost = null;
+      const move = ev => {
+        if (!ghost && Math.hypot(ev.clientX - sx, ev.clientY - sy) < 6) return;
+        if (!ghost) { ghost = document.createElement('div'); ghost.className = 'panel ghost'; ghost.textContent = CATALOG[model].name; this.shadowRoot.appendChild(ghost); }
+        ghost.style.left = ev.clientX - host.left + 'px'; ghost.style.top = ev.clientY - host.top + 'px';
+      };
+      const up = ev => {
+        removeEventListener('pointermove', move); removeEventListener('pointerup', up);
+        if (!ghost) return this.addFromDrawer(model);
+        ghost.remove();
+        const over = this.shadowRoot.elementFromPoint ? this.shadowRoot.elementFromPoint(ev.clientX, ev.clientY) : null;
+        if (over && (over === this.board || this.board.contains(over))) this.addFromDrawer(model, ev.clientX, ev.clientY);
+      };
+      addEventListener('pointermove', move); addEventListener('pointerup', up);
+    });
+    // the writer
+    const w = this.$('.writer');
+    const at = e => { const el = e.target.closest('.task'); return el ? [+el.dataset.i, el] : [-1, null]; };
+    const valuesOf = el => { const v = {}; el.querySelectorAll('[data-v]').forEach(x => { v[x.dataset.v] = x.type === 'checkbox' ? x.checked : x.value.trim(); }); return v; };
+    const update = (e, rerender) => {
+      const f = e.target.dataset.f;
+      if (f) { this.lab[f] = e.target.value; if (f === 'title') this.$('.brief h1').textContent = e.target.value || 'Lab'; return this.edited(); }
+      const [i, el] = at(e); if (i < 0) return;
+      const list = this.taskList(), t = list[i], k = e.target.dataset.k;
+      if (k === 'text') { t.text = e.target.value; this.said.delete(t); return this.edited(); }
+      if (k === 'hint') { t.hint = e.target.value; if (!t.hint) delete t.hint; return this.edited(); }
+      const kind = k === 'kind' ? e.target.value : Object.keys(t.check || {})[0];
+      const v = k === 'kind' ? { device: valuesOf(el).device } : valuesOf(el);
+      const next = { ...t, check: { [kind]: KINDS[kind].put(v) } };
+      const auto = !t.text || this.said.get(t) === t.text;
+      if (auto) { next.text = KINDS[kind].say(v); this.said.set(next, next.text); el.querySelector('[data-k="text"]').value = next.text; }
+      list[i] = next;
+      if (rerender) this.renderWriter();
+      this.edited();
+    };
+    w.addEventListener('input', e => { if (e.target.tagName !== 'SELECT' && e.target.type !== 'checkbox') update(e, false); });
+    w.addEventListener('change', e => { if (e.target.tagName === 'SELECT' || e.target.type === 'checkbox') update(e, true); });
+    w.addEventListener('click', e => {
+      if (e.target.closest('[data-del]')) { const [i] = at(e); this.taskList().splice(i, 1); this.renderWriter(); return this.edited(); }
+      const act = e.target.closest('[data-act]'); if (!act) return;
+      if (act.dataset.act === 'add') {
+        const first = this.net.devices.find(d => d.kind === 'pc'), t = { text: '', check: { pinged: { from: first ? first.id : '', to: '' } } };
+        t.text = KINDS.pinged.say({ device: t.check.pinged.from || '…' }); this.said.set(t, t.text);
+        this.taskList().push(t); this.renderWriter(); this.edited();
+        const last = this.$$('.task').pop(); if (last) { last.scrollIntoView({ block: 'nearest' }); last.querySelector('select').focus(); }
+      }
+      if (act.dataset.act === 'start') this.markStart();
+      if (act.dataset.act === 'try') this.tryIt();
+    });
+  }
+  // The board as a student first sees it: no consoles opened, no pings yet.
+  startState() { const s = this.snapshot(); return { ...s, opened: [], pinged: [], tried: [], passed: false }; }
+  markStart() {
+    this.lab.start = this.startState();
+    this.dispatchEvent(new CustomEvent('bench-start', { bubbles: true, composed: true, detail: { lab: this.lab.id, state: this.lab.start } }));
+    this.toast('Marked. A student starts from the board exactly as it is now.');
+  }
+  tryIt() {
+    clearTimeout(this.saveT);
+    this.dispatchEvent(new CustomEvent('bench-change', { bubbles: true, composed: true, detail: { lab: this.lab.id, state: this.snapshot(), mode: 'build' } }));
+    this.built = this.snapshot();
+    this.setAttribute('mode', 'try');
+    this.load(this.lab, { state: this.lab.start || { ...this.built, opened: [], pinged: [], tried: [], passed: false } });
+    this.toast('This is your lab as a student sees it. Nothing you do here changes it.');
+  }
+  backToBuilding() {
+    this.setAttribute('mode', 'build');
+    this.load(this.lab, { state: this.built });
   }
 
   /* ---------- tray ---------- */
@@ -525,7 +759,7 @@ export class OctetBench extends HTMLElement {
     board.addEventListener('wheel', e => { e.preventDefault(); if (e.shiftKey) { this.view.x -= e.deltaY; this.applyView(); return; } this.zoomAt(Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)), e.clientX, e.clientY); }, { passive: false });
     board.addEventListener('contextmenu', e => this.context(e));
     this.addEventListener('keydown', e => {
-      const t = this.targetOf(e); if (t.tagName === 'INPUT') return;
+      const t = this.targetOf(e); if (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName)) return;
       if (e.key === 'Escape') { this.dropHand(); this.closeMenu(); }
       if (e.key === 'Alt') { e.preventDefault(); this.alt = true; this.applyView(); }
       if (e.key === '+' || e.key === '=') this.zoomAt(1.2, ...this.center());
@@ -539,6 +773,7 @@ export class OctetBench extends HTMLElement {
     this.$('.tools').addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b) return;
       if (b.classList.contains('back')) return this.dispatchEvent(new CustomEvent('bench-back', { bubbles: true, composed: true }));
+      if (b.dataset.t === 'edit') return this.backToBuilding();
       const t = b.dataset.t;
       if (t === 'zin') this.zoomAt(1.25, ...this.center()); else if (t === 'zout') this.zoomAt(0.8, ...this.center()); else if (t === 'fit') this.fit();
       else if (t === 'labels') { this.labelsOn = !this.labelsOn; b.setAttribute('aria-pressed', this.labelsOn); this.applyView(); }
@@ -646,20 +881,31 @@ export class OctetBench extends HTMLElement {
     if (this.hover.cable) { const c = this.hover.cable; return this.showMenu(e, [{ h: CABLES[c.type].name }, { label: 'Unplug both ends', run: () => net.remove(c) }]); }
     if (devEl) {
       const d = net.device(devEl.dataset.dev), via = net.consoleFrom(d.id);
-      const items = [{ h: d.hostname }, { label: d.kind === 'pc' ? 'Open command prompt' : 'Open console', k: 'double-click', off: !via && d.kind !== 'pc', run: () => this.openConsole(d.id) }];
-      if (d.kind !== 'pc') items.push({ label: 'show running-config', off: !via, run: () => { this.openConsole(d.id); this.priv(d.id, 'show running-config'); } }, { label: 'show ip interface brief', off: !via, run: () => { this.openConsole(d.id); this.priv(d.id, 'show ip interface brief'); } });
+      const reach = via || this.building;
+      const items = [{ h: d.hostname }, { label: d.kind === 'pc' ? 'Open command prompt' : 'Open console', k: 'double-click', off: !reach && d.kind !== 'pc', run: () => this.openConsole(d.id) }];
+      if (d.kind !== 'pc') items.push({ label: 'show running-config', off: !reach, run: () => { this.openConsole(d.id); this.priv(d.id, 'show running-config'); } }, { label: 'show ip interface brief', off: !reach, run: () => { this.openConsole(d.id); this.priv(d.id, 'show ip interface brief'); } });
       items.push('-', { label: d.power ? 'Power off' : 'Power on', run: () => this.pressButton(d.id, 'power') });
       if (d.kind !== 'pc') items.push({ label: 'Restart', run: () => net.powerCycle(d.id) });
+      if (this.building) items.push('-', { label: 'Rename…', run: () => this.askName(e, d) }, { label: 'Duplicate', run: () => { const c = net.copyDevice(d.id); this.drawNew(c); this.toast(`${c.id} is a copy of ${d.id}, settings and all.`); } }, { label: 'Delete', k: 'and its cables', run: () => this.deleteDev(d) });
       return this.showMenu(e, items);
     }
     this.showMenu(e, [{ label: 'Fit everything', k: '0', run: () => this.fit() }, { label: this.labelsOn ? 'Hide port names' : 'Show port names', k: 'Alt', run: () => this.$('[data-t="labels"]').click() }]);
+  }
+  askName(e, d) {
+    this.showMenu(e, [{ h: `Rename ${d.id}` }]);
+    const menu = this.$('.menu'), f = document.createElement('form');
+    f.innerHTML = `<input value="${esc(d.id)}" maxlength="24" spellcheck="false" aria-label="New name"><button type="submit">Rename</button>`;
+    menu.appendChild(f); menu.onclick = null;
+    const inp = f.querySelector('input'); inp.focus(); inp.select();
+    f.addEventListener('submit', ev => { ev.preventDefault(); this.closeMenu(); this.renameDev(d, inp.value); });
+    inp.addEventListener('keydown', ev => { if (ev.key === 'Escape') this.closeMenu(); ev.stopPropagation(); });
   }
   priv(id, cmd) { const s = this.net.session(id); if (s.mode === 'user') this.net.exec(id, 'enable'); if (!['user', 'priv'].includes(s.mode)) this.net.exec(id, 'do ' + cmd); else this.net.exec(id, cmd); this.renderOut(); }
   silent(d, lines) { const s = this.net.session(d.id), was = { mode: s.mode, ifc: s.ifc }; s.mode = 'conf'; const keep = s.lines.length; lines.forEach(l => this.net.exec(d.id, l)); s.lines.length = keep; Object.assign(s, was); }
 
   /* ---------- console ---------- */
   openConsole(id) {
-    const d = this.net.device(id), via = d.kind === 'pc' ? id : this.net.consoleFrom(id);
+    const d = this.net.device(id), via = d.kind === 'pc' ? id : this.net.consoleFrom(id) || (this.building && 'the builder');
     if (!via) return this.toast(`Plug a console cable from a PC's COM1 port into ${d.hostname}'s CONSOLE port first. That's how you reach a device with no address yet.`);
     if (!this.tabs.includes(id)) {
       this.tabs.push(id);
@@ -679,7 +925,7 @@ export class OctetBench extends HTMLElement {
   renderTabs() {
     this.$('.tabs').innerHTML = this.tabs.map(id => `<button class="tab" type="button" role="tab" data-tab="${id}" aria-selected="${id === this.open}">${esc(this.net.device(id).hostname)}<span class="x" data-close="${id}" aria-label="Close">×</span></button>`).join('');
     const d = this.open && this.net.device(this.open), pc = d && d.kind === 'pc';
-    this.$('.vtext').textContent = !d ? '' : pc ? `${d.id} · Command Prompt` : `${d.hostname} · console from ${this.net.consoleFrom(d.id) || '…'}, 9600 baud`;
+    this.$('.vtext').textContent = !d ? '' : pc ? `${d.id} · Command Prompt` : this.net.consoleFrom(d.id) ? `${d.hostname} · console from ${this.net.consoleFrom(d.id)}, 9600 baud` : this.building ? `${d.hostname} · building, so no console cable needed` : `${d.hostname} · console`;
     const form = this.$('.pcset'); form.hidden = !pc;
     if (pc) { form.ip.value = d.ip; form.mask.value = d.mask; form.gw.value = d.pcgw; }
   }
