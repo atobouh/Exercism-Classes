@@ -701,6 +701,7 @@ impl Blueprint {
 pub const BENCH_MODELS: &[&str] = &[
     "ISR4321", "ISR4331", "CISCO1941", "CISCO2901", "CISCO2911",
     "WS-C2960+24TC-L", "WS-C2960-24TT-L", "WS-C2960-48TT-L", "WS-C2960X-24TS-L",
+    "WS-C3560-24PS", "WS-C3650-24PS", "Hub",
     "PC", "Laptop", "Server", "Printer",
 ];
 

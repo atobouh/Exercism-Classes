@@ -14,7 +14,7 @@
 // `mode="build"` (the lab builder: a device drawer and a task writer).
 
 import { createNetwork, maskLen, short } from './engine.js';
-import { CABLES, CATALOG } from './catalog.js';
+import { CABLES, CATALOG, MODULES, SFPS } from './catalog.js';
 import { drawDevice, DEFS } from './faceplate.js';
 
 const LIGHT = `--b-bench: oklch(99.1% 0.002 85); --b-pane: oklch(97.9% 0.003 80); --b-pop: oklch(99.4% 0.002 85); --b-dot: oklch(84% 0.006 70);
@@ -281,7 +281,7 @@ const KINDS = {
   reach: { name: 'Can reach an address', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Make ${v.to || '…'} reachable from ${v.device}.` },
 };
 const FIELD = { device: 'Device', iface: 'Interface', port: 'Port', to: 'To', toport: 'Port (any)', ip: 'Address', mask: 'Mask', gateway: 'Gateway', vlans: 'VLANs', up: 'Up' };
-const GROUPS = [['router', 'Routers'], ['switch', 'Switches'], ['pc', 'End devices'], ['wireless', 'Wireless'], ['wan', 'WAN']];
+const GROUPS = [['router', 'Routers'], ['switch', 'Switches'], ['hub', 'Hubs'], ['pc', 'End devices'], ['wireless', 'Wireless'], ['wan', 'WAN']];
 // A task naming `from` now names `to`: device ids, and "DEV PORT" ends.
 const renamed = (x, from, to) => typeof x === 'string' ? (x === from ? to : x.startsWith(from + ' ') ? to + x.slice(from.length) : x) : Array.isArray(x) ? x.map(y => renamed(y, from, to)) : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, renamed(v, from, to)])) : x;
 
@@ -404,7 +404,7 @@ export class OctetBench extends HTMLElement {
         if (!c.a || !c.b) continue;
         const da = this.net.device(c.a.dev), db = this.net.device(c.b.dev);
         ctx.beginPath(); ctx.moveTo(da.x + da.m.w / 2, da.y + da.m.h / 2); ctx.lineTo(db.x + db.m.w / 2, db.y + db.m.h / 2);
-        ctx.lineWidth = 2.4 / v.z; ctx.strokeStyle = col; ctx.setLineDash(c.type === 'console' ? [4 / v.z, 5 / v.z] : []); ctx.stroke(); ctx.setLineDash([]);
+        ctx.lineWidth = 2.4 / v.z; ctx.strokeStyle = col; ctx.setLineDash(CABLES[c.type].console ? [4 / v.z, 5 / v.z] : []); ctx.stroke(); ctx.setLineDash([]);
         continue;
       }
       const path = () => { ctx.beginPath(); ctx.moveTo(p[0].x, p[0].y); for (let i = 1; i < N - 1; i++) ctx.quadraticCurveTo(p[i].x, p[i].y, (p[i].x + p[i + 1].x) / 2, (p[i].y + p[i + 1].y) / 2); ctx.lineTo(p[N - 1].x, p[N - 1].y); };
@@ -420,7 +420,7 @@ export class OctetBench extends HTMLElement {
     const ctx = this.ctx, pos = this.endPos(c, e), port = c[e] ? this.net.portOf(c[e]) : null, r = this.rope(c);
     let { x, y } = pos;
     if (r.seat[e]) { const t = Math.min(1, (performance.now() - r.seat[e]) / 260); y += (1 - t) * Math.sin(t * 9) * 5; }
-    const w = port ? port.w - 2 : (c.type === 'serial' ? 24 : c.type === 'fiber' ? 20 : 18), h = port ? port.h - 2 : 13;
+    const w = port ? port.w - 2 : (c.type === 'serial' ? 24 : CABLES[c.type].fiber ? 20 : 18), h = port ? port.h - 2 : 13;
     const rr = (x0, y0, w0, h0, rad) => { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x0, y0, w0, h0, rad); else ctx.rect(x0, y0, w0, h0); };
     ctx.save();
     if (c.type === 'serial') {
@@ -428,7 +428,9 @@ export class OctetBench extends HTMLElement {
       rr(x - w / 2 - 3, y - h / 2 - 1, w + 6, h + 4, 2); ctx.fill(); ctx.stroke();
       const isDce = c.dce ? (c[e] && c.dce.dev === c[e].dev && c.dce.port === c[e].port) : e === 'a';
       if (isDce) { ctx.fillStyle = 'oklch(85% 0.01 250)'; ctx.font = '600 5.2px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('DCE', x, y + 2); }
-    } else if (c.type === 'fiber') {
+    } else if (c.type === 'usb') {
+      ctx.fillStyle = 'oklch(30% 0.01 260)'; rr(x - w / 2 - 1, y - h / 2 - 1, w + 2, h + 6, 1.4); ctx.fill();
+    } else if (CABLES[c.type].fiber) {
       ctx.fillStyle = 'oklch(70% 0.03 220 / .9)'; rr(x - w / 2, y - h / 2, w, h, 1.5); ctx.fill();
       ctx.fillStyle = col; rr(x - w / 2 + 2, y - 2, w / 2 - 3, h / 2 + 4, 1); ctx.fill(); rr(x + 1, y - 2, w / 2 - 3, h / 2 + 4, 1); ctx.fill();
     } else {
@@ -566,7 +568,7 @@ export class OctetBench extends HTMLElement {
       }
       if (k === 'iface' || k === 'port' || k === 'toport') {
         const d = this.net.device(k === 'toport' ? v.to : v.device);
-        const names = !d ? [] : k === 'iface' ? Object.keys(d.ifs) : d.m.ports.filter(p => !['decor', 'con', 'com'].includes(p.type)).map(p => p.key);
+        const names = !d ? [] : k === 'iface' ? Object.keys(d.ifs) : d.m.ports.filter(p => !['decor', 'con', 'com', 'usb', 'usbcon'].includes(p.type)).map(p => p.key);
         if (val && !names.includes(val)) names.unshift(val);
         return `<select data-v="${k}" aria-label="${FIELD[k]}">${opt('', FIELD[k] + '…', val)}${names.map(n => opt(n, k === 'iface' ? short(n) : n, val)).join('')}</select>`;
       }
@@ -685,7 +687,8 @@ export class OctetBench extends HTMLElement {
       const da = this.net.device(c.a.dev), db = this.net.device(c.b.dev), pa = this.net.portOf(c.a), pb = this.net.portOf(c.b);
       if (c.type === 'cross' && da.kind !== db.kind) this.toast('Crossover between unlike devices: these ports have Auto-MDIX, so it still links. Older gear needs straight-through here.');
       else if (c.type === 'straight' && da.kind === db.kind) this.toast('Straight-through between like devices: Auto-MDIX swaps the pairs for you. On older gear this needs a crossover.');
-      else if (c.type === 'console') this.toast(`Console cable in. Double-click ${da.kind === 'pc' ? db.hostname : da.hostname} to open its console from ${da.kind === 'pc' ? da.id : db.id}.`);
+      else if (CABLES[c.type].fiber && !this.net.ifStatus(c.a.dev, pa.iface)[0].startsWith('up') && [[da, c.a], [db, c.b]].some(([d, e]) => (SFPS[d.sfp[e.port]] || {}).fiber !== CABLES[c.type].fiber)) this.toast(`No link: ${CABLES[c.type].name.toLowerCase()} needs a ${CABLES[c.type].fiber === 'mmf' ? '1000BASE-SX' : '1000BASE-LX/LH'} transceiver at both ends.`);
+      else if (CABLES[c.type].console) this.toast(`Console cable in. Double-click ${da.kind === 'pc' ? db.hostname : da.hostname} to open its console from ${da.kind === 'pc' ? da.id : db.id}.`);
       else if (c.type === 'serial') this.toast(`${this.net.device(c.dce.dev).hostname} has the DCE end. It needs a clock rate before the line protocol comes up.`);
       else if ([[da, pa], [db, pb]].some(([d, p]) => d.kind === 'switch' && p.type === 'eth' && !d.ifs[p.iface].portfast)) setTimeout(() => this.toast('Amber on the switch port: spanning tree listens for 15 seconds, then learns for 15, before it forwards.'), 900);
     }
@@ -693,7 +696,8 @@ export class OctetBench extends HTMLElement {
   }
   reject(type, end, why) {
     const p = this.net.portOf(end); if (!p) return;
-    const names = { eth: 'an Ethernet (RJ45) port', sfp: 'an SFP cage', serial: 'a smart serial port', con: 'a CONSOLE port', com: "a PC's COM1 port" };
+    const names = { eth: 'an Ethernet (RJ45) port', sfp: 'an SFP transceiver', serial: 'a smart serial port', con: 'an RJ45 CONSOLE port', com: "a PC's COM1 port", usb: "a computer's USB port", usbcon: 'a USB mini-B console port' };
+    if (why === 'nosfp') return this.toast('That SFP cage is empty. Right-click it to insert a transceiver first.');
     if (why === 'taken') return this.toast('That port already has a cable. Grab its plug to move it.');
     if (why === 'same') return this.toast('Both ends on the same device would just make a loop.');
     this.toast(`A ${CABLES[type].name.toLowerCase()} cable doesn't fit ${names[p.type] || 'that port'}. It goes into ${CABLES[type].fits.map(w => names[w]).join(' or ')}.`);
@@ -831,6 +835,7 @@ export class OctetBench extends HTMLElement {
   linkOf(devId, p) { const c = this.net.cables.find(c => [c.a, c.b].some(x => x && x.dev === devId && x.port === p.key)); if (!c) return null; const o = c.a && c.a.dev === devId && c.a.port === p.key ? c.b : c.a; return { c, o }; }
   portCard(pt) {
     const net = this.net, d = net.device(pt.dev), p = net.portOf(pt), f = d.ifs[p.iface], lk = this.linkOf(d.id, p);
+    if (p.type === 'usb' || p.type === 'usbcon') return `<h3>${p.type === 'usbcon' ? 'USB console port' : 'USB port'}<i>${p.type === 'usbcon' ? 'mini-B' : 'type A'}</i></h3><dl><dt>Cable</dt><dd>${lk ? (lk.o ? 'USB console to ' + esc(net.device(lk.o.dev).hostname) : 'one end free') : 'nothing plugged in'}</dd></dl><p>${p.type === 'usbcon' ? 'A USB cable from a computer reaches the command line here, like the RJ45 console.' : 'Plug the computer end of a USB console cable here.'}</p>`;
     if (p.type === 'con' || p.type === 'com') return `<h3>${p.type === 'con' ? 'Console port' : 'COM1 serial port'}<i>${p.type === 'con' ? 'RJ45' : 'DB-9'}</i></h3><dl><dt>Cable</dt><dd>${lk ? (lk.o ? 'console to ' + esc(net.device(lk.o.dev).hostname) : 'console, one end free') : 'nothing plugged in'}</dd></dl><p>${p.type === 'con' ? 'A rollover console cable from a PC reaches the command line before the device has any address.' : 'Plug the PC end of a console cable here.'}</p>`;
     const rows = [], st = net.stpState(d.id, p.iface);
     let led = 'off', txt = 'Off: no link';
@@ -839,6 +844,7 @@ export class OctetBench extends HTMLElement {
     else if (f.shutdown) txt = 'Off: administratively down';
     else if (lk && lk.o && f.medium && f.medium !== p.type) txt = 'Off: the SFP side of this combo port is in use';
     rows.push(['Light', `<span class="dot ${led}"></span>${txt}`]);
+    if (p.type === 'sfp') rows.push(['Transceiver', d.sfp[p.key] ? `${d.sfp[p.key]}, ${SFPS[d.sfp[p.key]].name} (${SFPS[d.sfp[p.key]].about})` : 'none: the cage is empty']);
     rows.push(['Cable', lk ? (lk.o ? `${CABLES[lk.c.type].name.toLowerCase()} to ${esc(net.device(lk.o.dev).hostname)} ${esc(short(net.portOf(lk.o).iface))}` : 'one end free') : 'nothing plugged in']);
     if (d.kind === 'switch') rows.push(['Mode', f.mode === 'trunk' ? `trunk, native VLAN ${f.native}` : `access, VLAN ${f.vlan}${f.portfast ? ', PortFast' : ''}`]);
     if (d.kind === 'router') { const subs = Object.entries(d.ifs).filter(([, g]) => g.sub && g.parent === p.iface); if (subs.length) rows.push(['Subinterfaces', subs.map(([n, g]) => `.${n.split('.')[1]} VLAN ${g.encap || '?'}${g.ip ? ' ' + g.ip : ''}`).join('<br>')]); }
@@ -853,7 +859,7 @@ export class OctetBench extends HTMLElement {
     const via = this.net.consoleFrom(d.id), ups = Object.values(d.ifs).filter(f => f.proto && !f.svi && !f.sub).length;
     const rows = [['Model', d.m.name], ['Power', d.power ? (this.net.isOn(d.id) ? 'on' : 'booting') : 'off'], ['Links up', String(ups)]];
     if (d.kind === 'pc') rows.push(['Address', d.ip ? `${d.ip}/${maskLen(d.mask || '0.0.0.0')}` : 'none'], ['Gateway', d.pcgw || 'none']);
-    const tip = d.kind === 'pc' ? 'Double-click for its command prompt and network settings.' : via ? `Double-click to open the console from ${via}.` : 'Needs a console cable from a PC before you can type into it.';
+    const tip = d.kind === 'hub' ? 'A hub repeats every frame out of every other port. It has no console and nothing to configure.' : d.kind === 'pc' ? 'Double-click for its command prompt and network settings.' : via ? `Double-click to open the console from ${via}.` : 'Needs a console cable from a PC before you can type into it.';
     return `<h3>${esc(d.hostname)}<i>${d.kind}</i></h3><dl>${rows.map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl><p>${tip} Right-click for more.</p>`;
   }
   cableCard(c) { const ends = [c.a, c.b].map(x => x ? `${this.net.device(x.dev).hostname} ${x.port}` : 'free'); return `<h3>${CABLES[c.type].name}<i>cable</i></h3><dl><dt>From</dt><dd class="mono">${esc(ends[0])}</dd><dt>To</dt><dd class="mono">${esc(ends[1])}</dd></dl><p>Grab a plug to move it. Right-click to unplug.</p>`; }
@@ -875,15 +881,34 @@ export class OctetBench extends HTMLElement {
       const d = net.device(pt.dev), p = net.portOf(pt), c = net.occupied(pt), f = d.ifs[p.iface];
       const items = [{ h: `${d.hostname} ${p.iface === 'console' ? 'CONSOLE' : p.iface === 'com' ? 'COM1' : p.iface}` }];
       if (c) items.push({ label: 'Unplug the cable', run: () => net.remove(c) });
-      if (f && d.kind !== 'pc') {
+      if (p.type === 'sfp') {
+        const t = d.sfp[p.key];
+        if (t) items.push({ label: `Remove the ${t}`, k: c ? 'unplug first' : '', off: !!c, run: () => this.swap(d, () => net.removeSfp(d.id, p.key)) });
+        else for (const [id, x] of Object.entries(SFPS)) items.push({ label: `Insert a ${id}`, k: x.name, run: () => this.swap(d, () => net.insertSfp(d.id, p.key, id), `${id} in. ${x.about[0].toUpperCase() + x.about.slice(1)}.`) });
+      }
+      if (f && d.kind !== 'pc' && d.kind !== 'hub') {
         items.push({ label: f.shutdown ? 'Bring up (no shutdown)' : 'Shut down', run: () => { this.silent(d, ['interface ' + p.iface, f.shutdown ? 'no shutdown' : 'shutdown']); } });
         items.push({ label: `show interfaces ${short(p.iface)}`, off: !net.consoleFrom(d.id), run: () => { this.openConsole(d.id); this.priv(d.id, `show interfaces ${short(p.iface)}`); } });
       }
       return this.showMenu(e, items);
     }
     if (this.hover.cable) { const c = this.hover.cable; return this.showMenu(e, [{ h: CABLES[c.type].name }, { label: 'Unplug both ends', run: () => net.remove(c) }]); }
+    const slotEl = t.closest && t.closest('.slot');
+    if (slotEl) {
+      const d = net.device(slotEl.dataset.dev), s = d.m.slots.find(x => x.id === slotEl.dataset.slot), mod = d.modules[s.id];
+      const items = [{ h: `${d.hostname} ${s.name}` }];
+      if (mod) items.push({ label: `Remove the ${mod}`, k: d.power ? 'switch it off first' : '', off: d.power, run: () => this.swap(d, () => net.removeModule(d.id, s.id)) });
+      else for (const m of s.takes) items.push({ label: `Insert a ${m}`, k: d.power ? 'switch it off first' : MODULES[m].about, off: d.power, run: () => this.swap(d, () => net.insertModule(d.id, s.id, m), `${m} in. Switch ${d.hostname} on: its new ports come up with it.`) });
+      if (d.power) items.push('-', { label: `Power ${d.hostname} off`, run: () => this.pressButton(d.id, 'power') });
+      return this.showMenu(e, items);
+    }
     if (devEl) {
       const d = net.device(devEl.dataset.dev), via = net.consoleFrom(d.id);
+      if (d.kind === 'hub') {
+        const items = [{ h: d.hostname }, { label: d.power ? 'Power off' : 'Power on', run: () => this.pressButton(d.id, 'power') }];
+        if (this.building) items.push('-', { label: 'Rename…', run: () => this.askName(e, d) }, { label: 'Delete', k: 'and its cables', run: () => this.deleteDev(d) });
+        return this.showMenu(e, items);
+      }
       const reach = via || this.building;
       const items = [{ h: d.hostname }, { label: d.kind === 'pc' ? 'Open command prompt' : 'Open console', k: 'double-click', off: !reach && d.kind !== 'pc', run: () => this.openConsole(d.id) }];
       if (d.kind !== 'pc') items.push({ label: 'show running-config', off: !reach, run: () => { this.openConsole(d.id); this.priv(d.id, 'show running-config'); } }, { label: 'show ip interface brief', off: !reach, run: () => { this.openConsole(d.id); this.priv(d.id, 'show ip interface brief'); } });
@@ -894,6 +919,8 @@ export class OctetBench extends HTMLElement {
     }
     this.showMenu(e, [{ label: 'Fit everything', k: '0', run: () => this.fit() }, { label: this.labelsOn ? 'Hide port names' : 'Show port names', k: 'Alt', run: () => this.$('[data-t="labels"]').click() }]);
   }
+  // A card or transceiver went in or out: the faceplate changes with it.
+  swap(d, fn, said) { try { fn(); } catch (err) { return this.toast(err.message); } this.redraw(d); this.click(); if (said) this.toast(said); }
   askName(e, d) {
     this.showMenu(e, [{ h: `Rename ${d.id}` }]);
     const menu = this.$('.menu'), f = document.createElement('form');
@@ -908,6 +935,7 @@ export class OctetBench extends HTMLElement {
 
   /* ---------- console ---------- */
   openConsole(id) {
+    if (this.net.device(id).kind === 'hub') return this.toast('A hub has no console. It only repeats bits, so there is nothing to configure.');
     const d = this.net.device(id), via = d.kind === 'pc' ? id : this.net.consoleFrom(id) || (this.building && 'the builder');
     if (!via) return this.toast(`Plug a console cable from a PC's COM1 port into ${d.hostname}'s CONSOLE port first. That's how you reach a device with no address yet.`);
     if (!this.tabs.includes(id)) {

@@ -121,6 +121,8 @@ config = """
 interface g0/0/1
  no shutdown
 """                       # IOS lines applied at start, as if typed in configuration mode
+modules = { NIM2 = "NIM-2T" }        # cards in slots (optional; the 1941 takes HWIC-2T in EHWIC0..1)
+sfp = { "G0/0/0s" = "GLC-SX-MMD" }   # transceivers in SFP cages (optional; cages start empty)
 
 [[device]]
 id = "PC-A"
@@ -163,7 +165,11 @@ check = { address = { device = "R1", iface = "g0/0/0", ip = "192.168.10.1", mask
 - **VLANs:** access and trunk ports, native VLAN, and 802.1Q tagging, including router subinterfaces with `encapsulation dot1Q`.
 - **Routing:** connected, static and default routes. ARP, so the first IOS ping shows `.!!!!`. MAC learning.
 - **Neighbors and serial:** CDP neighbors. Serial links need `clock rate` on the DCE end.
-- **Console and power:** consoles are reached only over a console cable from a PC. Power and reload boot devices again.
+- **Console and power:** consoles are reached only over a console cable (rollover to RJ45, or USB to mini-B) from a computer. Power and reload boot devices again.
+- **Cards:** the ISR G2 routers (1941, 2901, 2911) ship with empty EHWIC slots, the ISR 4331 with empty NIM slots. Serial ports come with a HWIC-2T or NIM-2T, inserted with the router switched off, as on the real one. Right-click a slot.
+- **Transceivers and fiber:** SFP cages start empty. A GLC-SX-MMD works over multimode fiber, a GLC-LH-SMD over single-mode; a link comes up only with the right transceiver at both ends. Transceivers are hot-swappable. Right-click a cage.
+- **Hubs:** repeat every frame out of every other port. No VLANs, no spanning tree, no console.
+- **Layer 3 switches:** the Catalyst 3560 and 3650 route between SVIs and routed ports (`no switchport`) after `ip routing`, with static routes and `show ip route`.
 - **The console:**
   - Modes, abbreviations, `?` help, Tab completion, `do`, and IOS errors with the caret.
   - Show commands: `show ip interface brief`, `show interfaces`, `show interfaces status`, `show interfaces trunk`, `show vlan brief`, `show running-config`, `show cdp neighbors`, `show mac address-table`, `show spanning-tree`, `show ip route`, `show arp`, `show controllers`.
@@ -191,7 +197,7 @@ registerModel('C1111-8P', {
 })
 ```
 
-Then use `model = "C1111-8P"` in a lab. Port types are `eth`, `sfp`, `serial`, `con` (console), `com` (a PC's serial port) and `decor`.
+Then use `model = "C1111-8P"` in a lab. Port types are `eth`, `sfp`, `serial`, `con` (RJ45 console), `usbcon` (USB mini-B console), `usb` (a computer's USB port), `com` (a PC's serial port) and `decor`. A model can also list card `slots`; see the ISRs in `catalog.js`.
 
 ## Run the engine on its own
 

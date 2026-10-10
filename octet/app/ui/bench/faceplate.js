@@ -1,7 +1,9 @@
 // Faceplates: one SVG group per device, drawn from its catalog entry. The
-// built-in drawings are a Catalyst 2960-Plus, an ISR 4321 and a desktop PC.
+// built-in drawings are Cisco ISRs, Catalysts, a hub, and end devices.
 // A model with an `image` is drawn from that image, with its ports laid
 // over it, so any photo of a front panel becomes a working device.
+
+import { SFPS } from './catalog.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 export const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
@@ -32,6 +34,24 @@ function db9(g, p) {
   for (let i = 0; i < 5; i++) el('circle', { cx: x + 6 + i * 4.5, cy: y + 4.5, r: .9, fill: 'var(--b-gold)', opacity: .7 }, g);
   for (let i = 0; i < 4; i++) el('circle', { cx: x + 8.2 + i * 4.5, cy: y + 9.5, r: .9, fill: 'var(--b-gold)', opacity: .7 }, g);
 }
+function usbPort(g, p) {
+  el('rect', { x: p.x, y: p.y, width: p.w, height: p.h, rx: p.type === 'usb' ? .8 : 1.6, fill: 'var(--b-recess)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, g);
+  el('rect', { x: p.x + 2, y: p.y + (p.type === 'usb' ? 2 : p.h / 2 - 1), width: p.w - 4, height: p.type === 'usb' ? 2.4 : 2, fill: 'var(--b-metal-hi)' }, g);
+}
+// A transceiver in a cage: its bale handle shows, coloured like the real
+// ones (black for SX, blue for LX).
+function transceiver(g, p, t) {
+  el('rect', { x: p.x + 1, y: p.y + 1, width: p.w - 2, height: p.h - 2, rx: .8, fill: 'oklch(70% 0.01 250)' }, g);
+  el('rect', { x: p.x + 4, y: p.y + 3, width: p.w - 8, height: p.h - 6, rx: .6, fill: 'var(--b-recess)' }, g);
+  el('path', { d: `M${p.x + 2} ${p.y + p.h}v3h${p.w - 4}v-3`, fill: 'none', stroke: t.fiber === 'smf' ? 'oklch(60% 0.15 250)' : 'oklch(25% 0.01 250)', 'stroke-width': 1.6 }, g);
+}
+// A card slot: a blank cover, or the card that's in it.
+function slot(g, s, mod) {
+  el('rect', { x: s.x, y: s.y, width: s.w, height: s.h, rx: 2, fill: mod ? 'var(--b-metal-lo)' : 'none', stroke: 'var(--b-edge2)', 'stroke-width': .6, 'stroke-dasharray': mod ? 'none' : '3 2' }, g);
+  text(g, { x: s.x + 6, y: s.y + 9, class: 'silk' }, mod || s.name);
+  if (!mod) text(g, { x: s.x + s.w / 2, y: s.y + s.h / 2 + 3, class: 'silk', 'text-anchor': 'middle', opacity: .55 }, 'empty');
+  else text(g, { x: s.x + 6, y: s.y + s.h - 4, class: 'silk' }, s.name);
+}
 function ears(g, m) {
   for (const ex of [-16, m.w]) {
     el('rect', { x: ex, y: 4, width: 16, height: m.h - 8, rx: 2, fill: 'url(#b-ear)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, g);
@@ -52,20 +72,12 @@ function button(g, b) {
 }
 
 const DRAW = {
-  isr4321(face, m) {
-    el('rect', { x: 18, y: 10, width: 150, height: 46, rx: 2, fill: 'var(--b-metal-lo)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, face);
-    text(face, { x: 24, y: 19, class: 'silk' }, 'NIM-2T');
-    text(face, { x: 24, y: 51, class: 'silk' }, 'NIM 1   SERIAL');
-    el('circle', { cx: 160, cy: 15, r: 1.6, fill: 'var(--b-metal-hi)' }, face);
-    text(face, { x: m.lights[0].x - 6, y: 22, class: 'silk big' }, m.label || 'ISR 4321');
-  },
-  isrg2(face, m) {
-    el('rect', { x: 18, y: 10, width: 150, height: 46, rx: 2, fill: 'var(--b-metal-lo)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, face);
-    text(face, { x: 24, y: 19, class: 'silk' }, 'HWIC-2T');
-    text(face, { x: 24, y: 51, class: 'silk' }, 'EHWIC 0   SERIAL');
-    el('rect', { x: 178, y: 10, width: 100, height: 46, rx: 2, fill: 'none', stroke: 'var(--b-edge2)', 'stroke-width': .6, 'stroke-dasharray': '3 2' }, face);
-    text(face, { x: 184, y: 51, class: 'silk' }, 'EHWIC 1');
+  isr(face, m) {
     text(face, { x: m.lights[0].x - 6, y: 22, class: 'silk big' }, m.label);
+    if (m.side) text(face, { x: m.lights[0].x - 6, y: 56, class: 'silk' }, m.side + ' PANEL');
+  },
+  hub(face, m) {
+    text(face, { x: 16, y: 16, class: 'silk' }, m.label);
   },
   c2960(face, m) {
     text(face, { x: 18, y: 18, class: 'silk big' }, m.label || 'CATALYST 2960-Plus');
@@ -86,9 +98,6 @@ const DRAW = {
     el('rect', { x: 12, y: 10, width: m.w - 24, height: 26, rx: 4, fill: 'var(--b-recess)' }, face);
     d.screen = text(face, { x: 22, y: 27, class: 'silk name' }, d.id);
     d.screenIp = text(face, { x: m.w - 22, y: 27, class: 'silk', 'text-anchor': 'end' }, '');
-    el('rect', { x: 92, y: 50, width: 9, height: 13, rx: 1.4, fill: 'var(--b-recess)' }, face);
-    el('rect', { x: 108, y: 50, width: 9, height: 13, rx: 1.4, fill: 'var(--b-recess)' }, face);
-    text(face, { x: 104, y: 73, class: 'silk', 'text-anchor': 'middle' }, 'USB');
   },
 };
 
@@ -98,6 +107,7 @@ export const GLYPH = {
   pc: '<rect x="4.5" y="5.5" width="23" height="15.5" rx="2.2"/><path d="M12.5 26h7M16 21v5M9.5 10.6l2.7 2.3-2.7 2.3M14.3 15.5h4.5"/>',
   laptop: '<rect x="7" y="7.5" width="18" height="12.5" rx="1.8"/><path d="M4 23.5h24l-2-3.5H6z"/>',
   server: '<rect x="7" y="5" width="18" height="22" rx="2"/><path d="M10.5 10h11M10.5 14.5h11M10.5 19h6"/><circle cx="21" cy="22.5" r="1"/>',
+  hub: '<rect x="4" y="11" width="24" height="10" rx="2"/><path d="M8 16h.01M12 16h.01M16 16h.01M20 16h.01M24 16h.01" stroke-width="2.4"/>',
   printer: '<path d="M10 11V5.5h12V11M10 22H6.5a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 6.5 11h19a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H22"/><rect x="10" y="18" width="12" height="8.5" rx="1"/>',
 };
 
@@ -118,12 +128,14 @@ export function drawDevice(parent, d) {
     text(face, { x: l.x, y: l.y + 11, class: 'silk', 'text-anchor': 'middle' }, l.id);
   }
   for (const b of m.buttons || []) button(face, b);
+  for (const s of m.slots || []) { const sg = el('g', { class: 'slot', 'data-dev': d.id, 'data-slot': s.id }, face); slot(sg, s, (d.modules || {})[s.id]); }
   d.portEls = {};
   for (const p of m.ports) {
     const pg = el('g', { class: 'port' + (p.type === 'decor' ? ' decor' : ''), 'data-dev': d.id, 'data-port': p.key }, face);
     if (!m.image) {
       if (p.type === 'eth' || p.type === 'con' || p.type === 'decor') rj45(pg, p, p.row === 1);
-      else if (p.type === 'sfp') sfpCage(pg, p);
+      else if (p.type === 'sfp') { sfpCage(pg, p); const t = (d.sfp || {})[p.key]; if (t && SFPS[t]) transceiver(pg, p, SFPS[t]); }
+      else if (p.type === 'usb' || p.type === 'usbcon') usbPort(pg, p);
       else if (p.type === 'serial') smartSerial(pg, p);
       else if (p.type === 'com') db9(pg, p);
       if (p.type === 'con') el('rect', { x: p.x - 1, y: p.y - 1, width: p.w + 2, height: p.h + 2, rx: 1.6, fill: 'none', stroke: 'var(--b-console)', 'stroke-width': .9, opacity: .7 }, pg);

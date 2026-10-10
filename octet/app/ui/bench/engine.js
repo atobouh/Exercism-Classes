@@ -11,9 +11,10 @@
 // Covered: interfaces and addressing, link and line protocol, spanning tree
 // listening/learning timers, PortFast, VLANs, access and trunk ports, 802.1Q
 // with router subinterfaces, static and default routes, ARP, MAC learning,
-// CDP neighbours, serial links with DCE clocking, console cables, power.
+// CDP neighbours, serial links with DCE clocking, console cables, power,
+// interface cards, SFP transceivers and fiber, hubs, and layer 3 switches.
 
-import { CATALOG, CABLES } from './catalog.js';
+import { CATALOG, CABLES, MODULES, SFPS } from './catalog.js';
 
 /* ---------- addresses ---------- */
 export const ipn = s => s.split('.').reduce((a, o) => a * 256 + (+o), 0);
@@ -28,6 +29,14 @@ export const short = n => n.replace('GigabitEthernet', 'Gi').replace('FastEthern
 
 const IFT = [['FastEthernet', 'f'], ['GigabitEthernet', 'g'], ['Serial', 's'], ['Vlan', 'v']];
 const STP_LISTEN = 15000, STP_FORWARD = 30000;
+const NO_IF = ['console', 'com', 'aux', 'usb']; // ports that aren't interfaces
+const isCon = c => !!(CABLES[c.type] || {}).console;
+// A model with the cards in its slots: the card's ports join the faceplate.
+function modelOf(base, modules) {
+  const ports = [...base.ports];
+  for (const s of base.slots || []) if (modules[s.id]) ports.push(...MODULES[modules[s.id]].ports(s));
+  return { ...base, ports };
+}
 
 export function createNetwork(lab, opts = {}) {
   const listeners = { log: [], change: [], say: [] };
@@ -38,20 +47,26 @@ export function createNetwork(lab, opts = {}) {
 
   /* ---------- devices ---------- */
   const devs = [];
-  const ouiOf = kind => kind === 'router' ? '00d097' : kind === 'switch' ? '0019e8' : '005079';
+  const ouiOf = kind => kind === 'router' ? '00d097' : kind === 'switch' ? '0019e8' : kind === 'hub' ? '00e0b0' : '005079';
   function addDevice(def) {
-    const m = CATALOG[def.model];
-    if (!m) throw new Error(`device ${def.id}: unknown model ${def.model}`);
-    const d = { id: def.id, model: def.model, m, kind: m.kind, x: def.x || 0, y: def.y || 0, ifs: {}, hostname: def.hostname || def.id, power: true, boot: clock + 1800 + devs.length * 300, routes: [], arp: {}, macs: {}, vlans: { 1: 'default' }, gw: '', secret: '', ip: def.ip || '', mask: def.mask || '', pcgw: def.gateway || def.gw || '', ledMode: 'stat', locked: !!def.locked };
-    const oui = ouiOf(m.kind);
-    for (const p of m.ports) if (!['console', 'com', 'aux'].includes(p.iface) && !d.ifs[p.iface]) d.ifs[p.iface] = iface({ shutdown: m.kind === 'pc' ? false : !!(m.defaults || {}).shutdown, mac: mac(oui) });
-    if (m.kind === 'switch') d.ifs.Vlan1 = iface({ shutdown: true, svi: true, mac: mac(oui) });
+    const base = CATALOG[def.model];
+    if (!base) throw new Error(`device ${def.id}: unknown model ${def.model}`);
+    const modules = { ...(base.modules || {}), ...(def.modules || {}) };
+    for (const [slot, mod] of Object.entries(modules)) if (!(base.slots || []).some(s => s.id === slot && s.takes.includes(mod))) throw new Error(`device ${def.id}: no ${slot} slot for a ${mod}`);
+    const m = modelOf(base, modules);
+    const d = { id: def.id, model: def.model, m, kind: m.kind, modules, sfp: { ...(def.sfp || {}) }, routing: false, x: def.x || 0, y: def.y || 0, ifs: {}, hostname: def.hostname || def.id, power: true, boot: clock + 1800 + devs.length * 300, routes: [], arp: {}, macs: {}, vlans: { 1: 'default' }, gw: '', secret: '', ip: def.ip || '', mask: def.mask || '', pcgw: def.gateway || def.gw || '', ledMode: 'stat', locked: !!def.locked };
+    if (d.kind === 'hub') d.boot = 0; // a hub has nothing to boot
+    syncIfs(d);
+    if (m.kind === 'switch') d.ifs.Vlan1 = iface({ shutdown: true, svi: true, mac: mac(ouiOf(d.kind)) });
     devs.push(d);
     return d;
   }
+  function syncIfs(d) { // an interface for every physical port, as cards come and go
+    for (const p of d.m.ports) if (!NO_IF.includes(p.iface) && !d.ifs[p.iface]) d.ifs[p.iface] = iface({ shutdown: d.kind === 'router' && !!(d.m.defaults || {}).shutdown, mac: mac(ouiOf(d.kind)) });
+  }
   const D = id => devs.find(d => d.id === id);
   // an open lab adds and removes devices while it runs
-  const PREFIX = { router: 'R', switch: 'S', pc: 'PC-' };
+  const PREFIX = { router: 'R', switch: 'S', pc: 'PC-', hub: 'Hub-' };
   function freeId(model) {
     const pre = CATALOG[model].prefix ? CATALOG[model].prefix + '-' : PREFIX[CATALOG[model].kind] || 'D';
     for (let n = 1; ; n++) if (!D(pre + n)) return pre + n;
@@ -75,11 +90,43 @@ export function createNetwork(lab, opts = {}) {
   function copyDevice(id) { // a second one, set up the same, with its own name and MACs
     const src = D(id); if (!src) return null;
     const sd = JSON.parse(JSON.stringify(snapshot().devices.find(x => x.id === id)));
-    const d = add({ model: src.model, x: src.x + 40, y: src.y + 40 });
-    Object.assign(d, { ip: sd.ip, mask: sd.mask, pcgw: sd.pcgw, routes: sd.routes, vlans: sd.vlans, gw: sd.gw, secret: sd.secret });
+    const d = add({ model: src.model, x: src.x + 40, y: src.y + 40, modules: sd.modules, sfp: sd.sfp });
+    Object.assign(d, { routing: sd.routing, ip: sd.ip, mask: sd.mask, pcgw: sd.pcgw, routes: sd.routes, vlans: sd.vlans, gw: sd.gw, secret: sd.secret });
     for (const [n, f] of Object.entries(sd.ifs)) d.ifs[n] = Object.assign(d.ifs[n] || iface({}), f, { mac: d.ifs[n] ? d.ifs[n].mac : mac(ouiOf(d.kind)), phys: false, proto: false, upSince: clock });
     evalLinks(); emit('change');
     return d;
+  }
+  /* ---------- cards and transceivers ---------- */
+  function insertModule(devId, slotId, mod) {
+    const d = D(devId), s = (d.m.slots || []).find(x => x.id === slotId);
+    if (!s) throw new Error(`${d.hostname} has no ${slotId} slot`);
+    if (!MODULES[mod] || !s.takes.includes(mod)) throw new Error(`A ${mod} doesn't fit the ${s.name} slot. It takes ${s.takes.join(' or ')}.`);
+    if (d.modules[slotId]) throw new Error(`The ${s.name} slot already holds a ${d.modules[slotId]}.`);
+    if (d.power) throw new Error(`Switch ${d.hostname} off first. A ${mod} isn't hot-swappable: inserting it with the power on can damage the card.`);
+    d.modules[slotId] = mod; d.m = modelOf(CATALOG[d.model], d.modules); syncIfs(d);
+    evalLinks(); emit('change');
+  }
+  function removeModule(devId, slotId) {
+    const d = D(devId), mod = d.modules[slotId]; if (!mod) return;
+    const s = d.m.slots.find(x => x.id === slotId);
+    if (d.power) throw new Error(`Switch ${d.hostname} off first. A ${mod} isn't hot-swappable.`);
+    const gone = MODULES[mod].ports(s);
+    for (let i = cables.length - 1; i >= 0; i--) { const c = cables[i]; if ([c.a, c.b].some(e => e && e.dev === devId && gone.some(p => p.key === e.port))) cables.splice(i, 1); }
+    for (const p of gone) for (const n of Object.keys(d.ifs)) if (n === p.iface || d.ifs[n].parent === p.iface) delete d.ifs[n];
+    delete d.modules[slotId]; d.m = modelOf(CATALOG[d.model], d.modules);
+    evalLinks(); emit('change');
+  }
+  function insertSfp(devId, key, t) { // transceivers are hot-swappable
+    const d = D(devId), p = d.m.ports.find(x => x.key === key);
+    if (!p || p.type !== 'sfp') throw new Error(`${key} isn't an SFP cage`);
+    if (!SFPS[t]) throw new Error(`unknown transceiver ${t}`);
+    if (d.sfp[key]) throw new Error(`That cage already holds a ${d.sfp[key]}.`);
+    d.sfp[key] = t; evalLinks(); emit('change');
+  }
+  function removeSfp(devId, key) {
+    const d = D(devId); if (!d.sfp[key]) return;
+    if (occupied({ dev: devId, port: key })) throw new Error('Unplug the fiber first: its LC connector latches into the transceiver.');
+    delete d.sfp[key]; evalLinks(); emit('change');
   }
   function renameDevice(id, to) {
     const d = D(id); if (!d || id === to) return;
@@ -111,7 +158,8 @@ export function createNetwork(lab, opts = {}) {
     if (!fits(type, end)) return 'misfit';
     if (occupied(end)) return 'taken';
     if (other && other.dev === end.dev) return 'same';
-    if (type === 'console' && other) { const a = portOf(other).type, b = p.type; if (a === b) return 'misfit'; }
+    if (p.type === 'sfp' && !D(end.dev).sfp[end.port]) return 'nosfp';
+    if (CABLES[type].console && other) { const a = portOf(other).type, b = p.type; if (a === b) return 'misfit'; }
     return '';
   }
   function plug(type, a, b, extra = {}) {
@@ -137,13 +185,13 @@ export function createNetwork(lab, opts = {}) {
   function sess(d) { return sessions[d.id] || (sessions[d.id] = { lines: [], mode: d.kind === 'pc' ? 'pc' : 'user', ifc: null, vlan: null, hist: [] }); }
   function say(d, text, cls = '') { const s = sess(d); s.lines.push({ text, cls }); if (s.lines.length > 800) s.lines.splice(0, 200); emit('say', d.id, text, cls); }
   function stamp() { const t = new Date(Date.now()); const p = n => String(n).padStart(2, '0'); return `*${t.toLocaleString('en-US', { month: 'short' })} ${String(t.getDate()).padStart(2, ' ')} ${p(t.getHours())}:${p(t.getMinutes())}:${p(t.getSeconds())}.${String(t.getMilliseconds()).padStart(3, '0')}`; }
-  function log(d, msg) { if (d.kind === 'pc' || quiet) return; say(d, `${stamp()}: ${msg}`, 'log'); emit('log', d.id, msg); }
+  function log(d, msg) { if (d.kind === 'pc' || d.kind === 'hub' || quiet) return; say(d, `${stamp()}: ${msg}`, 'log'); emit('log', d.id, msg); }
   let quiet = false;
 
   /* ---------- links ---------- */
   function peerOf(devId, ifname) {
     for (const c of cables) {
-      if (!c.a || !c.b || c.type === 'console') continue;
+      if (!c.a || !c.b || isCon(c)) continue;
       for (const [x, y] of [['a', 'b'], ['b', 'a']]) {
         const p = portOf(c[x]);
         if (c[x].dev === devId && p.iface === ifname && D(devId).ifs[ifname] && D(devId).ifs[ifname].medium === p.type) return { dev: c[y].dev, port: portOf(c[y]), cable: c };
@@ -155,14 +203,15 @@ export function createNetwork(lab, opts = {}) {
   function evalLinks() {
     for (const d of devs) for (const f of Object.values(d.ifs)) { f._phys = false; f._medium = ''; }
     for (const c of cables) {
-      if (!c.a || !c.b || c.type === 'console') continue;
+      if (!c.a || !c.b || isCon(c)) continue;
       for (const e of ['a', 'b']) { const d = D(c[e].dev), p = portOf(c[e]), f = d.ifs[p.iface]; if (f && (p.type === 'sfp' || !f._medium)) f._medium = p.type; }
     }
     for (const c of cables) {
-      if (!c.a || !c.b || c.type === 'console') continue;
+      if (!c.a || !c.b || isCon(c)) continue;
       const da = D(c.a.dev), db = D(c.b.dev), pa = portOf(c.a), pb = portOf(c.b), fa = da.ifs[pa.iface], fb = db.ifs[pb.iface];
       if (!fa || !fb || fa._medium !== pa.type || fb._medium !== pb.type) continue;
-      fa._phys = fb._phys = !fa.shutdown && !fb.shutdown && isOn(da) && isOn(db);
+      const fiber = CABLES[c.type].fiber, optics = !fiber || [[da, c.a], [db, c.b]].every(([d, e]) => (SFPS[d.sfp[e.port]] || {}).fiber === fiber);
+      fa._phys = fb._phys = optics && !fa.shutdown && !fb.shutdown && isOn(da) && isOn(db);
     }
     for (const d of devs) {
       for (const [n, f] of Object.entries(d.ifs)) {
@@ -177,7 +226,7 @@ export function createNetwork(lab, opts = {}) {
       }
       for (const [n, f] of Object.entries(d.ifs)) {
         let pr;
-        if (f.svi) pr = !f.shutdown && isOn(d) && Object.values(d.ifs).some(g => !g.svi && g.proto && (g.mode === 'trunk' || g.vlan === +n.slice(4)));
+        if (f.svi) pr = !f.shutdown && isOn(d) && Object.values(d.ifs).some(g => !g.svi && !g.routed && g.proto && (g.mode === 'trunk' || g.vlan === +n.slice(4)));
         else if (f.sub) { const pf = d.ifs[f.parent]; pr = !!pf && pf.proto && !f.shutdown && !pf.shutdown; f.phys = pr; }
         else continue;
         if (pr !== f.proto) { f.proto = pr; if (f.svi) f.phys = pr; log(d, `%LINEPROTO-5-UPDOWN: Line protocol on Interface ${n}, changed state to ${pr ? 'up' : 'down'}`); }
@@ -186,7 +235,7 @@ export function createNetwork(lab, opts = {}) {
   }
   function forwarding(d, n) {
     const f = d.ifs[n]; if (!f || !f.proto) return false;
-    if (d.kind !== 'switch' || f.svi) return true;
+    if (d.kind !== 'switch' || f.svi || f.routed) return true;
     return f.portfast || clock - f.upSince >= STP_FORWARD;
   }
   function stpState(d, n) {
@@ -203,6 +252,8 @@ export function createNetwork(lab, opts = {}) {
     const start = D(devId);
     const enter = (dId, n, vlan, tagged) => {
       const d = D(dId), f = d.ifs[n];
+      if (d.kind === 'hub') { const k = dId + '|' + n + '|' + vlan + '|' + tagged; if (!seen.has(k)) { seen.add(k); q.push({ dId, n, v: vlan, tagged, hub: true }); } return; }
+      if (d.kind === 'switch' && f.routed) { if (!tagged && f.ip) out.push({ dev: dId, n }); return; }
       if (d.kind === 'switch') {
         const v = f.mode === 'access' ? (tagged ? null : f.vlan) : tagged ? vlan : f.native;
         if (v == null) return;
@@ -229,11 +280,12 @@ export function createNetwork(lab, opts = {}) {
     } else if (f0 && f0.sub) leave(devId, f0.parent, f0.encap, true);
     else leave(devId, ifname, 1, false);
     while (q.length) {
-      const { dId, n: inIf, v } = q.shift(), d = D(dId);
+      const { dId, n: inIf, v, tagged, hub } = q.shift(), d = D(dId);
+      if (hub) { for (const n of Object.keys(d.ifs)) if (n !== inIf) leave(dId, n, v, tagged); continue; } // every bit to every other port
       const svi = d.ifs['Vlan' + v];
       if (svi && svi.proto && svi.ip && dId !== devId) out.push({ dev: dId, n: 'Vlan' + v });
       for (const [n, f] of Object.entries(d.ifs)) {
-        if (f.svi || n === inIf) continue;
+        if (f.svi || f.routed || n === inIf) continue;
         if (f.mode === 'trunk') leave(dId, n, v, v !== f.native);
         else if (f.vlan === v) leave(dId, n, v, false);
       }
@@ -258,14 +310,14 @@ export function createNetwork(lab, opts = {}) {
       return null;
     }
     for (const a of addrs) if (sameNet(a.ip, dst, a.mask)) return { n: a.n, nh: dst, src: a.ip };
-    if (d.kind === 'router') {
+    if (d.kind === 'router' || d.routing) {
       const rs = d.routes.filter(r => sameNet(dst, r.net, r.mask)).sort((x, y) => maskLen(y.mask) - maskLen(x.mask));
       for (const r of rs) {
         if (isIp(r.via)) { const a = addrs.find(a => sameNet(a.ip, r.via, a.mask)); if (a) return { n: a.n, nh: r.via, src: a.ip }; }
         else { const f = d.ifs[r.via]; if (f && f.proto) return { n: r.via, nh: dst, src: f.ip }; }
       }
     }
-    if (d.kind === 'switch' && d.gw) { const a = addrs[0]; if (a && sameNet(a.ip, d.gw, a.mask)) return { n: a.n, nh: d.gw, src: a.ip }; }
+    if (d.kind === 'switch' && !d.routing && d.gw) { const a = addrs[0]; if (a && sameNet(a.ip, d.gw, a.mask)) return { n: a.n, nh: d.gw, src: a.ip }; }
     return null;
   }
   function macOf(d, n) { return d.kind === 'pc' ? pcIf(d).mac : (d.ifs[n].sub ? d.ifs[d.ifs[n].parent].mac : d.ifs[n].mac); }
@@ -281,14 +333,14 @@ export function createNetwork(lab, opts = {}) {
     d.arp[r.nh] = { mac: macOf(nd, hit.n), n: r.n };
     learn(seg.path, d, r.n);
     if (ipsOf(nd).some(a => a.ip === dst)) return { ok: true, marks, last: nd.id };
-    if (nd.kind !== 'router' || ttl <= 0) return { ok: false, why: 'drop', marks, at: nd.id };
+    if (!(nd.kind === 'router' || nd.routing) || ttl <= 0) return { ok: false, why: 'drop', marks, at: nd.id };
     return deliver(nd, dst, ttl - 1, marks);
   }
   function learn(path, src, n) {
     const smac = macOf(src, n);
     for (let i = 0; i < path.length; i += 2) {
       const [dId, ifn] = path[i + 1]; const d = D(dId);
-      if (d.kind === 'switch') { const f = d.ifs[ifn]; d.macs[smac] = { vlan: f.mode === 'access' ? f.vlan : f.native, port: ifn }; }
+      if (d.kind === 'switch' && !d.ifs[ifn].routed) { const f = d.ifs[ifn]; d.macs[smac] = { vlan: f.mode === 'access' ? f.vlan : f.native, port: ifn }; }
     }
   }
   const pinged = new Set(), tried = new Set();
@@ -320,6 +372,7 @@ export function createNetwork(lab, opts = {}) {
     if (m[3] !== undefined) return d.kind === 'router' ? base + '.' + m[3] : null;
     return base;
   }
+  const kindOk = (c, d) => !c.kind || c.kind === d.kind || (c.kind === 'l3' && d.kind === 'switch' && !!d.m.l3) || (c.kind === 'routing' && (d.kind === 'router' || (d.kind === 'switch' && !!d.m.l3)));
   const EXEC = 'user priv';
   cmd('user', 'enable', (d, s) => { s.mode = 'priv'; });
   cmd('priv', 'disable', (d, s) => { s.mode = 'user'; });
@@ -335,7 +388,7 @@ export function createNetwork(lab, opts = {}) {
   cmd(EXEC, 'show cdp neighbors', showCdp);
   cmd(EXEC, 'show mac address-table', showMac, 'switch');
   cmd(EXEC, 'show spanning-tree', showStp, 'switch');
-  cmd(EXEC, 'show ip route', showRoute, 'router');
+  cmd(EXEC, 'show ip route', showRoute, 'routing');
   cmd(EXEC, 'show ip arp', showArp); cmd(EXEC, 'show arp', showArp);
   cmd(EXEC, 'show controllers <if>', showCtl, 'router');
   cmd(EXEC, 'show version', d => `${d.m.software}\n\n${d.hostname} uptime is ${Math.max(0, Math.floor((clock - d.boot) / 60000))} minutes\ncisco ${d.m.platform} processor\n...`);
@@ -354,8 +407,10 @@ export function createNetwork(lab, opts = {}) {
   });
   cmd('conf', 'vlan <num>', (d, s, a) => { const v = +a[0]; if (v < 1 || v > 4094) return err('% Bad VLAN list'); d.vlans[v] = d.vlans[v] || 'VLAN' + String(v).padStart(4, '0'); s.mode = 'vlan'; s.vlan = v; }, 'switch');
   cmd('conf', 'no vlan <num>', (d, s, a) => { delete d.vlans[+a[0]]; }, 'switch');
-  cmd('conf', 'ip route <ip> <mask> <hop>', (d, s, a) => { if (!validMask(a[1])) return err('%Inconsistent address and mask'); const net = netOf(a[0], a[1]); d.routes = d.routes.filter(r => !(r.net === net && r.mask === a[1])); d.routes.push({ net, mask: a[1], via: a[2] }); }, 'router');
-  cmd('conf', 'no ip route <ip> <mask> <hop>', (d, s, a) => { d.routes = d.routes.filter(r => !(r.net === netOf(a[0], a[1]) && r.mask === a[1])); }, 'router');
+  cmd('conf', 'ip route <ip> <mask> <hop>', (d, s, a) => { if (!validMask(a[1])) return err('%Inconsistent address and mask'); const net = netOf(a[0], a[1]); d.routes = d.routes.filter(r => !(r.net === net && r.mask === a[1])); d.routes.push({ net, mask: a[1], via: a[2] }); }, 'routing');
+  cmd('conf', 'no ip route <ip> <mask> <hop>', (d, s, a) => { d.routes = d.routes.filter(r => !(r.net === netOf(a[0], a[1]) && r.mask === a[1])); }, 'routing');
+  cmd('conf', 'ip routing', d => { d.routing = true; }, 'l3');
+  cmd('conf', 'no ip routing', d => { d.routing = false; }, 'l3');
   cmd('conf', 'ip default-gateway <ip>', (d, s, a) => { d.gw = a[0]; }, 'switch');
   cmd('conf', 'enable secret <word>', (d, s, a) => { d.secret = a[0]; });
   cmd('conf', 'no ip domain-lookup', () => {});
@@ -367,7 +422,7 @@ export function createNetwork(lab, opts = {}) {
   const ifc = (d, s) => d.ifs[s.ifc];
   cmd('if', 'ip address <ip> <mask>', (d, s, a) => {
     const f = ifc(d, s);
-    if (d.kind === 'switch' && !f.svi) return err('% Invalid input detected at \'^\' marker.');
+    if (d.kind === 'switch' && !f.svi && !f.routed) return err('% Invalid input detected at \'^\' marker.');
     if (!validMask(a[1])) return err('% Bad mask 0x' + (ipn(a[1]) >>> 0).toString(16).toUpperCase() + ' for address ' + a[0]);
     if (ipn(a[0]) === and(a[0], a[1])) return err('Bad mask /' + maskLen(a[1]) + ' for address ' + a[0]);
     if (f.sub && !f.encap) return err('% Configure encapsulation on this interface before configuring an IP address');
@@ -380,6 +435,8 @@ export function createNetwork(lab, opts = {}) {
   cmd('if', 'description <rest>', (d, s, a) => { ifc(d, s).desc = a[0]; });
   cmd('if', 'encapsulation dot1q <num>', (d, s, a) => { const f = ifc(d, s); if (!f.sub) return err('% Invalid input detected at \'^\' marker.'); f.encap = +a[0]; }, 'router');
   cmd('if', 'encapsulation dot1q <num> native', (d, s, a) => { const f = ifc(d, s); if (!f.sub) return err('% Invalid input detected at \'^\' marker.'); f.encap = +a[0]; f.nativeTag = true; }, 'router');
+  cmd('if', 'no switchport', (d, s) => { const f = ifc(d, s); if (f.svi) return err('% Invalid input detected at \'^\' marker.'); f.routed = true; f.mode = 'access'; f.vlan = 1; }, 'l3');
+  cmd('if', 'switchport', (d, s) => { const f = ifc(d, s); f.routed = false; f.ip = ''; f.mask = ''; }, 'l3');
   cmd('if', 'switchport mode access', (d, s) => { ifc(d, s).mode = 'access'; }, 'switch');
   cmd('if', 'switchport mode trunk', (d, s) => { ifc(d, s).mode = 'trunk'; }, 'switch');
   cmd('if', 'switchport access vlan <num>', (d, s, a) => { const v = +a[0]; if (!d.vlans[v]) { d.vlans[v] = 'VLAN' + String(v).padStart(4, '0'); say(d, '% Access VLAN does not exist. Creating vlan ' + v); } ifc(d, s).vlan = v; }, 'switch');
@@ -396,7 +453,7 @@ export function createNetwork(lab, opts = {}) {
   }
   for (const m of ['if', 'vlan', 'line']) cmd(m, 'interface <if>', (d, s, a) => C.find(c => c.modes.includes('conf') && c.w.join(' ') === 'interface <if>').fn(d, s, a));
 
-  const HELP = { show: 'Show running system information', configure: 'Enter configuration mode', terminal: 'Configure from the terminal', enable: 'Turn on privileged commands', disable: 'Turn off privileged commands', ping: 'Send echo messages', interface: 'Select an interface to configure', ip: 'IP configuration', address: 'Set the IP address of an interface', shutdown: 'Shutdown the selected interface', no: 'Negate a command or set its defaults', hostname: "Set system's network name", exit: 'Exit from the current mode', end: 'Exit to privileged mode', brief: 'Brief summary of IP status and configuration', 'running-config': 'Current operating configuration', vlan: 'VLAN commands', switchport: 'Set switching mode characteristics', mode: 'Set trunking mode of the interface', access: 'Set access mode characteristics of the interface', trunk: 'Set trunking characteristics of the interface', route: 'Establish static routes', cdp: 'CDP information', neighbors: 'CDP neighbor entries', 'spanning-tree': 'Spanning Tree Subsystem', portfast: 'Enable an interface to move directly to forwarding on link up', clock: 'Configure serial interface clock', rate: 'Configure serial interface clock speed', copy: 'Copy from one file to another', description: 'Interface specific description', name: 'Ascii name of the VLAN', interfaces: 'Interface status and configuration', status: 'Show interface line status', controllers: 'Interface controller status', 'mac': 'MAC configuration', 'address-table': 'MAC forwarding table', arp: 'ARP table', version: 'System hardware and software status', line: 'Configure a terminal line', secret: 'Assign the privileged level secret', 'default-gateway': 'Specify default gateway (if not routing IP)', write: 'Write running configuration to memory', encapsulation: 'Set encapsulation type for an interface', dot1q: 'IEEE 802.1Q Virtual LAN', reload: 'Halt and perform a cold restart' };
+  const HELP = { routing: 'Enable IP routing', show: 'Show running system information', configure: 'Enter configuration mode', terminal: 'Configure from the terminal', enable: 'Turn on privileged commands', disable: 'Turn off privileged commands', ping: 'Send echo messages', interface: 'Select an interface to configure', ip: 'IP configuration', address: 'Set the IP address of an interface', shutdown: 'Shutdown the selected interface', no: 'Negate a command or set its defaults', hostname: "Set system's network name", exit: 'Exit from the current mode', end: 'Exit to privileged mode', brief: 'Brief summary of IP status and configuration', 'running-config': 'Current operating configuration', vlan: 'VLAN commands', switchport: 'Set switching mode characteristics', mode: 'Set trunking mode of the interface', access: 'Set access mode characteristics of the interface', trunk: 'Set trunking characteristics of the interface', route: 'Establish static routes', cdp: 'CDP information', neighbors: 'CDP neighbor entries', 'spanning-tree': 'Spanning Tree Subsystem', portfast: 'Enable an interface to move directly to forwarding on link up', clock: 'Configure serial interface clock', rate: 'Configure serial interface clock speed', copy: 'Copy from one file to another', description: 'Interface specific description', name: 'Ascii name of the VLAN', interfaces: 'Interface status and configuration', status: 'Show interface line status', controllers: 'Interface controller status', 'mac': 'MAC configuration', 'address-table': 'MAC forwarding table', arp: 'ARP table', version: 'System hardware and software status', line: 'Configure a terminal line', secret: 'Assign the privileged level secret', 'default-gateway': 'Specify default gateway (if not routing IP)', write: 'Write running configuration to memory', encapsulation: 'Set encapsulation type for an interface', dot1q: 'IEEE 802.1Q Virtual LAN', reload: 'Halt and perform a cold restart' };
   const tokOk = (t, w, d) => t === '<ip>' || t === '<mask>' ? isIp(w) : t === '<num>' ? /^\d+$/.test(w) : t === '<word>' || t === '<rest>' ? w.length > 0 : t === '<if>' ? !!parseIf(d, w) : t === '<hop>' ? isIp(w) || !!parseIf(d, w) : null;
   const IFWORDS = ['interface', 'interfaces', 'controllers'];
   function words(line, d) {
@@ -410,7 +467,7 @@ export function createNetwork(lab, opts = {}) {
   }
   const argsOf = (c, ws, d) => c.w.map((t, i) => !t.startsWith('<') ? undefined : t === '<if>' ? parseIf(d, ws[i]) : t === '<hop>' ? (isIp(ws[i]) ? ws[i] : parseIf(d, ws[i])) : ws[i]).filter((x, i) => c.w[i].startsWith('<'));
   function match(d, mode, ws) {
-    let cands = C.filter(c => c.modes.includes(mode) && (!c.kind || c.kind === d.kind));
+    let cands = C.filter(c => c.modes.includes(mode) && kindOk(c, d));
     for (let i = 0; i < ws.length; i++) {
       const w = ws[i], lw = w.toLowerCase();
       const rest = cands.find(c => c.w[i] === '<rest>');
@@ -429,7 +486,7 @@ export function createNetwork(lab, opts = {}) {
     const d = D(devId), mode = sess(d).mode;
     const partial = !/\s$/.test(line) && line.trim().length > 0;
     const ws = words(line, d), idx = partial ? ws.length - 1 : ws.length, pre = partial ? ws.slice(0, -1) : ws;
-    let cands = C.filter(c => c.modes.includes(mode) && (!c.kind || c.kind === d.kind));
+    let cands = C.filter(c => c.modes.includes(mode) && kindOk(c, d));
     for (let i = 0; i < pre.length; i++) cands = cands.filter(c => c.w[i] && (c.w[i].startsWith('<') ? tokOk(c.w[i], pre[i], d) : c.w[i].startsWith(pre[i].toLowerCase())));
     const last = partial ? ws[ws.length - 1].toLowerCase() : '';
     const opts = [...new Set(cands.map(c => c.w[idx]).filter(Boolean).filter(t => t.startsWith('<') || t.startsWith(last)))];
@@ -465,6 +522,7 @@ export function createNetwork(lab, opts = {}) {
     if (!line.trim()) return;
     s.hist.push(line);
     if (d.kind === 'pc') { runPC(d, line); emit('change'); return; }
+    if (d.kind === 'hub') return;
     if (!isOn(d) && !quiet) return;
     let ws = words(line, d), mode = s.mode, isDo = false;
     if (/^do$/i.test(ws[0]) && !['user', 'priv'].includes(mode)) { ws = ws.slice(1); mode = 'priv'; isDo = true; }
@@ -498,8 +556,13 @@ export function createNetwork(lab, opts = {}) {
   function showIntStatus(d) {
     return 'Port      Name               Status       Vlan       Duplex  Speed Type\n' + Object.entries(d.ifs).filter(([, f]) => !f.svi).map(([n, f]) => {
       const st = f.shutdown ? 'disabled' : f.phys ? 'connected' : 'notconnect', gi = n.startsWith('Gig');
-      return `${short(n).padEnd(10)}${(f.desc || '').slice(0, 18).padEnd(19)}${st.padEnd(13)}${(f.mode === 'trunk' ? 'trunk' : String(f.vlan)).padEnd(11)}${(f.phys ? 'a-full' : 'auto').padStart(6)}${(f.phys ? (gi ? 'a-1000' : 'a-100') : 'auto').padStart(7)} ${gi ? (f.medium === 'sfp' ? '1000BaseSX SFP' : '10/100/1000BaseTX') : '10/100BaseTX'}`;
+      return `${short(n).padEnd(10)}${(f.desc || '').slice(0, 18).padEnd(19)}${st.padEnd(13)}${(f.routed ? 'routed' : f.mode === 'trunk' ? 'trunk' : String(f.vlan)).padEnd(11)}${(f.phys ? 'a-full' : 'auto').padStart(6)}${(f.phys ? (gi ? 'a-1000' : 'a-100') : 'auto').padStart(7)} ${portType(d, n, f)}`;
     }).join('\n');
+  }
+  function portType(d, n, f) {
+    const cage = d.m.ports.find(p => p.iface === n && p.type === 'sfp'), t = cage && d.sfp[cage.key];
+    if (cage && (f.medium === 'sfp' || !d.m.ports.some(p => p.iface === n && p.type === 'eth'))) return t ? SFPS[t].type : 'Not Present';
+    return n.startsWith('Gig') ? '10/100/1000BaseTX' : '10/100BaseTX';
   }
   function showTrunk(d) {
     const t = Object.entries(d.ifs).filter(([, f]) => !f.svi && f.mode === 'trunk');
@@ -513,11 +576,12 @@ export function createNetwork(lab, opts = {}) {
   function showInt(d, s, a) {
     const n = a[0], f = d.ifs[n]; if (!f) return err('% Invalid input detected at \'^\' marker.');
     const [st, pr] = ifStatus(d, n), hwmac = f.sub ? d.ifs[f.parent].mac : f.mac;
-    const hw = n.startsWith('Serial') ? 'NIM-2T' : n.startsWith('Vlan') ? 'Ethernet SVI' : d.kind === 'router' ? 'ISR4321-2x1GE' : n.startsWith('Gig') ? 'Gigabit Ethernet' : 'Fast Ethernet';
+    const hw = n.startsWith('Serial') ? cardOf(d, n) : n.startsWith('Vlan') ? 'Ethernet SVI' : d.kind === 'router' ? d.m.hw : n.startsWith('Gig') ? 'Gigabit Ethernet' : 'Fast Ethernet';
     return `${n} is ${st}, line protocol is ${pr}\n  Hardware is ${hw}, address is ${hwmac} (bia ${hwmac})${f.desc ? `\n  Description: ${f.desc}` : ''}${f.ip ? `\n  Internet address is ${f.ip}/${maskLen(f.mask)}` : ''}${f.sub ? `\n  Encapsulation 802.1Q Virtual LAN, Vlan ID  ${f.encap || 'not set'}.` : ''}\n  MTU 1500 bytes, BW ${n.startsWith('Serial') ? '1544' : n.startsWith('Gig') ? '1000000' : '100000'} Kbit/sec, DLY 10 usec,\n  ${f.phys ? 'Full-duplex' : 'Auto-duplex'}, ${f.phys ? (n.startsWith('Gig') ? '1000Mb/s' : '100Mb/s') : 'Auto-speed'}\n  ...`;
   }
+  function cardOf(d, n) { const s = (d.m.slots || []).find(s => d.modules[s.id] && MODULES[d.modules[s.id]].ports(s).some(p => p.iface === n)); return s ? MODULES[d.modules[s.id]].hw : 'Serial'; }
   function showVlan(d) {
-    const ports = v => Object.entries(d.ifs).filter(([, f]) => !f.svi && f.mode === 'access' && f.vlan === +v).map(([n]) => short(n));
+    const ports = v => Object.entries(d.ifs).filter(([, f]) => !f.svi && !f.routed && f.mode === 'access' && f.vlan === +v).map(([n]) => short(n));
     const wrap = arr => { const lines = []; for (let i = 0; i < arr.length; i += 4) lines.push(arr.slice(i, i + 4).join(', ')); return lines.length ? lines : ['']; };
     let out = 'VLAN Name                             Status    Ports\n---- -------------------------------- --------- -------------------------------\n';
     for (const v of Object.keys(d.vlans).map(Number).sort((a, b) => a - b)) { const w = wrap(ports(v)); out += `${String(v).padEnd(5)}${d.vlans[v].padEnd(33)}active    ${w[0]}\n` + w.slice(1).map(l => ' '.repeat(48) + l + '\n').join(''); }
@@ -527,8 +591,9 @@ export function createNetwork(lab, opts = {}) {
     let o = `interface ${n}\n`;
     if (f.desc) o += ` description ${f.desc}\n`;
     if (f.sub && f.encap) o += ` encapsulation dot1Q ${f.encap}${f.nativeTag ? ' native' : ''}\n`;
-    if (d.kind === 'switch' && !f.svi) { if (f.mode === 'trunk') { if (f.native !== 1) o += ` switchport trunk native vlan ${f.native}\n`; o += ' switchport mode trunk\n'; } else { if (f.vlan !== 1) o += ` switchport access vlan ${f.vlan}\n`; if (f.vlan !== 1 || f.portfast) o += ' switchport mode access\n'; } if (f.portfast) o += ' spanning-tree portfast\n'; }
-    o += f.ip ? ` ip address ${f.ip} ${f.mask}\n` : (d.kind === 'router' || f.svi ? ' no ip address\n' : '');
+    if (f.routed) o += ' no switchport\n';
+    else if (d.kind === 'switch' && !f.svi) { if (f.mode === 'trunk') { if (f.native !== 1) o += ` switchport trunk native vlan ${f.native}\n`; o += ' switchport mode trunk\n'; } else { if (f.vlan !== 1) o += ` switchport access vlan ${f.vlan}\n`; if (f.vlan !== 1 || f.portfast) o += ' switchport mode access\n'; } if (f.portfast) o += ' spanning-tree portfast\n'; }
+    o += f.ip ? ` ip address ${f.ip} ${f.mask}\n` : (d.kind === 'router' || f.svi || f.routed ? ' no ip address\n' : '');
     if (f.clock) o += ` clock rate ${f.clock}\n`;
     if (f.shutdown) o += ' shutdown\n';
     return o;
@@ -536,6 +601,7 @@ export function createNetwork(lab, opts = {}) {
   function showRun(d, only) {
     if (only) { const f = d.ifs[only]; if (!f) return err('% Invalid input detected at \'^\' marker.'); return `Building configuration...\n\nCurrent configuration : ${120 + runIf(d, only, f).length} bytes\n!\n${runIf(d, only, f)}end`; }
     let o = `Building configuration...\n\nCurrent configuration : ${1200 + Object.keys(d.ifs).length * 40} bytes\n!\nversion ${d.kind === 'router' ? '17.9' : '15.2'}\n!\nhostname ${d.hostname}\n!\n${d.secret ? 'enable secret 9 $9$' + 'nhEmQVczB7dqsO$X.HsgL6x1il0RxkOSSvyQYwucySCt7qFm4v7pqCxkKM\n!\n' : ''}`;
+    if (d.routing) o += 'ip routing\n!\n';
     if (d.kind === 'switch') for (const v of Object.keys(d.vlans).filter(v => v !== '1')) o += `vlan ${v}\n name ${d.vlans[v]}\n!\n`;
     for (const n of Object.keys(d.ifs).sort(natural)) o += runIf(d, n, d.ifs[n]) + '!\n';
     for (const r of d.routes) o += `ip route ${r.net} ${r.mask} ${r.via}\n`;
@@ -548,8 +614,8 @@ export function createNetwork(lab, opts = {}) {
     for (const n of Object.keys(d.ifs).sort(natural)) {
       const f = d.ifs[n]; if (!f.proto || f.svi || f.sub) continue;
       const pe = peerOf(d.id, n); if (!pe) continue;
-      const pd = D(pe.dev); if (pd.kind === 'pc' || !isOn(pd)) continue;
-      rows.push(`${pd.hostname.padEnd(17)}${sh(n).padEnd(18)}${'163'.padStart(7)}${(pd.kind === 'router' ? 'R B S I' : 'S I').padStart(13)}  ${pd.m.platform.slice(0, 9).padEnd(10)}${sh(pe.port.iface)}`);
+      const pd = D(pe.dev); if (pd.kind === 'pc' || pd.kind === 'hub' || !isOn(pd)) continue;
+      rows.push(`${pd.hostname.padEnd(17)}${sh(n).padEnd(18)}${'163'.padStart(7)}${(pd.kind === 'router' ? 'R B S I' : pd.m.l3 ? 'R S I' : 'S I').padStart(13)}  ${pd.m.platform.slice(0, 9).padEnd(10)}${sh(pe.port.iface)}`);
     }
     return 'Capability Codes: R - Router, T - Trans Bridge, B - Source Route Bridge\n                  S - Switch, H - Host, I - IGMP, r - Repeater, P - Phone,\n                  D - Remote, C - CVTA, M - Two-port Mac Relay\n\nDevice ID        Local Intrfce     Holdtme    Capability  Platform  Port ID\n' + rows.join('\n') + `\n\nTotal cdp entries displayed : ${rows.length}`;
   }
@@ -585,9 +651,9 @@ export function createNetwork(lab, opts = {}) {
   function showCtl(d, s, a) {
     const n = a[0]; if (!n.startsWith('Serial')) return err('% Invalid input detected at \'^\' marker.');
     const pe = peerOf(d.id, n), f = d.ifs[n];
-    if (!pe) return `Interface ${n}\nHardware is NIM-2T\nNo serial cable attached\n...`;
+    if (!pe) return `Interface ${n}\nHardware is ${cardOf(d, n)}\nNo serial cable attached\n...`;
     const dce = pe.cable.dce && pe.cable.dce.dev === d.id && portOf(pe.cable.dce).iface === n;
-    return `Interface ${n}\nHardware is NIM-2T\n${dce ? 'DCE' : 'DTE'} V.35, ${dce ? (f.clock ? 'clock rate ' + f.clock : 'clocks stopped') : 'clocks detected'}.\n...`;
+    return `Interface ${n}\nHardware is ${cardOf(d, n)}\n${dce ? 'DCE' : 'DTE'} V.35, ${dce ? (f.clock ? 'clock rate ' + f.clock : 'clocks stopped') : 'clocks detected'}.\n...`;
   }
   function iosPing(d, dst) {
     const r0 = route(d, dst), first = r0 && !d.arp[r0.nh];
@@ -642,7 +708,7 @@ export function createNetwork(lab, opts = {}) {
   function setPower(devId, on) { const d = D(devId); if (on && !d.power) { d.power = true; d.boot = clock + 2600; } else if (!on) d.power = false; evalLinks(); emit('change'); }
 
   /* ---------- tasks ---------- */
-  const consoleFrom = devId => { const c = cables.find(c => c.type === 'console' && c.a && c.b && [c.a.dev, c.b.dev].includes(devId)); return c ? (c.a.dev === devId ? c.b.dev : c.a.dev) : null; };
+  const consoleFrom = devId => { const c = cables.find(c => isCon(c) && c.a && c.b && [c.a.dev, c.b.dev].includes(devId)); return c ? (c.a.dev === devId ? c.b.dev : c.a.dev) : null; };
   const opened = new Set();
   function checkTask(t) {
     const k = t.check || {};
@@ -687,7 +753,7 @@ export function createNetwork(lab, opts = {}) {
 
   function snapshot() {
     return {
-      clock, devices: devs.map(d => ({ id: d.id, model: d.model, x: d.x, y: d.y, hostname: d.hostname, power: d.power, ip: d.ip, mask: d.mask, pcgw: d.pcgw, routes: d.routes, vlans: d.vlans, gw: d.gw, secret: d.secret, ifs: Object.fromEntries(Object.entries(d.ifs).map(([n, f]) => [n, { shutdown: f.shutdown, ip: f.ip, mask: f.mask, mode: f.mode, vlan: f.vlan, native: f.native, portfast: f.portfast, clock: f.clock, desc: f.desc, encap: f.encap, sub: f.sub, parent: f.parent, svi: f.svi, mac: f.mac, nativeTag: f.nativeTag }])) })),
+      clock, devices: devs.map(d => ({ id: d.id, model: d.model, modules: { ...d.modules }, sfp: { ...d.sfp }, routing: d.routing, x: d.x, y: d.y, hostname: d.hostname, power: d.power, ip: d.ip, mask: d.mask, pcgw: d.pcgw, routes: d.routes, vlans: d.vlans, gw: d.gw, secret: d.secret, ifs: Object.fromEntries(Object.entries(d.ifs).map(([n, f]) => [n, { shutdown: f.shutdown, ip: f.ip, mask: f.mask, mode: f.mode, vlan: f.vlan, native: f.native, portfast: f.portfast, clock: f.clock, desc: f.desc, encap: f.encap, sub: f.sub, parent: f.parent, svi: f.svi, routed: f.routed, mac: f.mac, nativeTag: f.nativeTag }])) })),
       cables: cables.filter(c => c.a && c.b).map(c => ({ id: c.id, type: c.type, a: c.a, b: c.b, dce: c.dce })),
       opened: [...opened], pinged: [...pinged], tried: [...tried],
     };
@@ -696,7 +762,10 @@ export function createNetwork(lab, opts = {}) {
     if (!s || !Array.isArray(s.devices)) return;
     for (const sd of s.devices) {
       let d = D(sd.id);
-      if (!d) { if (!CATALOG[sd.model]) continue; d = addDevice({ id: sd.id, model: sd.model }); } // added on an open bench
+      if (!d) { if (!CATALOG[sd.model]) continue; try { d = addDevice({ id: sd.id, model: sd.model, modules: sd.modules }); } catch { continue; } } // added on an open bench
+      if (sd.modules) { d.modules = { ...sd.modules }; d.m = modelOf(CATALOG[d.model], d.modules); syncIfs(d); }
+      if (sd.sfp) d.sfp = { ...sd.sfp };
+      d.routing = !!sd.routing;
       Object.assign(d, { x: sd.x, y: sd.y, hostname: sd.hostname, power: sd.power !== false, ip: sd.ip, mask: sd.mask, pcgw: sd.pcgw, routes: sd.routes || [], vlans: sd.vlans || d.vlans, gw: sd.gw || '', secret: sd.secret || '' });
       for (const [n, f] of Object.entries(sd.ifs || {})) d.ifs[n] = Object.assign(d.ifs[n] || iface({}), f, { phys: false, proto: false, upSince: clock });
     }
@@ -710,6 +779,7 @@ export function createNetwork(lab, opts = {}) {
     lab, devices: devs, cables, catalog: CATALOG, cableTypes: CABLES,
     device: D, portOf, peerOf, segment,
     addDevice: add, removeDevice, renameDevice, copyDevice,
+    insertModule, removeModule, insertSfp, removeSfp,
     get clock() { return clock; }, tick,
     plug, attach, detach, remove, canPlug, fits, occupied,
     exec, prompt, help, session: id => sess(D(id)), configure, setPC,

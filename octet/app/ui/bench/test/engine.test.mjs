@@ -168,4 +168,104 @@ const last = (net, dev) => net.session(dev).lines.slice(-1)[0].text;
   assert.match(last(net, 'R1'), /C2900 Software/);
   for (const [model, id] of [['CISCO1941', 'R2'], ['ISR4331', 'R3'], ['Printer', 'Printer-1'], ['Laptop', 'Laptop-1']]) assert.equal(net.addDevice({ model }).id, id);
 }
+// An ISR G2 ships with empty slots: serial ports need a HWIC-2T, inserted
+// with the power off, like the real router.
+{
+  const net = createNetwork({ booted: true, devices: [{ id: 'R1', model: 'CISCO1941' }, { id: 'R2', model: 'ISR4321' }] });
+  assert.throws(() => net.plug('serial', 'R1 S0/0/0', 'R2 S0/1/0'), /no port/);
+  assert.throws(() => net.insertModule('R1', 'EHWIC0', 'HWIC-2T'), /off first/);
+  assert.throws(() => net.insertModule('R1', 'EHWIC0', 'NIM-2T'), /doesn't fit/);
+  net.setPower('R1', false);
+  net.insertModule('R1', 'EHWIC0', 'HWIC-2T');
+  net.setPower('R1', true);
+  net.tick(3000);
+  net.plug('serial', 'R2 S0/1/0', 'R1 S0/0/0');
+  run(net, 'R1', ['en', 'conf t', 'int s0/0/0', 'ip add 10.0.0.1 255.255.255.252', 'no shut', 'end']);
+  run(net, 'R2', ['en', 'conf t', 'int s0/1/0', 'ip add 10.0.0.2 255.255.255.252', 'clock rate 64000', 'no shut', 'end']);
+  net.tick(100);
+  net.exec('R1', 'ping 10.0.0.2');
+  assert.match(last(net, 'R1'), /Success rate is (80|100) percent/);
+  net.exec('R1', 'show controllers s0/0/0');
+  assert.match(last(net, 'R1'), /Hardware is GT96K Serial\nDTE/);
+  const again = createNetwork({ booted: true, devices: [{ id: 'R1', model: 'CISCO1941' }, { id: 'R2', model: 'ISR4321' }] });
+  again.restore(net.snapshot());
+  assert.equal(again.device('R1').modules.EHWIC0, 'HWIC-2T', 'cards are saved with the bench');
+  net.setPower('R1', false); net.removeModule('R1', 'EHWIC0');
+  assert.equal(net.cables.length, 0, 'pulling the card unplugs its cable');
+  assert.equal(net.device('R1').ifs['Serial0/0/0'], undefined);
+}
+
+// Fiber needs a transceiver at both ends, of the fiber's own kind.
+{
+  const net = createNetwork({ booted: true, devices: [{ id: 'S1', model: 'WS-C3560-24PS' }, { id: 'S2', model: 'WS-C2960X-24TS-L' }] });
+  assert.throws(() => net.plug('fiber', 'S1 G0/1', 'S2 G1/0/25'), /nosfp/);
+  net.insertSfp('S1', 'G0/1', 'GLC-SX-MMD'); net.insertSfp('S2', 'G1/0/25', 'GLC-LH-SMD');
+  const c = net.plug('fiber', 'S1 G0/1', 'S2 G1/0/25');
+  net.tick(100);
+  assert.equal(net.ifStatus('S1', 'GigabitEthernet0/1')[0], 'down', 'an LX optic on multimode fiber: no link');
+  assert.throws(() => net.removeSfp('S2', 'G1/0/25'), /Unplug the fiber first/);
+  net.remove(c); net.removeSfp('S2', 'G1/0/25'); net.insertSfp('S2', 'G1/0/25', 'GLC-SX-MMD');
+  net.plug('fiber', 'S1 G0/1', 'S2 G1/0/25');
+  net.tick(100);
+  assert.equal(net.ifStatus('S1', 'GigabitEthernet0/1')[0], 'up');
+  run(net, 'S1', ['en', 'show interfaces status']);
+  assert.match(last(net, 'S1'), /Gi0\/1.*connected.*1000BaseSX SFP/);
+  assert.match(last(net, 'S1'), /Gi0\/2.*notconnect.*Not Present/);
+}
+
+// A USB console cable reaches the console like the rollover does.
+{
+  const net = createNetwork({ booted: true, devices: [{ id: 'S1', model: 'WS-C3650-24PS' }, { id: 'LAP', model: 'Laptop' }] });
+  assert.throws(() => net.plug('usb', 'LAP USB', 'S1 CON'), /misfit/);
+  net.plug('usb', 'LAP USB', 'S1 USB');
+  assert.equal(net.consoleFrom('S1'), 'LAP');
+}
+
+// A hub repeats every frame to every port: no VLANs, no spanning tree.
+{
+  const lab = { booted: true, devices: [{ id: 'H', model: 'Hub' }, { id: 'A', model: 'PC', ip: '10.0.0.1', mask: '255.255.255.0' }, { id: 'B', model: 'PC', ip: '10.0.0.2', mask: '255.255.255.0' }, { id: 'S1', model: 'WS-C2960-24TT-L', config: 'interface fa0/1\n spanning-tree portfast' }, { id: 'C', model: 'PC', ip: '10.0.0.3', mask: '255.255.255.0' }],
+    cables: [{ a: 'A NIC', b: 'H P0' }, { a: 'B NIC', b: 'H P1' }, { a: 'S1 F0/1', b: 'H P2', type: 'cross' }, { a: 'C NIC', b: 'S1 F0/2' }] };
+  const net = createNetwork(lab);
+  net.tick(100);
+  net.exec('A', 'ping 10.0.0.2');
+  assert.match(last(net, 'A'), /Reply from 10\.0\.0\.2/, 'straight through the hub, no waiting');
+  net.tick(31000);
+  net.exec('A', 'ping 10.0.0.3');
+  assert.match(last(net, 'A'), /Reply from 10\.0\.0\.3/, 'through the hub and a switch');
+  assert.equal(net.addDevice({ model: 'Hub' }).id, 'Hub-1');
+}
+
+// A layer 3 switch routes between its VLANs once `ip routing` is on, and a
+// routed port (`no switchport`) takes an address like a router's.
+{
+  const lab = {
+    booted: true,
+    devices: [
+      { id: 'MLS', model: 'WS-C3650-24PS', config: 'vlan 10\nvlan 20\ninterface g1/0/1\n switchport access vlan 10\n spanning-tree portfast\ninterface g1/0/2\n switchport access vlan 20\n spanning-tree portfast\ninterface vlan 10\n ip address 192.168.10.1 255.255.255.0\n no shutdown\ninterface vlan 20\n ip address 192.168.20.1 255.255.255.0\n no shutdown\ninterface g1/0/24\n no switchport\n ip address 10.0.0.1 255.255.255.252' },
+      { id: 'R1', model: 'ISR4331', config: 'interface g0/0/1\n ip address 10.0.0.2 255.255.255.252\n no shutdown\nip route 192.168.0.0 255.255.0.0 10.0.0.1' },
+      { id: 'A', model: 'PC', ip: '192.168.10.10', mask: '255.255.255.0', gateway: '192.168.10.1' },
+      { id: 'B', model: 'PC', ip: '192.168.20.10', mask: '255.255.255.0', gateway: '192.168.20.1' },
+    ],
+    cables: [{ a: 'A NIC', b: 'MLS G1/0/1' }, { a: 'B NIC', b: 'MLS G1/0/2' }, { a: 'MLS G1/0/24', b: 'R1 G0/0/1' }],
+  };
+  const net = createNetwork(lab);
+  net.tick(100);
+  net.exec('A', 'ping 192.168.20.10');
+  assert.match(last(net, 'A'), /Request timed out|unreachable/, 'no ip routing yet');
+  run(net, 'MLS', ['en', 'conf t', 'ip routing', 'end']);
+  net.exec('A', 'ping 192.168.20.10');
+  assert.match(last(net, 'A'), /Reply from 192\.168\.20\.10/, 'routed between VLANs');
+  net.exec('B', 'ping 10.0.0.2');
+  assert.match(last(net, 'B'), /Reply from 10\.0\.0\.2/, 'out the routed port to the router');
+  run(net, 'MLS', ['show ip route']);
+  assert.match(last(net, 'MLS'), /C\s+10\.0\.0\.0\/30 is directly connected, GigabitEthernet1\/0\/24/);
+  run(net, 'MLS', ['show running-config']);
+  assert.match(last(net, 'MLS'), /ip routing/);
+  assert.match(last(net, 'MLS'), /interface GigabitEthernet1\/0\/24\n no switchport\n ip address 10\.0\.0\.1/);
+  run(net, 'MLS', ['show interfaces status']);
+  assert.match(last(net, 'MLS'), /Gi1\/0\/24.*routed/);
+  const l2 = createNetwork({ devices: [{ id: 'S', model: 'WS-C2960-24TT-L' }], booted: true });
+  run(l2, 'S', ['en', 'conf t', 'ip routing']);
+  assert.match(last(l2, 'S'), /Invalid input/, 'a 2960 has no ip routing');
+}
 console.log('engine: all checks passed');
