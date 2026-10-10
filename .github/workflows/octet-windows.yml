@@ -2,7 +2,7 @@ name: Build Octet for Windows
 
 on:
   push:
-    branches: [claude/gracious-faraday-oqgori]
+    branches: [octet]
     paths: ["octet/**", ".github/workflows/octet-windows.yml"]
   workflow_dispatch:
 
