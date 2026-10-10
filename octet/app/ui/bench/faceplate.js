@@ -57,11 +57,30 @@ const DRAW = {
     text(face, { x: 24, y: 19, class: 'silk' }, 'NIM-2T');
     text(face, { x: 24, y: 51, class: 'silk' }, 'NIM 1   SERIAL');
     el('circle', { cx: 160, cy: 15, r: 1.6, fill: 'var(--b-metal-hi)' }, face);
-    text(face, { x: 456, y: 22, class: 'silk big' }, 'ISR 4321');
+    text(face, { x: m.lights[0].x - 6, y: 22, class: 'silk big' }, m.label || 'ISR 4321');
   },
-  c2960(face) {
-    text(face, { x: 18, y: 18, class: 'silk big' }, 'CATALYST 2960-Plus');
+  isrg2(face, m) {
+    el('rect', { x: 18, y: 10, width: 150, height: 46, rx: 2, fill: 'var(--b-metal-lo)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, face);
+    text(face, { x: 24, y: 19, class: 'silk' }, 'HWIC-2T');
+    text(face, { x: 24, y: 51, class: 'silk' }, 'EHWIC 0   SERIAL');
+    el('rect', { x: 178, y: 10, width: 100, height: 46, rx: 2, fill: 'none', stroke: 'var(--b-edge2)', 'stroke-width': .6, 'stroke-dasharray': '3 2' }, face);
+    text(face, { x: 184, y: 51, class: 'silk' }, 'EHWIC 1');
+    text(face, { x: m.lights[0].x - 6, y: 22, class: 'silk big' }, m.label);
+  },
+  c2960(face, m) {
+    text(face, { x: 18, y: 18, class: 'silk big' }, m.label || 'CATALYST 2960-Plus');
     text(face, { x: 150, y: 47, class: 'silk', 'text-anchor': 'middle' }, 'MODE');
+  },
+  server(face, m, d) {
+    for (let i = 0; i < 4; i++) el('rect', { x: 14 + i * 30, y: 12, width: 24, height: 42, rx: 2, fill: 'var(--b-metal-lo)', stroke: 'var(--b-edge2)', 'stroke-width': .5 }, face);
+    d.screen = text(face, { x: 14, y: 64, class: 'silk' }, '');
+    d.screenIp = text(face, { x: m.w - 14, y: 64, class: 'silk', 'text-anchor': 'end' }, '');
+  },
+  printer(face, m, d) {
+    el('rect', { x: 14, y: 8, width: m.w - 28, height: 10, rx: 2, fill: 'var(--b-recess)' }, face);
+    el('rect', { x: 30, y: 60, width: 90, height: 8, rx: 1.5, fill: 'oklch(95% 0.005 80)' }, face);
+    d.screen = text(face, { x: 16, y: 40, class: 'silk name' }, d.id);
+    d.screenIp = text(face, { x: 16, y: 54, class: 'silk' }, '');
   },
   pc(face, m, d) {
     el('rect', { x: 12, y: 10, width: m.w - 24, height: 26, rx: 4, fill: 'var(--b-recess)' }, face);
@@ -77,6 +96,9 @@ export const GLYPH = {
   router: '<path d="M8.6 16h5.4M18 14.8l4.6-2.8M18 17.2l4.6 2.8M20.6 11.5l2 .5-.6 2M20.6 20.5l2-.5-.6-2"/><rect x="5" y="8.5" width="22" height="15" rx="2.2"/><circle cx="16" cy="16" r="2.3"/>',
   switch: '<rect x="5" y="9.5" width="22" height="13" rx="2.2"/><path d="M9 13.4h6M13.6 12.1l1.4 1.3-1.4 1.3M23 13.4h-6M18.4 12.1L17 13.4l1.4 1.3"/><path d="M8 18.2h16" stroke-dasharray="2.4 1.2"/>',
   pc: '<rect x="4.5" y="5.5" width="23" height="15.5" rx="2.2"/><path d="M12.5 26h7M16 21v5M9.5 10.6l2.7 2.3-2.7 2.3M14.3 15.5h4.5"/>',
+  laptop: '<rect x="7" y="7.5" width="18" height="12.5" rx="1.8"/><path d="M4 23.5h24l-2-3.5H6z"/>',
+  server: '<rect x="7" y="5" width="18" height="22" rx="2"/><path d="M10.5 10h11M10.5 14.5h11M10.5 19h6"/><circle cx="21" cy="22.5" r="1"/>',
+  printer: '<path d="M10 11V5.5h12V11M10 22H6.5a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 6.5 11h19a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H22"/><rect x="10" y="18" width="12" height="8.5" rx="1"/>',
 };
 
 // Draws device `d` (from the engine) into `parent`. Returns its group.
@@ -119,7 +141,7 @@ export function drawDevice(parent, d) {
   const tk = el('g', { class: 'token', 'data-dev': d.id }, g);
   el('rect', { x: -62, y: -24, width: 124, height: 48, rx: 14, class: 'body tk-bg' }, tk);
   const gl = el('g', { class: 'g', transform: 'translate(-54 -16)' }, tk);
-  gl.innerHTML = GLYPH[m.kind] || GLYPH.pc;
+  gl.innerHTML = GLYPH[m.glyph] || GLYPH[m.kind] || GLYPH.pc;
   d.tokenText = text(tk, { x: -14, y: 5 }, d.hostname);
   d.g = g; d.token = tk;
   return g;

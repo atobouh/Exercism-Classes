@@ -145,4 +145,27 @@ const last = (net, dev) => net.session(dev).lines.slice(-1)[0].text;
   again.exec('PC-1', 'ping 10.0.0.2');
   assert.match(last(again, 'PC-1'), /Reply from 10\.0\.0\.2/);
 }
+// The other Cisco models behave like their kind, with their own port names.
+{
+  const lab = {
+    booted: true,
+    devices: [
+      { id: 'R1', model: 'CISCO2911', config: 'interface g0/0\n ip address 10.1.1.1 255.255.255.0\n no shutdown\ninterface g0/2\n ip address 10.2.2.1 255.255.255.0\n no shutdown' },
+      { id: 'S1', model: 'WS-C2960X-24TS-L', config: 'vlan 10\ninterface g1/0/5\n switchport access vlan 10\n spanning-tree portfast\ninterface g1/0/1\n switchport access vlan 10' },
+      { id: 'S2', model: 'WS-C2960-48TT-L', config: 'interface fa0/48\n spanning-tree portfast' },
+      { id: 'SRV', model: 'Server', ip: '10.1.1.10', mask: '255.255.255.0', gateway: '10.1.1.1' },
+      { id: 'LAP', model: 'Laptop', ip: '10.2.2.20', mask: '255.255.255.0', gateway: '10.2.2.1' },
+    ],
+    cables: [{ a: 'R1 G0/0', b: 'S1 G1/0/1' }, { a: 'SRV NIC', b: 'S1 G1/0/5' }, { a: 'R1 G0/2', b: 'S2 G0/1' }, { a: 'LAP NIC', b: 'S2 F0/48' }],
+  };
+  const net = createNetwork(lab);
+  net.tick(31000);
+  net.exec('LAP', 'ping 10.1.1.10');
+  assert.match(last(net, 'LAP'), /Reply from 10\.1\.1\.10/, 'a laptop on a 2960-48 reaches a server on a 2960-X through a 2911');
+  run(net, 'S1', ['en', 'show vlan brief']);
+  assert.match(last(net, 'S1'), /10\s+VLAN0010\s+active\s+Gi1\/0\/1, Gi1\/0\/5/);
+  run(net, 'R1', ['show version']);
+  assert.match(last(net, 'R1'), /C2900 Software/);
+  for (const [model, id] of [['CISCO1941', 'R2'], ['ISR4331', 'R3'], ['Printer', 'Printer-1'], ['Laptop', 'Laptop-1']]) assert.equal(net.addDevice({ model }).id, id);
+}
 console.log('engine: all checks passed');

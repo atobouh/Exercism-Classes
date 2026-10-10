@@ -53,7 +53,7 @@ export function createNetwork(lab, opts = {}) {
   // an open lab adds and removes devices while it runs
   const PREFIX = { router: 'R', switch: 'S', pc: 'PC-' };
   function freeId(model) {
-    const pre = PREFIX[CATALOG[model].kind] || 'D';
+    const pre = CATALOG[model].prefix ? CATALOG[model].prefix + '-' : PREFIX[CATALOG[model].kind] || 'D';
     for (let n = 1; ; n++) if (!D(pre + n)) return pre + n;
   }
   function add(def) {

@@ -697,7 +697,12 @@ impl Blueprint {
 /// The device models a bench lab may use, matching the bench catalog in
 /// `app/ui/bench/catalog.js`. Labs can't add models; your own books can,
 /// through the SDK.
-pub const BENCH_MODELS: &[&str] = &["ISR4321", "WS-C2960+24TC-L", "PC"];
+/// Every model in `app/ui/bench/catalog.js`. Keep the two in step.
+pub const BENCH_MODELS: &[&str] = &[
+    "ISR4321", "ISR4331", "CISCO1941", "CISCO2901", "CISCO2911",
+    "WS-C2960+24TC-L", "WS-C2960-24TT-L", "WS-C2960-48TT-L", "WS-C2960X-24TS-L",
+    "PC", "Laptop", "Server", "Printer",
+];
 
 /// Checks a bench lab file: format 1, an id that matches its file name,
 /// known device models, unique device ids, and cables between devices that
