@@ -1,5 +1,7 @@
 # Octet's reading voice
 
+The voice normally runs natively, in the app itself (`crates/octet-api/src/voice.rs`, ONNX Runtime on every core, model `onnx/model_fp16.onnx`, about 163 MB, downloaded once). This folder holds what the window needs for that: the phonemizer and tokenizer, which turn text into token ids. It also holds the older in-window voice, used only when the native one can't run.
+
 Octet reads its pages aloud with **Kokoro**, an 82-million-parameter
 text-to-speech model that runs on the processor, inside the app, with no
 graphics card and no internet once it is downloaded.
@@ -7,7 +9,7 @@ graphics card and no internet once it is downloaded.
 | File | What it is |
 | --- | --- |
 | `worker.js` | Runs Kokoro in a background worker, on one thread (its multi-threaded mode stalls in WebView2; the reader runs several workers instead): downloads it once, keeps it in the app's cache, turns sentences into audio and keeps that audio too, so a page you've heard plays instantly the next time. |
-| `kokoro.web.js` | [kokoro-js](https://www.npmjs.com/package/kokoro-js) 1.2.1. It bundles Transformers.js and the phonemizer. One change: the last line also exports Transformers.js's settings as `transformersEnv`, so the worker can hand ONNX Runtime its files and thread count. |
+| `kokoro.web.js` | [kokoro-js](https://www.npmjs.com/package/kokoro-js) 1.2.1. It bundles Transformers.js and the phonemizer. One change: the last line also exports Transformers.js's settings (`transformersEnv`), the phonemizer (`phonemize`), the tokenizer class (`AutoTokenizer`) and the voice loader (`loadVoice`), so the worker can prepare token ids for the native voice. |
 | `ort-wasm-simd-threaded.jsep.mjs` | The ONNX Runtime loader that goes with it (from `@huggingface/transformers` 3.5.1). Kept here so its threads load from the app itself. |
 
 Only these ship with Octet. The first time you press **Listen** and choose

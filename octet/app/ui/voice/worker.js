@@ -8,6 +8,8 @@
 //   { type: 'drop', ids }                  forget queued speak requests nobody needs any more
 //   { type: 'remove' }                     -> { ok } after deleting the model and every saved sentence
 //   { type: 'config', threads }            how many threads to use; 1 is the safe fallback
+//   { type: 'tokens', text, voice }        -> { wav } from the cache, or { ids, style, key } for the native voice
+//   { type: 'install', voices, native }    with native, only the tokenizer and voices (the app downloads the model)
 //
 // It also sends { type: 'log', text } as it goes, so the page can say what
 // it's doing and Settings can copy the details.
@@ -15,7 +17,7 @@
 // Everything downloaded lives in the app's own cache storage, so after the
 // first download the voice works with no internet at all.
 
-import { KokoroTTS, transformersEnv as env } from './kokoro.web.js';
+import { KokoroTTS, transformersEnv as env, phonemize, AutoTokenizer, loadVoice } from './kokoro.web.js';
 
 const MODEL = 'onnx-community/Kokoro-82M-v1.0-ONNX';
 const HF = `https://huggingface.co/${MODEL}/resolve/main/`;
@@ -56,8 +58,10 @@ async function fetchInto(cache, url, onBytes) {
 
 // Sizes, so the progress bar is honest before every file has started.
 const SIZES = { 'onnx/model_quantized.onnx': 92361116, [WASM]: 21596019 };
-async function install(id, voices) {
-  const jobs = [...FILES.map(f => [MODEL_CACHE, HF + f, SIZES[f] || 4000]), [RUNTIME_CACHE, WASM, SIZES[WASM]], ...voices.map(v => [VOICE_CACHE, VOICE(v), 522240])];
+async function install(id, voices, native) {
+  const jobs = native
+    ? [...FILES.filter(f => !f.endsWith('.onnx')).map(f => [MODEL_CACHE, HF + f, 4000]), ...voices.map(v => [VOICE_CACHE, VOICE(v), 522240])]
+    : [...FILES.map(f => [MODEL_CACHE, HF + f, SIZES[f] || 4000]), [RUNTIME_CACHE, WASM, SIZES[WASM]], ...voices.map(v => [VOICE_CACHE, VOICE(v), 522240])];
   const total = jobs.reduce((s, j) => s + j[2], 0);
   let done = 0, last = 0;
   for (const [cache, url, size] of jobs) {
@@ -123,6 +127,21 @@ async function speak(text, voice) {
   return { wav: buf, cached: false, ms: performance.now() - t0 };
 }
 
+/* ---------- for the native voice ---------- */
+// Text to phonemes to token ids, and the voice's style for that length: what
+// the app's own Kokoro (on every core) needs. The same steps as kokoro-js's
+// generate(), without running the model here.
+let tok = null;
+async function tokens(text, voice) {
+  const url = await key(voice, text), hit = await cached(AUDIO_CACHE, url);
+  if (hit) return { wav: await hit.arrayBuffer(), cached: true };
+  tok = tok || await AutoTokenizer.from_pretrained(MODEL);
+  const { input_ids } = tok(await phonemize(text, voice[0]), { truncation: true });
+  const ids = Array.from(input_ids.data, Number);
+  const v = await loadVoice(voice), at = 256 * Math.min(Math.max(ids.length - 2, 0), 509);
+  return { ids, style: Array.from(v.slice(at, at + 256)), key: url };
+}
+
 /* ---------- one sentence at a time, in the order asked ---------- */
 const queue = []; let busy = false;
 async function pump() {
@@ -138,7 +157,8 @@ self.onmessage = async ({ data: m }) => {
   const { id } = m;
   try {
     if (m.type === 'status') post(id, { installed: await installed(), threads: self.crossOriginIsolated });
-    else if (m.type === 'install') { await install(id, m.voices || []); post(id, { ok: true }); }
+    else if (m.type === 'install') { await install(id, m.voices || [], !!m.native); post(id, { ok: true }); }
+    else if (m.type === 'tokens') post(id, await tokens(m.text, m.voice));
     else if (m.type === 'load') { await model(); post(id, { ok: true }); }
     else if (m.type === 'config') { THREADS = m.threads || 0; post(id, { ok: true }); }
     else if (m.type === 'speak') { if (m.urgent) queue.unshift(m); else queue.push(m); pump(); }

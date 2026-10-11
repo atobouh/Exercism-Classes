@@ -11,4 +11,4 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = [] }
 serde_json.workspace = true
-octet-api = { path = "../../crates/octet-api" }
+octet-api = { path = "../../crates/octet-api", features = ["voice"] }

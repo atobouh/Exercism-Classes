@@ -11,9 +11,13 @@ serde_json.workspace = true
 octet-sim = { path = "../octet-sim" }
 octet-core = { path = "../octet-core" }
 tiny_http = { version = "0.12", optional = true }
+ort = { version = "=2.0.0-rc.13", features = ["download-binaries"], optional = true }
+ureq = { version = "2", optional = true }
 
 [features]
-dev-server = ["dep:tiny_http"]
+# The reading voice, run natively (ONNX Runtime is built in).
+voice = ["dep:ort", "dep:ureq"]
+dev-server = ["dep:tiny_http", "voice"]
 
 [[bin]]
 name = "octet-dev"

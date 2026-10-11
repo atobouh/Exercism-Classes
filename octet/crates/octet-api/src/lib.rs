@@ -3,6 +3,8 @@
 //! the dev server forwards HTTP requests here, so both behave the same.
 
 mod labs;
+#[cfg(feature = "voice")]
+pub mod voice;
 
 use octet_core::bundle;
 use octet_core::content::{load_book, load_library, sort_shelf, Blueprint, Block, Book, Command, Question, Recall};

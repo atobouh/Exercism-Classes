@@ -69,8 +69,10 @@
   /* ---------- how fast this computer makes speech ---------- */
   // Seconds of speech one worker makes per second, kept as a running average.
   // Until there's a measurement, assume a modest laptop.
-  let SPEED = Number(localStorage.getItem('octet-voice-speed')) || 0.4;
-  const rate = (secs, ms) => { SPEED = SPEED * 0.8 + (secs / (ms / 1000)) * 0.2; try { localStorage.setItem('octet-voice-speed', SPEED.toFixed(3)); } catch { /* fine */ } };
+  // Kept for each engine: the app's runs on every core, the window's on one per worker.
+  const SPEED = { native: 3, kokoro: 0.4 };
+  try { Object.assign(SPEED, JSON.parse(localStorage.getItem('octet-voice-speeds') || '{}')); } catch { /* fine */ }
+  const rate = (secs, ms, eng) => { SPEED[eng] = SPEED[eng] * 0.8 + (secs / (ms / 1000)) * 0.2; try { localStorage.setItem('octet-voice-speeds', JSON.stringify(SPEED)); } catch { /* fine */ } };
   const secsOf = it => it.job && it.job.state === 'done' ? it.job.secs : it.say.length * 0.068;
 
   /* ---------- sentences to make ---------- */
@@ -105,24 +107,66 @@
     }
   };
   const bgLeft = () => BG.filter(j => j.state !== 'done' && j.state !== 'failed').length;
+  // the app's voice uses every core for one sentence at a time
+  const slots = () => engine() === 'native' ? 1 : POOL;
   const pump = () => {
-    if (engine() !== 'kokoro') return;
-    for (let k = 0; k < POOL; k++) {
+    const eng = engine(); if (eng === 'system') return;
+    for (let k = 0; k < slots(); k++) {
       if (busy[k]) continue;
       const j = nextJob(); if (!j) return;
       busy[k] = j; j.state = 'running'; j.started = performance.now(); j.k = k;
       const gen = j.gen;
-      ask({ type: 'speak', text: j.text, voice: j.voice }, null, k)
-        .then(r => { if (j.gen !== gen) return; j.state = 'done'; j.secs = r.wav.byteLength / 48000; if (r.ms) rate(j.secs, r.ms); if (BG.includes(j)) { r = null; BG.splice(BG.indexOf(j), 1); } j.ok(r); }, e => { if (j.gen !== gen) return; j.state = 'failed'; j.fail(e); if (BG.includes(j)) BG.splice(BG.indexOf(j), 1); })
+      (eng === 'native' ? speakNative(j) : ask({ type: 'speak', text: j.text, voice: j.voice }, null, k))
+        .then(r => { if (j.gen !== gen) return; j.state = 'done'; j.secs = r.wav.byteLength / 48000; if (r.ms) rate(j.secs, r.ms, eng); if (BG.includes(j)) { r = null; BG.splice(BG.indexOf(j), 1); } j.ok(r); }, e => { if (j.gen !== gen) return; j.state = 'failed'; j.fail(e); if (BG.includes(j)) BG.splice(BG.indexOf(j), 1); })
         .finally(() => { if (busy[k] === j) busy[k] = null; const x = extra.indexOf(j); if (x >= 0 && j.state !== 'queued') extra.splice(x, 1); pump(); });
     }
   };
-  let STATUS = null; // { installed }
-  const status = async () => (STATUS = STATUS || await ask({ type: 'status' }).catch(() => ({ installed: false })));
+  /* ---------- the native voice ---------- */
+  // Kokoro run by the app itself on every core (crates/octet-api/src/voice.rs):
+  // several times faster than in the window. The worker still turns text into
+  // token ids; the app turns those into audio.
+  const tauri = window.__TAURI__ && window.__TAURI__.core;
+  const native = {
+    call: cmd => tauri ? tauri.invoke('voice', { cmd }) : fetch('/voice-api/' + cmd, { method: 'POST' }).then(r => r.ok ? r.json() : null),
+    say: (ids, style) => tauri ? tauri.invoke('voice_say', { ids, style, speed: 1 })
+      : fetch('/voice-api/say', { method: 'POST', body: JSON.stringify({ ids, style, speed: 1 }) }).then(async r => { if (!r.ok) throw new Error((await r.json()).error); return r.arrayBuffer(); }),
+  };
+  let nativeBroken = false;
+  const speakNative = async j => {
+    const t = await ask({ type: 'tokens', text: j.text, voice: j.voice }, null, 0);
+    if (t.wav) return t;
+    const t0 = performance.now(), wav = await native.say(t.ids, t.style), ms = performance.now() - t0;
+    vlog(`[app] said ${j.text.length} characters in ${Math.round(ms)} ms (${(wav.byteLength / 48000).toFixed(1)} s of speech)`);
+    caches.open('octet-voice-audio').then(c => c.put(t.key, new Response(wav.slice(0), { headers: { 'content-type': 'audio/wav' } }))).catch(() => {});
+    return { wav, ms };
+  };
+
+  // STATUS: wasm (the voice in the window), native (the app's), installed (either).
+  let STATUS = null;
+  const status = async () => {
+    if (STATUS) return STATUS;
+    const [w, n] = await Promise.all([ask({ type: 'status' }).catch(() => ({ installed: false })), native.call('status').catch(() => null)]);
+    return (STATUS = { wasm: !!w.installed, native: n, installed: !!w.installed || !!(n && n.installed) });
+  };
+  const sleep = ms => new Promise(ok => setTimeout(ok, ms));
+  const installNative = async onProgress => {
+    await ask({ type: 'install', voices: VOICES.map(v => v[0]), native: true }); // the tokenizer and voices, a few MB
+    let st = await native.call('install');
+    while (!st.installed) {
+      if (st.error) throw new Error(st.error);
+      if (onProgress) onProgress({ loaded: st.loaded, total: st.total || st.bytes });
+      await sleep(400); st = await native.call('status');
+    }
+    STATUS.native = st; STATUS.installed = true; nativeBroken = false;
+  };
+  const installWasm = onProgress => ask({ type: 'install', voices: VOICES.map(v => v[0]) }, onProgress)
+    .then(() => { STATUS.wasm = true; STATUS.installed = true; for (let k = 0; k < POOL; k++) ask({ type: 'load' }, null, k).catch(() => {}); });
   let installing = null;
-  const install = onProgress => installing = installing || ask({ type: 'install', voices: VOICES.map(v => v[0]) }, onProgress)
-    .then(() => { STATUS = { installed: true }; prefs.engine = 'kokoro'; save(); for (let k = 0; k < POOL; k++) ask({ type: 'load' }, null, k).catch(() => {}); })
+  const install = onProgress => installing = installing || status()
+    .then(st => (st.native ? installNative : installWasm)(onProgress))
+    .then(() => { prefs.engine = 'kokoro'; save(); })
     .finally(() => { installing = null; });
+  const bigMB = () => STATUS && STATUS.native ? 163 : 115;
 
   /* ---------- turning a page into things to say ---------- */
   // Words that read badly as written. Letters stay letters (D H C P); a few
@@ -231,7 +275,8 @@
   let S = null; // the reading in progress
   const hl = window.CSS && CSS.highlights && window.Highlight ? CSS.highlights : null;
 
-  const engine = () => prefs.engine === 'kokoro' && STATUS && STATUS.installed ? 'kokoro' : 'system';
+  // 'native' (the app's Kokoro), 'kokoro' (the one in the window) or 'system'
+  const engine = () => prefs.engine !== 'kokoro' || !STATUS ? 'system' : STATUS.native && STATUS.native.installed && !nativeBroken ? 'native' : STATUS.wasm ? 'kokoro' : 'system';
   const sysVoice = () => {
     const vs = speechSynthesis.getVoices().filter(v => /^en(-|_|$)/i.test(v.lang));
     return vs.find(v => /natural|online/i.test(v.name) && /en-US/i.test(v.lang)) || vs.find(v => /natural|online/i.test(v.name)) || vs.find(v => v.default) || vs[0] || null;
@@ -291,6 +336,11 @@
     if (r === 'late' || (r && r.failed)) {
       const why = r === 'late' ? `no audio after ${Math.round((performance.now() - it.job.started) / 1000)} s (last: ${STAGE.text || 'nothing'})` : r.failed.message;
       if (!S || S.cur !== it) return;
+      if (engine() === 'native') {
+        nativeBroken = true; vlog('the app voice failed: ' + why); restart('switching to the voice in the window');
+        toast(`The fast voice failed (${why}). ${STATUS.wasm ? 'Using the slower one in the window.' : 'Reading with the system voice.'} Settings can copy the details.`);
+        if (it.job && it.job.state === 'failed') it.job = null; return say(it);
+      }
       if (restarts < 1) { restart(why); if (it.job.state === 'failed') it.job = null; return say(it); }
       vlog('giving up: ' + why);
       prefs.engine = 'system'; save(); renderBar();
@@ -317,12 +367,12 @@
     const its = S.items; let ready = 0, i = S.i;
     for (; i < its.length && its[i].job && its[i].job.state === 'done'; i++) ready += secsOf(its[i]);
     let left = 0; for (; i < its.length; i++) left += secsOf(its[i]);
-    const made = SPEED * POOL, played = prefs.speed;
+    const made = (SPEED[engine()] || 0.4) * slots(), played = prefs.speed;
     const need = made >= played ? (its[S.i].job && its[S.i].job.state === 'done' ? 0 : 1e-6) : left * (played / made - 1) * 1.1;
     return { ready, need };
   };
   const sweep = it => new Promise(ok => {
-    if (engine() !== 'kokoro' || S.noWait) return ok();
+    if (engine() === 'system' || S.noWait) return ok();
     const check = () => {
       if (!S || S.cur !== it || S.paused || S.jumped) return ok();
       const { ready, need } = headStart();
@@ -412,7 +462,10 @@
   const start = async (from = 0) => {
     const course = $('#course'); if (!course) return;
     if (!prefs.engine) { offer(); return; }
-    if (prefs.engine === 'kokoro') { await status(); if (!STATUS.installed) { prefs.engine = ''; save(); offer(); return; } }
+    if (prefs.engine === 'kokoro') {
+      await status(); if (!STATUS.installed) { prefs.engine = ''; save(); offer(); return; }
+      if (engine() === 'kokoro' && STATUS.native && !offeredFast) { offeredFast = true; offer(true); return; }
+    }
     stop();
     // start at the first sentence you can see, unless asked otherwise
     const items = script(course); if (!items.length) { toast('Nothing on this page to read.'); return; }
@@ -430,7 +483,7 @@
     back: '<path d="M4 3.5v9M12.5 3.5 6.5 8l6 4.5z"/>', fwd: '<path d="M12 3.5v9M3.5 3.5 9.5 8l-6 4.5z"/>', close: '<path d="M4 4l8 8M12 4l-8 8"/>',
   };
   const icon = k => `<svg viewBox="0 0 16 16" aria-hidden="true">${ICON[k]}</svg>`;
-  const voiceName = () => engine() === 'kokoro' ? (VOICES.find(v => v[0] === prefs.voice) || VOICES[0])[1] : 'System voice';
+  const voiceName = () => engine() !== 'system' ? (VOICES.find(v => v[0] === prefs.voice) || VOICES[0])[1] : 'System voice';
   const renderBar = () => {
     let b = $('#rdBar');
     if (!b) { b = document.createElement('div'); b.id = 'rdBar'; b.className = 'rd-bar'; b.setAttribute('role', 'toolbar'); b.setAttribute('aria-label', 'Reading aloud'); $('.ed').appendChild(b); wireBar(b); }
@@ -458,14 +511,15 @@
     else if (k === 'next') { goNext = true; $('.doc-foot [data-next]').click(); }
     else if (k === 'download') { const keep = b.innerHTML; download(b).catch(err => { b.innerHTML = keep; toast("The voice didn't download: " + err.message); }); }
     else if (k === 'system') { prefs.engine = 'system'; save(); start('view'); }
+    else if (k === 'notnow') start('view');
   });
   const voiceMenu = a => {
     const old = $('#rdMenu'); if (old) { old.remove(); return; }
     const m = document.createElement('div'); m.id = 'rdMenu'; m.className = 'collect-menu rd-menu';
     const inst = STATUS && STATUS.installed;
-    m.innerHTML = (inst ? VOICES.map(([id, name, about]) => `<button type="button" data-v="${id}" aria-pressed="${engine() === 'kokoro' && prefs.voice === id}">${name}<span>${about}</span></button>`).join('') : `<button type="button" data-v="get">Natural voice<span>Download, about 115 MB</span></button>`)
+    m.innerHTML = (inst ? VOICES.map(([id, name, about]) => `<button type="button" data-v="${id}" aria-pressed="${engine() !== 'system' && prefs.voice === id}">${name}<span>${about}</span></button>`).join('') : `<button type="button" data-v="get">Natural voice<span>Download, about ${bigMB()} MB</span></button>`)
       + `<button type="button" data-v="system" aria-pressed="${engine() === 'system'}">System voice<span>${esc((sysVoice() || {}).name || 'Built in')}</span></button>`
-      + (inst && engine() === 'kokoro' && window.OCTET_APP && window.OCTET_PAGE_ID ? `<hr><button type="button" data-v="chapter">${bgLeft() ? `Preparing: ${bgTotal - bgLeft()} of ${bgTotal} sentences` : 'Prepare this chapter'}<span>${bgLeft() ? 'keeps going while you read' : 'every page, ahead of time'}</span></button>` : '');
+      + (inst && engine() !== 'system' && window.OCTET_APP && window.OCTET_PAGE_ID ? `<hr><button type="button" data-v="chapter">${bgLeft() ? `Preparing: ${bgTotal - bgLeft()} of ${bgTotal} sentences` : 'Prepare this chapter'}<span>${bgLeft() ? 'keeps going while you read' : 'every page, ahead of time'}</span></button>` : '');
     $('.ed').appendChild(m);
     const r = a.getBoundingClientRect(), ed = $('.ed').getBoundingClientRect();
     m.style.left = (r.left - ed.left) + 'px'; m.style.bottom = (ed.bottom - r.top + 6) + 'px';
@@ -481,17 +535,22 @@
   };
 
   // The first time: offer the natural voice, or the system voice right away.
-  const offer = () => {
+  // `faster`: you have the voice in the window; the app's own is many times faster.
+  let offeredFast = false;
+  const offer = faster => {
     renderBar();
     const b = $('#rdBar'); b.classList.add('offer');
-    b.innerHTML = `<div class="rd-offer"><b>Read with a natural voice?</b><span>A one-time download of about 115 MB. After that it works offline, on this computer's processor.</span></div><button type="button" class="btn pri" data-rd="download">Download it</button><button type="button" class="btn line" data-rd="system">Use the system voice</button><button type="button" class="rd-b" data-rd="close" aria-label="Close">${icon('close')}</button>`;
+    b.innerHTML = faster
+      ? `<div class="rd-offer"><b>Make the voice read without waiting?</b><span>Octet can run the voice itself, on all your processor's cores: several times faster than now. A one-time download of about ${bigMB()} MB.</span></div><button type="button" class="btn pri" data-rd="download">Download it</button><button type="button" class="btn line" data-rd="notnow">Not now</button>`
+      : `<div class="rd-offer"><b>Read with a natural voice?</b><span>A one-time download of about ${bigMB()} MB. After that it works offline, on this computer's processor.</span></div><button type="button" class="btn pri" data-rd="download">Download it</button><button type="button" class="btn line" data-rd="system">Use the system voice</button>`;
+    b.innerHTML += `<button type="button" class="rd-b" data-rd="close" aria-label="Close">${icon('close')}</button>`;
   };
   const download = async b => {
     b.innerHTML = `<div class="rd-offer"><b>Downloading the voice…</b><span class="rd-prog"><i style="width:0%"></i></span><span class="rd-pct">Starting</span></div><button type="button" class="btn line" data-rd="system">Use the system voice meanwhile</button>`;
     const mb = n => (n / 1048576).toFixed(0);
     await install(p => { const i = b.querySelector('.rd-prog i'), t = b.querySelector('.rd-pct'); if (i) i.style.width = (100 * p.loaded / p.total).toFixed(1) + '%'; if (t) t.textContent = `${mb(p.loaded)} of ${mb(p.total)} MB`; });
     toast('The natural voice is ready. It works offline from now on.');
-    if (!S || engine() === 'system') { const at = S ? S.i : 'view'; stop(); start(at); }
+    { const at = S ? S.i : 'view'; stop(); start(at); }
     renderSettings();
   };
 
@@ -503,14 +562,14 @@
     const opt = (k, v, label, on) => `<button type="button" role="radio" class="pat" data-vs="${k}" data-val="${v}" aria-checked="${on}">${label}</button>`;
     setEl.innerHTML = `<h2>Reading aloud</h2><p class="set-p">Press Listen above any page. Octet reads it from where you are, highlights the sentence, stops at diagrams for a look and waits at questions for your answer.</p>
       <div class="vs-grid">
-        <span class="pick-l">Voice</span><div class="pats" role="radiogroup" aria-label="Voice">${st.installed ? VOICES.map(([id, name]) => opt('voice', id, name, engine() === 'kokoro' && prefs.voice === id)).join('') : ''}${opt('voice', 'system', 'System voice', engine() === 'system' || !st.installed)}</div>
+        <span class="pick-l">Voice</span><div class="pats" role="radiogroup" aria-label="Voice">${st.installed ? VOICES.map(([id, name]) => opt('voice', id, name, engine() !== 'system' && prefs.voice === id)).join('') : ''}${opt('voice', 'system', 'System voice', engine() === 'system' || !st.installed)}</div>
         <span class="pick-l">Speed</span><div class="pats" role="radiogroup" aria-label="Speed">${SPEEDS.map(s => opt('speed', s, s + '×', prefs.speed === s)).join('')}</div>
         <span class="pick-l">At a diagram</span><div class="pats" role="radiogroup" aria-label="At a diagram">${HOLDS.map(([s, l]) => opt('hold', s, s ? 'Stop ' + l : l, prefs.hold === s)).join('')}</div>
         <span class="pick-l">At a question</span><div class="pats" role="radiogroup" aria-label="At a question">${opt('ask', 1, 'Wait for my answer', prefs.ask)}${opt('ask', 0, 'Read on', !prefs.ask)}</div>
       </div>
       <div class="row">${st.installed
-        ? `<span class="set-p">The natural voice (Kokoro) is downloaded and works offline.</span><button class="btn ghost" type="button" data-vs="details">Copy voice details</button><button class="btn ghost" type="button" data-vs="remove">Remove it</button>`
-        : `<span class="set-p">The natural voice (Kokoro) isn't downloaded. It's about 115 MB, once.</span><button class="btn line" type="button" data-vs="get">Download it</button>`}</div>`;
+        ? `<span class="set-p">${engine() === 'native' || (st.native && st.native.installed) ? 'The natural voice (Kokoro) runs in Octet itself, on all your cores, offline.' : 'The natural voice (Kokoro) is downloaded and works offline.'}</span>${st.native && !st.native.installed ? `<button class="btn line" type="button" data-vs="get">Make it faster (${bigMB()} MB)</button>` : ''}<button class="btn ghost" type="button" data-vs="details">Copy voice details</button><button class="btn ghost" type="button" data-vs="remove">Remove it</button>`
+        : `<span class="set-p">The natural voice (Kokoro) isn't downloaded. It's about ${bigMB()} MB, once.</span><button class="btn line" type="button" data-vs="get">Download it</button>`}</div>`;
   };
   lb.addEventListener('click', async e => {
     const v = e.target.closest('[data-vs]'); if (!v || !setEl || !setEl.contains(v)) return;
@@ -523,12 +582,12 @@
       v.disabled = true; v.textContent = 'Downloading… 0%';
       try { await install(p => { v.textContent = `Downloading… ${Math.floor(100 * p.loaded / p.total)}%`; }); toast('The natural voice is ready. It works offline from now on.'); } catch (err) { toast("The voice didn't download: " + err.message); }
     } else if (k === 'details') {
-      const text = [`Octet voice details`, `isolated: ${self.crossOriginIsolated}, cores: ${navigator.hardwareConcurrency}, voice workers: ${POOL} (one thread each)`, navigator.userAgent, '', ...LOG].join('\n');
+      const text = [`Octet voice details`, `isolated: ${self.crossOriginIsolated}, cores: ${navigator.hardwareConcurrency}, voice: ${engine()}${engine() === 'native' ? ' (in the app, every core)' : `, workers: ${POOL} (one thread each)`}, app voice: ${JSON.stringify(STATUS && STATUS.native)}`, navigator.userAgent, '', ...LOG].join('\n');
       try { await navigator.clipboard.writeText(text); toast('Voice details copied. Paste them to whoever is helping you.'); } catch { toast("Couldn't reach the clipboard."); }
       return;
     } else if (k === 'remove') {
       if (v.dataset.sure !== '1') { v.dataset.sure = '1'; v.textContent = 'Remove for good'; return; }
-      stop(); await ask({ type: 'remove' }); STATUS = { installed: false }; if (prefs.engine === 'kokoro') prefs.engine = ''; toast('The natural voice is removed. The system voice still reads.');
+      stop(); await ask({ type: 'remove' }); await native.call('remove').catch(() => {}); STATUS = null; await status(); if (prefs.engine === 'kokoro') prefs.engine = ''; toast('The natural voice is removed. The system voice still reads.');
     }
     save(); renderSettings();
   });
