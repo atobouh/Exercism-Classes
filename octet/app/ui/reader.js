@@ -23,40 +23,79 @@
   const prefs = (() => { try { return { ...DEF, ...JSON.parse(localStorage.getItem('octet-voice') || '{}') }; } catch { return { ...DEF }; } })();
   const save = () => { try { localStorage.setItem('octet-voice', JSON.stringify(prefs)); } catch { /* private mode */ } };
 
-  /* ---------- the Kokoro worker ---------- */
-  let worker = null, wid = 0, threads = 0;
-  const waiting = new Map();
+  /* ---------- the Kokoro workers ---------- */
+  // Kokoro's own threads stall inside the Windows app, so each worker runs on
+  // one thread and several work side by side. Together they make the whole
+  // page ahead of you, in reading order, while you listen.
+  const POOL = Math.max(1, Math.min(3, Math.floor(((navigator.hardwareConcurrency || 2) - 2) / 2)));
+  let wid = 0, restarts = 0;
+  const waiting = new Map(), pool = [], busy = [];
   // What the voice has been doing, for the bar and for Settings' "Copy voice details".
   const LOG = [], STAGE = { text: '' };
-  const vlog = text => { LOG.push(`${new Date().toISOString().slice(11, 19)} ${text}`); if (LOG.length > 80) LOG.shift(); };
-  const kokoro = () => {
-    if (!worker) {
-      worker = new Worker('voice/worker.js', { type: 'module' });
-      vlog(`worker started${threads ? `, ${threads} thread` : ''}`);
-      if (threads) worker.postMessage({ type: 'config', threads, id: 0 });
-      worker.onmessage = ({ data }) => {
-        if (data.type === 'log') { vlog(data.text); STAGE.text = data.text; if (/^loading/.test(data.text) && S && S.cur && !S.paused) bar(/model/.test(data.text) ? 'Loading the voice model…' : 'Starting the voice…'); return; }
-        const w = waiting.get(data.id); if (!w) return;
-        if (data.type === 'progress') { if (w.progress) w.progress(data); return; }
-        waiting.delete(data.id); data.error ? w.fail(new Error(data.error)) : w.ok(data);
-      };
-      worker.onerror = e => { vlog('worker error: ' + (e.message || 'unknown')); for (const w of waiting.values()) w.fail(new Error(e.message || 'The voice stopped.')); waiting.clear(); worker = null; };
-    }
-    return worker;
+  const vlog = text => { LOG.push(`${new Date().toISOString().slice(11, 19)} ${text}`); if (LOG.length > 120) LOG.shift(); };
+  const spawn = k => {
+    const slot = { w: new Worker('voice/worker.js', { type: 'module' }), ready: false };
+    slot.w.postMessage({ type: 'config', threads: 1, id: 0 });
+    vlog(`[${k + 1}] worker started`);
+    slot.w.onmessage = ({ data }) => {
+      if (data.type === 'log') {
+        vlog(`[${k + 1}] ${data.text}`); STAGE.text = data.text;
+        if (data.text.startsWith('model ready')) slot.ready = true;
+        if (/^loading/.test(data.text) && S && S.cur && !S.paused) bar(/model/.test(data.text) ? 'Loading the voice model…' : 'Starting the voice…');
+        return;
+      }
+      const x = waiting.get(data.id); if (!x) return;
+      if (data.type === 'progress') { if (x.progress) x.progress(data); return; }
+      waiting.delete(data.id); data.error ? x.fail(new Error(data.error)) : x.ok(data);
+    };
+    slot.w.onerror = e => {
+      vlog(`[${k + 1}] worker error: ${e.message || 'unknown'}`);
+      for (const [id, x] of waiting) if (x.k === k) { waiting.delete(id); x.fail(new Error(e.message || 'The voice stopped.')); }
+      if (pool[k] === slot) pool[k] = null;
+    };
+    return slot;
   };
-  // Start the voice again from nothing, on one thread: the safe way.
+  const worker = k => (pool[k] || (pool[k] = spawn(k))).w;
+  const ask = (msg, progress, k = 0) => new Promise((ok, fail) => { const id = ++wid; waiting.set(id, { ok, fail, progress, k }); worker(k).postMessage({ ...msg, id }); });
+  // Start every worker again from nothing; sentences being made go back in the queue.
   const restart = why => {
-    vlog('restarting: ' + why);
-    if (worker) worker.terminate(); worker = null; threads = 1;
-    for (const w of waiting.values()) w.fail(new Error(why)); waiting.clear();
-    if (S) S.items.forEach(it => { it.audio = null; it.req = 0; });
+    vlog('restarting: ' + why); restarts++;
+    for (const sl of pool) if (sl) sl.w.terminate();
+    pool.length = 0;
+    for (const [id, x] of waiting) { waiting.delete(id); x.fail(new Error(why)); }
+    busy.forEach(j => { if (j) { j.gen++; j.state = 'queued'; } }); busy.length = 0;
   };
-  const ask = (msg, progress) => new Promise((ok, fail) => { const id = ++wid; waiting.set(id, { ok, fail, progress }); kokoro().postMessage({ ...msg, id }); });
+
+  /* ---------- sentences to make ---------- */
+  // A job is one sentence's audio. The next one made is the first not yet
+  // made from where you are, then the ones behind you, so jumping back is
+  // instant too; a reply to your answer goes first.
+  const job = text => { const j = { text, voice: prefs.voice, state: 'queued', gen: 0 }; j.promise = new Promise((ok, fail) => { j.ok = ok; j.fail = fail; }); j.promise.catch(() => {}); return j; };
+  const extra = [];
+  const nextJob = () => {
+    const q = extra.find(j => j.state === 'queued'); if (q) return q;
+    if (!S) return null;
+    const its = S.items, n = its.length;
+    for (let d = 0; d < n; d++) { const it = its[(S.i + d) % n]; if (!it.job || it.job.voice !== prefs.voice) it.job = job(it.say); if (it.job.state === 'queued') return it.job; }
+    return null;
+  };
+  const pump = () => {
+    if (engine() !== 'kokoro') return;
+    for (let k = 0; k < POOL; k++) {
+      if (busy[k]) continue;
+      const j = nextJob(); if (!j) return;
+      busy[k] = j; j.state = 'running'; j.started = performance.now(); j.k = k;
+      const gen = j.gen;
+      ask({ type: 'speak', text: j.text, voice: j.voice }, null, k)
+        .then(r => { if (j.gen !== gen) return; j.state = 'done'; j.ok(r); }, e => { if (j.gen !== gen) return; j.state = 'failed'; j.fail(e); })
+        .finally(() => { if (busy[k] === j) busy[k] = null; const x = extra.indexOf(j); if (x >= 0 && j.state !== 'queued') extra.splice(x, 1); pump(); });
+    }
+  };
   let STATUS = null; // { installed }
   const status = async () => (STATUS = STATUS || await ask({ type: 'status' }).catch(() => ({ installed: false })));
   let installing = null;
   const install = onProgress => installing = installing || ask({ type: 'install', voices: VOICES.map(v => v[0]) }, onProgress)
-    .then(() => { STATUS = { installed: true }; prefs.engine = 'kokoro'; save(); ask({ type: 'load' }).catch(() => {}); })
+    .then(() => { STATUS = { installed: true }; prefs.engine = 'kokoro'; save(); for (let k = 0; k < POOL; k++) ask({ type: 'load' }, null, k).catch(() => {}); })
     .finally(() => { installing = null; });
 
   /* ---------- turning a page into things to say ---------- */
@@ -78,6 +117,13 @@
     .replace(/[→⟶]/g, ' to ').replace(/[←]/g, ' from ').replace(/\s*[—–]\s*/g, ', ').replace(/[*_`#>]/g, ' ')
     .replace(/\s+/g, ' ').trim();
 
+  const clauses = raw => {
+    if (raw.length <= 140) return [raw];
+    const out = []; let cur = '';
+    for (const b of raw.split(/(?<=[;,:])\s+/)) { cur = cur ? cur + ' ' + b : b; if (cur.length >= 60) { out.push(cur); cur = ''; } }
+    if (cur) { if (out.length && cur.length < 30) out[out.length - 1] += ' ' + cur; else out.push(cur); }
+    return out;
+  };
   // Sentence ends: a stop, then space, then something that can start a sentence.
   const SPLIT = /(?<=[.!?:])["”’)]?\s+(?=["“‘(]?[A-Z0-9])/g;
   const ABBR = /\b(e\.g|i\.e|etc|vs|Fig|No|approx)\.$/i;
@@ -95,9 +141,9 @@
       const raw = text.slice(cuts[i], cuts[i + 1]); if (!raw.trim()) continue;
       const r = document.createRange();
       try { r.setStart(...at(cuts[i] + raw.length - raw.trimStart().length)); r.setEnd(...at(cuts[i] + raw.trimEnd().length)); } catch { r.selectNodeContents(el); }
-      // very long sentences are said in parts, at a semicolon or comma
-      const parts = raw.length > 280 ? raw.split(/(?<=[;,])\s+/) : [raw];
-      for (const p of parts) out.push({ say: speakable(p), range: r });
+      // long sentences are said in parts, at a comma or semicolon: shorter
+      // parts are made faster, so the voice starts sooner
+      for (const p of clauses(raw)) out.push({ say: speakable(p), text: raw, range: r });
     }
     return out.filter(x => x.say);
   };
@@ -128,7 +174,29 @@
         if (out.length && out[out.length - 1].el === el) out[out.length - 1].stop = 'ask';
       } else if (el.classList.contains('lab-block')) said(`There's a lab here: ${el.querySelector('b').textContent}. Open it when you're ready.`);
     }
+    for (const it of out) if (it.text && !it.el.matches(FIG)) it.fig = figFor(it.el, it.text);
     return out;
+  };
+  // A sentence that talks about a diagram brings the diagram along: one close
+  // by that has a device the sentence names, or one in the same section that
+  // the sentence points at ("below", "the diagram").
+  const FIG = '.fig-d, .fig-f, [data-fig], .tbl, .dcon';
+  const reEsc = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const names = f => [...f.querySelectorAll('.nd .nm, .dv .nm')].map(x => x.textContent.trim()).filter(Boolean);
+  const named = (text, n) => new RegExp(`(^|[^\\w-])${reEsc(n)}(?![\\w-])`).test(text);
+  const POINT = /\b(diagram|figure|topology|below|above|shown|pictured|this table|the table|the output)\b/i;
+  const figFor = (el, text) => {
+    // the nearest diagram within a few blocks, over headings too, that names a device in the sentence
+    const near = [];
+    for (const dir of ['previousElementSibling', 'nextElementSibling']) {
+      let x = el[dir], d = 0, heads = 0;
+      for (; x && d < 8; d++, x = x[dir]) { if (x.classList.contains('hd')) heads++; if (x.matches(FIG)) near.push([x, d, heads]); }
+    }
+    near.sort((a, b) => a[1] - b[1]);
+    for (const [f] of near) if (names(f).some(n => named(text, n))) return f;
+    // or one in the same section the sentence points at
+    const here = near.find(x => x[2] === 0);
+    return here && POINT.test(text) ? here[0] : null;
   };
   const rangeOf = el => { const r = document.createRange(); r.selectNodeContents(el); return r; };
 
@@ -143,31 +211,27 @@
     return vs.find(v => /natural|online/i.test(v.name) && /en-US/i.test(v.lang)) || vs.find(v => /natural|online/i.test(v.name)) || vs.find(v => v.default) || vs[0] || null;
   };
 
-  // Ask for audio a few sentences ahead, so there are no gaps.
-  const AHEAD = 6;
   let slowSaid = false;
-  const want = (i, urgent) => {
-    const it = S.items[i]; if (!it || it.audio || engine() !== 'kokoro') return;
-    const id = wid + 1; it.req = id;
-    it.audio = ask({ type: 'speak', text: it.say, voice: prefs.voice, urgent: !!urgent }).then(r => r.dropped ? null : r);
-    it.audio.catch(() => {});
-  };
-  const prefetch = () => { for (let i = S.i; i < Math.min(S.items.length, S.i + AHEAD); i++) want(i); };
-  const dropAhead = () => {
-    if (!S || engine() !== 'kokoro') return;
-    const ids = S.items.filter((it, i) => it.req && (i < S.i || i >= S.i + AHEAD)).map(it => { const id = it.req; it.req = 0; it.audio = null; return id; });
-    if (ids.length && worker) worker.postMessage({ type: 'drop', ids });
-  };
 
   const show = it => {
     if (hl) { if (it && it.range) hl.set('octet-reading', new Highlight(it.range)); else hl.delete('octet-reading'); }
     lb.querySelectorAll('#course > .rd-on').forEach(x => x !== (it && it.el) && x.classList.remove('rd-on'));
+    lb.querySelectorAll('#course > .rd-fig').forEach(x => x !== (it && it.fig) && x.classList.remove('rd-fig'));
+    lb.querySelectorAll('#course .rd-node').forEach(x => (!it || !it.fig || !it.fig.contains(x)) && x.classList.remove('rd-node'));
     if (!it) return;
     it.el.classList.add('rd-on');
-    if (lb.classList.contains('focus')) { lb.querySelectorAll('#course > .cur').forEach(x => x.classList.remove('cur')); it.el.classList.add('cur'); }
+    // the diagram this sentence explains, and the devices it names
+    if (it.fig) { it.fig.classList.add('rd-fig'); const names = it.fig.querySelectorAll('.nd'); names.forEach(nd => { const n = nd.querySelector('.nm'); nd.classList.toggle('rd-node', !!n && named(it.text, n.textContent.trim())); }); }
+    if (lb.classList.contains('focus')) { lb.querySelectorAll('#course > .cur').forEach(x => x.classList.remove('cur')); it.el.classList.add('cur'); if (it.fig) it.fig.classList.add('cur'); }
     const sc = $('#edScroll'), box = (it.range && it.range.getClientRects().length ? it.range : it.el).getBoundingClientRect(), view = sc.getBoundingClientRect();
+    const room = { top: view.top + 60, bottom: view.bottom - 110 };
+    if (it.fig) {
+      // keep the sentence and its diagram on screen together when they fit
+      const f = it.fig.getBoundingClientRect(), top = Math.min(f.top, box.top), bottom = Math.max(f.bottom, box.bottom);
+      if (bottom - top <= room.bottom - room.top) { if (top < room.top || bottom > room.bottom) sc.scrollBy({ top: top - room.top - Math.max(0, (room.bottom - room.top - (bottom - top)) / 2), behavior: reduce ? 'auto' : 'smooth' }); return; }
+    }
     const tall = it.stop === 'figure' ? it.el.getBoundingClientRect() : box;
-    if (tall.top < view.top + 60 || tall.bottom > view.bottom - 110) sc.scrollBy({ top: (it.stop === 'figure' ? it.el.getBoundingClientRect().top - view.top - 70 : box.top - view.top - view.height * 0.38), behavior: reduce ? 'auto' : 'smooth' });
+    if (tall.top < room.top || tall.bottom > room.bottom) sc.scrollBy({ top: (it.stop === 'figure' ? it.el.getBoundingClientRect().top - view.top - 70 : box.top - view.top - view.height * 0.38), behavior: reduce ? 'auto' : 'smooth' });
   };
 
   const say = async it => {
@@ -182,18 +246,26 @@
       });
       return;
     }
-    if (!it.audio) { if (S.items[S.i] === it) want(S.i, true); else { it.audio = ask({ type: 'speak', text: it.say, voice: prefs.voice, urgent: true }); it.audio.catch(() => {}); } }
+    if (!it.job || it.job.voice !== prefs.voice) it.job = job(it.say);
+    if (S.items[S.i] !== it && it.job.state === 'queued' && !extra.includes(it.job)) extra.push(it.job); // a reply to your answer
+    pump();
     let r = null;
     const t = setTimeout(() => S && S.cur === it && bar('Preparing the voice…'), 250), t0 = performance.now();
-    // Never wait for ever: the first sentence also loads the model, so it gets longer.
-    const limit = STAGE.text.startsWith('model ready') || STAGE.text.startsWith('said') ? 20000 + it.say.length * 300 : 60000;
-    let dog;
-    const late = new Promise(ok => { dog = setTimeout(() => ok('late'), limit); });
-    try { r = await Promise.race([it.audio.catch(e => ({ failed: e })), late]); } finally { clearTimeout(t); clearTimeout(dog); }
+    // Never wait for ever. Each sentence gets time for its length, and the
+    // first one a worker makes also loads the model.
+    try {
+      for (;;) {
+        r = await Promise.race([it.job.promise.catch(e => ({ failed: e })), new Promise(ok => setTimeout(() => ok('tick'), 1500))]);
+        if (r !== 'tick') break;
+        if (!S || S.cur !== it) return;
+        const j = it.job, sl = pool[j.k];
+        if (j.state === 'running' && performance.now() - j.started > (sl && sl.ready ? 20000 : 60000) + j.text.length * 400) { r = 'late'; break; }
+      }
+    } finally { clearTimeout(t); }
     if (r === 'late' || (r && r.failed)) {
-      const why = r === 'late' ? `no audio after ${Math.round(limit / 1000)} s (last: ${STAGE.text || 'nothing'})` : r.failed.message;
+      const why = r === 'late' ? `no audio after ${Math.round((performance.now() - it.job.started) / 1000)} s (last: ${STAGE.text || 'nothing'})` : r.failed.message;
       if (!S || S.cur !== it) return;
-      if (threads !== 1) { restart(why); it.audio = null; return say(it); }
+      if (restarts < 1) { restart(why); if (it.job.state === 'failed') it.job = null; return say(it); }
       vlog('giving up: ' + why);
       prefs.engine = 'system'; save(); renderBar();
       toast(`The natural voice isn't working on this computer (${why}). Reading with the system voice; Settings can copy the details.`);
@@ -238,7 +310,7 @@
     while (S === me && S.i < S.items.length) {
       if (S.paused) { await new Promise(ok => { S.resume = ok; }); if (S !== me) return; continue; }
       const it = S.items[S.i]; S.cur = it;
-      show(it); if (engine() === 'kokoro') want(S.i, true); prefetch();
+      show(it); pump();
       try { await say(it); } catch (e) { stop(); toast(e.message); return; }
       if (S !== me) return;
       if (S.paused) continue; // paused mid-sentence: say it again on play
@@ -249,7 +321,7 @@
         if (fb) { bar(); try { S.cur = { el: it.el, say: speakable(fb) }; await say(S.cur); } catch { /* go on */ } if (S !== me) return; }
       }
       if (S.jumped) { S.jumped = false; continue; }
-      S.i++; dropAhead();
+      S.i++;
     }
     if (S === me) { show(null); bar('End of the page.', 'end'); S.done = true; renderBar(); }
   };
@@ -270,16 +342,16 @@
     const to = Math.max(0, Math.min(S.items.length - 1, S.i + d));
     halt(); if (S.skipWait) { const f = S.skipWait; S.skipWait = null; f(); }
     if (S.release) { S.resume = null; S.release(); }
-    S.i = to; S.jumped = !S.paused; S.done = false; dropAhead();
+    S.i = to; S.jumped = !S.paused; S.done = false;
     if (S.paused) { S.cur = S.items[to]; show(S.cur); } else { const r = S.resume; S.resume = null; if (r) r(); }
     renderBar();
   };
   const stop = () => {
     if (!S) return;
     const was = S; S = null; halt(); clearTimeout(was.timer);
-    if (worker) { const ids = was.items.filter(it => it.req).map(it => it.req); if (ids.length) worker.postMessage({ type: 'drop', ids }); }
+    extra.length = 0;
     if (was.resume) was.resume(); if (was.skipWait) was.skipWait(); if (was.release) was.release();
-    show(null); lb.querySelectorAll('.rd-on').forEach(x => x.classList.remove('rd-on'));
+    show(null); lb.querySelectorAll('.rd-on, .rd-fig, .rd-node').forEach(x => x.classList.remove('rd-on', 'rd-fig', 'rd-node'));
     const b = $('#rdBar'); if (b) b.hidden = true;
     $('#listenBtn').setAttribute('aria-pressed', 'false');
   };
@@ -396,7 +468,7 @@
       v.disabled = true; v.textContent = 'Downloading… 0%';
       try { await install(p => { v.textContent = `Downloading… ${Math.floor(100 * p.loaded / p.total)}%`; }); toast('The natural voice is ready. It works offline from now on.'); } catch (err) { toast("The voice didn't download: " + err.message); }
     } else if (k === 'details') {
-      const text = [`Octet voice details`, `isolated: ${self.crossOriginIsolated}, cores: ${navigator.hardwareConcurrency}, threads: ${threads || 'auto'}`, navigator.userAgent, '', ...LOG].join('\n');
+      const text = [`Octet voice details`, `isolated: ${self.crossOriginIsolated}, cores: ${navigator.hardwareConcurrency}, voice workers: ${POOL} (one thread each)`, navigator.userAgent, '', ...LOG].join('\n');
       try { await navigator.clipboard.writeText(text); toast('Voice details copied. Paste them to whoever is helping you.'); } catch { toast("Couldn't reach the clipboard."); }
       return;
     } else if (k === 'remove') {

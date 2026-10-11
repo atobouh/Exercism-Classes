@@ -6,7 +6,7 @@ graphics card and no internet once it is downloaded.
 
 | File | What it is |
 | --- | --- |
-| `worker.js` | Runs Kokoro in a background worker: downloads it once, keeps it in the app's cache, turns sentences into audio and keeps that audio too, so a page you've heard plays instantly the next time. |
+| `worker.js` | Runs Kokoro in a background worker, on one thread (its multi-threaded mode stalls in WebView2; the reader runs several workers instead): downloads it once, keeps it in the app's cache, turns sentences into audio and keeps that audio too, so a page you've heard plays instantly the next time. |
 | `kokoro.web.js` | [kokoro-js](https://www.npmjs.com/package/kokoro-js) 1.2.1. It bundles Transformers.js and the phonemizer. One change: the last line also exports Transformers.js's settings as `transformersEnv`, so the worker can hand ONNX Runtime its files and thread count. |
 | `ort-wasm-simd-threaded.jsep.mjs` | The ONNX Runtime loader that goes with it (from `@huggingface/transformers` 3.5.1). Kept here so its threads load from the app itself. |
 

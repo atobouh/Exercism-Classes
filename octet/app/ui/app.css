@@ -611,3 +611,8 @@ img, svg { -webkit-user-drag: none; }
 .lb.focus .rd-bar { opacity: .9; }
 .vs-grid { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px 12px; align-items: center; }
 #voiceSet .row .set-p { font-size: 14px; }
+/* the diagram a sentence explains, and the devices it names */
+.course > .rd-fig { outline: 2px solid color-mix(in oklch, var(--you) 55%, transparent); outline-offset: 8px; border-radius: 12px; transition: outline-color 200ms ease; }
+.lb.focus .course > .rd-fig { opacity: 1; }
+.dg .nd.rd-node rect { stroke: var(--you); stroke-width: 2.4; fill: var(--you-bg); }
+.dg .nd rect { transition: stroke 200ms ease, fill 200ms ease; }

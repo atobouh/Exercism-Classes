@@ -33,7 +33,7 @@ const post = (id, msg, transfer) => self.postMessage({ id, ...msg }, transfer ||
 const log = text => self.postMessage({ type: 'log', text });
 self.addEventListener('error', e => log('error: ' + (e.message || e)));
 self.addEventListener('unhandledrejection', e => log('unhandled: ' + ((e.reason && e.reason.message) || e.reason)));
-let THREADS = 0; // 0: decide from the processor
+let THREADS = 1; // Kokoro's threads stall in WebView2; the reader runs several one-thread workers instead
 
 async function cached(cache, url) { try { return await (await caches.open(cache)).match(url); } catch { return undefined; } }
 async function installed() {
