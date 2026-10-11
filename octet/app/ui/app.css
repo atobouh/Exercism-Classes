@@ -599,6 +599,8 @@ img, svg { -webkit-user-drag: none; }
 .rd-note { font-size: 13px; color: var(--ink3); padding: 0 8px; min-width: 0; max-width: 340px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rd-note:empty { display: none; }
 .rd-note[data-kind="wait"] { color: var(--you); font-weight: 500; }
+.rd-note[data-kind="prep"] { color: var(--ink2); font-variant-numeric: tabular-nums; }
+.rd-menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px 2px; }
 .rd-bar.offer { gap: 8px; padding: 10px 10px 10px 16px; width: min(660px, calc(100% - 32px)); }
 .rd-offer { display: grid; gap: 3px; min-width: 0; flex: 1; }
 .rd-offer b { font-size: 14px; font-weight: 600; }

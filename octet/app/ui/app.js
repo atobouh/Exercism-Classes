@@ -123,6 +123,7 @@
 
   const openPage = safe(async (id, block) => {
     PAGE = await api('page', { id });
+    window.OCTET_PAGE_ID = id;
     const loc = findPage(id);
     const { book, chapter, index } = loc;
     $('#chTitle').textContent = chapter.title;
@@ -137,20 +138,32 @@
     lb.dispatchEvent(new CustomEvent('octet-page', { detail: { id } }));
   });
 
-  const renderDoc = (index, count) => {
-    const p = PAGE.page, notesBy = {};
-    PAGE.notes.forEach(n => (notesBy[n.after_block] = notesBy[n.after_block] || []).push(n));
-    const blocks = p.blocks.map((b, i) => {
+  // A page's blocks as HTML. The reader also uses it for pages you haven't
+  // opened, to make their audio ahead of time.
+  const courseHTML = P => {
+    const p = P.page, notesBy = {};
+    P.notes.forEach(n => (notesBy[n.after_block] = notesBy[n.after_block] || []).push(n));
+    return p.blocks.map((b, i) => {
       let h = '';
-      if (b.type === 'text') h = `<p data-b="${i}">${inline(b.text, PAGE.highlights.filter(x => x.block === i).map(x => x.text))}</p>`;
+      if (b.type === 'text') h = `<p data-b="${i}">${inline(b.text, P.highlights.filter(x => x.block === i).map(x => x.text))}</p>`;
       else if (b.type === 'figure') h = `<div data-b="${i}" data-fig="${esc(b.id)}">${(window.OCTET_FIGURES[b.id] || { html: () => '' }).html()}</div>`;
       else if (b.type === 'lab') {
         const lp = allPages().find(x => x.lab === b.id);
         h = `<div class="lab-block" data-b="${i}"><div><b>${esc(lp ? lp.title : 'Lab')}</b><span>${lp && lp.passed ? 'Passed. Open it again any time.' : 'Opens on a live map of the network.'}</span></div><button class="btn pri" type="button" data-lab="${esc(b.id)}">Open the lab</button></div>`;
       }
-      else h = window.OCTET_BLOCKS.render(b, i, { inline, answered: PAGE.answered.includes(i) });
+      else h = window.OCTET_BLOCKS.render(b, i, { inline, answered: P.answered.includes(i) });
       return h + (notesBy[i] || []).map(noteHTML).join('');
     }).join('');
+  };
+  window.OCTET_APP = {
+    pageHTML: async id => courseHTML(await api('page', { id })),
+    // the pages after this one in its chapter, and the whole chapter
+    nextPages: id => { const l = findPage(id); return l ? l.chapter.pages.slice(l.index + 1).filter(p => !p.lab).map(p => p.id) : []; },
+    chapter: id => { const l = findPage(id); return l ? { title: l.chapter.title, pages: l.chapter.pages.filter(p => !p.lab).map(p => p.id) } : null; },
+  };
+  const renderDoc = (index, count) => {
+    const p = PAGE.page;
+    const blocks = courseHTML(PAGE);
     const links = PAGE.links.map(l => `<button class="chip" type="button" data-open="${esc(l.id)}">${esc(l.title)}</button>`).join('');
     const loc = findPage(p.id), next = loc.chapter.pages[index + 1];
     const nextBtn = next ? (next.lab ? `<button class="btn line" type="button" data-next="${esc(next.id)}" data-lab="${esc(next.lab)}">Next: ${esc(next.title)}</button>` : `<button class="btn line" type="button" data-next="${esc(next.id)}">Next page</button>`) : `<button class="btn line" type="button" data-done>Back to the library</button>`;

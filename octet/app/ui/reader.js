@@ -66,6 +66,13 @@
     busy.forEach(j => { if (j) { j.gen++; j.state = 'queued'; } }); busy.length = 0;
   };
 
+  /* ---------- how fast this computer makes speech ---------- */
+  // Seconds of speech one worker makes per second, kept as a running average.
+  // Until there's a measurement, assume a modest laptop.
+  let SPEED = Number(localStorage.getItem('octet-voice-speed')) || 0.4;
+  const rate = (secs, ms) => { SPEED = SPEED * 0.8 + (secs / (ms / 1000)) * 0.2; try { localStorage.setItem('octet-voice-speed', SPEED.toFixed(3)); } catch { /* fine */ } };
+  const secsOf = it => it.job && it.job.state === 'done' ? it.job.secs : it.say.length * 0.068;
+
   /* ---------- sentences to make ---------- */
   // A job is one sentence's audio. The next one made is the first not yet
   // made from where you are, then the ones behind you, so jumping back is
@@ -74,11 +81,30 @@
   const extra = [];
   const nextJob = () => {
     const q = extra.find(j => j.state === 'queued'); if (q) return q;
-    if (!S) return null;
-    const its = S.items, n = its.length;
-    for (let d = 0; d < n; d++) { const it = its[(S.i + d) % n]; if (!it.job || it.job.voice !== prefs.voice) it.job = job(it.say); if (it.job.state === 'queued') return it.job; }
+    if (S) {
+      const its = S.items, n = its.length;
+      for (let d = 0; d < n; d++) { const it = its[(S.i + d) % n]; if (!it.job || it.job.voice !== prefs.voice) it.job = job(it.say); if (it.job.state === 'queued') return it.job; }
+    }
+    // this page is made: the pages after it, or a chapter you asked for
+    const b = BG.find(j => j.state === 'queued');
+    if (b) return b;
+    if (S && !S.nextQueued) { S.nextQueued = true; prepare(window.OCTET_APP ? window.OCTET_APP.nextPages(S.page).slice(0, 2) : []); }
     return null;
   };
+  // Pages made in the background, so they play at once when you get there.
+  const BG = [], prepared = new Set();
+  let bgTotal = 0;
+  const prepare = async ids => {
+    for (const id of ids) {
+      const k = prefs.voice + '|' + id; if (prepared.has(k) || !window.OCTET_APP) continue; prepared.add(k);
+      try {
+        const div = document.createElement('div'); div.innerHTML = await window.OCTET_APP.pageHTML(id);
+        for (const it of script(div)) { BG.push(job(it.say)); bgTotal++; }
+      } catch (e) { vlog(`couldn't prepare ${id}: ${e.message || e}`); }
+      pump();
+    }
+  };
+  const bgLeft = () => BG.filter(j => j.state !== 'done' && j.state !== 'failed').length;
   const pump = () => {
     if (engine() !== 'kokoro') return;
     for (let k = 0; k < POOL; k++) {
@@ -87,7 +113,7 @@
       busy[k] = j; j.state = 'running'; j.started = performance.now(); j.k = k;
       const gen = j.gen;
       ask({ type: 'speak', text: j.text, voice: j.voice }, null, k)
-        .then(r => { if (j.gen !== gen) return; j.state = 'done'; j.ok(r); }, e => { if (j.gen !== gen) return; j.state = 'failed'; j.fail(e); })
+        .then(r => { if (j.gen !== gen) return; j.state = 'done'; j.secs = r.wav.byteLength / 48000; if (r.ms) rate(j.secs, r.ms); if (BG.includes(j)) { r = null; BG.splice(BG.indexOf(j), 1); } j.ok(r); }, e => { if (j.gen !== gen) return; j.state = 'failed'; j.fail(e); if (BG.includes(j)) BG.splice(BG.indexOf(j), 1); })
         .finally(() => { if (busy[k] === j) busy[k] = null; const x = extra.indexOf(j); if (x >= 0 && j.state !== 'queued') extra.splice(x, 1); pump(); });
     }
   };
@@ -284,6 +310,31 @@
     }).finally(() => URL.revokeObjectURL(url));
   };
 
+  // Read in one sweep: before playing, make enough of the page ahead that the
+  // rest is ready before it's needed. Speech made per second (all workers)
+  // against speech played per second decides how much head start that takes.
+  const headStart = () => {
+    const its = S.items; let ready = 0, i = S.i;
+    for (; i < its.length && its[i].job && its[i].job.state === 'done'; i++) ready += secsOf(its[i]);
+    let left = 0; for (; i < its.length; i++) left += secsOf(its[i]);
+    const made = SPEED * POOL, played = prefs.speed;
+    const need = made >= played ? (its[S.i].job && its[S.i].job.state === 'done' ? 0 : 1e-6) : left * (played / made - 1) * 1.1;
+    return { ready, need };
+  };
+  const sweep = it => new Promise(ok => {
+    if (engine() !== 'kokoro' || S.noWait) return ok();
+    const check = () => {
+      if (!S || S.cur !== it || S.paused || S.jumped) return ok();
+      const { ready, need } = headStart();
+      if (ready >= need && it.job && it.job.state === 'done') { S.pct = 0; bar(); return ok(); }
+      const pct = S.pct = Math.max(S.pct || 0, need > 0 ? Math.min(99, Math.floor(100 * ready / need)) : 0); // only ever counts up
+      bar(`Getting the page ready so it reads without stopping… ${pct}%`, 'prep');
+      S.timer = setTimeout(check, 400);
+    };
+    S.startNow = () => { S.noWait = true; clearTimeout(S.timer); bar(); ok(); };
+    check();
+  });
+
   // A diagram stays on screen for a few seconds, or until you press play.
   const hold = it => new Promise(done => {
     const ok = () => { S && (S.release = null); done(); };
@@ -311,6 +362,7 @@
       if (S.paused) { await new Promise(ok => { S.resume = ok; }); if (S !== me) return; continue; }
       const it = S.items[S.i]; S.cur = it;
       show(it); pump();
+      await sweep(it); if (S !== me) return; if (S.paused) continue; if (S.jumped) { S.jumped = false; continue; }
       try { await say(it); } catch (e) { stop(); toast(e.message); return; }
       if (S !== me) return;
       if (S.paused) continue; // paused mid-sentence: say it again on play
@@ -334,6 +386,7 @@
     if (!S) return start();
     if (S.done) { S.done = false; S.i = 0; S.paused = false; renderBar(); run(); return; }
     if (S.skipWait) { const f = S.skipWait; S.skipWait = null; f(); }
+    if (noteKind === 'prep' && S.startNow) { S.startNow(); return; }
     S.paused = false; bar(); renderBar();
     const r = S.resume; S.resume = null; if (r) r();
   };
@@ -364,7 +417,7 @@
     // start at the first sentence you can see, unless asked otherwise
     const items = script(course); if (!items.length) { toast('Nothing on this page to read.'); return; }
     if (from === 'view') { const top = $('#edScroll').getBoundingClientRect().top + 40; from = Math.max(0, items.findIndex(it => it.el.getBoundingClientRect().bottom > top)); }
-    S = { items, i: from || 0, paused: false };
+    S = { items, i: from || 0, paused: false, page: (window.OCTET_PAGE_ID || '') };
     $('#listenBtn').setAttribute('aria-pressed', 'true');
     renderBar(); run();
   };
@@ -411,7 +464,8 @@
     const m = document.createElement('div'); m.id = 'rdMenu'; m.className = 'collect-menu rd-menu';
     const inst = STATUS && STATUS.installed;
     m.innerHTML = (inst ? VOICES.map(([id, name, about]) => `<button type="button" data-v="${id}" aria-pressed="${engine() === 'kokoro' && prefs.voice === id}">${name}<span>${about}</span></button>`).join('') : `<button type="button" data-v="get">Natural voice<span>Download, about 115 MB</span></button>`)
-      + `<button type="button" data-v="system" aria-pressed="${engine() === 'system'}">System voice<span>${esc((sysVoice() || {}).name || 'Built in')}</span></button>`;
+      + `<button type="button" data-v="system" aria-pressed="${engine() === 'system'}">System voice<span>${esc((sysVoice() || {}).name || 'Built in')}</span></button>`
+      + (inst && engine() === 'kokoro' && window.OCTET_APP && window.OCTET_PAGE_ID ? `<hr><button type="button" data-v="chapter">${bgLeft() ? `Preparing: ${bgTotal - bgLeft()} of ${bgTotal} sentences` : 'Prepare this chapter'}<span>${bgLeft() ? 'keeps going while you read' : 'every page, ahead of time'}</span></button>` : '');
     $('.ed').appendChild(m);
     const r = a.getBoundingClientRect(), ed = $('.ed').getBoundingClientRect();
     m.style.left = (r.left - ed.left) + 'px'; m.style.bottom = (ed.bottom - r.top + 6) + 'px';
@@ -419,6 +473,7 @@
       const v = e.target.closest('[data-v]'); if (!v) return; m.remove();
       const at = S ? S.i : 0;
       if (v.dataset.v === 'get') { stop(); offer(); return; }
+      if (v.dataset.v === 'chapter') { const ch = window.OCTET_APP.chapter(window.OCTET_PAGE_ID); if (ch) { prepare(ch.pages); toast(`Preparing every page of ${ch.title}. It keeps going while you read, and plays instantly once made.`); } return; }
       if (v.dataset.v === 'system') prefs.engine = 'system'; else { prefs.engine = 'kokoro'; prefs.voice = v.dataset.v; }
       save(); if (S) { stop(); start(at); } else renderBar();
     });

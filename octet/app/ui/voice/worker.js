@@ -24,7 +24,7 @@ const WASM = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.5.1/dist/
 const VOICE = v => `${HF}voices/${v}.bin`;
 // The caches: Transformers.js and kokoro-js look in theirs by these names.
 const MODEL_CACHE = 'transformers-cache', VOICE_CACHE = 'kokoro-voices', RUNTIME_CACHE = 'octet-voice', AUDIO_CACHE = 'octet-voice-audio';
-const AUDIO_KEEP = 3000; // sentences kept; the oldest go first
+const AUDIO_KEEP = 8000; // sentences kept (a few chapters); the oldest go first
 
 env.allowLocalModels = false;
 env.useBrowserCache = true;
@@ -116,10 +116,11 @@ async function speak(text, voice) {
   const url = await key(voice, text), hit = await cached(AUDIO_CACHE, url);
   if (hit) return { wav: await hit.arrayBuffer(), cached: true };
   const t = await model(), t0 = performance.now(), a = await t.generate(text, { voice });
+  if (!a.audio.length) throw new Error('no audio');
   log(`said ${text.length} characters in ${Math.round(performance.now() - t0)} ms (${(a.audio.length / a.sampling_rate).toFixed(1)} s of speech)`);
   const buf = wav(a.audio, a.sampling_rate);
   await keep(url, buf.slice(0));
-  return { wav: buf, cached: false };
+  return { wav: buf, cached: false, ms: performance.now() - t0 };
 }
 
 /* ---------- one sentence at a time, in the order asked ---------- */
