@@ -7,6 +7,10 @@
 //                                            urgent ones go to the front of the queue
 //   { type: 'drop', ids }                  forget queued speak requests nobody needs any more
 //   { type: 'remove' }                     -> { ok } after deleting the model and every saved sentence
+//   { type: 'config', threads }            how many threads to use; 1 is the safe fallback
+//
+// It also sends { type: 'log', text } as it goes, so the page can say what
+// it's doing and Settings can copy the details.
 //
 // Everything downloaded lives in the app's own cache storage, so after the
 // first download the voice works with no internet at all.
@@ -26,6 +30,10 @@ env.allowLocalModels = false;
 env.useBrowserCache = true;
 
 const post = (id, msg, transfer) => self.postMessage({ id, ...msg }, transfer || []);
+const log = text => self.postMessage({ type: 'log', text });
+self.addEventListener('error', e => log('error: ' + (e.message || e)));
+self.addEventListener('unhandledrejection', e => log('unhandled: ' + ((e.reason && e.reason.message) || e.reason)));
+let THREADS = 0; // 0: decide from the processor
 
 async function cached(cache, url) { try { return await (await caches.open(cache)).match(url); } catch { return undefined; } }
 async function installed() {
@@ -64,14 +72,18 @@ let tts = null, loading = null;
 async function model() {
   if (tts) return tts;
   if (!loading) loading = (async () => {
+    const t0 = performance.now();
+    log('loading the runtime');
     const wasm = await cached(RUNTIME_CACHE, WASM);
     if (!wasm) throw new Error('The voice is not downloaded yet.');
     const onnx = env.backends.onnx.wasm;
     onnx.wasmPaths = { mjs: new URL('ort-wasm-simd-threaded.jsep.mjs', import.meta.url).href };
     onnx.wasmBinary = await wasm.arrayBuffer();
     // Threads need the page to be cross-origin isolated; Octet's window is.
-    onnx.numThreads = self.crossOriginIsolated ? Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1)) : 1;
+    onnx.numThreads = THREADS || (self.crossOriginIsolated ? Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 2) - 1)) : 1);
+    log(`loading the model (${onnx.numThreads} thread${onnx.numThreads > 1 ? 's' : ''}, isolated: ${self.crossOriginIsolated}, cores: ${navigator.hardwareConcurrency})`);
     tts = await KokoroTTS.from_pretrained(MODEL, { dtype: 'q8', device: 'wasm' });
+    log(`model ready in ${Math.round(performance.now() - t0)} ms`);
     return tts;
   })().catch(e => { loading = null; throw e; });
   return loading;
@@ -103,7 +115,8 @@ async function keep(url, buf) {
 async function speak(text, voice) {
   const url = await key(voice, text), hit = await cached(AUDIO_CACHE, url);
   if (hit) return { wav: await hit.arrayBuffer(), cached: true };
-  const t = await model(), a = await t.generate(text, { voice });
+  const t = await model(), t0 = performance.now(), a = await t.generate(text, { voice });
+  log(`said ${text.length} characters in ${Math.round(performance.now() - t0)} ms (${(a.audio.length / a.sampling_rate).toFixed(1)} s of speech)`);
   const buf = wav(a.audio, a.sampling_rate);
   await keep(url, buf.slice(0));
   return { wav: buf, cached: false };
@@ -115,7 +128,7 @@ async function pump() {
   if (busy) return; busy = true;
   while (queue.length) {
     const { id, text, voice } = queue.shift();
-    try { const r = await speak(text, voice); post(id, r, [r.wav]); } catch (e) { post(id, { error: String(e.message || e) }); }
+    try { const r = await speak(text, voice); post(id, r, [r.wav]); } catch (e) { log('failed: ' + (e.message || e)); post(id, { error: String(e.message || e) }); }
   }
   busy = false;
 }
@@ -126,6 +139,7 @@ self.onmessage = async ({ data: m }) => {
     if (m.type === 'status') post(id, { installed: await installed(), threads: self.crossOriginIsolated });
     else if (m.type === 'install') { await install(id, m.voices || []); post(id, { ok: true }); }
     else if (m.type === 'load') { await model(); post(id, { ok: true }); }
+    else if (m.type === 'config') { THREADS = m.threads || 0; post(id, { ok: true }); }
     else if (m.type === 'speak') { if (m.urgent) queue.unshift(m); else queue.push(m); pump(); }
     else if (m.type === 'drop') { const ids = new Set(m.ids); for (let i = queue.length - 1; i >= 0; i--) if (ids.has(queue[i].id)) { post(queue[i].id, { dropped: true }); queue.splice(i, 1); } }
     else if (m.type === 'remove') { tts = null; loading = null; for (const c of [MODEL_CACHE, VOICE_CACHE, RUNTIME_CACHE, AUDIO_CACHE]) await caches.delete(c); post(id, { ok: true }); }

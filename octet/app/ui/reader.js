@@ -24,22 +24,39 @@
   const save = () => { try { localStorage.setItem('octet-voice', JSON.stringify(prefs)); } catch { /* private mode */ } };
 
   /* ---------- the Kokoro worker ---------- */
-  let worker = null, wid = 0;
+  let worker = null, wid = 0, threads = 0;
   const waiting = new Map();
+  // What the voice has been doing, for the bar and for Settings' "Copy voice details".
+  const LOG = [], STAGE = { text: '' };
+  const vlog = text => { LOG.push(`${new Date().toISOString().slice(11, 19)} ${text}`); if (LOG.length > 80) LOG.shift(); };
   const kokoro = () => {
     if (!worker) {
       worker = new Worker('voice/worker.js', { type: 'module' });
-      worker.onmessage = ({ data }) => { const w = waiting.get(data.id); if (!w) return; if (data.type === 'progress') { if (w.progress) w.progress(data); return; } waiting.delete(data.id); data.error ? w.fail(new Error(data.error)) : w.ok(data); };
-      worker.onerror = e => { for (const w of waiting.values()) w.fail(new Error(e.message || 'The voice stopped.')); waiting.clear(); worker = null; };
+      vlog(`worker started${threads ? `, ${threads} thread` : ''}`);
+      if (threads) worker.postMessage({ type: 'config', threads, id: 0 });
+      worker.onmessage = ({ data }) => {
+        if (data.type === 'log') { vlog(data.text); STAGE.text = data.text; if (/^loading/.test(data.text) && S && S.cur && !S.paused) bar(/model/.test(data.text) ? 'Loading the voice model…' : 'Starting the voice…'); return; }
+        const w = waiting.get(data.id); if (!w) return;
+        if (data.type === 'progress') { if (w.progress) w.progress(data); return; }
+        waiting.delete(data.id); data.error ? w.fail(new Error(data.error)) : w.ok(data);
+      };
+      worker.onerror = e => { vlog('worker error: ' + (e.message || 'unknown')); for (const w of waiting.values()) w.fail(new Error(e.message || 'The voice stopped.')); waiting.clear(); worker = null; };
     }
     return worker;
+  };
+  // Start the voice again from nothing, on one thread: the safe way.
+  const restart = why => {
+    vlog('restarting: ' + why);
+    if (worker) worker.terminate(); worker = null; threads = 1;
+    for (const w of waiting.values()) w.fail(new Error(why)); waiting.clear();
+    if (S) S.items.forEach(it => { it.audio = null; it.req = 0; });
   };
   const ask = (msg, progress) => new Promise((ok, fail) => { const id = ++wid; waiting.set(id, { ok, fail, progress }); kokoro().postMessage({ ...msg, id }); });
   let STATUS = null; // { installed }
   const status = async () => (STATUS = STATUS || await ask({ type: 'status' }).catch(() => ({ installed: false })));
   let installing = null;
   const install = onProgress => installing = installing || ask({ type: 'install', voices: VOICES.map(v => v[0]) }, onProgress)
-    .then(() => { STATUS = { installed: true }; prefs.engine = 'kokoro'; save(); })
+    .then(() => { STATUS = { installed: true }; prefs.engine = 'kokoro'; save(); ask({ type: 'load' }).catch(() => {}); })
     .finally(() => { installing = null; });
 
   /* ---------- turning a page into things to say ---------- */
@@ -168,7 +185,20 @@
     if (!it.audio) { if (S.items[S.i] === it) want(S.i, true); else { it.audio = ask({ type: 'speak', text: it.say, voice: prefs.voice, urgent: true }); it.audio.catch(() => {}); } }
     let r = null;
     const t = setTimeout(() => S && S.cur === it && bar('Preparing the voice…'), 250), t0 = performance.now();
-    try { r = await it.audio; } finally { clearTimeout(t); }
+    // Never wait for ever: the first sentence also loads the model, so it gets longer.
+    const limit = STAGE.text.startsWith('model ready') || STAGE.text.startsWith('said') ? 20000 + it.say.length * 300 : 60000;
+    let dog;
+    const late = new Promise(ok => { dog = setTimeout(() => ok('late'), limit); });
+    try { r = await Promise.race([it.audio.catch(e => ({ failed: e })), late]); } finally { clearTimeout(t); clearTimeout(dog); }
+    if (r === 'late' || (r && r.failed)) {
+      const why = r === 'late' ? `no audio after ${Math.round(limit / 1000)} s (last: ${STAGE.text || 'nothing'})` : r.failed.message;
+      if (!S || S.cur !== it) return;
+      if (threads !== 1) { restart(why); it.audio = null; return say(it); }
+      vlog('giving up: ' + why);
+      prefs.engine = 'system'; save(); renderBar();
+      toast(`The natural voice isn't working on this computer (${why}). Reading with the system voice; Settings can copy the details.`);
+      return say(it);
+    }
     // On a slow processor the natural voice can't keep up: say so, once.
     if (S && (S.waited = (S.waited || 0) + Math.max(0, performance.now() - t0 - 250)) > 12000 && !slowSaid) { slowSaid = true; toast('This computer makes the natural voice wait between sentences. The system voice never waits: pick it with the voice button.'); }
     if (!r || !S || S.cur !== it || S.paused || S.jumped) return;
@@ -352,7 +382,7 @@
         <span class="pick-l">At a question</span><div class="pats" role="radiogroup" aria-label="At a question">${opt('ask', 1, 'Wait for my answer', prefs.ask)}${opt('ask', 0, 'Read on', !prefs.ask)}</div>
       </div>
       <div class="row">${st.installed
-        ? `<span class="set-p">The natural voice (Kokoro) is downloaded and works offline.</span><button class="btn ghost" type="button" data-vs="remove">Remove it</button>`
+        ? `<span class="set-p">The natural voice (Kokoro) is downloaded and works offline.</span><button class="btn ghost" type="button" data-vs="details">Copy voice details</button><button class="btn ghost" type="button" data-vs="remove">Remove it</button>`
         : `<span class="set-p">The natural voice (Kokoro) isn't downloaded. It's about 115 MB, once.</span><button class="btn line" type="button" data-vs="get">Download it</button>`}</div>`;
   };
   lb.addEventListener('click', async e => {
@@ -365,6 +395,10 @@
     else if (k === 'get') {
       v.disabled = true; v.textContent = 'Downloading… 0%';
       try { await install(p => { v.textContent = `Downloading… ${Math.floor(100 * p.loaded / p.total)}%`; }); toast('The natural voice is ready. It works offline from now on.'); } catch (err) { toast("The voice didn't download: " + err.message); }
+    } else if (k === 'details') {
+      const text = [`Octet voice details`, `isolated: ${self.crossOriginIsolated}, cores: ${navigator.hardwareConcurrency}, threads: ${threads || 'auto'}`, navigator.userAgent, '', ...LOG].join('\n');
+      try { await navigator.clipboard.writeText(text); toast('Voice details copied. Paste them to whoever is helping you.'); } catch { toast("Couldn't reach the clipboard."); }
+      return;
     } else if (k === 'remove') {
       if (v.dataset.sure !== '1') { v.dataset.sure = '1'; v.textContent = 'Remove for good'; return; }
       stop(); await ask({ type: 'remove' }); STATUS = { installed: false }; if (prefs.engine === 'kokoro') prefs.engine = ''; toast('The natural voice is removed. The system voice still reads.');
