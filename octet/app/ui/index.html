@@ -45,7 +45,7 @@
       <div class="ed">
         <div class="ed-bar">
           <button class="tool" type="button" id="listBtn" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4.5h10M3 8h10M3 11.5h6"/></svg>Pages</button>
-          <div class="ed-tools"><button class="tool" type="button" id="focusBtn" aria-pressed="false">Focus <span class="k">Ctrl .</span></button></div>
+          <div class="ed-tools"><button class="tool" type="button" id="listenBtn" aria-pressed="false" title="Read this page aloud"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 6v4h2.5l3.5 3V3L5 6z"/><path d="M11 5.6a3.4 3.4 0 0 1 0 4.8M12.8 3.8a6 6 0 0 1 0 8.4"/></svg>Listen</button><button class="tool" type="button" id="focusBtn" aria-pressed="false">Focus <span class="k">Ctrl .</span></button></div>
         </div>
         <div class="ed-scroll" id="edScroll"><article class="doc" id="doc"></article></div>
         <div class="selbar" id="selbar" role="toolbar" aria-label="Selection"><button type="button" data-act="mark">Highlight</button><button type="button" data-act="note">Add a note</button><button type="button" data-act="collect">Collect</button></div>
@@ -67,5 +67,6 @@
 <script src="blocks.js"></script>
 <script type="module" src="bench/index.js"></script>
 <script src="app.js"></script>
+<script src="reader.js"></script>
 </body>
 </html>

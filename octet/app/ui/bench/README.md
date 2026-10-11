@@ -63,7 +63,7 @@ bench.load(lab, { state: JSON.parse(localStorage.getItem(lab.id)) })
 
 With `mode="build"` the brief becomes the builder, with two tabs:
 
-- **Devices**: every model in the catalog, grouped. Click one to add it, or drag it onto the board. Right-click a device on the board to rename, duplicate or delete it; deleting unplugs its cables. Consoles open without a console cable while you build.
+- **Devices**: every model in the catalog, grouped by series (ISR 4000, ISR G2, Catalyst 2960...). Chips along the top narrow it to Routers, Switches, Layer 3, Hubs or End devices; the search box matches names and part numbers (`2960`, `ISR`); **Compact** swaps the faceplates for small icons. Enter in the search box adds the first match. Click one to add it, or drag it onto the board. Right-click a device on the board to rename, duplicate or delete it; deleting unplugs its cables. Consoles open without a console cable while you build.
 - **Brief**: the title, the summary and the tasks. Each task's check is picked from menus filled from the board, and the task's text writes itself until you write your own. **Use this as the starting point** fires `bench-start`. **Try it as a student** plays the lab from that start; **Back to building** returns to the board you left.
 
 ```js
@@ -75,6 +75,14 @@ bench.addEventListener('bench-start', e => saveStart(e.detail.state))
 ```
 
 To play a built lab, load the lab with its start as the state: `bench.load(lab, { state: start })`. A saved state carries each device's model, so a lab needs no `[[device]]` list when it has a start.
+
+### Watch a ping move
+
+**Simulation** in the toolbar opens a panel in place of the cable tray. Choose who sends, type or pick the address, and press **Send a ping**. Envelopes travel the real cables, one step at a time: amber for ARP, blue for the echo request, green for the reply, with the VLAN tag written under any frame that crosses a trunk tagged. Play, pause, **Step**, and ½×, 1× or 2×.
+
+Where the ping stops, a red ✕ sits on the cable or the device, with the reason: no route, a VLAN not allowed on a trunk, an access port in the wrong VLAN, a port shut down, spanning tree still listening, a missing subinterface, no clock rate, the wrong transceiver on a fiber. The list beside it says what every device did at each step; click a step to open its frame's layers (Ethernet, 802.1Q, ARP, IPv4, ICMP).
+
+The engine works the whole trip out first, without changing anything (`net.simulate`). When the animation ends, the bench does the ping for real, so ARP and MAC tables fill and a ping task can pass.
 
 ### Match your site
 
@@ -100,6 +108,7 @@ The fonts already follow `--f-ui`, `--f-ios` and `--f-book` if your page defines
 - `snapshot()`: the bench as JSON.
 - `fit()`: frames every device.
 - `net`: the engine, for anything else.
+- `simToggle(on)`: opens or closes the simulation panel.
 
 ## The lab format
 
@@ -162,7 +171,7 @@ check = { address = { device = "R1", iface = "g0/0/0", ip = "192.168.10.1", mask
 
 - **Links:** a link comes up when both ends are plugged in, powered on and not shut down. It logs `%LINK` and `%LINEPROTO` messages like IOS.
 - **Spanning tree:** a switch port listens for 15 seconds, then learns for 15, before it forwards. `spanning-tree portfast` skips this.
-- **VLANs:** access and trunk ports, native VLAN, and 802.1Q tagging, including router subinterfaces with `encapsulation dot1Q`.
+- **VLANs:** access and trunk ports, native VLAN, `switchport trunk allowed vlan` (lists, `add`, `remove`, `except`, `all`, `none`), and 802.1Q tagging, including router subinterfaces with `encapsulation dot1Q`.
 - **Routing:** connected, static and default routes. ARP, so the first IOS ping shows `.!!!!`. MAC learning.
 - **Neighbors and serial:** CDP neighbors. Serial links need `clock rate` on the DCE end.
 - **Console and power:** consoles are reached only over a console cable (rollover to RJ45, or USB to mini-B) from a computer. Power and reload boot devices again.
@@ -208,6 +217,7 @@ net.plug('straight', 'PC-A NIC', 'S1 F0/1')
 net.exec('R1', 'show ip interface brief')
 net.tick(31000)                          // milliseconds
 net.tasks()                              // [{ text, hint, done }]
+net.simulate('PC-A', '192.168.20.10')   // { ok, frames, events, fail, steps }: the ping, frame by frame, changing nothing
 ```
 
 ## License

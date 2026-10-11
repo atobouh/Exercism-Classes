@@ -13,6 +13,8 @@
 // with router subinterfaces, static and default routes, ARP, MAC learning,
 // CDP neighbours, serial links with DCE clocking, console cables, power,
 // interface cards, SFP transceivers and fiber, hubs, and layer 3 switches.
+//
+//   net.simulate('PC-A', '10.0.0.2')    // the same ping, frame by frame, and why it stops
 
 import { CATALOG, CABLES, MODULES, SFPS } from './catalog.js';
 
@@ -43,7 +45,7 @@ export function createNetwork(lab, opts = {}) {
   const emit = (ev, ...a) => listeners[ev].forEach(f => f(...a));
   let clock = 0, macN = 0x10;
   const mac = oui => { macN++; const h = oui + macN.toString(16).padStart(6, '0'); return `${h.slice(0, 4)}.${h.slice(4, 8)}.${h.slice(8, 12)}`; };
-  const iface = (over) => Object.assign({ shutdown: false, ip: '', mask: '', mode: 'access', vlan: 1, native: 1, portfast: false, clock: 0, desc: '', phys: false, proto: false, upSince: 0, medium: '', act: 0, encap: 0 }, over);
+  const iface = (over) => Object.assign({ shutdown: false, ip: '', mask: '', mode: 'access', vlan: 1, native: 1, allowed: null, portfast: false, clock: 0, desc: '', phys: false, proto: false, upSince: 0, medium: '', act: 0, encap: 0 }, over);
 
   /* ---------- devices ---------- */
   const devs = [];
@@ -245,53 +247,63 @@ export function createNetwork(lab, opts = {}) {
   }
 
   /* ---------- layer 2 ---------- */
-  // Every layer 3 interface a frame can reach from (device, interface), with
-  // the hops it took. Frames carry a VLAN and whether they're tagged.
-  function segment(devId, ifname) {
-    const out = [], seen = new Set(), path = [], q = [];
+  // Every frame a broadcast from (device, interface) makes, as a tree: each
+  // edge is one cable crossed, from `a` to `b`, with the VLAN the frame is in,
+  // whether it's tagged on that cable, and the edge it came in on (`parent`).
+  // `ends` are the layer 3 interfaces it reaches, with the edge that got there.
+  const allows = (f, v) => !f.allowed || f.allowed.includes(v);
+  function walk(devId, ifname) {
+    const ends = [], edges = [], seen = new Set(), q = [];
     const start = D(devId);
-    const enter = (dId, n, vlan, tagged) => {
+    const enter = (dId, n, vlan, tagged, e) => {
       const d = D(dId), f = d.ifs[n];
-      if (d.kind === 'hub') { const k = dId + '|' + n + '|' + vlan + '|' + tagged; if (!seen.has(k)) { seen.add(k); q.push({ dId, n, v: vlan, tagged, hub: true }); } return; }
-      if (d.kind === 'switch' && f.routed) { if (!tagged && f.ip) out.push({ dev: dId, n }); return; }
+      if (d.kind === 'hub') { const k = dId + '|' + n + '|' + vlan + '|' + tagged; if (!seen.has(k)) { seen.add(k); q.push({ dId, n, v: vlan, tagged, hub: true, e }); } return; }
+      if (d.kind === 'switch' && f.routed) { if (!tagged && f.ip) ends.push({ dev: dId, n, e }); return; }
       if (d.kind === 'switch') {
         const v = f.mode === 'access' ? (tagged ? null : f.vlan) : tagged ? vlan : f.native;
-        if (v == null) return;
+        if (v == null || (f.mode === 'trunk' && !allows(f, v))) return;
         const k = dId + '|' + n + '|' + v; if (seen.has(k)) return; seen.add(k);
-        q.push({ dId, n, v });
+        q.push({ dId, n, v, e });
       } else if (d.kind === 'router') {
-        if (tagged) { const sub = Object.entries(d.ifs).find(([, g]) => g.sub && g.parent === n && g.encap === vlan); if (sub) out.push({ dev: dId, n: sub[0] }); }
-        else { if (f.ip) out.push({ dev: dId, n }); const sub = Object.entries(d.ifs).find(([, g]) => g.sub && g.parent === n && g.encap === 1 && g.nativeTag); if (sub) out.push({ dev: dId, n: sub[0] }); }
-      } else out.push({ dev: dId, n });
+        if (tagged) { const sub = Object.entries(d.ifs).find(([, g]) => g.sub && g.parent === n && g.encap === vlan); if (sub) ends.push({ dev: dId, n: sub[0], e }); }
+        else { if (f.ip) ends.push({ dev: dId, n, e }); const sub = Object.entries(d.ifs).find(([, g]) => g.sub && g.parent === n && g.encap === 1 && g.nativeTag); if (sub) ends.push({ dev: dId, n: sub[0], e }); }
+      } else ends.push({ dev: dId, n, e });
     };
-    const leave = (dId, n, vlan, tagged) => {
+    const leave = (dId, n, vlan, tagged, parent) => {
       const d = D(dId);
       if (!forwarding(d, n)) return;
       const pe = peerOf(dId, n); if (!pe) return;
       const pd = D(pe.dev);
       if (!forwarding(pd, pe.port.iface)) return;
-      path.push([dId, n], [pe.dev, pe.port.iface]);
-      enter(pe.dev, pe.port.iface, vlan, tagged);
+      edges.push({ a: { dev: dId, n }, b: { dev: pe.dev, n: pe.port.iface }, cable: pe.cable, vlan, tagged, parent, depth: parent < 0 ? 0 : edges[parent].depth + 1 });
+      enter(pe.dev, pe.port.iface, vlan, tagged, edges.length - 1);
     };
     const f0 = start.ifs[ifname];
     if (start.kind === 'switch' && f0 && f0.svi) {
       const v = +ifname.slice(4);
-      for (const [n, f] of Object.entries(start.ifs)) if (!f.svi && (f.mode === 'trunk' || f.vlan === v)) leave(devId, n, v, f.mode === 'trunk' && v !== f.native);
-    } else if (f0 && f0.sub) leave(devId, f0.parent, f0.encap, true);
-    else leave(devId, ifname, 1, false);
+      for (const [n, f] of Object.entries(start.ifs)) if (!f.svi && ((f.mode === 'trunk' && allows(f, v)) || (f.mode !== 'trunk' && f.vlan === v))) leave(devId, n, v, f.mode === 'trunk' && v !== f.native, -1);
+    } else if (f0 && f0.sub) leave(devId, f0.parent, f0.encap, !f0.nativeTag, -1);
+    else leave(devId, ifname, 1, false, -1);
     while (q.length) {
-      const { dId, n: inIf, v, tagged, hub } = q.shift(), d = D(dId);
-      if (hub) { for (const n of Object.keys(d.ifs)) if (n !== inIf) leave(dId, n, v, tagged); continue; } // every bit to every other port
+      const { dId, n: inIf, v, tagged, hub, e } = q.shift(), d = D(dId);
+      if (hub) { for (const n of Object.keys(d.ifs)) if (n !== inIf) leave(dId, n, v, tagged, e); continue; } // every bit to every other port
       const svi = d.ifs['Vlan' + v];
-      if (svi && svi.proto && svi.ip && dId !== devId) out.push({ dev: dId, n: 'Vlan' + v });
+      if (svi && svi.proto && svi.ip && dId !== devId) ends.push({ dev: dId, n: 'Vlan' + v, e });
       for (const [n, f] of Object.entries(d.ifs)) {
         if (f.svi || f.routed || n === inIf) continue;
-        if (f.mode === 'trunk') leave(dId, n, v, v !== f.native);
-        else if (f.vlan === v) leave(dId, n, v, false);
+        if (f.mode === 'trunk') { if (allows(f, v)) leave(dId, n, v, v !== f.native, e); }
+        else if (f.vlan === v) leave(dId, n, v, false, e);
       }
     }
-    return { ends: out, path };
+    return { ends, edges };
   }
+  // The same, flat: the layer 3 ends, and every [device, interface] a frame touched.
+  function segment(devId, ifname) {
+    const w = walk(devId, ifname);
+    return { ends: w.ends.map(x => ({ dev: x.dev, n: x.n })), path: w.edges.flatMap(e => [[e.a.dev, e.a.n], [e.b.dev, e.b.n]]) };
+  }
+  // The edges from the sender to edge `i`, in order.
+  const chainTo = (edges, i) => { const out = []; for (; i >= 0; i = edges[i].parent) out.unshift(edges[i]); return out; };
 
   /* ---------- layer 3 ---------- */
   const pcIf = d => d.ifs.FastEthernet0;
@@ -357,7 +369,193 @@ export function createNetwork(lab, opts = {}) {
   }
   function flash(marks) { const until = clock + 600; for (const [dId, n] of marks) { const f = D(dId).ifs[n]; if (f) f.act = until; } }
 
+  /* ---------- simulation: a ping, frame by frame ---------- */
+  // What a ping from `srcId` to `dst` does, without doing it: every frame on
+  // every cable (`frames`, each at a `step`; frames at the same step move
+  // together), what each device makes of it (`events`), and, if it fails,
+  // where and why (`fail`). The tables are left as they were; call ping()
+  // afterwards to make it real.
+  const BCAST = 'ffff.ffff.ffff';
+  const nameOf = d => d.hostname;
+  const at = (d, n) => `${nameOf(d)} ${short(n)}`;
+  function simulate(srcId, dst) {
+    const src = D(srcId), frames = [], events = [];
+    let step = 0, fail = null;
+    const known = new Set(); // ARP entries learned during this ping
+    const has = (d, ip) => !!d.arp[ip] || known.has(d.id + '|' + ip);
+    const ev = (d, text, kind = '', frame = -1, when = step) => events.push({ step: when, dev: d.id, text, kind, frame });
+    // the VLAN a switch puts a frame in as it arrives on n
+    const vIn = (sw, n, e) => { const f = sw.ifs[n]; return f.mode === 'trunk' ? (e.tagged ? e.vlan : f.native) : f.vlan; };
+    const stop = (d, reason, where = {}) => { fail = { step, dev: d.id, reason, ...where }; ev(d, reason, 'fail'); return false; };
+    const tagOf = e => e.tagged ? e.vlan : null;
+    const put = (e, kind, pdu, s) => { frames.push({ step: s, kind, cable: e.cable.id, from: e.a, to: e.b, pdu: { ...pdu, eth: { ...pdu.eth, vlan: tagOf(e) } } }); return frames.length - 1; };
+    // Send along a chain of edges, one cable per step.
+    const along = (chain, kind, pdu) => chain.forEach((e, k) => {
+      const i = put(e, kind, pdu, step), d = D(e.b.dev), nx = chain[k + 1];
+      if (nx && d.kind === 'switch') ev(d, `${nameOf(d)} gets the frame on ${short(e.b.n)} in VLAN ${vIn(d, e.b.n, e)}, sends it toward ${pdu.eth.dst} out ${short(nx.a.n)}${nx.tagged ? `, tagged for VLAN ${nx.vlan}` : ''}.`, kind, i, step + 1);
+      else if (nx && d.kind === 'hub') ev(d, `${nameOf(d)} is a hub: it repeats the bits out every other port.`, kind, i, step + 1);
+      step++;
+    });
+    function hop(d, dstIp, kind, ip) {
+      // `d` sends `ip` toward dstIp; true when it arrives
+      for (let ttl = 0; ttl < 16; ttl++) {
+        if (ipsOf(d).some(a => a.ip === dstIp && a.up)) return d;
+        const r = route(d, dstIp);
+        if (!r) return stop(d, noRoute(d, dstIp));
+        const ends = walk(d.id, r.n);
+        const owner = ends.ends.find(x => ipsOf(D(x.dev)).some(a => a.n === x.n && a.ip === r.nh && a.up) && isOn(D(x.dev)));
+        const myMac = macOf(d, r.n), via = r.nh === dstIp ? '' : ` through ${r.nh}`;
+        if (kind === 'icmp' && d === src) ev(d, `${nameOf(d)} sends an echo request to ${dstIp}${via ? `. It isn't on ${nameOf(d)}'s network, so it goes to the gateway ${r.nh}` : ''}.`, kind);
+        if (!has(d, r.nh)) {
+          ev(d, `${nameOf(d)} doesn't know the MAC address of ${r.nh}, so it broadcasts an ARP request out ${short(r.n)}: who has ${r.nh}?`, 'arp');
+          const arp = { eth: { src: myMac, dst: BCAST, type: 'ARP' }, arp: { op: 'request', senderIp: r.src, senderMac: myMac, targetIp: r.nh, targetMac: '0000.0000.0000' } };
+          const base = step;
+          let deep = -1;
+          const flooded = new Set();
+          ends.edges.forEach(e => { const i = put(e, 'arp', arp, base + e.depth); deep = Math.max(deep, e.depth); const sw = D(e.b.dev); if ((sw.kind === 'switch' && !sw.ifs[e.b.n].routed || sw.kind === 'hub') && !flooded.has(sw.id) && ends.edges.some(x => x.parent === ends.edges.indexOf(e))) { flooded.add(sw.id); ev(sw, sw.kind === 'hub' ? `${nameOf(sw)} is a hub: it repeats the broadcast out every other port.` : `${nameOf(sw)} floods the broadcast out every port in VLAN ${vIn(sw, e.b.n, e)} except the one it came in on.`, 'arp', i, base + e.depth + 1); } });
+          step = base + deep + 1;
+          if (!ends.edges.length) { step = base; const why = whyNoArp(d, r.n, r.nh); return stop(failDev || d, why || `${at(d, r.n)} has no working link, so the ARP request goes nowhere.`, why ? failWhere : { iface: r.n }); }
+          if (!owner) { const why = whyNoArp(d, r.n, r.nh); return stop(failDev || d, why || `No ARP reply: nothing on this network answers for ${r.nh}.`, failWhere); }
+          const od = D(owner.dev), oMac = macOf(od, owner.n);
+          known.add(od.id + '|' + r.src);
+          ev(od, `${nameOf(od)} has ${r.nh}: it answers with an ARP reply, ${r.nh} is at ${oMac}.`, 'arp-reply');
+          const back = chainTo(ends.edges, owner.e).reverse().map(e => ({ ...e, a: e.b, b: e.a }));
+          along(back, 'arp-reply', { eth: { src: oMac, dst: myMac, type: 'ARP' }, arp: { op: 'reply', senderIp: r.nh, senderMac: oMac, targetIp: r.src, targetMac: myMac } });
+          known.add(d.id + '|' + r.nh);
+          ev(d, `${nameOf(d)} now knows ${r.nh} is at ${oMac}.`, 'arp-reply');
+        } else if (!owner) {
+          // it knows the MAC already, so the frame goes out: show it as far as it gets
+          const why = whyNoArp(d, r.n, r.nh);
+          along(trail, kind, { eth: { src: myMac, dst: (d.arp[r.nh] || {}).mac || BCAST, type: 'IPv4' }, ip: { ...ip }, icmp: { type: kind === 'reply' ? 'Echo reply (0)' : 'Echo request (8)' } });
+          return stop(failDev || d, why || `${nameOf(d)} sends the frame, but ${r.nh} isn't reachable on this network any more.`, failWhere);
+        }
+        const od = D(owner.dev), oMac = macOf(od, owner.n);
+        along(chainTo(ends.edges, owner.e), kind, { eth: { src: myMac, dst: oMac, type: 'IPv4' }, ip: { ...ip }, icmp: { type: kind === 'reply' ? 'Echo reply (0)' : 'Echo request (8)' } });
+        if (ipsOf(od).some(a => a.ip === dstIp && a.up)) return od;
+        if (!(od.kind === 'router' || od.routing)) return stop(od, od.kind === 'switch' ? `${nameOf(od)} isn't routing (no \`ip routing\`), so it drops a packet meant for ${dstIp}.` : `${nameOf(od)} isn't a router, so it drops a packet meant for ${dstIp}.`);
+        ip.ttl--;
+        if (ip.ttl <= 0) return stop(od, `The packet's TTL ran out at ${nameOf(od)}: the routes loop.`);
+        const nr = route(od, dstIp);
+        ev(od, nr ? `${nameOf(od)} looks up ${dstIp}: ${nr.nh === dstIp ? `it's on its own network, out ${short(nr.n)}` : `the route says next hop ${nr.nh}, out ${short(nr.n)}`}. TTL ${ip.ttl + 1} becomes ${ip.ttl}.` : `${nameOf(od)} looks up ${dstIp}.`, kind);
+        d = od;
+      }
+      return stop(d, 'The packet went round in circles: the routes loop.');
+    }
+
+    // Why didn't the ARP request reach `nh`? Follow the cables toward whoever
+    // has that address and find the first thing that stops a frame.
+    let failDev = null, failWhere = {}, trail = [];
+    function whyNoArp(d, n, nh) {
+      failDev = null; failWhere = {}; trail = [];
+      const o = owner(nh);
+      if (!o) return `No ARP reply: no device has the address ${nh}.`;
+      const od = o.dev, of = od.kind === 'pc' ? pcIf(od) : od.ifs[o.a.n];
+      if (!isOn(od)) { failDev = od; return `${nameOf(od)} is ${od.power ? 'still booting' : 'switched off'}, so nothing answers for ${nh}.`; }
+      if (od.kind !== 'pc' && of && of.shutdown) { failDev = od; return `${at(od, o.a.n)} is shut down (administratively down), so nothing answers for ${nh}.`; }
+      // the physical path, ignoring VLANs and spanning tree
+      const startIfs = d.ifs[n] && d.ifs[n].sub ? [d.ifs[n].parent] : d.ifs[n] && d.ifs[n].svi ? Object.keys(d.ifs).filter(k => !d.ifs[k].svi) : [n];
+      const goal = od.id, prev = new Map(), q = [];
+      for (const s of startIfs) { const pe = rawPeer(d.id, s); if (pe) { const k = pe.dev + '|' + pe.n; if (!prev.has(k)) { prev.set(k, { from: { dev: d.id, n: s }, cable: pe.cable, back: null }); q.push(k); } } }
+      let hit = null;
+      while (q.length && !hit) {
+        const k = q.shift(), [dev, n2] = k.split('|'), x = D(dev);
+        if (dev === goal) { hit = k; break; }
+        if (x.kind === 'pc' || x.kind === 'router' || (x.kind === 'switch' && x.ifs[n2] && x.ifs[n2].routed)) continue;
+        for (const m of Object.keys(x.ifs)) { if (m === n2 || x.ifs[m].svi) continue; const pe = rawPeer(dev, m); if (!pe) continue; const k2 = pe.dev + '|' + pe.n; if (!prev.has(k2)) { prev.set(k2, { from: { dev, n: m }, cable: pe.cable, back: k }); q.push(k2); } }
+      }
+      if (!hit) { failDev = d; return `There's no cable path from ${nameOf(d)} to ${nameOf(od)}, so the ARP request for ${nh} never gets there.`; }
+      const hops = []; for (let k = hit; k; k = prev.get(k).back) { const p = prev.get(k), [dev, n2] = k.split('|'); hops.unshift({ a: p.from, b: { dev, n: n2 }, cable: p.cable }); }
+      // the frame's VLAN as it leaves d
+      const f0 = d.ifs[n];
+      let vlan = 1, tagged = false;
+      if (f0 && f0.sub) { vlan = f0.encap; tagged = !f0.nativeTag; } else if (f0 && f0.svi) { vlan = +n.slice(4); }
+      for (let i = 0; i < hops.length; i++) {
+        const { a, b, cable } = hops[i], A = D(a.dev), B = D(b.dev), fa = A.ifs[a.n], fb = B.ifs[b.n];
+        failWhere = { cable: cable.id, iface: a.n };
+        if (A.id === d.id && f0 && f0.svi) { const ap = A.ifs[a.n]; if (ap.mode === 'trunk') tagged = vlan !== ap.native; else if (ap.vlan !== vlan) continue; }
+        if (fa.shutdown) { failDev = A; return `${at(A, a.n)} is shut down (administratively down).`; }
+        if (!isOn(B)) { failDev = B; return `${nameOf(B)} is ${B.power ? 'still booting' : 'switched off'}.`; }
+        if (B.kind !== 'pc' && fb.shutdown) { failDev = B; return `${at(B, b.n)} is shut down (administratively down).`; }
+        const fiber = CABLES[cable.type].fiber;
+        if (fiber) for (const [X, e] of [[A, cable.a], [B, cable.b]]) { const t = SFPS[X.sfp[e.port]]; if (!t || t.fiber !== fiber) { failDev = X; return `The ${fiber === 'mmf' ? 'multimode' : 'single-mode'} fiber needs a ${fiber === 'mmf' ? '1000BASE-SX' : '1000BASE-LX'} transceiver in ${nameOf(X)} ${e.port}, but ${t ? `it has a ${t.name}` : "the cage is empty"}: wrong transceiver, no light, no link.`; } }
+        if (!fa.phys || !fb.phys) { failDev = A; return `The link from ${at(A, a.n)} to ${at(B, b.n)} is down.`; }
+        if (a.n.startsWith('Serial') && !fa.proto) { const dce = cable.dce && D(cable.dce.dev); failDev = dce || A; return `The serial line is up, but the line protocol is down: the DCE end${dce ? ` (${nameOf(dce)})` : ''} has no clock rate.`; }
+        for (const [X, x] of [[A, a.n], [B, b.n]]) if (!forwarding(X, x)) { failDev = X; return `Spanning tree is still ${stpState(X, x)} on ${at(X, x)}: the port doesn't forward frames yet. Wait, or turn on PortFast.`; }
+        trail.push({ a, b, cable, vlan, tagged }); // the frame crosses this cable
+        // into B
+        if (B.kind === 'switch' && !fb.routed) {
+          if (fb.mode === 'access') { if (tagged) { failDev = B; return `A frame tagged for VLAN ${vlan} arrives on ${at(B, b.n)}, an access port, and is dropped. The other end needs to be an access port too, or this one a trunk.`; } vlan = fb.vlan; }
+          else { if (!tagged) vlan = fb.native; if (!allows(fb, vlan)) { failDev = B; return `VLAN ${vlan} isn't allowed on the trunk ${at(B, b.n)}.`; } }
+          const nx = hops[i + 1];
+          if (nx) {
+            const fo = B.ifs[nx.a.n];
+            if (fo.mode === 'trunk') { if (!allows(fo, vlan)) { failDev = B; failWhere = { cable: nx.cable.id, iface: nx.a.n }; return `VLAN ${vlan} isn't allowed on the trunk ${at(B, nx.a.n)}.`; } tagged = vlan !== fo.native; }
+            else { if (fo.vlan !== vlan) { failDev = B; failWhere = { cable: nx.cable.id, iface: nx.a.n }; return `${at(B, nx.a.n)} is in VLAN ${fo.vlan}, but the frame is in VLAN ${vlan}. A switch only forwards a frame within its own VLAN.`; } tagged = false; }
+          } else { const svi = B.ifs['Vlan' + vlan]; if (B.id === od.id && !(svi && svi.ip === nh)) { failDev = B; return `${nameOf(B)} gets the frame in VLAN ${vlan}, but its address ${nh} is on ${o.a.n}.`; } }
+        } else if (B.kind === 'router' && B.id === od.id) {
+          const tf = B.ifs[o.a.n];
+          if (tf.sub && tagged && tf.encap !== vlan) { failDev = B; return `The frame arrives tagged for VLAN ${vlan}, but ${at(B, o.a.n)} is set for VLAN ${tf.encap} (encapsulation dot1Q ${tf.encap}).`; }
+          if (tf.sub && !tagged && !tf.nativeTag) { failDev = B; return `The frame arrives untagged, but ${at(B, o.a.n)} expects frames tagged for VLAN ${tf.encap}. Make the switch port a trunk.`; }
+          if (!tf.sub && tagged) { const sub = Object.entries(B.ifs).find(([, g]) => g.sub && g.parent === b.n && g.encap === vlan); failDev = B; return sub ? `The frame arrives tagged for VLAN ${vlan}, on subinterface ${short(sub[0])}, not on ${short(o.a.n)} where ${nh} lives.` : `The frame arrives tagged for VLAN ${vlan}, but ${nameOf(B)} has no subinterface with encapsulation dot1Q ${vlan} on ${short(b.n)}.`; }
+        } else if (B.kind === 'router' && tagged && !Object.values(B.ifs).some(g => g.sub && g.parent === b.n && g.encap === vlan)) { failDev = B; return `${nameOf(B)} has no subinterface for VLAN ${vlan} on ${short(b.n)}.`; }
+      }
+      failWhere = {};
+      return '';
+    }
+    function noRoute(d, dstIp) {
+      if (!isOn(d)) return `${nameOf(d)} is ${d.power ? 'still booting' : 'switched off'}.`;
+      if (d.kind === 'pc') {
+        if (!d.ip) return `${nameOf(d)} has no IP address.`;
+        if (!pcIf(d).proto) return `${nameOf(d)}'s network cable has no link.`;
+        if (!sameNet(d.ip, dstIp, d.mask) && !d.pcgw) return `${dstIp} isn't on ${nameOf(d)}'s network (${netOf(d.ip, d.mask)}/${maskLen(d.mask)}) and ${nameOf(d)} has no default gateway.`;
+        if (d.pcgw && !sameNet(d.ip, d.pcgw, d.mask)) return `${nameOf(d)}'s gateway ${d.pcgw} isn't on its own network (${netOf(d.ip, d.mask)}/${maskLen(d.mask)}).`;
+      }
+      const down = Object.entries(d.ifs).find(([, f]) => f.ip && sameNet(f.ip, dstIp, f.mask) && !(f.proto && !f.shutdown));
+      if (down) return `${at(d, down[0])} is ${down[1].shutdown ? 'shut down' : 'down'}, so its network ${netOf(down[1].ip, down[1].mask)}/${maskLen(down[1].mask)} isn't reachable.`;
+      if (d.kind === 'switch' && !d.routing) return `${nameOf(d)} has no default gateway for ${dstIp}.`;
+      return `${nameOf(d)} has no route to ${dstIp}: nothing in its routing table matches, and there's no default route.`;
+    }
+
+    // the request, then the reply
+    const r0 = route(src, dst);
+    const sip = r0 ? r0.src : (ipsOf(src)[0] || {}).ip;
+    if (!isIp(dst)) return { ok: false, frames, events: [{ step: 0, dev: src.id, text: `${dst} isn't an IP address.`, kind: 'fail' }], fail: { step: 0, dev: src.id, reason: `${dst} isn't an IP address.` }, steps: 1 };
+    const there = hop(src, dst, 'icmp', { src: sip, dst, ttl: src.kind === 'router' ? 255 : 128, proto: 'ICMP' });
+    let ok = false;
+    if (there) {
+      ev(there, `${nameOf(there)} has ${dst}: it answers with an echo reply to ${sip}.`, 'reply');
+      const back = hop(there, sip, 'reply', { src: dst, dst: sip, ttl: there.kind === 'router' ? 255 : 128, proto: 'ICMP' });
+      if (back) { ok = true; ev(src, `${nameOf(src)} gets the echo reply from ${dst}. The ping works.`, 'done'); }
+    }
+    return { ok, frames, events, fail, steps: Math.max(step, ...frames.map(f => f.step + 1), fail ? fail.step + 1 : 0) };
+  }
+  // The device and interface at the far end of the cable in (devId, n), link or not.
+  function rawPeer(devId, n) {
+    for (const c of cables) {
+      if (!c.a || !c.b || isCon(c)) continue;
+      for (const [x, y] of [['a', 'b'], ['b', 'a']]) if (c[x].dev === devId && portOf(c[x]).iface === n) { const p = portOf(c[y]); if (!NO_IF.includes(p.iface)) return { dev: c[y].dev, n: p.iface, cable: c }; }
+    }
+    return null;
+  }
+
   /* ---------- the IOS command line ---------- */
+  // `switchport trunk allowed vlan`: a list like 10,20,30-35, or add, remove,
+  // except, all or none. `null` means every VLAN.
+  const vlanSet = t => { const out = []; for (const part of t.split(',')) { const m = /^(\d+)(?:-(\d+))?$/.exec(part.trim()); if (!m) return null; const a = +m[1], b = +(m[2] || m[1]); if (a < 1 || b > 4094 || a > b) return null; for (let v = a; v <= b; v++) out.push(v); } return out; };
+  function allowedList(cur, text) {
+    const w = text.trim().split(/\s+/), all = () => Array.from({ length: 4094 }, (_, i) => i + 1);
+    if (w[0] === 'all') return { list: null };
+    if (w[0] === 'none') return { list: [] };
+    const set = vlanSet(['add', 'remove', 'except'].includes(w[0]) ? w.slice(1).join('') : w.join(''));
+    if (!set) return { err: "% Invalid input detected at '^' marker." };
+    const now = cur || all();
+    if (w[0] === 'add') return { list: [...new Set([...now, ...set])].sort((a, b) => a - b) };
+    if (w[0] === 'remove') return { list: now.filter(v => !set.includes(v)) };
+    if (w[0] === 'except') return { list: all().filter(v => !set.includes(v)) };
+    return { list: [...new Set(set)].sort((a, b) => a - b) };
+  }
+  // 1-9,20,30-35: how IOS writes a VLAN list
+  const vlanText = l => { if (!l) return '1-4094'; if (!l.length) return 'none'; const r = []; for (let i = 0; i < l.length; i++) { let j = i; while (j + 1 < l.length && l[j + 1] === l[j] + 1) j++; r.push(j > i ? `${l[i]}-${l[j]}` : `${l[i]}`); i = j; } return r.join(','); };
   const C = [];
   const cmd = (modes, pat, fn, kind) => C.push({ modes: modes.split(' '), w: pat.split(' '), fn, kind });
   const err = t => ({ err: t });
@@ -441,7 +639,8 @@ export function createNetwork(lab, opts = {}) {
   cmd('if', 'switchport mode trunk', (d, s) => { ifc(d, s).mode = 'trunk'; }, 'switch');
   cmd('if', 'switchport access vlan <num>', (d, s, a) => { const v = +a[0]; if (!d.vlans[v]) { d.vlans[v] = 'VLAN' + String(v).padStart(4, '0'); say(d, '% Access VLAN does not exist. Creating vlan ' + v); } ifc(d, s).vlan = v; }, 'switch');
   cmd('if', 'switchport trunk native vlan <num>', (d, s, a) => { ifc(d, s).native = +a[0]; }, 'switch');
-  cmd('if', 'switchport trunk allowed vlan <rest>', () => {}, 'switch');
+  cmd('if', 'switchport trunk allowed vlan <rest>', (d, s, a) => { const f = ifc(d, s), r = allowedList(f.allowed, a[0]); if (r.err) return err(r.err); f.allowed = r.list; }, 'switch');
+  cmd('if', 'no switchport trunk allowed vlan', (d, s) => { ifc(d, s).allowed = null; }, 'switch');
   cmd('if', 'spanning-tree portfast', (d, s) => { ifc(d, s).portfast = true; return '%Warning: portfast should only be enabled on ports connected to a single\n host. Connecting hubs, concentrators, switches, bridges, etc... to this\n interface  when portfast is enabled, can cause temporary bridging loops.\n Use with CAUTION'; }, 'switch');
   cmd('if', 'no spanning-tree portfast', (d, s) => { ifc(d, s).portfast = false; }, 'switch');
   cmd('if', 'clock rate <num>', (d, s, a) => { if (!s.ifc.startsWith('Serial')) return err('% Invalid input detected at \'^\' marker.'); ifc(d, s).clock = +a[0]; }, 'router');
@@ -569,9 +768,9 @@ export function createNetwork(lab, opts = {}) {
     if (!t.length) return '';
     const vl = Object.keys(d.vlans).map(Number).sort((a, b) => a - b);
     return 'Port        Mode             Encapsulation  Status        Native vlan\n' + t.map(([n, f]) => `${short(n).padEnd(12)}${'on'.padEnd(17)}${'802.1q'.padEnd(15)}${(f.proto ? 'trunking' : 'not-trunking').padEnd(14)}${f.native}`).join('\n') +
-      '\n\nPort        Vlans allowed on trunk\n' + t.map(([n]) => `${short(n).padEnd(12)}1-4094`).join('\n') +
-      '\n\nPort        Vlans allowed and active in management domain\n' + t.map(([n]) => `${short(n).padEnd(12)}${vl.join(',')}`).join('\n') +
-      '\n\nPort        Vlans in spanning tree forwarding state and not pruned\n' + t.map(([n]) => `${short(n).padEnd(12)}${forwarding(d, n) ? vl.join(',') : 'none'}`).join('\n');
+      '\n\nPort        Vlans allowed on trunk\n' + t.map(([n, f]) => `${short(n).padEnd(12)}${vlanText(f.allowed)}`).join('\n') +
+      '\n\nPort        Vlans allowed and active in management domain\n' + t.map(([n, f]) => `${short(n).padEnd(12)}${vlanText(vl.filter(v => allows(f, v)))}`).join('\n') +
+      '\n\nPort        Vlans in spanning tree forwarding state and not pruned\n' + t.map(([n, f]) => `${short(n).padEnd(12)}${forwarding(d, n) ? vlanText(vl.filter(v => allows(f, v))) : 'none'}`).join('\n');
   }
   function showInt(d, s, a) {
     const n = a[0], f = d.ifs[n]; if (!f) return err('% Invalid input detected at \'^\' marker.');
@@ -592,7 +791,7 @@ export function createNetwork(lab, opts = {}) {
     if (f.desc) o += ` description ${f.desc}\n`;
     if (f.sub && f.encap) o += ` encapsulation dot1Q ${f.encap}${f.nativeTag ? ' native' : ''}\n`;
     if (f.routed) o += ' no switchport\n';
-    else if (d.kind === 'switch' && !f.svi) { if (f.mode === 'trunk') { if (f.native !== 1) o += ` switchport trunk native vlan ${f.native}\n`; o += ' switchport mode trunk\n'; } else { if (f.vlan !== 1) o += ` switchport access vlan ${f.vlan}\n`; if (f.vlan !== 1 || f.portfast) o += ' switchport mode access\n'; } if (f.portfast) o += ' spanning-tree portfast\n'; }
+    else if (d.kind === 'switch' && !f.svi) { if (f.mode === 'trunk') { if (f.native !== 1) o += ` switchport trunk native vlan ${f.native}\n`; if (f.allowed) o += ` switchport trunk allowed vlan ${vlanText(f.allowed)}\n`; o += ' switchport mode trunk\n'; } else { if (f.vlan !== 1) o += ` switchport access vlan ${f.vlan}\n`; if (f.vlan !== 1 || f.portfast) o += ' switchport mode access\n'; } if (f.portfast) o += ' spanning-tree portfast\n'; }
     o += f.ip ? ` ip address ${f.ip} ${f.mask}\n` : (d.kind === 'router' || f.svi || f.routed ? ' no ip address\n' : '');
     if (f.clock) o += ` clock rate ${f.clock}\n`;
     if (f.shutdown) o += ' shutdown\n';
@@ -753,7 +952,7 @@ export function createNetwork(lab, opts = {}) {
 
   function snapshot() {
     return {
-      clock, devices: devs.map(d => ({ id: d.id, model: d.model, modules: { ...d.modules }, sfp: { ...d.sfp }, routing: d.routing, x: d.x, y: d.y, hostname: d.hostname, power: d.power, ip: d.ip, mask: d.mask, pcgw: d.pcgw, routes: d.routes, vlans: d.vlans, gw: d.gw, secret: d.secret, ifs: Object.fromEntries(Object.entries(d.ifs).map(([n, f]) => [n, { shutdown: f.shutdown, ip: f.ip, mask: f.mask, mode: f.mode, vlan: f.vlan, native: f.native, portfast: f.portfast, clock: f.clock, desc: f.desc, encap: f.encap, sub: f.sub, parent: f.parent, svi: f.svi, routed: f.routed, mac: f.mac, nativeTag: f.nativeTag }])) })),
+      clock, devices: devs.map(d => ({ id: d.id, model: d.model, modules: { ...d.modules }, sfp: { ...d.sfp }, routing: d.routing, x: d.x, y: d.y, hostname: d.hostname, power: d.power, ip: d.ip, mask: d.mask, pcgw: d.pcgw, routes: d.routes, vlans: d.vlans, gw: d.gw, secret: d.secret, ifs: Object.fromEntries(Object.entries(d.ifs).map(([n, f]) => [n, { shutdown: f.shutdown, ip: f.ip, mask: f.mask, mode: f.mode, vlan: f.vlan, native: f.native, portfast: f.portfast, clock: f.clock, desc: f.desc, encap: f.encap, sub: f.sub, parent: f.parent, svi: f.svi, routed: f.routed, mac: f.mac, nativeTag: f.nativeTag, allowed: f.allowed || null }])) })),
       cables: cables.filter(c => c.a && c.b).map(c => ({ id: c.id, type: c.type, a: c.a, b: c.b, dce: c.dce })),
       opened: [...opened], pinged: [...pinged], tried: [...tried],
     };
@@ -786,7 +985,8 @@ export function createNetwork(lab, opts = {}) {
     forwarding: (id, n) => forwarding(D(id), n), stpState: (id, n) => stpState(D(id), n), ifStatus: (id, n) => ifStatus(D(id), n), isOn: id => isOn(D(id)),
     setPower, powerCycle: id => powerCycle(D(id)),
     consoleFrom, markOpened: id => { opened.add(id); emit('change'); },
-    tasks, ping: (from, to) => ping(D(from), to),
+    tasks, ping: (from, to) => ping(D(from), to), simulate: (from, to) => simulate(from, to),
+    addresses: () => devs.flatMap(d => ipsOf(d).map(a => ({ dev: d.id, n: a.n, ip: a.ip }))),
     snapshot, restore,
     on(ev, fn) { listeners[ev].push(fn); return () => { listeners[ev] = listeners[ev].filter(f => f !== fn); }; },
   };

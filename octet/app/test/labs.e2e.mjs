@@ -33,6 +33,17 @@ try {
   }
   const bench = page.locator('#bench');
 
+  // Listen: the first time, the reader offers the natural voice. Pages are
+  // read as sentences, with addresses and interfaces said the way people say them.
+  await page.click('[data-go="reading"]');
+  await page.locator('#course').waitFor();
+  await page.click('#listenBtn');
+  await page.locator('#rdBar.offer').waitFor();
+  await page.locator('#rdBar [data-rd="close"]').click();
+  assert.ok(await page.evaluate(() => window.OCTET_READER.script(document.getElementById('course')).length > 3));
+  assert.equal(await page.evaluate(() => window.OCTET_READER.speakable('Give G0/0/1.10 the address 192.168.10.1/24 in VLAN 10, then check DHCP.')),
+    'Give gigabit 0 slash 0 slash 1 point 10 the address 192 dot 168 dot 10 dot 1 slash 24 in V-LAN 10, then check D H C P.');
+
   // A new lab opens the bench in build mode, with the drawer.
   await page.click('[data-go="labs"]');
   await page.click('[data-labact="new"]');
@@ -40,6 +51,18 @@ try {
   await page.click('#labNew button[type="submit"]');
   await bench.locator('.dv[data-model="PC"]').first().waitFor();
   assert.equal(await bench.getAttribute('mode'), 'build');
+
+  // The drawer filters: chips, a search box, a compact list.
+  await bench.locator('[data-chip="router"]').click();
+  assert.equal(await bench.locator('.dv[data-model="PC"]').count(), 0, 'Routers shows no PCs');
+  await bench.locator('.dwq').fill('2960');
+  await bench.locator('.drawer .none').waitFor();
+  await bench.locator('[data-chip="all"]').click();
+  assert.equal(await bench.locator('.dv').count(), 4, 'four Catalyst 2960s');
+  await bench.locator('.dwq').fill('');
+  await bench.locator('.dwc').click();
+  assert.equal(await bench.locator('.drawer.compact .dv svg.gl').count() > 10, true, 'compact: small icons');
+  await bench.locator('.dwc').click();
 
   // Two PCs from the drawer, a crossover between them.
   await bench.locator('.dv[data-model="PC"]').click();
@@ -77,6 +100,19 @@ try {
   await bench.locator('.cin').press('Enter');
   await bench.locator('.out', { hasText: 'Reply from 10.0.0.2' }).waitFor();
   await bench.locator('.task .st', { hasText: 'Done on the board now' }).waitFor();
+
+  // Simulation: the same kind of ping, frame by frame, and its layers.
+  await bench.locator('.cclose').click();
+  await bench.locator('[data-t="sim"]').click();
+  await bench.locator('.s-from').selectOption('PC-2');
+  await bench.locator('.s-to').fill('10.0.0.1');
+  await bench.locator('[data-sp="2"]').click();
+  await bench.locator('.sim [type="submit"]').click();
+  await bench.locator('.s-ev li.ok', { hasText: 'The ping works' }).waitFor({ timeout: 20000 });
+  await bench.locator('.s-ev li').first().click();
+  await bench.locator('.s-pdu', { hasText: 'Ethernet II' }).waitFor();
+  await bench.locator('.s-x').click();
+  assert.equal(await bench.locator('.tray').isVisible(), true, 'the cable tray is back');
 
   // Mark the start: two PCs, no cable yet, so a student has to cable them.
   await page.evaluate(() => { const b = document.querySelector('#bench'); b.net.remove(b.net.cables[0]); });

@@ -15,7 +15,7 @@
 
 import { createNetwork, maskLen, short } from './engine.js';
 import { CABLES, CATALOG, MODULES, SFPS } from './catalog.js';
-import { drawDevice, DEFS } from './faceplate.js';
+import { drawDevice, DEFS, GLYPH } from './faceplate.js';
 
 const LIGHT = `--b-bench: oklch(99.1% 0.002 85); --b-pane: oklch(97.9% 0.003 80); --b-pop: oklch(99.4% 0.002 85); --b-dot: oklch(84% 0.006 70);
   --b-line: oklch(90.5% 0.006 70); --b-hover: oklch(93.6% 0.006 78); --b-sel: oklch(91.8% 0.008 78); --b-term: oklch(97.9% 0.003 80);
@@ -108,11 +108,15 @@ canvas { position: absolute; inset: 0; pointer-events: none; }
 .tb.zoom { font-variant-numeric: tabular-nums; min-width: 54px; justify-content: center; }
 .sep { width: 1px; background: var(--b-line); margin: 5px 3px; }
 .tray { left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 4px; padding: 6px; max-width: calc(100% - 32px); overflow-x: auto; z-index: 5; }
-.cable { border: 0; background: transparent; color: var(--b-ink2); border-radius: 10px; padding: 6px 12px 7px 8px; display: grid; grid-template-columns: 34px auto; gap: 2px 8px; align-items: center; cursor: pointer; text-align: left; font: inherit; transition: background-color 120ms ease, transform 160ms var(--b-ease); }
+.tgrp { display: grid; gap: 1px; }
+.tgrp > div { display: flex; gap: 2px; }
+.tg { font: 500 10.5px var(--b-ui); color: var(--b-ink3); padding: 0 8px; letter-spacing: .02em; }
+.tsep { width: 1px; background: var(--b-line); margin: 4px 4px; flex: 0 0 auto; }
+.cable { border: 0; background: transparent; color: var(--b-ink2); border-radius: 9px; padding: 4px 9px 4px 5px; display: grid; grid-template-columns: 26px auto; gap: 2px 6px; align-items: center; cursor: pointer; text-align: left; font: inherit; transition: background-color 120ms ease, transform 160ms var(--b-ease); }
 .cable:hover { background: var(--b-hover); color: var(--b-ink); }
 .cable:active { transform: scale(0.97); }
 .cable[aria-pressed="true"] { background: var(--b-sel); color: var(--b-ink); }
-.cable svg { grid-row: span 2; width: 34px; height: 28px; }
+.cable svg { width: 26px; height: 22px; }
 .cable b { font-weight: 600; font-size: 12.5px; white-space: nowrap; }
 .cable span { font-size: 11px; color: var(--b-ink3); white-space: nowrap; }
 .card { z-index: 30; pointer-events: none; min-width: 210px; max-width: 290px; padding: 11px 13px; opacity: 0; transform: translateY(4px); transition: opacity 120ms ease, transform 160ms var(--b-ease); }
@@ -191,6 +195,47 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 :host([layout="docked"]) .con { top: 0; right: 0; bottom: 0; width: var(--b-con-w); border: 0; border-left: 1px solid var(--b-line); border-radius: 0; box-shadow: none; background: var(--b-pane); }
 :host([layout="docked"]) .con .tabs { padding: 8px 8px 0; }
 :focus-visible { outline: 2px solid var(--b-you); outline-offset: 2px; }
+.sim { left: 50%; bottom: 16px; transform: translateX(-50%); width: min(820px, calc(100% - 32px)); z-index: 6; display: grid; gap: 8px; padding: 8px 10px 10px; }
+.sim[hidden], .tray[hidden] { display: none; }
+:host(.simming) .toast { bottom: 280px; }
+:host([layout="docked"]) .sim { left: calc(var(--b-pane-w) + (100% - var(--b-pane-w)) / 2); width: min(820px, calc(100% - var(--b-pane-w) - 32px)); }
+:host([layout="docked"]) .brief.min ~ .sim { left: 50%; width: min(820px, calc(100% - 32px)); }
+.s-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.s-top label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--b-ink3); }
+.s-top select, .s-top input { border: 0; border-radius: 7px; background: var(--b-bench); color: var(--b-ink); font: 400 13px var(--b-ui); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--b-line); }
+.s-top input { width: 150px; font-family: var(--b-mono); font-size: 12.5px; }
+.s-top select:focus, .s-top input:focus { box-shadow: inset 0 0 0 1.5px var(--b-you); }
+.s-top .wbtn { padding: 7px 12px; }
+.s-top .tb[disabled] { opacity: .4; cursor: default; }
+.s-play { min-width: 34px; justify-content: center; font-size: 11px; }
+.s-speed { display: inline-flex; }
+.s-speed .tb { padding: 0 8px; }
+.s-speed .tb[aria-checked="true"] { background: var(--b-sel); color: var(--b-ink); }
+.s-x { margin-left: auto; }
+.s-body { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 8px; height: 168px; }
+.s-ev { margin: 0; padding: 0; list-style: none; overflow-y: auto; border-radius: 8px; box-shadow: inset 0 0 0 1px var(--b-line); }
+.s-ev li { display: grid; grid-template-columns: 22px 62px minmax(0, 1fr); gap: 6px; padding: 5px 8px; font-size: 12.5px; line-height: 1.4; color: var(--b-ink2); cursor: pointer; border-bottom: 1px solid var(--b-line); }
+.s-ev li:hover { background: var(--b-hover); }
+.s-ev li.sel { background: var(--b-sel); color: var(--b-ink); }
+.s-ev li.fail { color: var(--b-broken); font-weight: 500; }
+.s-ev li.ok { color: var(--b-ok); font-weight: 500; }
+.s-ev li.s-hint { display: block; cursor: default; color: var(--b-ink3); border: 0; }
+.s-ev li.s-hint:hover { background: none; }
+.s-t { font: 500 11px var(--b-mono); color: var(--b-ink3); padding-top: 1px; font-variant-numeric: tabular-nums; }
+.s-d { font-weight: 600; color: var(--b-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.s-x2 i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+.s-ev code, .s-pdu code { font: 400 11.5px var(--b-mono); }
+.s-pdu { overflow-y: auto; border-radius: 8px; padding: 6px 10px; box-shadow: inset 0 0 0 1px var(--b-line); font-size: 12px; }
+.s-pdu h4 { margin: 6px 0 2px; font: 600 11.5px var(--b-ui); color: var(--b-ink); }
+.s-pdu dl { margin: 0; display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 1px 8px; }
+.s-pdu dt { color: var(--b-ink3); }
+.s-pdu dd { margin: 0; font-family: var(--b-mono); font-size: 11.5px; color: var(--b-ink2); overflow-wrap: anywhere; }
+.s-pdu p { margin: 4px 0; color: var(--b-ink2); }
+.s-pdu .s-on { font-weight: 500; color: var(--b-ink); }
+.s-hint { color: var(--b-ink3); }
+.s-key { display: flex; gap: 14px; font-size: 11.5px; color: var(--b-ink3); padding: 0 2px; }
+.s-key i { display: inline-block; width: 10px; height: 7px; border-radius: 2px; margin-right: 5px; }
+.s-key i.x { width: 9px; height: 9px; border-radius: 50%; background: var(--b-broken); }
 /* mode="build": the brief becomes the builder, with a device drawer and a
    task writer. mode="try" is you playing your own lab. */
 .btabs, .drawer, .writer, .tb.edit { display: none; }
@@ -205,8 +250,26 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 .btab:hover { color: var(--b-ink); }
 .btab[aria-selected="true"] { background: var(--b-sel); color: var(--b-ink); }
 .drawer, .writer { overflow-y: auto; align-content: start; gap: 6px; padding: 12px 14px 16px; min-height: 0; }
-.drawer h2 { margin: 10px 2px 2px; font: 500 11.5px var(--b-ui); color: var(--b-ink3); }
-.drawer h2:first-child { margin-top: 0; }
+.drawer h2 { margin: 10px 2px 2px; font: 500 11.5px var(--b-ui); color: var(--b-ink3); display: flex; justify-content: space-between; }
+.drawer h2 span { font-variant-numeric: tabular-nums; }
+.dwlist { display: grid; gap: 6px; align-content: start; }
+.dwlist h2:first-child { margin-top: 0; }
+.dwtools { display: grid; gap: 8px; position: sticky; top: -12px; z-index: 1; margin: -12px -14px 0; padding: 12px 14px 8px; background: var(--b-pop); border-bottom: 1px solid var(--b-line); }
+:host([layout="docked"]) .dwtools { background: var(--b-pane); }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { border: 0; background: transparent; color: var(--b-ink2); font: 500 12px var(--b-ui); padding: 4px 9px; border-radius: 99px; cursor: pointer; box-shadow: inset 0 0 0 1px var(--b-line); }
+.chip:hover { color: var(--b-ink); background: var(--b-hover); }
+.chip[aria-checked="true"] { background: var(--b-ink); color: var(--b-bench); box-shadow: none; }
+.dwrow { display: flex; gap: 6px; }
+.dwq { flex: 1; min-width: 0; border: 0; border-radius: 7px; background: var(--b-bench); color: var(--b-ink); font: 400 13px var(--b-ui); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--b-line); }
+.dwq:focus { box-shadow: inset 0 0 0 1.5px var(--b-you); }
+.dwc { border: 0; border-radius: 7px; background: transparent; color: var(--b-ink2); font: 500 12px var(--b-ui); padding: 0 9px; cursor: pointer; box-shadow: inset 0 0 0 1px var(--b-line); }
+.dwc:hover { color: var(--b-ink); }
+.dwc[aria-pressed="true"] { background: var(--b-sel); color: var(--b-ink); box-shadow: none; }
+.drawer .none { padding: 8px 2px; }
+.drawer.compact .dv { grid-template-columns: 24px minmax(0, 1fr); gap: 0 10px; padding: 6px 8px; align-items: center; }
+.drawer.compact .dv svg.gl { width: 24px; height: 24px; grid-row: span 2; fill: none; stroke: var(--b-ink2); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.drawer.compact .dv span { font-size: 11px; }
 .dv { border: 0; background: transparent; color: var(--b-ink); font: inherit; text-align: left; border-radius: 10px; padding: 8px; display: grid; gap: 4px; cursor: grab; touch-action: none; transition: background-color 120ms ease; }
 .dv:hover { background: var(--b-hover); }
 .dv svg { width: 100%; height: 44px; pointer-events: none; }
@@ -238,6 +301,10 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 @media (prefers-reduced-motion: reduce) { * { transition-duration: 1ms !important; animation-duration: 1ms !important; } }
 `;
 
+// One colour per kind of traffic in the simulation.
+const SIMC = { arp: 'oklch(80% 0.14 80)', 'arp-reply': 'oklch(80% 0.14 80)', icmp: 'oklch(68% 0.14 250)', reply: 'oklch(72% 0.15 155)' };
+const SIM_STEP = 900; // ms per step at 1×
+
 const HTML = `
 <svg class="board" aria-label="Lab bench"><defs>${DEFS}</defs>
   <rect class="grid" x="-6000" y="-6000" width="12000" height="12000" fill="url(#b-dots)"/>
@@ -250,9 +317,18 @@ const HTML = `
   <span class="sep"></span>
   <button class="tb" type="button" data-t="labels" aria-pressed="false" title="Show every port name">Labels <span class="k">Alt</span></button>
   <button class="tb" type="button" data-t="fast" aria-pressed="false" title="Run the clock ten times faster, so spanning tree finishes in 3 seconds">Time ×10</button>
+  <button class="tb" type="button" data-t="sim" aria-pressed="false" title="Simulation: watch a ping move, frame by frame">Simulation</button>
   <button class="tb" type="button" data-t="sound" aria-pressed="true">Sound</button>
 </div>
 <div class="panel tray" role="toolbar" aria-label="Cables"></div>
+<section class="panel sim" aria-label="Simulation" hidden>
+  <form class="s-top"><label>From<select class="s-from" aria-label="From"></select></label><label>To<input class="s-to" list="s-ips" placeholder="an IP address" spellcheck="false" autocomplete="off" aria-label="To"></label><datalist id="s-ips"></datalist><button class="wbtn main" type="submit">Send a ping</button>
+    <span class="sep"></span><button class="tb s-play" type="button" aria-label="Play" title="Play or pause" disabled></button><button class="tb s-step" type="button" title="One step" disabled>Step</button>
+    <span class="s-speed" role="radiogroup" aria-label="Speed"><button class="tb" type="button" role="radio" data-sp="0.5" aria-checked="false">½×</button><button class="tb" type="button" role="radio" data-sp="1" aria-checked="true">1×</button><button class="tb" type="button" role="radio" data-sp="2" aria-checked="false">2×</button></span>
+    <button class="tb s-x" type="button" aria-label="Close the simulation" title="Close">✕</button></form>
+  <div class="s-body"><ol class="s-ev" aria-live="polite"></ol><div class="s-pdu"></div></div>
+  <div class="s-key"><span><i style="background:${SIMC.arp}"></i>ARP</span><span><i style="background:${SIMC.icmp}"></i>Echo request</span><span><i style="background:${SIMC.reply}"></i>Echo reply</span><span><i class="x"></i>Where it stops</span></div>
+</section>
 <aside class="panel con" aria-label="Console"><div class="tabs" role="tablist"></div><div class="via"><span class="vtext"></span><button type="button" class="cclose">Close</button></div>
   <div class="cbody"><form class="pcset" hidden><label>IPv4 address<input name="ip" spellcheck="false" autocomplete="off"></label><label>Subnet mask<input name="mask" spellcheck="false" autocomplete="off"></label><label>Default gateway<input name="gw" spellcheck="false" autocomplete="off"></label><button type="submit">Apply</button></form><div class="term"><pre class="out" aria-live="polite"></pre><label class="line"><span class="prompt"></span><input class="cin" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Command"></label></div></div></aside>
 <div class="panel card" role="status"></div>
@@ -281,6 +357,15 @@ const KINDS = {
   reach: { name: 'Can reach an address', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Make ${v.to || '…'} reachable from ${v.device}.` },
 };
 const FIELD = { device: 'Device', iface: 'Interface', port: 'Port', to: 'To', toport: 'Port (any)', ip: 'Address', mask: 'Mask', gateway: 'Gateway', vlans: 'VLANs', up: 'Up' };
+// The drawer's chips: which models each one shows.
+const CHIPS = [
+  ['all', 'All', () => true],
+  ['router', 'Routers', m => m.kind === 'router'],
+  ['switch', 'Switches', m => m.kind === 'switch'],
+  ['l3', 'Layer 3', m => m.kind === 'switch' && !!m.l3],
+  ['hub', 'Hubs', m => m.kind === 'hub'],
+  ['pc', 'End devices', m => m.kind === 'pc'],
+];
 const GROUPS = [['router', 'Routers'], ['switch', 'Switches'], ['hub', 'Hubs'], ['pc', 'End devices'], ['wireless', 'Wireless'], ['wan', 'WAN']];
 // A task naming `from` now names `to`: device ids, and "DEV PORT" ends.
 const renamed = (x, from, to) => typeof x === 'string' ? (x === from ? to : x.startsWith(from + ' ') ? to + x.slice(from.length) : x) : Array.isArray(x) ? x.map(y => renamed(y, from, to)) : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, renamed(v, from, to)])) : x;
@@ -296,12 +381,13 @@ export class OctetBench extends HTMLElement {
     this.ropes = new Map();
     this.hand = null; this.armed = 'straight'; this.speed = 1; this.sound = true; this.labelsOn = false;
     this.tabs = []; this.open = null; this.hover = { dev: null, cable: null };
+    this.dw = { chip: 'all', q: '', compact: false };
     this.raf = 0; this.passedOnce = false; this.hints = false; this.said = new WeakMap();
   }
   connectedCallback() {
     this.board = this.$('svg.board'); this.cam = this.$('.cam'); this.devsG = this.$('.devs'); this.canvas = this.$('canvas'); this.ctx = this.canvas.getContext('2d');
     this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(this);
-    this.wire(); this.wireBuild();
+    this.wire(); this.wireBuild(); this.wireSim();
     if (this.hasAttribute('back')) { const b = this.$('.back'); b.hidden = false; this.$('.back-sep').hidden = false; b.textContent = '← ' + this.getAttribute('back'); }
     if (this.hasAttribute('labels')) this.labelsOn = true;
     if (this.hasAttribute('fast')) this.setSpeed(10);
@@ -333,6 +419,7 @@ export class OctetBench extends HTMLElement {
     this.$('.brief .sum').textContent = lab.summary || '';
     this.$('.brief .sum').hidden = !lab.summary;
     this.renderTray();
+    this.sim = null; if (this.simOn) { this.simFill(); this.simRender(); }
     if (!lab.tasks && !lab.task) lab.task = [];
     this.renderBuild();
     this.passedOnce = !!(state && state.passed);
@@ -348,7 +435,7 @@ export class OctetBench extends HTMLElement {
     const xs = ds.flatMap(d => [d.x - 20, d.x + d.m.w + 20]), ys = ds.flatMap(d => [d.y - 30, d.y + d.m.h + 20]);
     const minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
     const W = this.clientWidth, H = this.clientHeight, dock = this.docked, briefOn = !this.$('.brief').classList.contains('min');
-    const padT = dock ? 64 : 80, padB = 110, padL = dock ? (briefOn ? this.paneW('--b-pane-w') + 24 : 24) : W > 900 ? 360 : 24, padR = 24;
+    const padT = dock ? 64 : 80, padB = this.simOn ? 290 : 110, padL = dock ? (briefOn ? this.paneW('--b-pane-w') + 24 : 24) : W > 900 ? 360 : 24, padR = 24;
     const z = Math.max(0.3, Math.min((W - padL - padR) / (maxx - minx), (H - padT - padB) / (maxy - miny), 1.25));
     this.view = { z, x: padL + (W - padL - padR - (maxx - minx) * z) / 2 - minx * z, y: padT + (H - padT - padB - (maxy - miny) * z) / 2 - miny * z };
     this.applyView();
@@ -481,7 +568,8 @@ export class OctetBench extends HTMLElement {
     const dt = Math.min(100, t - this.last); this.last = t;
     this.net.tick(dt * this.speed);
     if (!this.lastPaint || t - this.lastPaint > 120) { this.paint(); this.lastPaint = t; }
-    this.stepRopes(); this.drawWires();
+    this.simAdvance(dt);
+    this.stepRopes(); this.drawWires(); this.drawSim();
   }
 
   /* ---------- brief and events ---------- */
@@ -510,11 +598,25 @@ export class OctetBench extends HTMLElement {
     const br = this.$('.brief');
     if (!this.building) return;
     br.classList.remove('min');
-    // the drawer: every model, drawn by the same renderer as the board
-    const groups = GROUPS.map(([k, name]) => [name, Object.entries(CATALOG).filter(([, m]) => (m.group || m.kind) === k)]).filter(([, ms]) => ms.length);
-    this.$('.drawer').innerHTML = groups.map(([name, ms]) => `<h2>${name}</h2>` + ms.map(([id, m]) => `<button class="dv" type="button" data-model="${esc(id)}" title="Drag onto the board, or click"><svg viewBox="-4 -4 ${m.w + 8} ${m.h + 8}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg><b>${esc(m.name)}</b><span>${esc(m.platform || m.kind)}</span></button>`).join('')).join('') + '<p>Right-click a device on the board to rename, copy or delete it.</p>';
-    this.$$('.dv').forEach(b => { const m = CATALOG[b.dataset.model]; drawDevice(b.querySelector('svg'), { id: '', hostname: '', m, kind: m.kind }); });
+    // the drawer: a row of chips, a search box and the models grouped by series
+    const dw = this.dw;
+    this.$('.drawer').innerHTML = `<div class="dwtools"><div class="chips" role="radiogroup" aria-label="Kind of device">${CHIPS.map(([k, name]) => `<button class="chip" type="button" role="radio" data-chip="${k}" aria-checked="${k === dw.chip}">${name}</button>`).join('')}</div><div class="dwrow"><input class="dwq" type="search" placeholder="Search, like 2960 or ISR" value="${esc(dw.q)}" spellcheck="false" autocomplete="off" aria-label="Search devices"><button class="dwc" type="button" aria-pressed="${dw.compact}" title="Compact list: small icons instead of faceplates">Compact</button></div></div><div class="dwlist"></div><p>Right-click a device on the board to rename, copy or delete it.</p>`;
+    this.renderDrawer();
     this.renderWriter();
+  }
+  renderDrawer() {
+    const dw = this.dw, list = this.$('.dwlist'); if (!list) return;
+    this.$('.drawer').classList.toggle('compact', dw.compact);
+    const words = dw.q.toLowerCase().split(/\s+/).filter(Boolean);
+    const chip = CHIPS.find(([k]) => k === dw.chip)[2];
+    const hay = (id, m) => [id, m.name, m.platform, m.series, m.kind, m.l3 ? 'layer 3 l3 multilayer' : '', (GROUPS.find(([k]) => k === (m.group || m.kind)) || [])[1]].join(' ').toLowerCase();
+    const models = Object.entries(CATALOG).filter(([id, m]) => chip(m) && words.every(w => hay(id, m).includes(w)));
+    // by series, in catalog order; a model with no series goes under its kind
+    const groups = new Map();
+    for (const [id, m] of models) { const g = m.series || (GROUPS.find(([k]) => k === (m.group || m.kind)) || [, 'Other'])[1]; if (!groups.has(g)) groups.set(g, []); groups.get(g).push([id, m]); }
+    list.innerHTML = groups.size ? [...groups].map(([name, ms]) => `<h2>${esc(name)}<span>${ms.length}</span></h2>` + ms.map(([id, m]) => `<button class="dv" type="button" data-model="${esc(id)}" title="Drag onto the board, or click">${dw.compact ? `<svg class="gl" viewBox="0 0 32 32" aria-hidden="true">${GLYPH[m.glyph] || GLYPH[m.kind] || GLYPH.pc}</svg>` : `<svg viewBox="-4 -4 ${m.w + 8} ${m.h + 8}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>`}<b>${esc(m.name)}</b><span>${esc(m.platform || m.kind)}</span></button>`).join('')).join('')
+      : `<p class="none">Nothing matches “${esc(dw.q)}”${dw.chip !== 'all' ? ' here. Try All' : ''}.</p>`;
+    if (!dw.compact) list.querySelectorAll('.dv').forEach(b => { const m = CATALOG[b.dataset.model]; drawDevice(b.querySelector('svg'), { id: '', hostname: '', m, kind: m.kind }); });
   }
   addFromDrawer(model, cx, cy) {
     const m = CATALOG[model], r = this.getBoundingClientRect(), left = this.docked ? this.paneW('--b-pane-w') : 0;
@@ -587,6 +689,14 @@ export class OctetBench extends HTMLElement {
   }
   wireBuild() {
     this.$('.btabs').addEventListener('click', e => { const b = e.target.closest('[data-btab]'); if (!b) return; this.$('.brief').dataset.tab = b.dataset.btab; this.$$('.btab').forEach(x => x.setAttribute('aria-selected', x === b)); });
+    // the drawer's chips, search and compact switch
+    this.$('.drawer').addEventListener('click', e => {
+      const c = e.target.closest('[data-chip]'), k = e.target.closest('.dwc');
+      if (c) { this.dw.chip = c.dataset.chip; this.$$('[data-chip]').forEach(x => x.setAttribute('aria-checked', x === c)); this.renderDrawer(); }
+      if (k) { this.dw.compact = !this.dw.compact; k.setAttribute('aria-pressed', this.dw.compact); this.renderDrawer(); }
+    });
+    this.$('.drawer').addEventListener('input', e => { if (e.target.classList.contains('dwq')) { this.dw.q = e.target.value; this.renderDrawer(); } });
+    this.$('.drawer').addEventListener('keydown', e => { if (e.target.classList.contains('dwq') && e.key === 'Enter') { const first = this.$('.dwlist .dv'); if (first) this.addFromDrawer(first.dataset.model); } });
     // the drawer: click to add, or drag onto the board
     this.$('.drawer').addEventListener('pointerdown', e => {
       const b = e.target.closest('.dv'); if (!b || e.button !== 0) return;
@@ -662,9 +772,144 @@ export class OctetBench extends HTMLElement {
     this.load(this.lab, { state: this.built });
   }
 
+  /* ---------- simulation ---------- */
+  // A ping, slowed down: envelopes travel the real cables, one step at a
+  // time, and a red ✕ marks where it stops and why. The engine works out the
+  // whole trip first (net.simulate); this only plays it back.
+  simToggle(on = !this.simOn) {
+    this.simOn = on;
+    this.$('[data-t="sim"]').setAttribute('aria-pressed', on);
+    this.$('.sim').hidden = !on; this.$('.tray').hidden = on;
+    this.classList.toggle('simming', on);
+    requestAnimationFrame(() => this.fit());
+    if (on) { this.simFill(); this.simRender(); setTimeout(() => this.$('.s-to').focus(), 30); } else { this.simCommit(); this.sim = null; }
+  }
+  simFill() {
+    const addrs = this.net.addresses(), from = this.$('.s-from'), keep = from.value;
+    const senders = this.net.devices.filter(d => this.net.addresses().some(a => a.dev === d.id));
+    from.innerHTML = senders.map(d => `<option value="${esc(d.id)}">${esc(d.hostname)}</option>`).join('') || '<option value="">No device has an address yet</option>';
+    if (senders.some(d => d.id === keep)) from.value = keep;
+    else { const pc = senders.find(d => d.kind === 'pc'); if (pc) from.value = pc.id; }
+    this.$('#s-ips').innerHTML = addrs.map(a => `<option value="${esc(a.ip)}">${esc(this.net.device(a.dev).hostname)} ${esc(short(a.n))}</option>`).join('');
+  }
+  simSend(from, to) {
+    this.simCommit();
+    if (!from) return this.toast('Give a device an IP address first: it needs one to send a ping.');
+    if (!to) return this.toast('Type the address to ping, or pick one from the list.');
+    const tr = this.net.simulate(from, to);
+    this.sim = { tr, from, to, t: 0, playing: true, sel: -1, shown: -1, done: false, speed: this.sim ? this.sim.speed : (this.simSpeed || 1) };
+    this.$('.s-play').disabled = this.$('.s-step').disabled = false;
+    this.simRender();
+  }
+  // The real ping happens once the trip has been shown: ARP and MAC tables fill, tasks see it.
+  simCommit() { const s = this.sim; if (!s || s.done) return; s.done = true; this.net.ping(s.from, s.to); }
+  simAdvance(dt) {
+    const s = this.sim; if (!s || !s.playing) return;
+    s.t = Math.min(s.tr.steps, s.t + dt * s.speed / SIM_STEP);
+    if (s.t >= s.tr.steps) { s.playing = false; this.simCommit(); }
+    if (Math.floor(s.t) !== s.shown || !s.playing) this.simRender();
+  }
+  simStep() { const s = this.sim; if (!s) return; s.playing = false; s.t = Math.min(s.tr.steps, Math.floor(s.t + 1e-6) + 1); if (s.t >= s.tr.steps) this.simCommit(); this.simRender(); }
+  simRender() {
+    const s = this.sim, list = this.$('.s-ev'), play = this.$('.s-play');
+    play.textContent = s && s.playing ? '❚❚' : '▶'; play.setAttribute('aria-label', s && s.playing ? 'Pause' : 'Play');
+    if (!s) { list.innerHTML = '<li class="s-hint">Choose who sends and the address to ping, then Send. Each step moves every frame one cable.</li>'; this.$('.s-pdu').innerHTML = ''; return; }
+    const now = Math.floor(s.t + 1e-6); s.shown = now;
+    const evs = s.tr.events.map((e, i) => ({ ...e, i })).filter(e => e.step <= now).sort((a, b) => a.step - b.step || a.i - b.i);
+    list.innerHTML = evs.map(e => `<li class="${e.kind === 'fail' ? 'fail' : e.kind === 'done' ? 'ok' : ''}${e.i === s.sel ? ' sel' : ''}" data-ev="${e.i}"><span class="s-t">${e.step}</span><span class="s-d">${esc(this.net.device(e.dev) ? this.net.device(e.dev).hostname : e.dev)}</span><span class="s-x2"><i style="background:${e.kind === 'fail' ? 'var(--b-broken)' : SIMC[e.kind] || 'var(--b-ink3)'}"></i>${md(e.text)}</span></li>`).join('') || '<li class="s-hint">Sending…</li>';
+    const sel = list.querySelector('.sel') || list.lastElementChild; if (sel) sel.scrollIntoView({ block: 'nearest' });
+    this.simPdu();
+  }
+  simPdu() {
+    const s = this.sim, box = this.$('.s-pdu');
+    const ev = s.sel >= 0 ? s.tr.events[s.sel] : null;
+    let f = ev && ev.frame >= 0 ? s.tr.frames[ev.frame] : null;
+    if (!f && ev) f = s.tr.frames.find(x => x.step === ev.step && (x.from.dev === ev.dev || x.to.dev === ev.dev)) || s.tr.frames.find(x => x.step === ev.step);
+    if (!f) { const now = Math.min(Math.floor(s.t), s.tr.steps - 1); f = s.tr.frames.find(x => x.step === now); }
+    if (!f) { box.innerHTML = s.tr.fail ? `<h4>Stopped</h4><p>${md(s.tr.fail.reason)}</p>` : '<p class="s-hint">Click a step to open its frame.</p>'; return; }
+    const p = f.pdu, row = (k, v) => `<dt>${k}</dt><dd>${esc(v)}</dd>`, dn = x => `${this.net.device(x.dev).hostname} ${short(x.n)}`;
+    let h = `<p class="s-on">${esc(dn(f.from))} → ${esc(dn(f.to))}</p><h4>Ethernet II</h4><dl>${row('Destination', p.eth.dst + (p.eth.dst === 'ffff.ffff.ffff' ? ' (broadcast)' : ''))}${row('Source', p.eth.src)}${row('Type', p.eth.type === 'ARP' ? 'ARP (0x0806)' : 'IPv4 (0x0800)')}</dl>`;
+    h += p.eth.vlan ? `<h4>802.1Q tag</h4><dl>${row('VLAN', p.eth.vlan)}${row('Why', 'this cable is a trunk')}</dl>` : '';
+    if (p.arp) h += `<h4>ARP ${p.arp.op}</h4><dl>${row('Sender', `${p.arp.senderIp}, ${p.arp.senderMac}`)}${row('Target', `${p.arp.targetIp}, ${p.arp.op === 'request' ? 'unknown' : p.arp.targetMac}`)}</dl>`;
+    if (p.ip) h += `<h4>IPv4</h4><dl>${row('Source', p.ip.src)}${row('Destination', p.ip.dst)}${row('TTL', p.ip.ttl)}${row('Protocol', 'ICMP (1)')}</dl><h4>ICMP</h4><dl>${row('Type', p.icmp.type)}</dl>`;
+    box.innerHTML = h;
+  }
+  // Where a frame is now: along the cable's rope, or straight when zoomed out.
+  simPos(f, k) {
+    const c = this.net.cables.find(x => x.id === f.cable); if (!c || !c.a || !c.b) return null;
+    const fwd = c.a.dev === f.from.dev && this.net.portOf(c.a).iface === f.from.n;
+    if (this.view.z < 0.55) {
+      const A = this.net.device(f.from.dev), B = this.net.device(f.to.dev);
+      const a = { x: A.x + A.m.w / 2, y: A.y + A.m.h / 2 }, b = { x: B.x + B.m.w / 2, y: B.y + B.m.h / 2 };
+      return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+    }
+    const p = this.rope(c).pts, seg = []; let total = 0;
+    for (let i = 0; i < N - 1; i++) { const l = Math.hypot(p[i + 1].x - p[i].x, p[i + 1].y - p[i].y); seg.push(l); total += l; }
+    let want = (fwd ? k : 1 - k) * total;
+    for (let i = 0; i < N - 1; i++) { if (want <= seg[i] || i === N - 2) { const u = seg[i] ? Math.min(1, want / seg[i]) : 0; return { x: p[i].x + (p[i + 1].x - p[i].x) * u, y: p[i].y + (p[i + 1].y - p[i].y) * u }; } want -= seg[i]; }
+    return null;
+  }
+  drawSim() {
+    const s = this.sim; if (!s) return;
+    const ctx = this.ctx, z = this.view.z, k = Math.max(1, 0.9 / z), now = Math.floor(s.t + 1e-6), u = s.t - now;
+    if (s.t < s.tr.steps) for (const f of s.tr.frames) {
+      if (f.step !== now) continue;
+      const e = 1 - Math.pow(1 - u, 2.2), pos = this.simPos(f, s.playing ? e : Math.max(0.5, e)); if (!pos) continue;
+      const w = 18 * k, h = 12 * k, x = pos.x - w / 2, y = pos.y - h / 2 - 10 * k;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 6 * k; ctx.shadowOffsetY = 2 * k;
+      ctx.fillStyle = SIMC[f.kind] || '#999'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, 2.5 * k); else ctx.rect(x, y, w, h); ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 1.2 * k; ctx.beginPath(); ctx.moveTo(x + 2 * k, y + 2 * k); ctx.lineTo(x + w / 2, y + h * 0.58); ctx.lineTo(x + w - 2 * k, y + 2 * k); ctx.stroke();
+      if (f.pdu.eth.vlan) { ctx.fillStyle = 'rgba(0,0,0,.72)'; ctx.font = `600 ${7.5 * k}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText(String(f.pdu.eth.vlan), x + w / 2, y + h + 8 * k); }
+      ctx.restore();
+    }
+    const fl = s.tr.fail;
+    if (fl && s.t >= fl.step + (s.tr.frames.some(f => f.step === fl.step) ? 0.999 : 0)) {
+      let pos = null;
+      const c = fl.cable && this.net.cables.find(x => x.id === fl.cable);
+      if (c && c.a && c.b) { const p = this.rope(c).pts; pos = p[Math.floor(N / 2)]; }
+      else { const d = this.net.device(fl.dev); if (d) pos = { x: d.x + d.m.w / 2, y: d.y + d.m.h / 2 }; }
+      if (pos) {
+        const r = 11 * k; ctx.save();
+        ctx.fillStyle = getComputedStyle(this).getPropertyValue('--b-broken') || 'red';
+        ctx.beginPath(); ctx.arc(pos.x, pos.y, r, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.2 * k; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(pos.x - r * .42, pos.y - r * .42); ctx.lineTo(pos.x + r * .42, pos.y + r * .42); ctx.moveTo(pos.x + r * .42, pos.y - r * .42); ctx.lineTo(pos.x - r * .42, pos.y + r * .42); ctx.stroke();
+        const text = fl.reason.length > 70 ? fl.reason.slice(0, fl.reason.lastIndexOf(' ', 68)) + '…' : fl.reason;
+        ctx.font = `500 ${11.5 * k}px ${getComputedStyle(this).getPropertyValue('--b-ui') || 'sans-serif'}`; ctx.textAlign = 'left';
+        const tw = ctx.measureText(text.replace(/`/g, '')).width, bx = pos.x + r + 6 * k, by = pos.y - 11 * k;
+        ctx.fillStyle = getComputedStyle(this).getPropertyValue('--b-pop') || '#fff'; ctx.strokeStyle = ctx.fillStyle;
+        ctx.globalAlpha = .94; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, tw + 16 * k, 22 * k, 6 * k); else ctx.rect(bx, by, tw + 16 * k, 22 * k); ctx.fill(); ctx.globalAlpha = 1;
+        ctx.fillStyle = getComputedStyle(this).getPropertyValue('--b-broken') || 'red'; ctx.fillText(text.replace(/`/g, ''), bx + 8 * k, by + 15 * k);
+        ctx.restore();
+      }
+    }
+  }
+  wireSim() {
+    const p = this.$('.sim');
+    p.querySelector('.s-top').addEventListener('submit', e => { e.preventDefault(); this.simSend(this.$('.s-from').value, this.$('.s-to').value.trim()); });
+    this.$('.s-from').addEventListener('focus', () => this.simFill());
+    this.$('.s-to').addEventListener('focus', () => this.simFill());
+    p.addEventListener('click', e => {
+      const b = e.target.closest('button, [data-ev]'); if (!b) return;
+      const s = this.sim;
+      if (b.classList.contains('s-x')) return this.simToggle(false);
+      if (b.classList.contains('s-play') && s) { if (s.t >= s.tr.steps) { s.t = 0; s.sel = -1; } s.playing = !s.playing; this.simRender(); }
+      else if (b.classList.contains('s-step') && s) this.simStep();
+      else if (b.dataset.sp) { this.simSpeed = +b.dataset.sp; if (s) s.speed = this.simSpeed; p.querySelectorAll('[data-sp]').forEach(x => x.setAttribute('aria-checked', x === b)); }
+      else if (b.dataset.ev !== undefined && s) { const ev = s.tr.events[+b.dataset.ev]; s.sel = +b.dataset.ev; s.playing = false; s.t = Math.min(s.tr.steps, ev.step + (ev.frame >= 0 ? 0.5 : 0)); this.simRender(); }
+    });
+    p.addEventListener('keydown', e => e.stopPropagation()); // typing an address isn't a bench shortcut
+  }
+
   /* ---------- tray ---------- */
   renderTray() {
-    this.$('.tray').innerHTML = Object.entries(CABLES).map(([k, c]) => `<button class="cable" type="button" data-cable="${k}" aria-pressed="${k === this.armed}"><svg viewBox="0 0 34 28" aria-hidden="true"><path d="M3 22c6-16 18 6 22-10" fill="none" stroke="${c.color}" stroke-width="${Math.min(4, c.w)}" stroke-linecap="round"/><rect x="${k === 'serial' ? 22 : 23}" y="3" width="${k === 'serial' ? 11 : 8}" height="${k === 'fiber' ? 7 : 9}" rx="1.4" fill="${['straight', 'cross', 'console'].includes(k) ? 'rgba(214,226,240,.55)' : k === 'fiber' ? c.color : 'oklch(35% 0.01 260)'}"/></svg><b>${c.name}</b><span>${c.hint}</span></button>`).join('');
+    const icon = (k, c) => `<svg viewBox="0 0 34 28" aria-hidden="true"><path d="M3 22c6-16 18 6 22-10" fill="none" stroke="${c.color}" stroke-width="${Math.min(4, c.w)}" stroke-linecap="round"/><rect x="${k === 'serial' ? 22 : 23}" y="3" width="${k === 'serial' ? 11 : 8}" height="${k === 'fiber' ? 7 : 9}" rx="1.4" fill="${['straight', 'cross', 'console'].includes(k) ? 'rgba(214,226,240,.55)' : k === 'fiber' ? c.color : 'oklch(35% 0.01 260)'}"/></svg>`;
+    // one section per kind of cable: Copper, Fiber, Console, Serial
+    const groups = new Map();
+    for (const [k, c] of Object.entries(CABLES)) { const g = c.group || 'Other'; if (!groups.has(g)) groups.set(g, []); groups.get(g).push([k, c]); }
+    this.$('.tray').innerHTML = [...groups].map(([g, cs]) => `<div class="tgrp" role="group" aria-label="${esc(g)}"><span class="tg">${esc(g)}</span><div>${cs.map(([k, c]) => `<button class="cable" type="button" data-cable="${k}" aria-pressed="${k === this.armed}" title="${esc(c.name)}: ${esc(c.hint)}">${icon(k, c)}<b>${esc(c.short || c.name)}</b></button>`).join('')}</div></div>`).join('<span class="tsep"></span>');
   }
   arm(k) { this.armed = k; this.$$('.cable').forEach(x => x.setAttribute('aria-pressed', x.dataset.cable === k)); }
 
@@ -786,6 +1031,7 @@ export class OctetBench extends HTMLElement {
       else if (t === 'labels') { this.labelsOn = !this.labelsOn; b.setAttribute('aria-pressed', this.labelsOn); this.applyView(); }
       else if (t === 'fast') { this.setSpeed(this.speed === 1 ? 10 : 1); this.toast(this.speed === 1 ? 'Real time. Spanning tree takes 30 seconds again.' : 'Ten times faster. Spanning tree now finishes in 3 seconds.'); }
       else if (t === 'sound') { this.sound = !this.sound; b.setAttribute('aria-pressed', this.sound); }
+      else if (t === 'sim') this.simToggle();
       else if (t === 'brief') { const br = this.$('.brief'); br.classList.toggle('min'); b.setAttribute('aria-pressed', !br.classList.contains('min')); }
     });
     this.$('.tray').addEventListener('click', e => { const b = e.target.closest('[data-cable]'); if (!b) return; this.arm(b.dataset.cable); this.toast(`${CABLES[this.armed].name}: drag from a port to another port, or click one port and then the other.`); });

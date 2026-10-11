@@ -56,6 +56,7 @@
   const show = (v, key) => {
     cur = v;
     if (v !== 'reading' && lb.classList.contains('focus')) setFocus(false);
+    if (v !== 'reading') lb.dispatchEvent(new Event('octet-leave'));
     if (v === 'library') where('Library');
     else if (v === 'review') where('Review');
     $$('.view').forEach(x => x.classList.toggle('on', x.dataset.view === v));
@@ -133,6 +134,7 @@
     $('#edScroll').scrollTop = 0;
     if (block) { const el = $(`#course [data-b="${block}"]`); if (el) el.scrollIntoView({ block: 'center' }); }
     api('set_ribbon', { page: id, block: block || 0 }).catch(() => {});
+    lb.dispatchEvent(new CustomEvent('octet-page', { detail: { id } }));
   });
 
   const renderDoc = (index, count) => {
@@ -342,8 +344,10 @@
         <div id="bkOut"></div>
       </section>
       <section class="set-sec"><h2>Books on your shelf</h2><p class="set-p">Any book can grow. Copy it as text, give it to an assistant with your notes or a newer PDF, and paste the answer above. Your chapters replace the same chapters; everything else stays.</p><div class="mybooks">${LIB.books.map(b => `<div class="mybook" data-id="${esc(b.id)}">${miniCover(b)}<div class="mb-t"><b>${esc(b.title)}</b><span>${b.yours ? 'Added by you' : b.changed ? 'Ships with Octet, with your changes' : 'Ships with Octet'}. ${b.pages} page${b.pages === 1 ? '' : 's'}${b.read ? `, ${b.read} read` : ''}.</span></div><div class="row"><button class="btn ghost" type="button" data-set="recover">Change the cover</button><button class="btn ghost" type="button" data-set="export">Copy as text</button>${b.yours ? '<button class="btn ghost danger" type="button" data-set="remove">Remove</button>' : b.changed ? '<button class="btn ghost danger" type="button" data-set="remove">Undo my changes</button>' : ''}</div>${recover === b.id ? `<div class="mb-pick">${coverPicker(b.cloth, b.pattern)}</div>` : ''}</div>`).join('')}</div>${(LIB.broken || []).length ? `<div class="bk-res bad"><b>Some of your books couldn't be read</b><ul>${LIB.broken.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>` : ''}</section>
+      <section class="set-sec" id="voiceSet"></section>
       <section class="set-sec"><h2>Where your things are</h2><dl class="where"><dt>Highlights, notes, review and labs</dt><dd>${esc(about.data)}</dd><dt>Books you added</dt><dd>${esc(about.books)}</dd><dt>Version</dt><dd>Octet ${esc(about.version)}</dd></dl></section>`;
     renderCheck();
+    if (window.OCTET_READER) window.OCTET_READER.settings($('#voiceSet'));
   };
   let ABOUT = null;
   const openSettings = safe(async () => { ABOUT = ABOUT || await api('about'); renderSettings(ABOUT); show('settings'); where('Settings'); });

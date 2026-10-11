@@ -268,4 +268,73 @@ const last = (net, dev) => net.session(dev).lines.slice(-1)[0].text;
   run(l2, 'S', ['en', 'conf t', 'ip routing']);
   assert.match(last(l2, 'S'), /Invalid input/, 'a 2960 has no ip routing');
 }
+
+// Simulation: a ping frame by frame, and where it stops when it can't.
+{
+  const stick = () => createNetwork({
+    booted: true,
+    devices: [
+      { id: 'R1', model: 'ISR4321', config: 'interface g0/0/1\n no shutdown\ninterface g0/0/1.10\n encapsulation dot1q 10\n ip address 192.168.10.1 255.255.255.0\ninterface g0/0/1.20\n encapsulation dot1q 20\n ip address 192.168.20.1 255.255.255.0' },
+      { id: 'S1', model: 'WS-C2960+24TC-L', config: 'vlan 10\nvlan 20\ninterface f0/1\n switchport access vlan 10\n spanning-tree portfast\ninterface f0/2\n switchport access vlan 20\n spanning-tree portfast\ninterface g0/1\n switchport mode trunk' },
+      { id: 'A', model: 'PC', ip: '192.168.10.10', mask: '255.255.255.0', gateway: '192.168.10.1' },
+      { id: 'B', model: 'PC', ip: '192.168.20.10', mask: '255.255.255.0', gateway: '192.168.20.1' },
+    ],
+    cables: [{ a: 'A NIC', b: 'S1 F0/1' }, { a: 'B NIC', b: 'S1 F0/2' }, { a: 'R1 G0/0/1', b: 'S1 G0/1' }],
+  });
+  let net = stick();
+  const sim = net.simulate('A', '192.168.20.10');
+  assert.equal(sim.ok, true, sim.fail && sim.fail.reason);
+  const kinds = [...new Set(sim.frames.map(f => f.kind))];
+  assert.deepEqual(kinds, ['arp', 'arp-reply', 'icmp', 'reply'], 'ARP, its reply, the request and the echo reply');
+  const tagged = sim.frames.find(f => f.kind === 'icmp' && f.from.dev === 'S1');
+  assert.equal(tagged.pdu.eth.vlan, 10, 'tagged for VLAN 10 on the trunk to the router');
+  assert.equal(sim.frames.find(f => f.kind === 'icmp' && f.from.dev === 'R1').pdu.eth.vlan, 20, 'and back down in VLAN 20');
+  assert.equal(sim.frames.find(f => f.kind === 'icmp' && f.to.dev === 'B').pdu.ip.ttl, 127, 'the router took one off the TTL');
+  assert.ok(sim.events.some(e => /floods the broadcast/.test(e.text)));
+  assert.deepEqual(net.device('A').arp, {}, 'simulating changes nothing');
+  net.ping('A', '192.168.20.10');
+  assert.ok(net.device('A').arp['192.168.10.1'], 'the real ping fills the ARP table');
+  assert.ok(!net.simulate('A', '192.168.20.10').frames.some(f => f.kind === 'arp' && f.from.dev === 'A'), 'and the next one needs no ARP from A');
+
+  const why = (net, from, to) => { const s = net.simulate(from, to); assert.equal(s.ok, false); return s.fail.reason; };
+  net = stick(); run(net, 'S1', ['en', 'conf t', 'int g0/1', 'switchport trunk allowed vlan 20', 'end']);
+  assert.match(why(net, 'A', '192.168.20.10'), /VLAN 10 isn't allowed on the trunk S1 Gi0\/1/);
+  run(net, 'S1', ['show interfaces trunk']);
+  assert.match(last(net, 'S1'), /Gi0\/1\s+20\n/);
+  run(net, 'S1', ['conf t', 'int g0/1', 'switchport trunk allowed vlan add 10', 'end']);
+  assert.equal(net.simulate('A', '192.168.20.10').ok, true, 'allowed again');
+
+  net = stick(); run(net, 'S1', ['en', 'conf t', 'int f0/1', 'switchport access vlan 20', 'end']);
+  assert.match(why(net, 'A', '192.168.20.10'), /VLAN|subinterface/);
+  net = stick(); run(net, 'R1', ['en', 'conf t', 'no ip route 0.0.0.0 0.0.0.0 1.1.1.1', 'end']);
+  assert.match(why(net, 'A', '10.9.9.9'), /R1 has no route to 10\.9\.9\.9/);
+  net = stick(); net.setPC('A', { ip: '192.168.10.10', mask: '255.255.255.0' });
+  assert.match(why(net, 'A', '192.168.20.10'), /no default gateway/);
+  net = stick(); run(net, 'R1', ['en', 'conf t', 'int g0/0/1', 'shutdown', 'end']);
+  assert.match(why(net, 'A', '192.168.20.10'), /R1 Gi0\/0\/1 is shut down/);
+  net = stick(); run(net, 'R1', ['en', 'conf t', 'int g0/0/1.20', 'encapsulation dot1q 30', 'end']);
+  assert.match(why(net, 'B', '192.168.20.1'), /VLAN 20.*dot1Q 30|no subinterface/);
+
+  // fiber with the wrong transceiver: no light, no link
+  const fib = createNetwork({ booted: true, devices: [
+    { id: 'S1', model: 'WS-C2960+24TC-L', sfp: { 'G0/1s': 'GLC-SX-MMD' }, config: 'interface f0/1\n spanning-tree portfast' },
+    { id: 'S2', model: 'WS-C2960+24TC-L', sfp: { 'G0/1s': 'GLC-LH-SMD' }, config: 'interface f0/1\n spanning-tree portfast' },
+    { id: 'A', model: 'PC', ip: '10.0.0.1', mask: '255.255.255.0' }, { id: 'B', model: 'PC', ip: '10.0.0.2', mask: '255.255.255.0' },
+  ], cables: [{ a: 'A NIC', b: 'S1 F0/1' }, { a: 'B NIC', b: 'S2 F0/1' }, { type: 'fiber', a: 'S1 G0/1s', b: 'S2 G0/1s' }] });
+  assert.match(why(fib, 'A', '10.0.0.2'), /wrong transceiver/);
+
+  // a hub repeats everything, and spanning tree that hasn't finished stops frames
+  const hub = createNetwork({ devices: [
+    { id: 'H', model: 'Hub' }, { id: 'S', model: 'WS-C2960-24TT-L' },
+    { id: 'A', model: 'PC', ip: '10.0.0.1', mask: '255.255.255.0' }, { id: 'B', model: 'PC', ip: '10.0.0.2', mask: '255.255.255.0' }, { id: 'C', model: 'PC', ip: '10.0.0.3', mask: '255.255.255.0' },
+  ], cables: [{ a: 'A NIC', b: 'H P0' }, { a: 'B NIC', b: 'H P1' }, { a: 'H P2', b: 'S F0/1' }, { a: 'C NIC', b: 'S F0/2' }] });
+  hub.tick(3000);
+  const hs = hub.simulate('A', '10.0.0.2');
+  assert.equal(hs.ok, true);
+  assert.ok(!hs.frames.some(f => f.to.dev === 'S'), 'the switch port is still listening: nothing crosses it');
+  assert.match(why(hub, 'A', '10.0.0.3'), /Spanning tree is still (listening|learning) on S Fa0\/1/);
+  hub.tick(31000);
+  assert.ok(hub.simulate('A', '10.0.0.2').frames.some(f => f.kind === 'arp' && f.to.dev === 'S'), 'then the hub repeats the broadcast toward the switch too');
+  assert.equal(hub.simulate('A', '10.0.0.3').ok, true);
+}
 console.log('engine: all checks passed');

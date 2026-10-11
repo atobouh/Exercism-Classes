@@ -5,6 +5,22 @@ use octet_api::App;
 use std::path::{Path, PathBuf};
 use tiny_http::{Header, Response, Server};
 
+/// The same policy the desktop window gets (see app/src-tauri/tauri.conf.json):
+/// cross-origin isolation lets the reading voice use every processor core.
+const HEADERS: [(&str, &str); 2] = [("Cross-Origin-Opener-Policy", "same-origin"), ("Cross-Origin-Embedder-Policy", "require-corp")];
+const CSP: &str = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; img-src 'self' data:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://cdn.jsdelivr.net";
+
+fn with_headers<R: std::io::Read>(mut r: Response<R>, page: bool) -> Response<R> {
+    for (k, v) in HEADERS {
+        r.add_header(Header::from_bytes(k, v).unwrap());
+    }
+    // the app's page gets the app's content policy; other pages (the bench demo) keep their inline scripts
+    if page {
+        r.add_header(Header::from_bytes("Content-Security-Policy", CSP).unwrap());
+    }
+    r
+}
+
 fn main() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
     let ui = root.join("app/ui");
@@ -38,12 +54,14 @@ fn main() {
                 let ct = match path.extension().and_then(|e| e.to_str()) {
                     Some("html") => "text/html; charset=utf-8",
                     Some("css") => "text/css",
-                    Some("js") => "text/javascript",
+                    Some("js") | Some("mjs") => "text/javascript",
+                    Some("wasm") => "application/wasm",
+                    Some("woff2") => "font/woff2",
                     Some("svg") => "image/svg+xml",
                     Some("png") => "image/png",
                     _ => "application/octet-stream",
                 };
-                let _ = req.respond(Response::from_data(bytes).with_header(Header::from_bytes("Content-Type", ct).unwrap()));
+                let _ = req.respond(with_headers(Response::from_data(bytes).with_header(Header::from_bytes("Content-Type", ct).unwrap()), rel == "index.html"));
             }
             Err(_) => {
                 let _ = req.respond(Response::from_string("not found").with_status_code(404));

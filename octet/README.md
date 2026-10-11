@@ -1,6 +1,6 @@
 # Octet
 
-A personal, offline CCNA desk: the courses as books on your shelf, a calm reader where you highlight and write your own notes, collections of what you keep, spaced review, and labs on a live network map backed by a real simulator.
+A personal, offline CCNA desk: the courses as books on your shelf, a calm reader where you highlight and write your own notes and that can read each page aloud, collections of what you keep, spaced review, and labs on a live network map backed by a real simulator, with a simulation mode that shows every frame of a ping.
 
 ## Run it on Windows
 
@@ -43,6 +43,12 @@ cargo run -p octet-api --features dev-server
 
 Then open <http://127.0.0.1:4173>. Data goes to `target/dev-data/octet.json`.
 
+## Reading aloud
+
+Press **Listen** above any page. Octet reads from where you are, highlights the sentence and keeps it in view. At a diagram it reads the caption and waits a few seconds (or until you press play); at a question it waits for your answer and reads what Octet says back. The bar at the bottom has play and pause, a sentence back or ahead, the speed (0.75× to 1.5×) and the voice.
+
+The natural voice is [Kokoro](https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX), run on the processor in a background worker. It isn't in the installer: the first time you press Listen, Octet offers to download it once (about 115 MB), and from then on it works offline. Every sentence it has said is kept, so a page you've heard plays instantly. Until then, or on a slow computer, the system's own voice reads instead. Settings has the voice, the speed, how long to stop at diagrams, and a button to remove the download. See `app/ui/voice/README.md`, including the one license to watch: the phonemizer inside is GPL.
+
 ## How it fits together
 
 | Part | What it does |
@@ -51,7 +57,9 @@ Then open <http://127.0.0.1:4173>. Data goes to `target/dev-data/octet.json`.
 | `crates/octet-core` | The library. Loads books and pages from `content/`, keeps everything that is yours in one JSON file, and schedules review. |
 | `crates/octet-api` | Every command the interface calls, behind one entry point. Used by the desktop app and the dev server. |
 | `app/src-tauri` | The desktop shell. |
-| `app/ui` | The interface: plain HTML, CSS and JavaScript, with the fonts bundled so nothing loads from the internet. |
+| `app/ui` | The interface: plain HTML, CSS and JavaScript, with the fonts bundled so nothing loads from the internet. `reader.js` reads pages aloud. |
+| `app/ui/voice` | The reading voice: Kokoro in a worker, downloaded on first use. |
+| `app/ui/bench` | The lab bench, a web component any page can use: devices, cables, the console, and the simulation mode. See its README. |
 | `content/` | Books, pages and labs. |
 
 The visual design is recorded in `../docs/library/DESIGN.md`.
@@ -98,7 +106,7 @@ The bench engine and the open lab have their own:
 ```
 node app/ui/bench/test/engine.test.mjs          # the network engine, no browser
 cargo build -p octet-api --features dev-server
-node app/test/labs.e2e.mjs                      # build a lab, ping, export, open it again (needs Playwright)
+node app/test/labs.e2e.mjs                      # the reader, the drawer, build a lab, ping, simulate, export, open it again (needs Playwright)
 ```
 
 Labs you build in the Labs view are saved as `labs/<id>.json` next to your data file, and shared as `.octet-lab` files.
