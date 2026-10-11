@@ -60,6 +60,10 @@ try {
   await bench.locator('[data-chip="all"]').click();
   assert.equal(await bench.locator('.dv').count(), 4, 'four Catalyst 2960s');
   await bench.locator('.dwq').fill('');
+  await bench.locator('[data-chip="wireless"]').click();
+  assert.ok(await bench.locator('.dv[data-model="C9120AXI"]').count() === 1, 'an access point under Wireless');
+  await bench.locator('[data-chip="all"]').click();
+  await bench.locator('.dwq').fill('');
   await bench.locator('.dwc').click();
   assert.equal(await bench.locator('.drawer.compact .dv svg.gl').count() > 10, true, 'compact: small icons');
   await bench.locator('.dwc').click();
@@ -80,7 +84,7 @@ try {
     await page.waitForFunction(() => document.querySelector('#bench').shadowRoot.activeElement?.classList.contains('cin'));
     await bench.locator('.pcset input[name="ip"]').fill(ip);
     await bench.locator('.pcset input[name="mask"]').fill('255.255.255.0');
-    await bench.locator('.pcset button').click();
+    await bench.locator('.pcset button[type="submit"]').click();
     assert.equal(await page.evaluate(id => document.querySelector('#bench').net.device(id).mask, pc), '255.255.255.0');
     await bench.locator('.cclose').click();
   }

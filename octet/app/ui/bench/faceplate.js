@@ -38,6 +38,12 @@ function usbPort(g, p) {
   el('rect', { x: p.x, y: p.y, width: p.w, height: p.h, rx: p.type === 'usb' ? .8 : 1.6, fill: 'var(--b-recess)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, g);
   el('rect', { x: p.x + 2, y: p.y + (p.type === 'usb' ? 2 : p.h / 2 - 1), width: p.w - 4, height: p.type === 'usb' ? 2.4 : 2, fill: 'var(--b-metal-hi)' }, g);
 }
+// Wi-Fi: no socket, just the waves. Nothing plugs in; it joins by SSID.
+function radio(g, p) {
+  const cx = p.x + p.w / 2, cy = p.y + p.h * 0.75;
+  el('circle', { cx, cy, r: 1.8, fill: 'var(--b-silk)' }, g);
+  for (const r of [5, 9]) el('path', { d: `M${cx - r * 0.8} ${cy - r * 0.6}A${r} ${r} 0 0 1 ${cx + r * 0.8} ${cy - r * 0.6}`, fill: 'none', stroke: 'var(--b-silk)', 'stroke-width': 1.2, 'stroke-linecap': 'round' }, g);
+}
 // A transceiver in a cage: its bale handle shows, coloured like the real
 // ones (black for SX, blue for LX).
 function transceiver(g, p, t) {
@@ -94,6 +100,28 @@ const DRAW = {
     d.screen = text(face, { x: 16, y: 40, class: 'silk name' }, d.id);
     d.screenIp = text(face, { x: 16, y: 54, class: 'silk' }, '');
   },
+  // an access point: a rounded puck, its status light in the middle of the lid
+  ap(face, m, d) {
+    el('rect', { x: 10, y: 6, width: m.w - 20, height: 40, rx: 20, fill: 'oklch(93% 0.004 250)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, face);
+    text(face, { x: m.w - 52, y: 42, class: 'silk', fill: 'oklch(45% 0.01 250)' }, 'CISCO');
+    d.screen = text(face, { x: 60, y: 30, class: 'silk name', fill: 'oklch(30% 0.01 250)' }, '');
+    d.screenIp = text(face, { x: 60, y: 42, class: 'silk', fill: 'oklch(40% 0.01 250)' }, '');
+  },
+  appliance(face, m, d) {
+    text(face, { x: 22, y: 22, class: 'silk big' }, m.label);
+    d.screenIp = text(face, { x: 22, y: 50, class: 'silk' }, '');
+  },
+  phone(face, m, d) {
+    el('rect', { x: 12, y: 8, width: 90, height: 40, rx: 4, fill: 'var(--b-recess)' }, face);
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) el('rect', { x: 112 + c * 18, y: 8 + r * 11, width: 14, height: 8, rx: 2, fill: 'var(--b-metal-lo)' }, face);
+    d.screen = text(face, { x: 20, y: 24, class: 'silk name' }, d.id);
+    d.screenIp = text(face, { x: 20, y: 38, class: 'silk' }, '');
+  },
+  mobile(face, m, d) {
+    el('rect', { x: 10, y: 8, width: m.w - 52, height: 68, rx: 7, fill: 'var(--b-recess)', stroke: 'var(--b-edge2)', 'stroke-width': .6 }, face);
+    d.screen = text(face, { x: 18, y: 30, class: 'silk name' }, d.id);
+    d.screenIp = text(face, { x: 18, y: 46, class: 'silk' }, '');
+  },
   pc(face, m, d) {
     el('rect', { x: 12, y: 10, width: m.w - 24, height: 26, rx: 4, fill: 'var(--b-recess)' }, face);
     d.screen = text(face, { x: 22, y: 27, class: 'silk name' }, d.id);
@@ -108,6 +136,11 @@ export const GLYPH = {
   laptop: '<rect x="7" y="7.5" width="18" height="12.5" rx="1.8"/><path d="M4 23.5h24l-2-3.5H6z"/>',
   server: '<rect x="7" y="5" width="18" height="22" rx="2"/><path d="M10.5 10h11M10.5 14.5h11M10.5 19h6"/><circle cx="21" cy="22.5" r="1"/>',
   hub: '<rect x="4" y="11" width="24" height="10" rx="2"/><path d="M8 16h.01M12 16h.01M16 16h.01M20 16h.01M24 16h.01" stroke-width="2.4"/>',
+  ap: '<circle cx="16" cy="21" r="2"/><path d="M10.5 16a7.8 7.8 0 0 1 11 0M7 12.5a12.7 12.7 0 0 1 18 0"/><rect x="8" y="24" width="16" height="3.5" rx="1.7"/>',
+  firewall: '<rect x="5" y="8" width="22" height="16" rx="1.6"/><path d="M5 13.3h22M5 18.6h22M12 8v5.3M20 13.3v5.3M12 18.6V24"/>',
+  wlc: '<rect x="4" y="16" width="24" height="9" rx="1.8"/><path d="M11 11.5a7 7 0 0 1 10 0M8 8.5a11 11 0 0 1 16 0"/>',
+  phone: '<rect x="5" y="7" width="22" height="18" rx="2"/><rect x="8" y="10" width="9" height="7" rx="1"/><path d="M20 10.5h4M20 14h4M20 17.5h4M8 21h16"/>',
+  mobile: '<rect x="10" y="4" width="12" height="24" rx="2.2"/><path d="M14.5 24.5h3"/>',
   printer: '<path d="M10 11V5.5h12V11M10 22H6.5a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 6.5 11h19a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H22"/><rect x="10" y="18" width="12" height="8.5" rx="1"/>',
 };
 
@@ -138,6 +171,7 @@ export function drawDevice(parent, d) {
       else if (p.type === 'usb' || p.type === 'usbcon') usbPort(pg, p);
       else if (p.type === 'serial') smartSerial(pg, p);
       else if (p.type === 'com') db9(pg, p);
+      else if (p.type === 'radio') radio(pg, p);
       if (p.type === 'con') el('rect', { x: p.x - 1, y: p.y - 1, width: p.w + 2, height: p.h + 2, rx: 1.6, fill: 'none', stroke: 'var(--b-console)', 'stroke-width': .9, opacity: .7 }, pg);
     } else el('rect', { x: p.x, y: p.y, width: p.w, height: p.h, fill: 'transparent' }, pg);
     el('rect', { x: p.x - 3, y: p.y - 3, width: p.w + 6, height: p.h + 6, rx: 3, class: 'hl' }, pg);

@@ -163,6 +163,14 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 .line input:focus-visible { outline: none; }
 .pcset { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 8px; padding: 10px 14px; background: var(--b-term); border-bottom: 1px solid var(--b-line); align-items: end; }
 .pcset[hidden] { display: none; }
+.pcset .ipmode { grid-column: 1 / -1; display: flex; gap: 4px; align-items: center; }
+.pcset .ipmode button { background: transparent; color: var(--b-ink2); font-weight: 500; box-shadow: inset 0 0 0 1px var(--b-line); padding: 4px 10px; }
+.pcset .ipmode button[aria-checked="true"] { background: var(--b-ink); color: var(--b-bench); box-shadow: none; }
+.pcset .ipst, .pcset .wst { font-size: 11.5px; color: var(--b-ink3); margin-left: 6px; }
+.pcset .wifi { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; align-items: end; }
+.pcset .wifi[hidden] { display: none; }
+.pcset .wifi .wst { grid-column: 1 / -1; margin: 0; }
+.pcset input[readonly] { color: var(--b-ink3); box-shadow: inset 0 0 0 1px var(--b-line); }
 .pcset label { display: grid; gap: 3px; font-size: 11px; color: var(--b-ink3); min-width: 0; }
 .pcset input { width: 100%; min-width: 0; border: 0; border-radius: 7px; background: var(--b-bench); color: var(--b-ink); font: 400 12.5px var(--b-mono); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--b-line); }
 .pcset input:focus { box-shadow: inset 0 0 0 1.5px var(--b-you); }
@@ -202,6 +210,7 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 :host([layout="docked"]) .brief.min ~ .sim { left: 50%; width: min(820px, calc(100% - 32px)); }
 .s-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .s-top label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--b-ink3); }
+.s-top .s-tol[hidden] { display: none; }
 .s-top select, .s-top input { border: 0; border-radius: 7px; background: var(--b-bench); color: var(--b-ink); font: 400 13px var(--b-ui); padding: 6px 8px; outline: none; box-shadow: inset 0 0 0 1px var(--b-line); }
 .s-top input { width: 150px; font-family: var(--b-mono); font-size: 12.5px; }
 .s-top select:focus, .s-top input:focus { box-shadow: inset 0 0 0 1.5px var(--b-you); }
@@ -302,7 +311,7 @@ pre.out { margin: 0; font: 400 12.5px/1.6 var(--b-mono); color: var(--b-ink2); w
 `;
 
 // One colour per kind of traffic in the simulation.
-const SIMC = { arp: 'oklch(80% 0.14 80)', 'arp-reply': 'oklch(80% 0.14 80)', icmp: 'oklch(68% 0.14 250)', reply: 'oklch(72% 0.15 155)' };
+const SIMC = { arp: 'oklch(80% 0.14 80)', 'arp-reply': 'oklch(80% 0.14 80)', icmp: 'oklch(68% 0.14 250)', reply: 'oklch(72% 0.15 155)', dhcp: 'oklch(66% 0.17 305)' };
 const SIM_STEP = 900; // ms per step at 1×
 
 const HTML = `
@@ -322,15 +331,15 @@ const HTML = `
 </div>
 <div class="panel tray" role="toolbar" aria-label="Cables"></div>
 <section class="panel sim" aria-label="Simulation" hidden>
-  <form class="s-top"><label>From<select class="s-from" aria-label="From"></select></label><label>To<input class="s-to" list="s-ips" placeholder="an IP address" spellcheck="false" autocomplete="off" aria-label="To"></label><datalist id="s-ips"></datalist><button class="wbtn main" type="submit">Send a ping</button>
+  <form class="s-top"><select class="s-kind" aria-label="What to send"><option value="ping">Ping</option><option value="dhcp">DHCP: get an address</option></select><label>From<select class="s-from" aria-label="From"></select></label><label class="s-tol">To<input class="s-to" list="s-ips" placeholder="an IP address" spellcheck="false" autocomplete="off" aria-label="To"></label><datalist id="s-ips"></datalist><button class="wbtn main" type="submit">Send</button>
     <span class="sep"></span><button class="tb s-play" type="button" aria-label="Play" title="Play or pause" disabled></button><button class="tb s-step" type="button" title="One step" disabled>Step</button>
     <span class="s-speed" role="radiogroup" aria-label="Speed"><button class="tb" type="button" role="radio" data-sp="0.5" aria-checked="false">½×</button><button class="tb" type="button" role="radio" data-sp="1" aria-checked="true">1×</button><button class="tb" type="button" role="radio" data-sp="2" aria-checked="false">2×</button></span>
     <button class="tb s-x" type="button" aria-label="Close the simulation" title="Close">✕</button></form>
   <div class="s-body"><ol class="s-ev" aria-live="polite"></ol><div class="s-pdu"></div></div>
-  <div class="s-key"><span><i style="background:${SIMC.arp}"></i>ARP</span><span><i style="background:${SIMC.icmp}"></i>Echo request</span><span><i style="background:${SIMC.reply}"></i>Echo reply</span><span><i class="x"></i>Where it stops</span></div>
+  <div class="s-key"><span><i style="background:${SIMC.arp}"></i>ARP</span><span><i style="background:${SIMC.icmp}"></i>Echo request</span><span><i style="background:${SIMC.reply}"></i>Echo reply</span><span><i style="background:${SIMC.dhcp}"></i>DHCP</span><span><i class="x"></i>Where it stops</span></div>
 </section>
 <aside class="panel con" aria-label="Console"><div class="tabs" role="tablist"></div><div class="via"><span class="vtext"></span><button type="button" class="cclose">Close</button></div>
-  <div class="cbody"><form class="pcset" hidden><label>IPv4 address<input name="ip" spellcheck="false" autocomplete="off"></label><label>Subnet mask<input name="mask" spellcheck="false" autocomplete="off"></label><label>Default gateway<input name="gw" spellcheck="false" autocomplete="off"></label><button type="submit">Apply</button></form><div class="term"><pre class="out" aria-live="polite"></pre><label class="line"><span class="prompt"></span><input class="cin" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Command"></label></div></div></aside>
+  <div class="cbody"><form class="pcset" hidden><div class="ipmode" role="radiogroup" aria-label="How it gets an address"><button type="button" role="radio" data-ipm="static" aria-checked="true">Static</button><button type="button" role="radio" data-ipm="dhcp" aria-checked="false">DHCP</button><span class="ipst"></span></div><label>IPv4 address<input name="ip" spellcheck="false" autocomplete="off"></label><label>Subnet mask<input name="mask" spellcheck="false" autocomplete="off"></label><label>Default gateway<input name="gw" spellcheck="false" autocomplete="off"></label><button type="submit">Apply</button><div class="wifi" hidden><label><span class="wl">SSID</span><input name="ssid" spellcheck="false" autocomplete="off"></label><label>WPA2 key<input name="key" type="password" autocomplete="off"></label><button type="button" data-wifi>Connect</button><span class="wst"></span></div></form><div class="term"><pre class="out" aria-live="polite"></pre><label class="line"><span class="prompt"></span><input class="cin" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Command"></label></div></div></aside>
 <div class="panel card" role="status"></div>
 <div class="panel menu" role="menu" hidden></div>
 <div class="panel toast" role="status"></div>`;
@@ -354,19 +363,26 @@ const KINDS = {
   trunk: { name: 'Trunk is up', f: ['device', 'iface'], dev: ['switch'], get: c => c, put: v => ({ device: v.device, iface: v.iface }), say: v => `Make ${v.device} ${short(v.iface || '')} a working trunk.` },
   pinged: { name: 'Ping succeeds', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Ping ${v.to || '…'} from ${v.device}.` },
   tried: { name: 'Ping was tried', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Try a ping to ${v.to || '…'} from ${v.device}.` },
+  dhcp: { name: 'Got an address by DHCP', f: ['device'], dev: ['pc'], get: c => ({ device: c.device || c }), put: v => ({ device: v.device }), say: v => `Get ${v.device} an address from DHCP.` },
+  wifi: { name: 'Joined the Wi-Fi', f: ['device'], dev: ['pc'], get: c => ({ device: c.device || c }), put: v => ({ device: v.device }), say: v => `Connect ${v.device} to the wireless network.` },
+  ospf: { name: 'OSPF neighbor is up', f: ['device'], dev: ['router', 'switch'], get: c => ({ device: c.device }), put: v => ({ device: v.device, neighbors: 1 }), say: v => `Bring up an OSPF neighbor on ${v.device}.` },
+  nat: { name: 'NAT is translating', f: ['device'], dev: ['router'], get: c => ({ device: c.device }), put: v => ({ device: v.device }), say: v => `Make ${v.device} translate inside addresses with NAT.` },
+  blocked: { name: 'Ping blocked by an ACL', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Stop ${v.device} from pinging ${v.to || '…'} with an access list.` },
   reach: { name: 'Can reach an address', f: ['device', 'to'], get: c => ({ device: c.from, to: c.to }), put: v => ({ from: v.device, to: v.to }), say: v => `Make ${v.to || '…'} reachable from ${v.device}.` },
 };
 const FIELD = { device: 'Device', iface: 'Interface', port: 'Port', to: 'To', toport: 'Port (any)', ip: 'Address', mask: 'Mask', gateway: 'Gateway', vlans: 'VLANs', up: 'Up' };
 // The drawer's chips: which models each one shows.
 const CHIPS = [
   ['all', 'All', () => true],
-  ['router', 'Routers', m => m.kind === 'router'],
+  ['router', 'Routers', m => m.kind === 'router' && m.group !== 'security'],
   ['switch', 'Switches', m => m.kind === 'switch'],
   ['l3', 'Layer 3', m => m.kind === 'switch' && !!m.l3],
   ['hub', 'Hubs', m => m.kind === 'hub'],
-  ['pc', 'End devices', m => m.kind === 'pc'],
+  ['pc', 'End devices', m => m.kind === 'pc' && m.series !== 'Wireless'],
+  ['wireless', 'Wireless', m => m.kind === 'ap' || m.series === 'Wireless' || m.nic === 'Wireless0'],
+  ['security', 'Security', m => m.group === 'security'],
 ];
-const GROUPS = [['router', 'Routers'], ['switch', 'Switches'], ['hub', 'Hubs'], ['pc', 'End devices'], ['wireless', 'Wireless'], ['wan', 'WAN']];
+const GROUPS = [['router', 'Routers'], ['switch', 'Switches'], ['hub', 'Hubs'], ['pc', 'End devices'], ['ap', 'Wireless'], ['wireless', 'Wireless'], ['security', 'Security'], ['wan', 'WAN']];
 // A task naming `from` now names `to`: device ids, and "DEV PORT" ends.
 const renamed = (x, from, to) => typeof x === 'string' ? (x === from ? to : x.startsWith(from + ' ') ? to + x.slice(from.length) : x) : Array.isArray(x) ? x.map(y => renamed(y, from, to)) : x && typeof x === 'object' ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, renamed(v, from, to)])) : x;
 
@@ -483,6 +499,12 @@ export class OctetBench extends HTMLElement {
     const ctx = this.ctx, dpr = devicePixelRatio || 1, v = this.view;
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.setTransform(dpr * v.z, 0, 0, dpr * v.z, dpr * v.x, dpr * v.y);
+    // Wi-Fi: a dashed line from each client to the access point it joined
+    for (const { client, ap } of this.net.wireless ? this.net.wireless() : []) {
+      const a = this.net.device(client), b = this.net.device(ap);
+      ctx.save(); ctx.strokeStyle = 'oklch(70% 0.12 230 / .7)'; ctx.lineWidth = 1.6 / Math.max(v.z, 0.5); ctx.setLineDash([6 / v.z, 6 / v.z]); ctx.lineDashOffset = -performance.now() / 60;
+      ctx.beginPath(); ctx.moveTo(a.x + a.m.w / 2, a.y + a.m.h / 2); ctx.lineTo(b.x + b.m.w / 2, b.y + b.m.h / 2); ctx.stroke(); ctx.restore();
+    }
     const far = v.z < 0.55, { dev: hd, cable: hc } = this.hover;
     for (const c of this.net.cables) {
       const k = CABLES[c.type], col = k.color, p = this.rope(c).pts;
@@ -589,6 +611,8 @@ export class OctetBench extends HTMLElement {
   }
   changed() {
     this.renderBrief();
+    const od = this.open && this.net.device(this.open);
+    if (od && (od.kind === 'pc' || od.kind === 'ap') && !this.$('.pcset').hidden && !this.$('.pcset').contains(this.shadowRoot.activeElement)) this.fillPC(od);
     clearTimeout(this.saveT);
     this.saveT = setTimeout(() => this.dispatchEvent(new CustomEvent('bench-change', { bubbles: true, composed: true, detail: { lab: this.lab && this.lab.id, state: this.snapshot(), mode: this.mode } })), 400);
   }
@@ -786,23 +810,25 @@ export class OctetBench extends HTMLElement {
   }
   simFill() {
     const addrs = this.net.addresses(), from = this.$('.s-from'), keep = from.value;
-    const senders = this.net.devices.filter(d => this.net.addresses().some(a => a.dev === d.id));
-    from.innerHTML = senders.map(d => `<option value="${esc(d.id)}">${esc(d.hostname)}</option>`).join('') || '<option value="">No device has an address yet</option>';
+    const dhcp = this.$('.s-kind').value === 'dhcp';
+    this.$('.s-tol').hidden = dhcp;
+    const senders = dhcp ? this.net.devices.filter(d => d.kind === 'pc') : this.net.devices.filter(d => this.net.addresses().some(a => a.dev === d.id));
+    from.innerHTML = senders.map(d => `<option value="${esc(d.id)}">${esc(d.hostname)}</option>`).join('') || `<option value="">${dhcp ? 'No end device on the bench' : 'No device has an address yet'}</option>`;
     if (senders.some(d => d.id === keep)) from.value = keep;
     else { const pc = senders.find(d => d.kind === 'pc'); if (pc) from.value = pc.id; }
     this.$('#s-ips').innerHTML = addrs.map(a => `<option value="${esc(a.ip)}">${esc(this.net.device(a.dev).hostname)} ${esc(short(a.n))}</option>`).join('');
   }
-  simSend(from, to) {
+  simSend(from, to, kind = 'ping') {
     this.simCommit();
-    if (!from) return this.toast('Give a device an IP address first: it needs one to send a ping.');
-    if (!to) return this.toast('Type the address to ping, or pick one from the list.');
-    const tr = this.net.simulate(from, to);
-    this.sim = { tr, from, to, t: 0, playing: true, sel: -1, shown: -1, done: false, speed: this.sim ? this.sim.speed : (this.simSpeed || 1) };
+    if (!from) return this.toast(kind === 'dhcp' ? 'Put a PC on the bench first.' : 'Give a device an IP address first: it needs one to send a ping.');
+    if (kind === 'ping' && !to) return this.toast('Type the address to ping, or pick one from the list.');
+    const tr = kind === 'dhcp' ? this.net.simulateDhcp(from) : this.net.simulate(from, to);
+    this.sim = { tr, from, to, kind, t: 0, playing: true, sel: -1, shown: -1, done: false, speed: this.sim ? this.sim.speed : (this.simSpeed || 1) };
     this.$('.s-play').disabled = this.$('.s-step').disabled = false;
     this.simRender();
   }
   // The real ping happens once the trip has been shown: ARP and MAC tables fill, tasks see it.
-  simCommit() { const s = this.sim; if (!s || s.done) return; s.done = true; this.net.ping(s.from, s.to); }
+  simCommit() { const s = this.sim; if (!s || s.done) return; s.done = true; if (s.kind === 'dhcp') { if (s.tr.ok) this.net.setPC(s.from, { dhcp: true }); } else this.net.ping(s.from, s.to); }
   simAdvance(dt) {
     const s = this.sim; if (!s || !s.playing) return;
     s.t = Math.min(s.tr.steps, s.t + dt * s.speed / SIM_STEP);
@@ -831,18 +857,22 @@ export class OctetBench extends HTMLElement {
     let h = `<p class="s-on">${esc(dn(f.from))} → ${esc(dn(f.to))}</p><h4>Ethernet II</h4><dl>${row('Destination', p.eth.dst + (p.eth.dst === 'ffff.ffff.ffff' ? ' (broadcast)' : ''))}${row('Source', p.eth.src)}${row('Type', p.eth.type === 'ARP' ? 'ARP (0x0806)' : 'IPv4 (0x0800)')}</dl>`;
     h += p.eth.vlan ? `<h4>802.1Q tag</h4><dl>${row('VLAN', p.eth.vlan)}${row('Why', 'this cable is a trunk')}</dl>` : '';
     if (p.arp) h += `<h4>ARP ${p.arp.op}</h4><dl>${row('Sender', `${p.arp.senderIp}, ${p.arp.senderMac}`)}${row('Target', `${p.arp.targetIp}, ${p.arp.op === 'request' ? 'unknown' : p.arp.targetMac}`)}</dl>`;
-    if (p.ip) h += `<h4>IPv4</h4><dl>${row('Source', p.ip.src)}${row('Destination', p.ip.dst)}${row('TTL', p.ip.ttl)}${row('Protocol', 'ICMP (1)')}</dl><h4>ICMP</h4><dl>${row('Type', p.icmp.type)}</dl>`;
+    if (p.ip) h += `<h4>IPv4</h4><dl>${row('Source', p.ip.src)}${row('Destination', p.ip.dst)}${row('TTL', p.ip.ttl)}${row('Protocol', p.udp ? 'UDP (17)' : 'ICMP (1)')}</dl>`;
+    if (p.icmp) h += `<h4>ICMP</h4><dl>${row('Type', p.icmp.type)}</dl>`;
+    if (p.udp) h += `<h4>UDP</h4><dl>${row('Ports', `${p.udp.sport} → ${p.udp.dport}`)}</dl>`;
+    if (p.dhcp) h += `<h4>DHCP ${esc(p.dhcp.op)}</h4><dl>${p.dhcp.client ? row('Client', p.dhcp.client) : ''}${p.dhcp.yiaddr ? row('Your address', `${p.dhcp.yiaddr}/${maskLen(p.dhcp.mask)}`) : ''}${p.dhcp.requested ? row('Requested', p.dhcp.requested) : ''}${p.dhcp.router ? row('Router', p.dhcp.router) : ''}${p.dhcp.dns ? row('DNS', p.dhcp.dns) : ''}${p.dhcp.giaddr ? row('Relay (giaddr)', p.dhcp.giaddr) : ''}${p.dhcp.server ? row('Server', p.dhcp.server) : ''}</dl>`;
     box.innerHTML = h;
   }
   // Where a frame is now: along the cable's rope, or straight when zoomed out.
   simPos(f, k) {
-    const c = this.net.cables.find(x => x.id === f.cable); if (!c || !c.a || !c.b) return null;
-    const fwd = c.a.dev === f.from.dev && this.net.portOf(c.a).iface === f.from.n;
-    if (this.view.z < 0.55) {
+    const c = this.net.cables.find(x => x.id === f.cable);
+    if ((!c && String(f.cable).startsWith('w:')) || this.view.z < 0.55) {
       const A = this.net.device(f.from.dev), B = this.net.device(f.to.dev);
       const a = { x: A.x + A.m.w / 2, y: A.y + A.m.h / 2 }, b = { x: B.x + B.m.w / 2, y: B.y + B.m.h / 2 };
       return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
     }
+    if (!c || !c.a || !c.b) return null;
+    const fwd = c.a.dev === f.from.dev && this.net.portOf(c.a).iface === f.from.n;
     const p = this.rope(c).pts, seg = []; let total = 0;
     for (let i = 0; i < N - 1; i++) { const l = Math.hypot(p[i + 1].x - p[i].x, p[i + 1].y - p[i].y); seg.push(l); total += l; }
     let want = (fwd ? k : 1 - k) * total;
@@ -888,7 +918,8 @@ export class OctetBench extends HTMLElement {
   }
   wireSim() {
     const p = this.$('.sim');
-    p.querySelector('.s-top').addEventListener('submit', e => { e.preventDefault(); this.simSend(this.$('.s-from').value, this.$('.s-to').value.trim()); });
+    p.querySelector('.s-top').addEventListener('submit', e => { e.preventDefault(); this.simSend(this.$('.s-from').value, this.$('.s-kind').value === 'dhcp' ? '' : this.$('.s-to').value.trim(), this.$('.s-kind').value); });
+    this.$('.s-kind').addEventListener('change', () => this.simFill());
     this.$('.s-from').addEventListener('focus', () => this.simFill());
     this.$('.s-to').addEventListener('focus', () => this.simFill());
     p.addEventListener('click', e => {
@@ -1047,7 +1078,20 @@ export class OctetBench extends HTMLElement {
     this.$('.cin').addEventListener('keydown', e => this.consoleKey(e));
     this.$('.pcset').addEventListener('submit', e => {
       e.preventDefault(); const f = new FormData(e.target);
+      if (this.net.device(this.open).dhcp) return;
       try { this.net.setPC(this.open, { ip: f.get('ip').trim(), mask: f.get('mask').trim(), gateway: f.get('gw').trim() }); this.toast(`${this.open} now has ${f.get('ip').trim() || 'no address'}.`); } catch (err) { this.toast(err.message); }
+      this.fillPC(this.net.device(this.open));
+    });
+    this.$('.pcset').addEventListener('click', e => {
+      const m = e.target.closest('[data-ipm]'), w = e.target.closest('[data-wifi]'), d = this.open && this.net.device(this.open);
+      if (!d) return;
+      if (m && m.dataset.ipm === 'dhcp') { const r = this.net.setPC(d.id, { dhcp: true }); this.toast(r && r.ip ? `${d.hostname} got ${r.ip} from ${r.server.hostname}${r.relay ? ` (relayed by ${r.via.hostname})` : ''}.` : r && r.full ? `The DHCP pool ${r.full} on ${r.server.hostname} has no free address.` : `No DHCP server answered. ${d.hostname} gave itself ${this.net.device(d.id).ip}, a link-local address.`); }
+      else if (m) { d.dhcp = false; d.apipa = false; this.changed(); }
+      else if (w) {
+        const form = this.$('.pcset');
+        try { const ap = this.net.setWifi(d.id, { ssid: form.ssid.value, key: form.key.value }); this.toast(d.kind === 'ap' ? `${d.hostname} broadcasts "${form.ssid.value.trim()}".` : ap ? `${d.hostname} joined ${ap.hostname}.` : `No access point broadcasts "${form.ssid.value.trim()}" with that key.`); } catch (err) { this.toast(err.message); }
+      }
+      if (m || w) this.fillPC(this.net.device(d.id));
     });
   }
   center() { const r = this.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
@@ -1182,7 +1226,7 @@ export class OctetBench extends HTMLElement {
   /* ---------- console ---------- */
   openConsole(id) {
     if (this.net.device(id).kind === 'hub') return this.toast('A hub has no console. It only repeats bits, so there is nothing to configure.');
-    const d = this.net.device(id), via = d.kind === 'pc' ? id : this.net.consoleFrom(id) || (this.building && 'the builder');
+    const d = this.net.device(id), via = d.kind === 'pc' || d.kind === 'ap' ? id : this.net.consoleFrom(id) || (this.building && 'the builder');
     if (!via) return this.toast(`Plug a console cable from a PC's COM1 port into ${d.hostname}'s CONSOLE port first. That's how you reach a device with no address yet.`);
     if (!this.tabs.includes(id)) {
       this.tabs.push(id);
@@ -1201,10 +1245,26 @@ export class OctetBench extends HTMLElement {
   }
   renderTabs() {
     this.$('.tabs').innerHTML = this.tabs.map(id => `<button class="tab" type="button" role="tab" data-tab="${id}" aria-selected="${id === this.open}">${esc(this.net.device(id).hostname)}<span class="x" data-close="${id}" aria-label="Close">×</span></button>`).join('');
-    const d = this.open && this.net.device(this.open), pc = d && d.kind === 'pc';
-    this.$('.vtext').textContent = !d ? '' : pc ? `${d.id} · Command Prompt` : this.net.consoleFrom(d.id) ? `${d.hostname} · console from ${this.net.consoleFrom(d.id)}, 9600 baud` : this.building ? `${d.hostname} · building, so no console cable needed` : `${d.hostname} · console`;
+    const d = this.open && this.net.device(this.open), ap = d && d.kind === 'ap', pc = d && (d.kind === 'pc' || ap);
+    this.$('.vtext').textContent = !d ? '' : ap ? `${d.hostname} · settings` : pc ? `${d.id} · Command Prompt` : this.net.consoleFrom(d.id) ? `${d.hostname} · console from ${this.net.consoleFrom(d.id)}, 9600 baud` : this.building ? `${d.hostname} · building, so no console cable needed` : `${d.hostname} · console`;
     const form = this.$('.pcset'); form.hidden = !pc;
-    if (pc) { form.ip.value = d.ip; form.mask.value = d.mask; form.gw.value = d.pcgw; }
+    if (pc) this.fillPC(d);
+  }
+  // An end device's address (typed, or from DHCP) and, for Wi-Fi and access points, the network it uses.
+  fillPC(d) {
+    const form = this.$('.pcset'), wifi = d.kind === 'ap' || d.m.ports.some(p => p.type === 'radio');
+    form.querySelectorAll('[data-ipm]').forEach(b => b.setAttribute('aria-checked', String((b.dataset.ipm === 'dhcp') === !!d.dhcp)));
+    form.ip.value = d.ip || ''; form.mask.value = d.mask || ''; form.gw.value = d.pcgw || '';
+    for (const k of ['ip', 'mask', 'gw']) form[k].readOnly = !!d.dhcp;
+    form.querySelector('.ipst').textContent = d.dhcp ? (d.apipa ? 'No DHCP server answered: it gave itself a 169.254 address.' : d.ip ? `From DHCP${d.dns ? `, DNS ${d.dns}` : ''}` : 'Asking for an address…') : '';
+    form.querySelector('.wifi').hidden = !wifi;
+    if (wifi) {
+      form.querySelector('.wl').textContent = d.kind === 'ap' ? 'SSID to broadcast' : 'Wi-Fi network (SSID)';
+      if (document.activeElement !== this && !this.shadowRoot.activeElement?.closest('.wifi')) { form.ssid.value = (d.wifi || {}).ssid || ''; form.key.value = (d.wifi || {}).key || ''; }
+      form.querySelector('[data-wifi]').textContent = d.kind === 'ap' ? 'Save' : 'Connect';
+      const ap = d.kind === 'ap' ? null : this.net.apFor(d.id);
+      form.querySelector('.wst').textContent = d.kind === 'ap' ? ((d.wifi || {}).ssid ? `Broadcasting "${d.wifi.ssid}"${d.wifi.key ? ', WPA2' : ', open'}. Clients join with the same SSID and key.` : 'Not broadcasting: give it an SSID.') : ap ? `Connected to ${ap.hostname} ("${d.wifi.ssid}").` : (d.wifi || {}).ssid ? `No access point broadcasts "${d.wifi.ssid}" with that key.` : 'Not connected.';
+    }
   }
   renderOut() {
     if (!this.open) return;

@@ -703,6 +703,10 @@ pub const BENCH_MODELS: &[&str] = &[
     "WS-C2960+24TC-L", "WS-C2960-24TT-L", "WS-C2960-48TT-L", "WS-C2960X-24TS-L",
     "WS-C3560-24PS", "WS-C3650-24PS", "Hub",
     "PC", "Laptop", "Server", "Printer",
+    "ISR4221", "ISR4351", "ISR4451-X", "C8200-1N-4T", "C8300-1N1S-6T", "ASR1001-X",
+    "C1000-24T-4G-L", "C9200L-24T-4G", "WS-C3850-24T", "C9300-24T", "C9300-48P", "C9500-24Y4C",
+    "ASA5506-X", "FPR1010", "C9120AXI", "AIR-AP2802I", "C9800-L",
+    "IP-Phone-8841", "Laptop-WiFi", "Smartphone", "Tablet",
 ];
 
 /// Checks a bench lab file: format 1, an id that matches its file name,

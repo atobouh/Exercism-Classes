@@ -59,7 +59,7 @@ The natural voice is [Kokoro](https://huggingface.co/onnx-community/Kokoro-82M-v
 | `app/src-tauri` | The desktop shell. |
 | `app/ui` | The interface: plain HTML, CSS and JavaScript, with the fonts bundled so nothing loads from the internet. `reader.js` reads pages aloud. |
 | `app/ui/voice` | The reading voice: Kokoro in a worker, downloaded on first use. |
-| `app/ui/bench` | The lab bench, a web component any page can use: devices, cables, the console, and the simulation mode. See its README. |
+| `app/ui/bench` | The lab bench, a web component any page can use: 37 Cisco devices from branch routers to a 9500 core, firewalls, Wi-Fi and phones; VLANs, OSPF, DHCP, ACLs and NAT; the console; and the simulation mode. See its README. |
 | `content/` | Books, pages and labs. |
 
 The visual design is recorded in `../docs/library/DESIGN.md`.

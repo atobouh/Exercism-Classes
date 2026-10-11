@@ -13,7 +13,7 @@ use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
 /// The checks the bench engine grades. A task with any other check never passes.
-pub const CHECKS: &[&str] = &["console", "address", "pc", "cabled", "link", "vlan", "trunk", "tried", "pinged", "reach"];
+pub const CHECKS: &[&str] = &["console", "address", "pc", "cabled", "link", "vlan", "trunk", "tried", "pinged", "reach", "dhcp", "ospf", "route", "blocked", "nat", "wifi"];
 
 pub struct Mine {
     pub dir: PathBuf,

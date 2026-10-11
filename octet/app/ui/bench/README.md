@@ -78,9 +78,9 @@ To play a built lab, load the lab with its start as the state: `bench.load(lab, 
 
 ### Watch a ping move
 
-**Simulation** in the toolbar opens a panel in place of the cable tray. Choose who sends, type or pick the address, and press **Send a ping**. Envelopes travel the real cables, one step at a time: amber for ARP, blue for the echo request, green for the reply, with the VLAN tag written under any frame that crosses a trunk tagged. Play, pause, **Step**, and ½×, 1× or 2×.
+**Simulation** in the toolbar opens a panel in place of the cable tray. Choose a ping (who sends, and the address) or DHCP (which device asks for an address), and press **Send**. Envelopes travel the real cables, one step at a time: amber for ARP, blue for the echo request, green for the reply, with the VLAN tag written under any frame that crosses a trunk tagged. Play, pause, **Step**, and ½×, 1× or 2×.
 
-Where the ping stops, a red ✕ sits on the cable or the device, with the reason: no route, a VLAN not allowed on a trunk, an access port in the wrong VLAN, a port shut down, spanning tree still listening, a missing subinterface, no clock rate, the wrong transceiver on a fiber. The list beside it says what every device did at each step; click a step to open its frame's layers (Ethernet, 802.1Q, ARP, IPv4, ICMP).
+Where the ping stops, a red ✕ sits on the cable or the device, with the reason: denied by an access list (which one, which line, which direction), no route, NAT out of addresses, no DHCP server or relay, a VLAN not allowed on a trunk, an access port in the wrong VLAN, a port shut down, spanning tree still listening, a missing subinterface, no clock rate, the wrong transceiver on a fiber. The list beside it says what every device did at each step, including which route it used (static or OSPF) and every NAT translation; click a step to open its frame's layers (Ethernet, 802.1Q, ARP, IPv4, ICMP).
 
 The engine works the whole trip out first, without changing anything (`net.simulate`). When the animation ends, the bench does the ping for real, so ARP and MAC tables fill and a ping task can pass.
 
@@ -166,6 +166,12 @@ check = { address = { device = "R1", iface = "g0/0/0", ip = "192.168.10.1", mask
 | `{ tried = { from, to } }` | Someone pinged `to` from `from`, whatever happened. |
 | `{ pinged = { from, to } }` | A ping from `from` to `to` succeeded. |
 | `{ reach = { from, to } }` | A ping would succeed right now. Use this for fix-it labs. |
+| `{ blocked = { from, to } }` | A ping would be stopped by an access list right now. |
+| `{ dhcp = { device } }` | The device has an address from DHCP. |
+| `{ ospf = { device, neighbors = 2 } }` | At least that many OSPF neighbors are FULL. |
+| `{ route = { device, to, proto = "ospf" } }` | The device has a route to that address (from that protocol). |
+| `{ nat = { device } }` | The router has translated something with NAT. |
+| `{ wifi = { device } }` | The wireless client has joined an access point. |
 
 ## What the network does
 
@@ -178,6 +184,12 @@ check = { address = { device = "R1", iface = "g0/0/0", ip = "192.168.10.1", mask
 - **Cards:** the ISR G2 routers (1941, 2901, 2911) ship with empty EHWIC slots, the ISR 4331 with empty NIM slots. Serial ports come with a HWIC-2T or NIM-2T, inserted with the router switched off, as on the real one. Right-click a slot.
 - **Transceivers and fiber:** SFP cages start empty. A GLC-SX-MMD works over multimode fiber, a GLC-LH-SMD over single-mode; a link comes up only with the right transceiver at both ends. Transceivers are hot-swappable. Right-click a cage.
 - **Hubs:** repeat every frame out of every other port. No VLANs, no spanning tree, no console.
+- **Loopbacks:** `interface loopback 0`, with /32 addresses.
+- **OSPF:** `router ospf`, `network … area`, `router-id`, `passive-interface`, `default-information originate`, `ip ospf cost`/`priority`, `ip ospf <pid> area <n>` on an interface, `bandwidth`, `auto-cost reference-bandwidth`. Neighbors on the same subnet and area go FULL four seconds after they meet, with a DR and BDR on multi-access links; routes are shortest paths over interface costs, with OSPF's distance of 110 against static routes' 1. The router ID is chosen once, as on IOS. `show ip ospf neighbor`, `show ip ospf interface brief`, `show ip ospf`, `show ip protocols`, and `O`/`O*E2` lines in `show ip route`.
+- **DHCP:** `ip dhcp pool` (`network`, `default-router`, `dns-server`, `domain-name`), `ip dhcp excluded-address`, and relaying with `ip helper-address`. End devices switch between Static and DHCP in their settings, or with `ipconfig /renew` and `/release`; with no server they give themselves a 169.254 address, as Windows does. `show ip dhcp binding`, `show ip dhcp pool`.
+- **Access lists:** standard and extended, numbered (`access-list 10 …`, `access-list 101 …`) and named (`ip access-list standard|extended NAME`), with `host`, `any` and wildcards, applied with `ip access-group … in|out`. First match wins, then the implicit deny; counters count. A blocked ping gets "Destination net unreachable" on a PC and `U.U.U` on IOS. `show access-lists`, `show ip interface`.
+- **NAT:** `ip nat inside`/`outside`, static (`ip nat inside source static`), dynamic from a pool (`ip nat pool`, `ip nat inside source list … pool`), and PAT (`… overload`, or `… interface … overload`). The router answers ARP for its global addresses. `show ip nat translations`, `show ip nat statistics`, `clear ip nat translation *`.
+- **Wi-Fi:** access points broadcast an SSID with a WPA2 key, set in their settings; wireless clients (Wi-Fi laptop, smartphone, tablet) join the first access point with the same SSID and key. A dashed line on the board shows who joined whom; frames cross it in the simulation.
 - **Layer 3 switches:** the Catalyst 3560 and 3650 route between SVIs and routed ports (`no switchport`) after `ip routing`, with static routes and `show ip route`.
 - **The console:**
   - Modes, abbreviations, `?` help, Tab completion, `do`, and IOS errors with the caret.
@@ -186,6 +198,18 @@ check = { address = { device = "R1", iface = "g0/0/0", ip = "192.168.10.1", mask
   - Tips for learners: when a real command is typed in the wrong mode, the IOS error is followed by a short tip, such as "Type `enable` first". Set `tips = false` in the lab, or pass `{ tips: false }` to `createNetwork`, to show only what IOS shows.
 
 It is a teaching network, not an emulator. A command it doesn't know gets a real IOS error rather than a made-up answer.
+
+## The devices
+
+| | Models |
+| --- | --- |
+| Routers | ISR 4221, 4321, 4331, 4351, 4451-X; ISR G2 1941, 2901, 2911; Catalyst 8200 and 8300 edge; ASR 1001-X |
+| Switches | Catalyst 1000, 2960 (Plus, 24TT, 48TT, X), 9200L |
+| Layer 3 switches | Catalyst 3560, 3650, 3850, 9300 (24 and 48 ports), 9500 core (25G SFP28 and 100G) |
+| Security | ASA 5506-X, Firepower 1010 (here they take IOS-style commands: interfaces, routing, ACLs, NAT) |
+| Wireless | Catalyst 9120AXI and Aironet 2802i access points, Catalyst 9800-L controller (a managed host here) |
+| End devices | PC, laptop, Wi-Fi laptop, server, printer, IP phone 8841, smartphone, tablet; and a hub |
+| Transceivers | 1000BASE-SX and LX, 10GBASE-SR and LR, 25GBASE-SR |
 
 ## Add a device
 

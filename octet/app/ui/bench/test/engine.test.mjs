@@ -337,4 +337,96 @@ const last = (net, dev) => net.session(dev).lines.slice(-1)[0].text;
   assert.ok(hub.simulate('A', '10.0.0.2').frames.some(f => f.kind === 'arp' && f.to.dev === 'S'), 'then the hub repeats the broadcast toward the switch too');
   assert.equal(hub.simulate('A', '10.0.0.3').ok, true);
 }
+
+// Enterprise: OSPF, DHCP with a relay, ACLs, NAT, loopbacks, Wi-Fi.
+{
+  const ent = () => createNetwork({ booted: true, devices: [
+    { id: 'R1', model: 'ISR4331', config: 'interface loopback 0\n ip address 1.1.1.1 255.255.255.255\ninterface g0/0/0\n ip address 10.0.12.1 255.255.255.252\n no shutdown\ninterface g0/0/1\n ip address 192.168.10.1 255.255.255.0\n no shutdown\n ip helper-address 10.0.12.2\nrouter ospf 1\n network 10.0.12.0 0.0.0.3 area 0\n network 192.168.10.0 0.0.0.255 area 0\n passive-interface g0/0/1' },
+    { id: 'R2', model: 'C8300-1N1S-6T', config: 'interface g0/0/0\n ip address 10.0.12.2 255.255.255.252\n no shutdown\n ip nat inside\ninterface g0/0/4\n ip address 209.165.200.225 255.255.255.248\n no shutdown\n ip nat outside\nip dhcp excluded-address 192.168.10.1 192.168.10.20\nip dhcp pool LAN10\n network 192.168.10.0 255.255.255.0\n default-router 192.168.10.1\n dns-server 8.8.8.8\naccess-list 1 permit 192.168.10.0 0.0.0.255\nip nat inside source list 1 interface g0/0/4 overload\nip route 0.0.0.0 0.0.0.0 209.165.200.230\nrouter ospf 1\n network 10.0.12.0 0.0.0.3 area 0\n default-information originate' },
+    { id: 'ISP', model: 'ASR1001-X', sfp: { 'G0/0/0': 'GLC-SX-MMD' }, config: 'interface g0/0/0\n ip address 209.165.200.230 255.255.255.248\n no shutdown\ninterface loopback 0\n ip address 8.8.8.8 255.255.255.255' },
+    { id: 'S1', model: 'C9200L-24T-4G', config: 'interface g1/0/1\n spanning-tree portfast\ninterface g1/0/2\n spanning-tree portfast\ninterface g1/0/24\n spanning-tree portfast' },
+    { id: 'AP1', model: 'C9120AXI', wifi: { ssid: 'OFFICE', key: 'cisco12345' } },
+    { id: 'A', model: 'PC', dhcp: true },
+    { id: 'T', model: 'Tablet', dhcp: true, wifi: { ssid: 'OFFICE', key: 'cisco12345' } },
+  ], cables: [{ a: 'R1 G0/0/0', b: 'R2 G0/0/0' }, { a: 'R1 G0/0/1', b: 'S1 G1/0/24' }, { a: 'A NIC', b: 'S1 G1/0/1' }, { a: 'AP1 G0', b: 'S1 G1/0/2' }] });
+  let net = ent();
+  // the ISP link is fiber: give R2's combo port a transceiver and cable it
+  net.insertSfp('R2', 'G0/0/4s', 'GLC-SX-MMD'); net.plug('fiber', 'R2 G0/0/4s', 'ISP G0/0/0'); net.tick(600);
+  const A = net.device('A'), T = net.device('T');
+  assert.equal(A.ip, '192.168.10.21', 'DHCP through the relay, after the excluded addresses');
+  assert.equal(A.pcgw, '192.168.10.1');
+  assert.ok(T.ip && T.ip.startsWith('192.168.10.'), 'the tablet joined OFFICE and got an address too');
+  assert.deepEqual(net.wireless(), [{ client: 'T', ap: 'AP1' }]);
+  run(net, 'R1', ['en', 'show ip ospf neighbor']);
+  assert.match(last(net, 'R1'), /FULL\//);
+  run(net, 'R1', ['show ip route']);
+  assert.match(last(net, 'R1'), /O\*E2\s+0\.0\.0\.0\/0 \[110\/1\] via 10\.0\.12\.2/);
+  assert.match(last(net, 'R1'), /C\s+1\.1\.1\.1\/32 is directly connected, Loopback0/);
+  net.exec('A', 'ping 8.8.8.8');
+  assert.match(last(net, 'A'), /Reply from 8\.8\.8\.8/, 'out through PAT and back');
+  net.exec('T', 'ping 8.8.8.8');
+  assert.match(last(net, 'T'), /Reply from 8\.8\.8\.8/, 'and over Wi-Fi');
+  run(net, 'R2', ['en', 'show ip nat translations']);
+  assert.match(last(net, 'R2'), /icmp 209\.165\.200\.225:\d+\s+192\.168\.10\.21:\d+/);
+  run(net, 'R2', ['show ip dhcp binding']);
+  assert.match(last(net, 'R2'), /192\.168\.10\.21/);
+
+  // the simulation shows NAT and the relay
+  const sm = net.simulate('A', '8.8.8.8');
+  assert.equal(sm.ok, true);
+  assert.ok(sm.events.some(e => /translates the source 192\.168\.10\.21 to 209\.165\.200\.225/.test(e.text)));
+  assert.ok(sm.events.some(e => /OSPF route/.test(e.text)));
+  const dh = net.simulateDhcp('A');
+  assert.equal(dh.ok, true);
+  assert.ok(dh.events.some(e => /relays it \(ip helper-address 10\.0\.12\.2\)/.test(e.text)));
+  assert.ok(dh.frames.some(f => f.kind === 'dhcp' && f.pdu.dhcp.op === 'Ack'));
+
+  // an extended ACL inbound on R1's LAN side: no pings to 8.8.8.8
+  run(net, 'R1', ['conf t', 'ip access-list extended NO-PING', 'deny icmp 192.168.10.0 0.0.0.255 host 8.8.8.8', 'permit ip any any', 'exit', 'int g0/0/1', 'ip access-group NO-PING in', 'end']);
+  net.exec('A', 'ping 8.8.8.8');
+  assert.match(last(net, 'A'), /Reply from 192\.168\.10\.1: Destination net unreachable/);
+  assert.match(net.simulate('A', '8.8.8.8').fail.reason, /Denied by access list NO-PING on R1 Gi0\/0\/1 \(in\): line 10, deny icmp 192\.168\.10\.0 0\.0\.0\.255 host 8\.8\.8\.8/);
+  run(net, 'R1', ['show access-lists']);
+  assert.match(last(net, 'R1'), /Extended IP access list NO-PING\n    10 deny icmp 192\.168\.10\.0 0\.0\.0\.255 host 8\.8\.8\.8 \(\d+ match/);
+  // a standard ACL with only a deny blocks everything: the implicit deny
+  run(net, 'R1', ['conf t', 'int g0/0/1', 'no ip access-group NO-PING in', 'exit', 'access-list 5 deny host 192.168.10.99', 'int g0/0/0', 'ip access-group 5 out', 'end']);
+  assert.match(net.simulate('A', '8.8.8.8').fail.reason, /implicit deny/);
+  run(net, 'R1', ['conf t', 'access-list 5 permit any', 'end']);
+  assert.equal(net.simulate('A', '8.8.8.8').ok, true, 'permit any after the deny');
+  run(net, 'R1', ['show running-config']);
+  assert.match(last(net, 'R1'), /access-list 5 deny 192\.168\.10\.99\naccess-list 5 permit any/);
+  assert.match(last(net, 'R1'), /ip access-list extended NO-PING\n deny icmp/);
+  assert.match(last(net, 'R1'), /router ospf 1\n passive-interface GigabitEthernet0\/0\/1\n network 10\.0\.12\.0 0\.0\.0\.3 area 0/);
+
+  // everything survives a save and a load
+  const again = createNetwork({ booted: true, devices: ['R1', 'R2', 'ISP', 'S1', 'AP1', 'A', 'T'].map(id => ({ id, model: net.device(id).model })) });
+  again.restore(net.snapshot()); for (let i = 0; i < 12; i++) again.tick(600);
+  run(again, 'R1', ['en', 'show running-config']);
+  assert.match(last(again, 'R1'), /ip access-list extended NO-PING/);
+  assert.equal(again.simulate('A', '8.8.8.8').ok, true, 'OSPF, NAT, DHCP and the ACLs came back');
+
+  // DHCP with no server: APIPA; a pool too small runs out
+  net = ent(); net.tick(600);
+  run(net, 'R1', ['en', 'conf t', 'int g0/0/1', 'no ip helper-address', 'end']);
+  const B = net.device('A'); net.exec('A', 'ipconfig /release'); B.dhcpTry = 0; net.exec('A', 'ipconfig /renew');
+  assert.match(last(net, 'A'), /unable to contact your DHCP server/);
+  assert.match(net.simulateDhcp('A').fail.reason, /no DHCP pool for this network and no `ip helper-address`/);
+
+  // static NAT: the outside reaches an inside server by its public address
+  const sn = createNetwork({ booted: true, devices: [
+    { id: 'R', model: 'ISR4221', config: 'interface g0/0/0\n ip address 192.168.1.1 255.255.255.0\n no shutdown\n ip nat inside\ninterface g0/0/1\n ip address 203.0.113.1 255.255.255.0\n no shutdown\n ip nat outside\nip nat inside source static 192.168.1.10 203.0.113.10' },
+    { id: 'WEB', model: 'Server', ip: '192.168.1.10', mask: '255.255.255.0', gateway: '192.168.1.1' },
+    { id: 'OUT', model: 'Laptop', ip: '203.0.113.50', mask: '255.255.255.0', gateway: '203.0.113.1' },
+  ], cables: [{ type: 'cross', a: 'R G0/0/0', b: 'WEB NIC' }, { type: 'cross', a: 'R G0/0/1', b: 'OUT NIC' }] });
+  sn.tick(100);
+  sn.exec('OUT', 'ping 203.0.113.10');
+  assert.match(last(sn, 'OUT'), /Reply from 203\.0\.113\.10/, 'static NAT both ways');
+  run(sn, 'R', ['en', 'show ip nat translations']);
+  assert.match(last(sn, 'R'), /---  203\.0\.113\.10\s+192\.168\.1\.10/);
+
+  // Wi-Fi with the wrong key doesn't join
+  net = ent(); net.setWifi('T', { ssid: 'OFFICE', key: 'wrongkey99' }); net.tick(600);
+  assert.equal(net.apFor('T'), null);
+  assert.match(net.simulate('T', '192.168.10.1').fail.reason, /isn't connected to a wireless network|no address from DHCP/);
+}
 console.log('engine: all checks passed');
